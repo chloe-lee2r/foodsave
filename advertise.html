@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>find deals • foodsave</title>
+    <title>post ad • foodsave</title>
     <style>
         * {
             margin: 0;
@@ -30,6 +30,7 @@
             position: relative;
         }
         
+        /* Header */
         .header {
             padding: 20px 16px;
             background: white;
@@ -53,104 +54,248 @@
             text-decoration: none;
             color: #007aff;
             font-size: 20px;
+            transition: 0.2s;
+        }
+        
+        .back-link:active {
+            background: #e8ecf0;
+            transform: scale(0.95);
         }
         
         .header h1 {
             flex: 1;
             font-size: 20px;
             font-weight: 600;
+            color: #000;
         }
         
-        .search-section {
-            padding: 16px;
+        .sync-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
         }
         
-        .search-box {
+        .sync-btn:active {
+            background: #e8ecf0;
+            transform: rotate(180deg);
+        }
+        
+        /* Shop Info */
+        .shop-info {
+            background: linear-gradient(135deg, #007aff, #00c6ff);
+            color: white;
+            padding: 20px;
+            margin: 16px;
+            border-radius: 16px;
+        }
+        
+        .shop-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .shop-stats {
             display: flex;
-            gap: 8px;
+            gap: 20px;
+            margin-top: 12px;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* Form */
+        .form-section {
+            padding: 0 16px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
             margin-bottom: 16px;
         }
         
-        .search-input {
-            flex: 1;
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+            display: block;
+        }
+        
+        .form-input {
+            width: 100%;
             padding: 14px;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
             font-size: 16px;
+            background: #fafafa;
+            transition: 0.2s;
         }
         
-        .search-btn {
-            padding: 14px 20px;
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+            background: white;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .post-btn {
             background: #007aff;
             color: white;
             border: none;
             border-radius: 12px;
-            font-weight: 500;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
         }
         
-        .category-filter {
+        .post-btn:active {
+            background: #005bbf;
+            transform: scale(0.98);
+        }
+        
+        .post-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Active Ads */
+        .ads-section {
+            padding: 0 16px;
+            margin-bottom: 80px;
+        }
+        
+        .ads-header {
             display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 8px 0;
-            scrollbar-width: none;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
         
-        .category-filter::-webkit-scrollbar {
-            display: none;
+        .ads-title {
+            font-size: 16px;
+            font-weight: 600;
         }
         
-        .cat-btn {
-            padding: 8px 16px;
-            background: #f5f7fa;
+        .refresh-btn {
+            background: none;
             border: none;
-            border-radius: 20px;
-            white-space: nowrap;
+            color: #007aff;
             font-size: 14px;
+            padding: 4px 8px;
         }
         
-        .cat-btn.active {
-            background: #007aff;
-            color: white;
-        }
-        
-        .results-section {
-            padding: 0 16px 80px;
-        }
-        
-        .result-item {
+        .ad-item {
             background: #f8f9fa;
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
             border-left: 4px solid #34c759;
+            transition: 0.2s;
         }
         
-        .result-header {
+        .ad-item.expiring-soon {
+            border-left-color: #ff3b30;
+        }
+        
+        .ad-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
         }
         
-        .result-food {
+        .ad-food {
             font-weight: 600;
             font-size: 16px;
         }
         
-        .result-discount {
-            color: #34c759;
+        .ad-discount {
+            background: #34c759;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 600;
         }
         
-        .result-shop {
-            font-size: 14px;
+        .ad-details {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
             color: #666;
-            margin-bottom: 4px;
+            margin-bottom: 12px;
         }
         
-        .result-expiry {
+        .ad-stats {
+            display: flex;
+            gap: 16px;
             font-size: 12px;
             color: #999;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .ad-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .ad-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .edit-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .delete-btn {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .deactivate-btn {
+            background: #f0f0f0;
+            color: #666;
         }
         
         .empty-state {
@@ -158,33 +303,14 @@
             padding: 40px 20px;
             color: #999;
         }
-    </style>
-</head>
-<body>
-    <div class="app">
-        <div class="header">
-            <a href="index.html" class="back-link">←</a>
-            <h1>find deals</h1>
-        </div>
         
-        <div class="search-section">
-            <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="search food...">
-                <button class="search-btn" onclick="searchDeals()">search</button>
-            </div>
-            
-            <div class="category-filter" id="categoryFilter"></div>
-        </div>
+        .empty-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
         
-        <div class="results-section" id="resultsContainer">
-            <div class="loading" id="loadingState">
-                <div class="loading-spinner"></div>
-                loading deals...
-            </div>
-        </div>
-    </div>
-    
-    <style>
+        /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
@@ -204,72 +330,297 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            white-space: nowrap;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
     </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>post advertisement</h1>
+            <button class="sync-btn" onclick="syncWithCloud()" id="syncBtn">↻</button>
+        </div>
+        
+        <!-- Shop Info -->
+        <div class="shop-info" id="shopInfo">
+            <div class="shop-name" id="shopNameDisplay">loading...</div>
+            <div class="shop-stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalAds">0</div>
+                    <div class="stat-label">active ads</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalViews">0</div>
+                    <div class="stat-label">total views</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalClaimed">0</div>
+                    <div class="stat-label">claimed</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Post New Ad Form -->
+        <div class="form-section">
+            <div class="section-title">post new deal</div>
+            
+            <div class="form-group">
+                <label class="form-label">food item</label>
+                <input type="text" class="form-input" id="foodName" placeholder="e.g., organic milk">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">discount %</label>
+                    <input type="number" class="form-input" id="discount" placeholder="20" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">original price</label>
+                    <input type="number" class="form-input" id="price" placeholder="4.99" step="0.01" min="0">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">expiry date</label>
+                <input type="date" class="form-input" id="expiryDate">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">category</label>
+                <select class="form-input" id="category">
+                    <option value="dairy">🥛 Dairy</option>
+                    <option value="produce">🥬 Produce</option>
+                    <option value="meat">🥩 Meat</option>
+                    <option value="bakery">🥖 Bakery</option>
+                    <option value="pantry">📦 Pantry</option>
+                    <option value="frozen">❄️ Frozen</option>
+                    <option value="other">📌 Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">description (optional)</label>
+                <input type="text" class="form-input" id="description" placeholder="e.g., organic, local">
+            </div>
+            
+            <button class="post-btn" onclick="postAd()" id="postBtn">post deal</button>
+        </div>
+        
+        <!-- Active Ads -->
+        <div class="ads-section">
+            <div class="ads-header">
+                <div class="ads-title">your active deals</div>
+                <button class="refresh-btn" onclick="loadShopAds()">↻ refresh</button>
+            </div>
+            
+            <div id="adsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    loading your ads...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
     
     <script>
-        let currentCategory = 'all';
-        let currentSearch = '';
+        // ==================== STATE ====================
+        let currentShop = null;
+        let shopAds = [];
         
-        const categories = [
-            { id: 'all', label: 'all' },
-            { id: 'dairy', label: '🥛 dairy' },
-            { id: 'produce', label: '🥬 produce' },
-            { id: 'meat', label: '🥩 meat' },
-            { id: 'bakery', label: '🥖 bakery' },
-            { id: 'pantry', label: '📦 pantry' },
-            { id: 'frozen', label: '❄️ frozen' }
-        ];
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategories();
-            loadDeals();
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is logged in as advertiser
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'advertiser') {
+                showNotification('Please login as shop owner', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+            
+            currentShop = {
+                id: user.id,
+                name: user.get('username')
+            };
+            
+            document.getElementById('shopNameDisplay').textContent = currentShop.name;
+            
+            // Set default expiry date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('expiryDate').value = tomorrow.toISOString().split('T')[0];
+            
+            // Load ads
+            await loadShopAds();
         });
         
-        function renderCategories() {
-            const container = document.getElementById('categoryFilter');
-            container.innerHTML = categories.map(cat => `
-                <button class="cat-btn ${cat.id === currentCategory ? 'active' : ''}" 
-                        onclick="filterByCategory('${cat.id}')">
-                    ${cat.label}
-                </button>
-            `).join('');
+        // ==================== POST AD ====================
+        async function postAd() {
+            const foodName = document.getElementById('foodName').value.trim();
+            const discount = document.getElementById('discount').value;
+            const price = document.getElementById('price').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value.trim();
+            
+            // Validate
+            if (!foodName) {
+                showNotification('Enter food name', 'error');
+                return;
+            }
+            
+            if (!discount || discount < 1 || discount > 100) {
+                showNotification('Enter valid discount (1-100)', 'error');
+                return;
+            }
+            
+            if (!expiryDate) {
+                showNotification('Select expiry date', 'error');
+                return;
+            }
+            
+            // Check expiry date is in future
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const expiry = new Date(expiryDate);
+            
+            if (expiry < today) {
+                showNotification('Expiry date must be in future', 'error');
+                return;
+            }
+            
+            // Disable button during post
+            const postBtn = document.getElementById('postBtn');
+            postBtn.disabled = true;
+            postBtn.textContent = 'posting...';
+            
+            // Create ad
+            const result = await Backend.createAd({
+                foodName,
+                discount,
+                originalPrice: price || 0,
+                expiryDate,
+                category,
+                description,
+                shopName: currentShop.name
+            });
+            
+            if (result.success) {
+                showNotification('Deal posted successfully!', 'success');
+                
+                // Clear form
+                document.getElementById('foodName').value = '';
+                document.getElementById('discount').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('description').value = '';
+                
+                // Reload ads
+                await loadShopAds();
+            } else {
+                showNotification(result.message || 'Failed to post', 'error');
+            }
+            
+            // Re-enable button
+            postBtn.disabled = false;
+            postBtn.textContent = 'post deal';
         }
         
-        async function loadDeals() {
-            const container = document.getElementById('resultsContainer');
+        // ==================== LOAD ADS ====================
+        async function loadShopAds() {
+            const container = document.getElementById('adsContainer');
             
             try {
-                const ads = await Backend.getActiveAds({
-                    category: currentCategory,
-                    search: currentSearch
-                });
+                const ads = await Backend.getShopAds(currentShop.id);
+                shopAds = ads;
+                
+                // Update stats
+                document.getElementById('totalAds').textContent = ads.length;
+                
+                const totalViews = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
+                const totalClaimed = ads.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
+                
+                document.getElementById('totalViews').textContent = totalViews;
+                document.getElementById('totalClaimed').textContent = totalClaimed;
                 
                 if (ads.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <div style="font-size:48px; margin-bottom:16px;">🔍</div>
-                            <div>no deals found</div>
-                            <div style="font-size:13px; margin-top:8px;">try searching for something else</div>
+                            <div class="empty-emoji">📢</div>
+                            <div>no active deals</div>
+                            <div style="font-size:13px; margin-top:8px;">post your first deal above</div>
                         </div>
                     `;
                     return;
                 }
                 
+                // Sort by expiry date
+                ads.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+                
                 container.innerHTML = ads.map(ad => {
-                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    const daysUntilExpiry = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    const isExpiringSoon = daysUntilExpiry <= 2;
                     
                     return `
-                        <div class="result-item">
-                            <div class="result-header">
-                                <span class="result-food">${ad.foodName}</span>
-                                <span class="result-discount">${ad.discount}% off</span>
+                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''}">
+                            <div class="ad-header">
+                                <span class="ad-food">${ad.foodName}</span>
+                                <span class="ad-discount">${ad.discount}% off</span>
                             </div>
-                            <div class="result-shop">${ad.shopName}</div>
-                            <div class="result-expiry">
-                                expires in ${daysUntil} days • ${ad.views || 0} views
+                            
+                            <div class="ad-details">
+                                ${ad.originalPrice ? `<span>was $${ad.originalPrice}</span>` : ''}
+                                <span>expires: ${new Date(ad.expiryDate).toLocaleDateString()}</span>
+                                ${isExpiringSoon ? '<span style="color:#ff3b30;">⚠️ soon</span>' : ''}
+                            </div>
+                            
+                            <div class="ad-stats">
+                                <span>👁️ ${ad.views || 0} views</span>
+                                <span>✅ ${ad.claimed || 0} claimed</span>
+                                <span>📅 ${new Date(ad.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            
+                            <div class="ad-actions">
+                                <button class="ad-btn edit-btn" onclick="editAd('${ad.id}')">edit</button>
+                                <button class="ad-btn deactivate-btn" onclick="deactivateAd('${ad.id}')">deactivate</button>
+                                <button class="ad-btn delete-btn" onclick="deleteAd('${ad.id}')">delete</button>
                             </div>
                         </div>
                     `;
@@ -278,25 +629,75 @@
             } catch (error) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div>failed to load deals</div>
+                        <div class="empty-emoji">❌</div>
+                        <div>failed to load ads</div>
                     </div>
                 `;
             }
         }
         
-        function filterByCategory(category) {
-            currentCategory = category;
-            renderCategories();
-            loadDeals();
+        // ==================== AD ACTIONS ====================
+        async function deleteAd(adId) {
+            if (!confirm('Delete this ad permanently?')) return;
+            
+            const result = await Backend.deleteAd(adId);
+            
+            if (result.success) {
+                showNotification('Ad deleted', 'success');
+                await loadShopAds();
+            } else {
+                showNotification(result.message, 'error');
+            }
         }
         
-        function searchDeals() {
-            currentSearch = document.getElementById('searchInput').value.trim();
-            loadDeals();
+        async function deactivateAd(adId) {
+            const result = await Backend.updateAd(adId, { active: false });
+            
+            if (result.success) {
+                showNotification('Ad deactivated', 'success');
+                await loadShopAds();
+            } else {
+                showNotification(result.message, 'error');
+            }
         }
         
-        window.filterByCategory = filterByCategory;
-        window.searchDeals = searchDeals;
+        function editAd(adId) {
+            // For now, just show coming soon
+            showNotification('Edit feature coming soon', 'error');
+        }
+        
+        // ==================== SYNC ====================
+        async function syncWithCloud() {
+            const syncBtn = document.getElementById('syncBtn');
+            syncBtn.style.transform = 'rotate(180deg)';
+            
+            await loadShopAds();
+            
+            setTimeout(() => {
+                syncBtn.style.transform = 'none';
+            }, 300);
+            
+            showNotification('Synced with cloud', 'success');
+        }
+        
+        // ==================== NOTIFICATION ====================
+        function showNotification(msg, type = '') {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notif.className = 'notification';
+            }, 2000);
+        }
+        
+        // Make functions global
+        window.postAd = postAd;
+        window.loadShopAds = loadShopAds;
+        window.deleteAd = deleteAd;
+        window.deactivateAd = deactivateAd;
+        window.editAd = editAd;
+        window.syncWithCloud = syncWithCloud;
     </script>
 </body>
 </html>
