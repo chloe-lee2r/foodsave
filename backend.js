@@ -2,7 +2,7 @@
 // BACK4APP CONFIGURATION
 // ===============================
 
-// 1️⃣ Include Parse SDK in your HTML BEFORE backend.js:
+// Include this in your HTML before backend.js:
 // <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 
 Parse.initialize(
@@ -43,6 +43,15 @@ const Backend = {
                 return { success: false, message: "Wrong login type selected" };
             }
 
+            // Store in localStorage for easy access
+            localStorage.setItem("loggedInUser", username);
+            localStorage.setItem("userRole", role);
+            if (role === "advertiser") {
+                localStorage.setItem("loggedInShop", username);
+            } else {
+                localStorage.setItem("loggedInConsumer", username);
+            }
+
             return { success: true };
         } catch (error) {
             return { success: false, message: error.message };
@@ -51,9 +60,32 @@ const Backend = {
 
     async logout() {
         await Parse.User.logOut();
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("loggedInShop");
+        localStorage.removeItem("loggedInConsumer");
     },
 
     getCurrentUser() {
         return Parse.User.current();
+    },
+
+    requireAuth(requiredRole) {
+        const user = Parse.User.current();
+
+        if (!user) {
+            location.href = "login.html";
+            return false;
+        }
+
+        const role = user.get("role");
+
+        if (requiredRole && role !== requiredRole) {
+            alert("Access denied");
+            location.href = "login.html";
+            return false;
+        }
+        
+        return true;
     }
 };
