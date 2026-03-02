@@ -9,7 +9,7 @@
 Parse.initialize(
     "qMx3AJogl2rGNkcT2bnnBYzS2zQoXKjZYGEUcAg", // Application ID
     "IsAcXogzafbrBpvseDfAB189zAxeUfbwUgXBMeI5",  // JavaScript Key
-    "qMx3AJogl2rGNkcT2bnnBYzS2zQoXKjZYGEUcAg"   // Master Key (optional but helps)
+    "zalJri1j4YFdQLfJaDo6pgjJ2EF721GR6M896iNg"   // Master Key (optional but helps)
 );
 
 // IMPORTANT: Use the correct server URL for Back4App
