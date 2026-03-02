@@ -76,17 +76,21 @@
             background: #f5f7fa;
             border: none;
             font-size: 18px;
-            cursor: pointer;
-            transition: 0.2s;
+            cursor: not-allowed;
+            opacity: 0.5;
+            position: relative;
         }
         
-        .gps-btn.active {
-            background: #007aff;
-            color: white;
-        }
-        
-        .gps-btn:active {
-            transform: scale(0.95);
+        .gps-btn:after {
+            content: "🔜";
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 12px;
+            background: white;
+            border-radius: 20px;
+            padding: 2px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         /* Main Content */
@@ -130,6 +134,28 @@
         
         .list-tab:active {
             transform: scale(0.95);
+        }
+        
+        /* Find Stores Button */
+        .find-stores-btn {
+            background: #34c759;
+            color: white;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: 0.2s;
+        }
+        
+        .find-stores-btn:active {
+            background: #2db14e;
+            transform: scale(0.98);
         }
         
         /* Add Item */
@@ -364,24 +390,6 @@
             display: block;
         }
         
-        /* Nearby Store Banner */
-        .store-banner {
-            background: #e3f2fd;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: slideIn 0.3s;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         /* Modal */
         .modal {
             display: none;
@@ -474,13 +482,15 @@
         <div class="header">
             <a href="index.html" class="home-link">←</a>
             <h1>shoplist</h1>
-            <button class="gps-btn" id="gpsBtn" onclick="toggleGPS()">📍</button>
+            <button class="gps-btn" onclick="comingSoon('GPS tracking')">📍</button>
         </div>
         
         <!-- Main Content -->
         <div class="content">
-            <!-- Store Banner (hidden by default) -->
-            <div id="storeBanner" class="store-banner" style="display: none;"></div>
+            <!-- Find Stores Button - Links to existing find-stores.html -->
+            <a href="find-stores.html" class="find-stores-btn">
+                <span>🔍</span> Find Stores with Deals
+            </a>
             
             <!-- List Selector -->
             <div class="list-selector" id="listSelector"></div>
@@ -543,8 +553,6 @@
         let lists = {};
         let currentListId = 'default';
         let currentCategory = 'all';
-        let gpsActive = false;
-        let gpsWatchId = null;
         
         const categories = [
             { id: 'all', label: 'all', icon: '📋' },
@@ -561,14 +569,11 @@
             { name: 'milk', emoji: '🥛', category: 'dairy' },
             { name: 'eggs', emoji: '🥚', category: 'dairy' },
             { name: 'bread', emoji: '🍞', category: 'bakery' },
-            { name: 'chicken', emoji: '🍗', category: 'meat' }
-        ];
-        
-        // Sample stores for GPS demo
-        const stores = [
-            { name: 'whole foods', lat: 40.7128, lng: -74.0060 },
-            { name: 'trader joes', lat: 40.7580, lng: -73.9855 },
-            { name: 'walmart', lat: 40.7614, lng: -73.9776 }
+            { name: 'chicken', emoji: '🍗', category: 'meat' },
+            { name: 'bananas', emoji: '🍌', category: 'produce' },
+            { name: 'rice', emoji: '🍚', category: 'pantry' },
+            { name: 'cheese', emoji: '🧀', category: 'dairy' },
+            { name: 'apples', emoji: '🍎', category: 'produce' }
         ];
         
         // ==================== INIT ====================
@@ -750,10 +755,12 @@
         
         function guessCategory(name) {
             name = name.toLowerCase();
-            if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return 'dairy';
-            if (name.includes('apple') || name.includes('banana') || name.includes('lettuce')) return 'produce';
-            if (name.includes('chicken') || name.includes('beef') || name.includes('pork')) return 'meat';
-            if (name.includes('rice') || name.includes('pasta') || name.includes('beans')) return 'pantry';
+            if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt') || name.includes('egg')) return 'dairy';
+            if (name.includes('apple') || name.includes('banana') || name.includes('lettuce') || name.includes('tomato')) return 'produce';
+            if (name.includes('chicken') || name.includes('beef') || name.includes('pork') || name.includes('fish')) return 'meat';
+            if (name.includes('rice') || name.includes('pasta') || name.includes('bean') || name.includes('cereal')) return 'pantry';
+            if (name.includes('bread') || name.includes('bagel') || name.includes('muffin')) return 'bakery';
+            if (name.includes('frozen') || name.includes('ice cream')) return 'frozen';
             return 'other';
         }
         
@@ -838,50 +845,8 @@
             setTimeout(() => notif.classList.remove('show'), 2000);
         }
         
-        // ==================== GPS ====================
-        function toggleGPS() {
-            const btn = document.getElementById('gpsBtn');
-            
-            if (!gpsActive) {
-                if (!navigator.geolocation) {
-                    showNotification('gps not supported');
-                    return;
-                }
-                
-                gpsWatchId = navigator.geolocation.watchPosition(
-                    (pos) => {
-                        btn.classList.add('active');
-                        checkNearbyStores(pos.coords.latitude, pos.coords.longitude);
-                    },
-                    (err) => {
-                        showNotification('gps error');
-                        btn.classList.remove('active');
-                    },
-                    { enableHighAccuracy: true }
-                );
-                
-                gpsActive = true;
-                showNotification('gps active');
-            } else {
-                navigator.geolocation.clearWatch(gpsWatchId);
-                btn.classList.remove('active');
-                document.getElementById('storeBanner').style.display = 'none';
-                gpsActive = false;
-                showNotification('gps off');
-            }
-        }
-        
-        function checkNearbyStores(lat, lng) {
-            // Simple distance check (demo)
-            const store = stores[Math.floor(Math.random() * stores.length)];
-            const banner = document.getElementById('storeBanner');
-            
-            banner.style.display = 'flex';
-            banner.innerHTML = `📍 near ${store.name}`;
-            
-            setTimeout(() => {
-                banner.style.display = 'none';
-            }, 5000);
+        function comingSoon(feature) {
+            showNotification(`🔜 ${feature} coming soon`);
         }
         
         // Make functions global
@@ -896,7 +861,7 @@
         window.quickAdd = quickAdd;
         window.clearCompleted = clearCompleted;
         window.filterByCategory = filterByCategory;
-        window.toggleGPS = toggleGPS;
+        window.comingSoon = comingSoon;
     </script>
 </body>
 </html>
