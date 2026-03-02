@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Shopping List</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +12,6 @@
             display: flex;
             justify-content: center;
         }
-
         .container {
             background: white;
             width: 100%;
@@ -23,19 +20,18 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
         h1 {
             text-align: center;
+            color: #333;
         }
-
         input {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 6px;
             border: 1px solid #ddd;
+            box-sizing: border-box;
         }
-
         button {
             width: 100%;
             padding: 10px;
@@ -44,62 +40,97 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            margin-bottom: 5px;
         }
-
         button:hover {
             background: #1976D2;
         }
-
+        .logout {
+            background: #f44336;
+        }
+        .logout:hover {
+            background: #d32f2f;
+        }
         .item {
             background: #fafafa;
-            padding: 10px;
+            padding: 15px;
             margin-top: 10px;
             border-radius: 6px;
+            border-left: 4px solid #2196F3;
+            position: relative;
         }
-
         .delete-btn {
-            background: red;
-            margin-top: 5px;
+            background: #ff4d4d;
+            margin-top: 8px;
+            width: auto;
+            padding: 5px 10px;
+            float: right;
         }
-
         .delete-btn:hover {
-            background: darkred;
+            background: #cc0000;
         }
-
         .total {
             margin-top: 20px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             text-align: center;
+            color: #2196F3;
         }
-
         a {
             display: block;
             text-align: center;
             margin-top: 15px;
             text-decoration: none;
+            color: #666;
+        }
+        a:hover {
+            color: #2196F3;
+        }
+        .button-group {
+            display: flex;
+            gap: 5px;
+        }
+        .find-stores {
+            background: #4CAF50;
+        }
+        .find-stores:hover {
+            background: #45a049;
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Shopping List</h1>
+    <h1>🛒 Shopping List</h1>
+    
+    <button class="logout" onclick="logout()">Logout</button>
 
-    <input type="text" id="itemName" placeholder="Item name">
-    <input type="number" id="itemPrice" placeholder="Price ($)">
-    <input type="number" id="itemQty" placeholder="Quantity">
-    <button onclick="addItem()">Add to List</button>
+    <input type="text" id="itemName" placeholder="Item name (e.g., Milk, Bread)">
+    <input type="number" id="itemPrice" placeholder="Price ($)" step="0.01" min="0">
+    <input type="number" id="itemQty" placeholder="Quantity" min="1" value="1">
+    
+    <div class="button-group">
+        <button onclick="addItem()">➕ Add to List</button>
+        <button class="find-stores" onclick="window.location.href='find-stores.html'">🔍 Find Discounts</button>
+    </div>
 
     <div id="shoppingList"></div>
-
-    <div class="total" id="totalCost">Total: $0</div>
-
-    <a href="index.html">⬅ Back to Home</a>
+    
+    <div class="total" id="totalCost">Total: $0.00</div>
+    
+    <a href="fridge.html">🧊 Go to Fridge</a>
+    <a href="index.html">🏠 Home</a>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", displayItems);
+    document.addEventListener("DOMContentLoaded", function() {
+        const user = localStorage.getItem("loggedInConsumer") || localStorage.getItem("loggedInUser");
+        if (!user) {
+            alert("Please login first.");
+            window.location.href = "login.html";
+            return;
+        }
+        displayItems();
+    });
 
     function getItems() {
         return JSON.parse(localStorage.getItem("shoppingItems")) || [];
@@ -110,12 +141,12 @@
     }
 
     function addItem() {
-        const name = document.getElementById("itemName").value;
+        const name = document.getElementById("itemName").value.trim();
         const price = parseFloat(document.getElementById("itemPrice").value);
         const qty = parseInt(document.getElementById("itemQty").value);
 
-        if (!name || isNaN(price) || isNaN(qty)) {
-            alert("Please fill all fields correctly.");
+        if (!name || isNaN(price) || isNaN(qty) || price <= 0 || qty <= 0) {
+            alert("Please fill all fields with valid values.");
             return;
         }
 
@@ -125,16 +156,18 @@
 
         document.getElementById("itemName").value = "";
         document.getElementById("itemPrice").value = "";
-        document.getElementById("itemQty").value = "";
+        document.getElementById("itemQty").value = "1";
 
         displayItems();
     }
 
     function deleteItem(index) {
-        const items = getItems();
-        items.splice(index, 1);
-        saveItems(items);
-        displayItems();
+        if (confirm("Remove this item from shopping list?")) {
+            const items = getItems();
+            items.splice(index, 1);
+            saveItems(items);
+            displayItems();
+        }
     }
 
     function displayItems() {
@@ -146,6 +179,12 @@
 
         const items = getItems();
 
+        if (items.length === 0) {
+            list.innerHTML = "<p>Your shopping list is empty. Add some items!</p>";
+            totalDisplay.textContent = "Total: $0.00";
+            return;
+        }
+
         items.forEach((item, index) => {
             const itemTotal = item.price * item.qty;
             total += itemTotal;
@@ -154,15 +193,19 @@
             div.className = "item";
             div.innerHTML = `
                 <strong>${item.name}</strong><br>
-                $${item.price} × ${item.qty} = $${itemTotal.toFixed(2)}
-                <button class="delete-btn" onclick="deleteItem(${index})">Delete</button>
+                💲$${item.price.toFixed(2)} × ${item.qty} = $${itemTotal.toFixed(2)}
+                <button class="delete-btn" onclick="deleteItem(${index})">❌ Remove</button>
             `;
             list.appendChild(div);
         });
 
         totalDisplay.textContent = "Total: $" + total.toFixed(2);
     }
-</script>
 
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+</script>
 </body>
 </html>
