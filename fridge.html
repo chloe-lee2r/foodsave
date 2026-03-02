@@ -2,263 +2,665 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Food Inventory Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsave • fridge</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f2f5;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
         }
-        .container {
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
             background: white;
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        select, input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-bottom: 5px;
-        }
-        button:hover {
-            background: #45a049;
-        }
-        .logout {
-            background: #f44336;
-        }
-        .logout:hover {
-            background: #d32f2f;
-        }
-        .item {
-            background: #fafafa;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 6px;
-            border-left: 5px solid #4CAF50;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
             position: relative;
         }
-        .expire-soon {
-            border-left: 5px solid #ff4d4d;
-            background: #ffe6e6;
+        
+        /* Header */
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .delete-btn {
-            background: #ff4d4d;
-            margin-top: 8px;
-            width: auto;
-            padding: 5px 10px;
-            float: right;
-        }
-        .delete-btn:hover {
-            background: #cc0000;
-        }
-        a {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-decoration: none;
-            color: #666;
+            color: #007aff;
+            font-size: 20px;
+            transition: 0.2s;
         }
-        .stats {
+        
+        .back-link:active {
+            background: #e8ecf0;
+            transform: scale(0.95);
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .logout-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #ff3b30;
+        }
+        
+        .logout-btn:active {
+            background: #e8ecf0;
+            transform: scale(0.95);
+        }
+        
+        /* Content */
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        
+        /* Stats Card */
+        .stats-card {
+            background: linear-gradient(135deg, #007aff, #00c6ff);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            margin: 15px 0;
-            padding: 10px;
-            background: #e8f5e8;
-            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.2);
         }
-        .expiring-count {
-            color: #ff4d4d;
-            font-weight: bold;
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .expiring-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        
+        /* Add Section */
+        .add-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .dropdown, .input-field {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+        
+        .dropdown:focus, .input-field:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        
+        .add-btn {
+            width: 100%;
+            padding: 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-btn:active {
+            background: #2db14e;
+            transform: scale(0.98);
+        }
+        
+        /* Items Section */
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .items-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .sort-btn {
+            background: none;
+            border: none;
+            color: #007aff;
+            font-size: 14px;
+            padding: 4px 8px;
+        }
+        
+        .items-container {
+            margin-bottom: 20px;
+        }
+        
+        .item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            border-left: 4px solid #34c759;
+        }
+        
+        .item.expired {
+            border-left-color: #ff3b30;
+            background: #ffebee;
+        }
+        
+        .item.expiring-soon {
+            border-left-color: #ff9500;
+            background: #fff3e0;
+        }
+        
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .item-expiry {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .item-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .item-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: white;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .item-btn:active {
+            background: #e8ecf0;
+            transform: scale(0.95);
+        }
+        
+        .delete-btn {
+            color: #ff3b30;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        
+        .empty-emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            transition: 0.2s;
+            padding: 4px 0;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>🧊 Fridge Inventory</h1>
-    
-    <button class="logout" onclick="logout()">Logout</button>
-    
-    <div class="stats" id="stats"></div>
-
-    <select id="foodDropdown">
-        <option value="">Select food item</option>
-    </select>
-
-    <input type="text" id="foodName" placeholder="Or type custom food name">
-    <input type="date" id="expiryDate">
-    <button onclick="addItem()">➕ Add to Fridge</button>
-
-    <h2>Your Items</h2>
-    <div id="foodList"></div>
-    
-    <a href="shopping-list.html">🛒 Shopping List</a>
-    <a href="index.html">🏠 Home</a>
-</div>
-
-<script>
-    const commonFoods = [
-        "Milk", "Eggs", "Bread", "Rice", "Chicken",
-        "Beef", "Apples", "Bananas", "Cheese", "Yogurt",
-        "Tomatoes", "Lettuce", "Carrots", "Potatoes", "Onions"
-    ];
-
-    document.addEventListener("DOMContentLoaded", function() {
-        // Check login
-        const user = localStorage.getItem("loggedInConsumer") || localStorage.getItem("loggedInUser");
-        if (!user) {
-            alert("Please login first.");
-            window.location.href = "login.html";
-            return;
-        }
-        populateDropdown();
-        displayItems();
-    });
-
-    function getItems() {
-        return JSON.parse(localStorage.getItem("foodItems")) || [];
-    }
-
-    function saveItems(items) {
-        localStorage.setItem("foodItems", JSON.stringify(items));
-    }
-
-    function populateDropdown() {
-        const dropdown = document.getElementById("foodDropdown");
-        dropdown.innerHTML = '<option value="">Select food item</option>';
-
-        const items = getItems();
-        const pastItems = items.map(item => item.name);
-
-        const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
-
-        allFoods.forEach(food => {
-            const option = document.createElement("option");
-            option.value = food;
-            option.textContent = food;
-            dropdown.appendChild(option);
-        });
-    }
-
-    function addItem() {
-        const dropdownValue = document.getElementById("foodDropdown").value;
-        const manualInput = document.getElementById("foodName").value.trim();
-        const expiry = document.getElementById("expiryDate").value;
-
-        const name = manualInput || dropdownValue;
-
-        if (!name || !expiry) {
-            alert("Please select/type a food and choose expiry date.");
-            return;
-        }
-
-        // Validate expiry date is in the future
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const expiryDate = new Date(expiry);
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>my fridge</h1>
+            <button class="logout-btn" onclick="logout()">🚪</button>
+        </div>
         
-        if (expiryDate < today) {
-            alert("Expiry date cannot be in the past!");
-            return;
-        }
-
-        const items = getItems();
-        items.push({ name, expiry });
-        saveItems(items);
-
-        document.getElementById("foodName").value = "";
-        document.getElementById("foodDropdown").value = "";
-        document.getElementById("expiryDate").value = "";
-
-        populateDropdown();
-        displayItems();
-    }
-
-    function deleteItem(index) {
-        if (confirm("Remove this item from fridge?")) {
-            const items = getItems();
-            items.splice(index, 1);
-            saveItems(items);
+        <!-- Content -->
+        <div class="content">
+            <!-- Stats -->
+            <div class="stats-card" id="statsCard">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalItems">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="expiringItems">0</div>
+                    <div class="stat-label">expiring soon</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="expiredItems">0</div>
+                    <div class="stat-label">expired</div>
+                </div>
+            </div>
+            
+            <!-- Add Item -->
+            <div class="add-section">
+                <div class="section-title">➕ add to fridge</div>
+                
+                <select id="foodDropdown" class="dropdown">
+                    <option value="">Select food item</option>
+                </select>
+                
+                <input type="text" id="foodName" class="input-field" placeholder="Or type custom food name">
+                <input type="date" id="expiryDate" class="input-field">
+                
+                <button class="add-btn" onclick="addItem()">
+                    <span>➕</span> add to fridge
+                </button>
+            </div>
+            
+            <!-- Items -->
+            <div class="items-header">
+                <span class="items-title">your items</span>
+                <button class="sort-btn" onclick="toggleSort()">sort by date ↓</button>
+            </div>
+            
+            <div class="items-container" id="itemsContainer">
+                <!-- Items will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="shoplist.html" class="nav-item">
+                <span class="nav-emoji">🛒</span>
+                <span>lists</span>
+            </a>
+            <a href="find-stores.html" class="nav-item">
+                <span class="nav-emoji">🔍</span>
+                <span>deals</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">🧊</span>
+                <span>fridge</span>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        const commonFoods = [
+            "Milk", "Eggs", "Bread", "Rice", "Chicken",
+            "Beef", "Apples", "Bananas", "Cheese", "Yogurt",
+            "Tomatoes", "Lettuce", "Carrots", "Potatoes", "Onions",
+            "Butter", "Orange Juice", "Fish", "Pork", "Spinach"
+        ];
+        
+        let sortAscending = true;
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            // Check login
+            const user = localStorage.getItem("loggedInConsumer") || localStorage.getItem("loggedInUser");
+            if (!user) {
+                alert("Please login first.");
+                window.location.href = "login.html";
+                return;
+            }
             populateDropdown();
             displayItems();
-        }
-    }
-
-    function displayItems() {
-        const foodList = document.getElementById("foodList");
-        foodList.innerHTML = "";
-
-        const items = getItems();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        let expiringCount = 0;
-
-        items.forEach((item, index) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "item";
-
-            const expiryDate = new Date(item.expiry);
-            expiryDate.setHours(0, 0, 0, 0);
-            const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
-
-            if (diffDays <= 3 && diffDays >= 0) {
-                itemDiv.classList.add("expire-soon");
-                expiringCount++;
-            }
-
-            let status = "";
-            if (diffDays < 0) {
-                status = "⚠️ Expired!";
-                itemDiv.classList.add("expire-soon");
-            } else if (diffDays === 0) {
-                status = "🔥 Expires today!";
-            } else if (diffDays <= 3) {
-                status = `⚠️ Expires in ${diffDays} days`;
-            }
-
-            itemDiv.innerHTML = `
-                <strong>${item.name}</strong><br>
-                📅 Expires: ${item.expiry} ${status}<br>
-                <button class="delete-btn" onclick="deleteItem(${index})">❌ Remove</button>
-            `;
-
-            foodList.appendChild(itemDiv);
         });
-
-        // Update stats
-        document.getElementById("stats").innerHTML = `
-            <span>📦 Total items: ${items.length}</span>
-            <span class="expiring-count">⚠️ Expiring soon: ${expiringCount}</span>
-        `;
-    }
-
-    function logout() {
-        localStorage.clear();
-        window.location.href = "index.html";
-    }
-</script>
+        
+        function getItems() {
+            return JSON.parse(localStorage.getItem("foodItems")) || [];
+        }
+        
+        function saveItems(items) {
+            localStorage.setItem("foodItems", JSON.stringify(items));
+            displayItems(); // Refresh display
+        }
+        
+        function populateDropdown() {
+            const dropdown = document.getElementById("foodDropdown");
+            dropdown.innerHTML = '<option value="">Select food item</option>';
+            
+            const items = getItems();
+            const pastItems = items.map(item => item.name);
+            
+            const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
+            
+            allFoods.forEach(food => {
+                const option = document.createElement("option");
+                option.value = food;
+                option.textContent = food;
+                dropdown.appendChild(option);
+            });
+        }
+        
+        function addItem() {
+            const dropdownValue = document.getElementById("foodDropdown").value;
+            const manualInput = document.getElementById("foodName").value.trim();
+            const expiry = document.getElementById("expiryDate").value;
+            
+            const name = manualInput || dropdownValue;
+            
+            if (!name || !expiry) {
+                alert("Please select/type a food and choose expiry date.");
+                return;
+            }
+            
+            // Validate expiry date is in the future
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiryDate = new Date(expiry);
+            
+            if (expiryDate < today) {
+                alert("Expiry date cannot be in the past!");
+                return;
+            }
+            
+            const items = getItems();
+            items.push({ 
+                name, 
+                expiry,
+                addedDate: new Date().toISOString()
+            });
+            saveItems(items);
+            
+            // Clear form
+            document.getElementById("foodName").value = "";
+            document.getElementById("foodDropdown").value = "";
+            document.getElementById("expiryDate").value = "";
+            
+            populateDropdown();
+        }
+        
+        function deleteItem(index) {
+            if (confirm("Remove this item from fridge?")) {
+                const items = getItems();
+                items.splice(index, 1);
+                saveItems(items);
+                populateDropdown();
+            }
+        }
+        
+        function duplicateItem(index) {
+            const items = getItems();
+            const original = items[index];
+            
+            // Add a copy with new expiry date
+            items.push({ 
+                name: original.name, 
+                expiry: original.expiry,
+                addedDate: new Date().toISOString()
+            });
+            saveItems(items);
+            populateDropdown();
+        }
+        
+        function toggleSort() {
+            sortAscending = !sortAscending;
+            displayItems();
+        }
+        
+        function displayItems() {
+            const container = document.getElementById("itemsContainer");
+            const items = getItems();
+            
+            // Update stats
+            updateStats(items);
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">🧊</div>
+                        <div>your fridge is empty</div>
+                        <div style="font-size:13px; margin-top:8px;">add items to track expiry</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort items
+            const sortedItems = [...items].sort((a, b) => {
+                const dateA = new Date(a.expiry);
+                const dateB = new Date(b.expiry);
+                return sortAscending ? dateA - dateB : dateB - dateA;
+            });
+            
+            container.innerHTML = sortedItems.map((item, index) => {
+                // Find original index for delete
+                const originalIndex = items.findIndex(i => 
+                    i.name === item.name && 
+                    i.expiry === item.expiry &&
+                    i.addedDate === item.addedDate
+                );
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const expiryDate = new Date(item.expiry);
+                expiryDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
+                
+                let status = "";
+                let statusClass = "";
+                let icon = "✅";
+                
+                if (diffDays < 0) {
+                    status = "expired";
+                    statusClass = "expired";
+                    icon = "⚠️";
+                } else if (diffDays === 0) {
+                    status = "expires today!";
+                    statusClass = "expiring-soon";
+                    icon = "🔥";
+                } else if (diffDays <= 3) {
+                    status = `expires in ${diffDays} days`;
+                    statusClass = "expiring-soon";
+                    icon = "⚠️";
+                } else {
+                    status = `good for ${diffDays} days`;
+                }
+                
+                // Get emoji based on food
+                const foodEmoji = getFoodEmoji(item.name);
+                
+                return `
+                    <div class="item ${statusClass}">
+                        <div class="item-icon">${foodEmoji}</div>
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-expiry">
+                                <span>📅 ${item.expiry}</span>
+                                <span class="item-status">${status}</span>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="item-btn" onclick="duplicateItem(${originalIndex})" title="add another">📋</button>
+                            <button class="item-btn delete-btn" onclick="deleteItem(${originalIndex})" title="remove">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getFoodEmoji(name) {
+            name = name.toLowerCase();
+            if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return '🥛';
+            if (name.includes('egg')) return '🥚';
+            if (name.includes('bread')) return '🍞';
+            if (name.includes('chicken') || name.includes('beef') || name.includes('pork') || name.includes('fish')) return '🥩';
+            if (name.includes('apple')) return '🍎';
+            if (name.includes('banana')) return '🍌';
+            if (name.includes('rice')) return '🍚';
+            if (name.includes('pasta')) return '🍝';
+            if (name.includes('carrot') || name.includes('lettuce') || name.includes('tomato')) return '🥬';
+            return '🍽️';
+        }
+        
+        function updateStats(items) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const expiring = items.filter(item => {
+                const expiry = new Date(item.expiry);
+                expiry.setHours(0, 0, 0, 0);
+                const diff = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
+                return diff >= 0 && diff <= 3;
+            }).length;
+            
+            const expired = items.filter(item => {
+                const expiry = new Date(item.expiry);
+                expiry.setHours(0, 0, 0, 0);
+                return expiry < today;
+            }).length;
+            
+            document.getElementById('totalItems').textContent = items.length;
+            document.getElementById('expiringItems').textContent = expiring;
+            document.getElementById('expiredItems').textContent = expired;
+        }
+        
+        function logout() {
+            // Don't clear everything, just redirect
+            window.location.href = "index.html";
+        }
+        
+        // Make functions global
+        window.addItem = addItem;
+        window.deleteItem = deleteItem;
+        window.duplicateItem = duplicateItem;
+        window.toggleSort = toggleSort;
+        window.logout = logout;
+    </script>
 </body>
 </html>
