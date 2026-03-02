@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Food Inventory Tracker</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +12,6 @@
             display: flex;
             justify-content: center;
         }
-
         .container {
             background: white;
             width: 100%;
@@ -22,11 +20,10 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
         h1 {
             text-align: center;
+            color: #333;
         }
-
         select, input {
             width: 100%;
             padding: 10px;
@@ -34,8 +31,8 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
+            box-sizing: border-box;
         }
-
         button {
             width: 100%;
             padding: 10px;
@@ -44,71 +41,98 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            margin-bottom: 5px;
         }
-
         button:hover {
             background: #45a049;
         }
-
+        .logout {
+            background: #f44336;
+        }
+        .logout:hover {
+            background: #d32f2f;
+        }
         .item {
             background: #fafafa;
             padding: 12px;
             margin-top: 10px;
             border-radius: 6px;
             border-left: 5px solid #4CAF50;
+            position: relative;
         }
-
         .expire-soon {
             border-left: 5px solid #ff4d4d;
             background: #ffe6e6;
         }
-
         .delete-btn {
             background: #ff4d4d;
             margin-top: 8px;
+            width: auto;
+            padding: 5px 10px;
+            float: right;
         }
-
         .delete-btn:hover {
             background: #cc0000;
         }
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #666;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 6px;
+        }
+        .expiring-count {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
     </style>
 </head>
-
 <body>
-
 <div class="container">
-    <h1>Food Inventory</h1>
+    <h1>🧊 Fridge Inventory</h1>
+    
+    <button class="logout" onclick="logout()">Logout</button>
+    
+    <div class="stats" id="stats"></div>
 
-    <!-- Dropdown -->
     <select id="foodDropdown">
         <option value="">Select food item</option>
     </select>
 
-    <!-- Manual input -->
-    <input type="text" id="foodName" placeholder="Or type food name">
-
+    <input type="text" id="foodName" placeholder="Or type custom food name">
     <input type="date" id="expiryDate">
-    <button onclick="addItem()">Add Item</button>
+    <button onclick="addItem()">➕ Add to Fridge</button>
 
-    <h2>Your Fridge</h2>
+    <h2>Your Items</h2>
     <div id="foodList"></div>
+    
+    <a href="shopping-list.html">🛒 Shopping List</a>
+    <a href="index.html">🏠 Home</a>
 </div>
 
 <script>
     const commonFoods = [
-        "Milk",
-        "Eggs",
-        "Bread",
-        "Rice",
-        "Chicken",
-        "Beef",
-        "Apples",
-        "Bananas",
-        "Cheese",
-        "Yogurt"
+        "Milk", "Eggs", "Bread", "Rice", "Chicken",
+        "Beef", "Apples", "Bananas", "Cheese", "Yogurt",
+        "Tomatoes", "Lettuce", "Carrots", "Potatoes", "Onions"
     ];
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check login
+        const user = localStorage.getItem("loggedInConsumer") || localStorage.getItem("loggedInUser");
+        if (!user) {
+            alert("Please login first.");
+            window.location.href = "login.html";
+            return;
+        }
         populateDropdown();
         displayItems();
     });
@@ -128,7 +152,7 @@
         const items = getItems();
         const pastItems = items.map(item => item.name);
 
-        const allFoods = [...new Set([...commonFoods, ...pastItems])];
+        const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
 
         allFoods.forEach(food => {
             const option = document.createElement("option");
@@ -140,13 +164,23 @@
 
     function addItem() {
         const dropdownValue = document.getElementById("foodDropdown").value;
-        const manualInput = document.getElementById("foodName").value;
+        const manualInput = document.getElementById("foodName").value.trim();
         const expiry = document.getElementById("expiryDate").value;
 
         const name = manualInput || dropdownValue;
 
         if (!name || !expiry) {
             alert("Please select/type a food and choose expiry date.");
+            return;
+        }
+
+        // Validate expiry date is in the future
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const expiryDate = new Date(expiry);
+        
+        if (expiryDate < today) {
+            alert("Expiry date cannot be in the past!");
             return;
         }
 
@@ -163,11 +197,13 @@
     }
 
     function deleteItem(index) {
-        const items = getItems();
-        items.splice(index, 1);
-        saveItems(items);
-        populateDropdown();
-        displayItems();
+        if (confirm("Remove this item from fridge?")) {
+            const items = getItems();
+            items.splice(index, 1);
+            saveItems(items);
+            populateDropdown();
+            displayItems();
+        }
     }
 
     function displayItems() {
@@ -176,28 +212,53 @@
 
         const items = getItems();
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let expiringCount = 0;
 
         items.forEach((item, index) => {
             const itemDiv = document.createElement("div");
             itemDiv.className = "item";
 
             const expiryDate = new Date(item.expiry);
-            const diffDays = (expiryDate - today) / (1000 * 60 * 60 * 24);
+            expiryDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
 
-            if (diffDays <= 3) {
+            if (diffDays <= 3 && diffDays >= 0) {
                 itemDiv.classList.add("expire-soon");
+                expiringCount++;
+            }
+
+            let status = "";
+            if (diffDays < 0) {
+                status = "⚠️ Expired!";
+                itemDiv.classList.add("expire-soon");
+            } else if (diffDays === 0) {
+                status = "🔥 Expires today!";
+            } else if (diffDays <= 3) {
+                status = `⚠️ Expires in ${diffDays} days`;
             }
 
             itemDiv.innerHTML = `
                 <strong>${item.name}</strong><br>
-                Expiry Date: ${item.expiry}
-                <button class="delete-btn" onclick="deleteItem(${index})">Delete</button>
+                📅 Expires: ${item.expiry} ${status}<br>
+                <button class="delete-btn" onclick="deleteItem(${index})">❌ Remove</button>
             `;
 
             foodList.appendChild(itemDiv);
         });
+
+        // Update stats
+        document.getElementById("stats").innerHTML = `
+            <span>📦 Total items: ${items.length}</span>
+            <span class="expiring-count">⚠️ Expiring soon: ${expiringCount}</span>
+        `;
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
     }
 </script>
-
 </body>
 </html>
