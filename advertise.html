@@ -1,116 +1,302 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Advertise Food</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>find deals • foodsave</title>
     <style>
-        body { font-family: Arial; background:#f0f2f5; padding:20px; }
-        .container { max-width:500px; margin:auto; background:white; padding:20px; border-radius:10px; }
-        input, button { width:100%; padding:10px; margin:8px 0; box-sizing: border-box; }
-        button { background:#2196F3; color:white; border:none; cursor:pointer; }
-        button:hover { background:#1976D2; }
-        .ad { background:#fafafa; padding:10px; margin-top:10px; border-radius:6px; border-left: 4px solid #2196F3; }
-        .logout { background:#f44336; }
-        .logout:hover { background:#d32f2f; }
-        a { display:block; margin-top:15px; text-align:center; text-decoration:none; color:#666; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #007aff;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .search-section {
+            padding: 16px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        
+        .search-btn {
+            padding: 14px 20px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: none;
+        }
+        
+        .category-filter::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .cat-btn {
+            padding: 8px 16px;
+            background: #f5f7fa;
+            border: none;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        
+        .cat-btn.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        .results-section {
+            padding: 0 16px 80px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #34c759;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .result-food {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .result-discount {
+            color: #34c759;
+            font-weight: 600;
+        }
+        
+        .result-shop {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .result-expiry {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>📢 Advertise Expiring Food</h2>
+    <div class="app">
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>find deals</h1>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="search food...">
+                <button class="search-btn" onclick="searchDeals()">search</button>
+            </div>
+            
+            <div class="category-filter" id="categoryFilter"></div>
+        </div>
+        
+        <div class="results-section" id="resultsContainer">
+            <div class="loading" id="loadingState">
+                <div class="loading-spinner"></div>
+                loading deals...
+            </div>
+        </div>
+    </div>
     
-    <input type="text" id="foodName" placeholder="Food name">
-    <input type="number" id="discount" placeholder="Discount %" min="0" max="100">
-    <input type="date" id="expiryDate">
+    <style>
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
     
-    <button onclick="addAd()">Post Advertisement</button>
-    <button class="logout" onclick="logout()">Logout</button>
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
     
-    <h3>Your Current Ads</h3>
-    <div id="adsList"></div>
-    
-    <a href="index.html">⬅ Back Home</a>
-</div>
-
-<script src="backend.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Check if shop owner is logged in
-    const shop = localStorage.getItem("loggedInShop");
-    if (!shop) {
-        alert("Please login as shop owner first");
-        window.location.href = "login.html";
-        return;
-    }
-    displayAds();
-});
-
-function getAds() {
-    return JSON.parse(localStorage.getItem("foodAds")) || [];
-}
-
-function saveAds(ads) {
-    localStorage.setItem("foodAds", JSON.stringify(ads));
-}
-
-function addAd() {
-    const food = document.getElementById("foodName").value;
-    const discount = document.getElementById("discount").value;
-    const expiry = document.getElementById("expiryDate").value;
-    const shop = localStorage.getItem("loggedInShop");
-
-    if (!food || !discount || !expiry) {
-        alert("Fill all fields");
-        return;
-    }
-
-    const ads = getAds();
-    ads.push({ 
-        food, 
-        discount, 
-        expiry, 
-        shop,
-        datePosted: new Date().toISOString()
-    });
-    saveAds(ads);
-    
-    // Clear form
-    document.getElementById("foodName").value = "";
-    document.getElementById("discount").value = "";
-    document.getElementById("expiryDate").value = "";
-
-    displayAds();
-}
-
-function displayAds() {
-    const list = document.getElementById("adsList");
-    list.innerHTML = "";
-
-    const ads = getAds();
-    const shop = localStorage.getItem("loggedInShop");
-
-    const shopAds = ads.filter(ad => ad.shop === shop);
-    
-    if (shopAds.length === 0) {
-        list.innerHTML = "<p>No ads posted yet.</p>";
-        return;
-    }
-
-    shopAds.forEach(ad => {
-        const div = document.createElement("div");
-        div.className = "ad";
-        div.innerHTML = `
-            <strong>${ad.food}</strong><br>
-            🏷️ ${ad.discount}% OFF<br>
-            📅 Expires: ${ad.expiry}
-        `;
-        list.appendChild(div);
-    });
-}
-
-function logout() {
-    localStorage.clear();
-    window.location.href = "index.html";
-}
-</script>
+    <script>
+        let currentCategory = 'all';
+        let currentSearch = '';
+        
+        const categories = [
+            { id: 'all', label: 'all' },
+            { id: 'dairy', label: '🥛 dairy' },
+            { id: 'produce', label: '🥬 produce' },
+            { id: 'meat', label: '🥩 meat' },
+            { id: 'bakery', label: '🥖 bakery' },
+            { id: 'pantry', label: '📦 pantry' },
+            { id: 'frozen', label: '❄️ frozen' }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            loadDeals();
+        });
+        
+        function renderCategories() {
+            const container = document.getElementById('categoryFilter');
+            container.innerHTML = categories.map(cat => `
+                <button class="cat-btn ${cat.id === currentCategory ? 'active' : ''}" 
+                        onclick="filterByCategory('${cat.id}')">
+                    ${cat.label}
+                </button>
+            `).join('');
+        }
+        
+        async function loadDeals() {
+            const container = document.getElementById('resultsContainer');
+            
+            try {
+                const ads = await Backend.getActiveAds({
+                    category: currentCategory,
+                    search: currentSearch
+                });
+                
+                if (ads.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+                            <div>no deals found</div>
+                            <div style="font-size:13px; margin-top:8px;">try searching for something else</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = ads.map(ad => {
+                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    
+                    return `
+                        <div class="result-item">
+                            <div class="result-header">
+                                <span class="result-food">${ad.foodName}</span>
+                                <span class="result-discount">${ad.discount}% off</span>
+                            </div>
+                            <div class="result-shop">${ad.shopName}</div>
+                            <div class="result-expiry">
+                                expires in ${daysUntil} days • ${ad.views || 0} views
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>failed to load deals</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function filterByCategory(category) {
+            currentCategory = category;
+            renderCategories();
+            loadDeals();
+        }
+        
+        function searchDeals() {
+            currentSearch = document.getElementById('searchInput').value.trim();
+            loadDeals();
+        }
+        
+        window.filterByCategory = filterByCategory;
+        window.searchDeals = searchDeals;
+    </script>
 </body>
 </html>
