@@ -2,62 +2,129 @@
 <html>
 <head>
     <title>FoodSave Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .register-btn {
+            background: #2196F3;
+        }
+        .register-btn:hover {
+            background: #1976D2;
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-<h2>Login</h2>
-
-<select id="role">
-    <option value="consumer">Consumer</option>
-    <option value="advertiser">Advertiser</option>
-</select>
-
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-
-<button onclick="login()">Login</button>
-<button onclick="register()">Register</button>
+<div class="container">
+    <h2>FoodSave Login</h2>
+    
+    <select id="role">
+        <option value="consumer">Consumer</option>
+        <option value="advertiser">Shop Owner</option>
+    </select>
+    
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    
+    <button onclick="login()">Login</button>
+    <button class="register-btn" onclick="register()">Register</button>
+    
+    <a href="index.html">⬅ Back to Home</a>
+</div>
 
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 
 <script>
 async function register() {
-    const role = roleEl().value;
-
-    const res = await Backend.register(
-        usernameEl().value,
-        passwordEl().value,
-        role
-    );
-
-    alert(res.success ? "Registered!" : res.message);
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+    
+    if (!username || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+    
+    const res = await Backend.register(username, password, role);
+    
+    if (res.success) {
+        alert("Registered successfully! Please login.");
+    } else {
+        alert("Registration failed: " + res.message);
+    }
 }
 
 async function login() {
-    const role = roleEl().value;
-
-    const res = await Backend.login(
-        usernameEl().value,
-        passwordEl().value,
-        role
-    );
-
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+    
+    if (!username || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+    
+    const res = await Backend.login(username, password, role);
+    
     if (!res.success) {
         alert(res.message);
         return;
     }
-
+    
     // redirect by role
     if (role === "advertiser") {
         location.href = "advertise.html";
     } else {
-        location.href = "index.html";
+        location.href = "shopping-list.html";
     }
 }
-
-const usernameEl = () => document.getElementById("username");
-const passwordEl = () => document.getElementById("password");
-const roleEl = () => document.getElementById("role");
 </script>
 </body>
 </html>
