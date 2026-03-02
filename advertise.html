@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advertise Food</title>
+    <style>
+        body { font-family: Arial; background:#f0f2f5; padding:20px; }
+        .container { max-width:500px; margin:auto; background:white; padding:20px; border-radius:10px; }
+        input, button { width:100%; padding:10px; margin:8px 0; }
+        button { background:#2196F3; color:white; border:none; }
+        .ad { background:#fafafa; padding:10px; margin-top:10px; border-radius:6px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Advertise Expiring Food</h2>
+
+    <input type="text" id="foodName" placeholder="Food name">
+    <input type="number" id="discount" placeholder="Discount %">
+    <input type="date" id="expiryDate">
+
+    <button onclick="addAd()">Post Advertisement</button>
+
+    <h3>Your Ads</h3>
+    <div id="adsList"></div>
+
+    <a href="index.html">Back Home</a>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", displayAds);
+
+function getAds() {
+    return JSON.parse(localStorage.getItem("foodAds")) || [];
+}
+
+function saveAds(ads) {
+    localStorage.setItem("foodAds", JSON.stringify(ads));
+}
+
+function addAd() {
+    const food = document.getElementById("foodName").value;
+    const discount = document.getElementById("discount").value;
+    const expiry = document.getElementById("expiryDate").value;
+    const shop = localStorage.getItem("loggedInShop");
+
+    if (!food || !discount || !expiry) {
+        alert("Fill all fields");
+        return;
+    }
+
+    const ads = getAds();
+    ads.push({ food, discount, expiry, shop });
+    saveAds(ads);
+
+    displayAds();
+}
+
+function displayAds() {
+    const list = document.getElementById("adsList");
+    list.innerHTML = "";
+
+    const ads = getAds();
+    const shop = localStorage.getItem("loggedInShop");
+
+    ads.filter(ad => ad.shop === shop).forEach(ad => {
+        const div = document.createElement("div");
+        div.className = "ad";
+        div.innerHTML = `
+            <strong>${ad.food}</strong><br>
+            ${ad.discount}% OFF<br>
+            Expires: ${ad.expiry}
+        `;
+        list.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>
