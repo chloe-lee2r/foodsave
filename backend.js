@@ -5,11 +5,11 @@
 // Make sure this script is loaded AFTER parse.min.js
 // <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 
-// Initialize Parse with ALL keys
+// Initialize Parse with your new keys
 Parse.initialize(
-    "qMx3AJogl2rGNkcT2bnnBYzS2zQoXKjZYGEUcAg", // Application ID
-    "IsAcXogzafbrBpvseDfAB189zAxeUfbwUgXBMeI5",  // JavaScript Key
-    "zalJri1j4YFdQLfJaDo6pgjJ2EF721GR6M896iNg"   // Master Key
+    "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt", // Application ID
+    "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA",  // JavaScript Key
+    "WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM"   // Master Key
 );
 Parse.serverURL = "https://parseapi.back4app.com";
 
@@ -524,5 +524,20 @@ const Backend = {
     getUserRole() {
         const user = Parse.User.current();
         return user ? user.get("role") : null;
+    },
+
+    // Test connection to Back4App
+    async testConnection() {
+        try {
+            const TestObject = Parse.Object.extend("TestConnection");
+            const testObject = new TestObject();
+            testObject.set("test", "Hello at " + new Date().toISOString());
+            await testObject.save({ useMasterKey: true });
+            console.log("✅ Back4App connection successful!");
+            return { success: true };
+        } catch (error) {
+            console.error("❌ Back4App connection failed:", error);
+            return { success: false, error };
+        }
     }
 };
