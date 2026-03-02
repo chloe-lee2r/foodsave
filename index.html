@@ -3,66 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>Food Inventory Tracker</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: auto;
+            background: #f0f2f5;
+            margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         h1 {
             text-align: center;
+            margin-bottom: 20px;
         }
 
-        input, button {
-            padding: 8px;
-            margin: 5px 0;
+        input {
             width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
         button {
-            background-color: #4CAF50;
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
             color: white;
             border: none;
+            border-radius: 6px;
+            font-size: 14px;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         button:hover {
-            background-color: #45a049;
+            background: #45a049;
         }
 
         .item {
-            background: white;
-            padding: 10px;
+            background: #fafafa;
+            padding: 12px;
             margin-top: 10px;
-            border-radius: 5px;
+            border-radius: 6px;
+            border-left: 5px solid #4CAF50;
         }
 
         .expire-soon {
-            background-color: #ffcccc;
+            border-left: 5px solid #ff4d4d;
+            background: #ffe6e6;
         }
 
         .delete-btn {
-            background-color: red;
-            margin-top: 5px;
+            background: #ff4d4d;
+            margin-top: 8px;
+        }
+
+        .delete-btn:hover {
+            background: #e60000;
+        }
+
+        h2 {
+            margin-top: 25px;
         }
     </style>
 </head>
+
 <body>
 
-<h1>Food Inventory</h1>
+<div class="container">
+    <h1>Food Inventory</h1>
 
-<input type="text" id="foodName" placeholder="Food name">
-<input type="date" id="expiryDate">
-<button onclick="addItem()">Add Item</button>
+    <input type="text" id="foodName" placeholder="Food name">
+    <input type="date" id="expiryDate">
+    <button onclick="addItem()">Add Item</button>
 
-<h2>Your Fridge</h2>
-<div id="foodList"></div>
+    <h2>Your Fridge</h2>
+    <div id="foodList"></div>
+</div>
 
 <script>
-    // Load items when page opens
     document.addEventListener("DOMContentLoaded", displayItems);
 
     function getItems() {
@@ -111,8 +143,7 @@
             itemDiv.className = "item";
 
             const expiryDate = new Date(item.expiry);
-            const diffTime = expiryDate - today;
-            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            const diffDays = (expiryDate - today) / (1000 * 60 * 60 * 24);
 
             if (diffDays <= 3) {
                 itemDiv.classList.add("expire-soon");
