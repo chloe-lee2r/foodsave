@@ -25,10 +25,9 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        input {
+        select, input {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -44,9 +43,7 @@
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 14px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         button:hover {
@@ -72,11 +69,7 @@
         }
 
         .delete-btn:hover {
-            background: #e60000;
-        }
-
-        h2 {
-            margin-top: 25px;
+            background: #cc0000;
         }
     </style>
 </head>
@@ -86,7 +79,14 @@
 <div class="container">
     <h1>Food Inventory</h1>
 
-    <input type="text" id="foodName" placeholder="Food name">
+    <!-- Dropdown -->
+    <select id="foodDropdown">
+        <option value="">Select food item</option>
+    </select>
+
+    <!-- Manual input -->
+    <input type="text" id="foodName" placeholder="Or type food name">
+
     <input type="date" id="expiryDate">
     <button onclick="addItem()">Add Item</button>
 
@@ -95,7 +95,23 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", displayItems);
+    const commonFoods = [
+        "Milk",
+        "Eggs",
+        "Bread",
+        "Rice",
+        "Chicken",
+        "Beef",
+        "Apples",
+        "Bananas",
+        "Cheese",
+        "Yogurt"
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        populateDropdown();
+        displayItems();
+    });
 
     function getItems() {
         return JSON.parse(localStorage.getItem("foodItems")) || [];
@@ -105,12 +121,32 @@
         localStorage.setItem("foodItems", JSON.stringify(items));
     }
 
+    function populateDropdown() {
+        const dropdown = document.getElementById("foodDropdown");
+        dropdown.innerHTML = '<option value="">Select food item</option>';
+
+        const items = getItems();
+        const pastItems = items.map(item => item.name);
+
+        const allFoods = [...new Set([...commonFoods, ...pastItems])];
+
+        allFoods.forEach(food => {
+            const option = document.createElement("option");
+            option.value = food;
+            option.textContent = food;
+            dropdown.appendChild(option);
+        });
+    }
+
     function addItem() {
-        const name = document.getElementById("foodName").value;
+        const dropdownValue = document.getElementById("foodDropdown").value;
+        const manualInput = document.getElementById("foodName").value;
         const expiry = document.getElementById("expiryDate").value;
 
+        const name = manualInput || dropdownValue;
+
         if (!name || !expiry) {
-            alert("Please fill in all fields.");
+            alert("Please select/type a food and choose expiry date.");
             return;
         }
 
@@ -119,8 +155,10 @@
         saveItems(items);
 
         document.getElementById("foodName").value = "";
+        document.getElementById("foodDropdown").value = "";
         document.getElementById("expiryDate").value = "";
 
+        populateDropdown();
         displayItems();
     }
 
@@ -128,6 +166,7 @@
         const items = getItems();
         items.splice(index, 1);
         saveItems(items);
+        populateDropdown();
         displayItems();
     }
 
