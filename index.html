@@ -1,1 +1,134 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Food Inventory Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .item {
+            background: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .expire-soon {
+            background-color: #ffcccc;
+        }
+
+        .delete-btn {
+            background-color: red;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Food Inventory</h1>
+
+<input type="text" id="foodName" placeholder="Food name">
+<input type="date" id="expiryDate">
+<button onclick="addItem()">Add Item</button>
+
+<h2>Your Fridge</h2>
+<div id="foodList"></div>
+
+<script>
+    // Load items when page opens
+    document.addEventListener("DOMContentLoaded", displayItems);
+
+    function getItems() {
+        return JSON.parse(localStorage.getItem("foodItems")) || [];
+    }
+
+    function saveItems(items) {
+        localStorage.setItem("foodItems", JSON.stringify(items));
+    }
+
+    function addItem() {
+        const name = document.getElementById("foodName").value;
+        const expiry = document.getElementById("expiryDate").value;
+
+        if (!name || !expiry) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        const items = getItems();
+        items.push({ name, expiry });
+        saveItems(items);
+
+        document.getElementById("foodName").value = "";
+        document.getElementById("expiryDate").value = "";
+
+        displayItems();
+    }
+
+    function deleteItem(index) {
+        const items = getItems();
+        items.splice(index, 1);
+        saveItems(items);
+        displayItems();
+    }
+
+    function displayItems() {
+        const foodList = document.getElementById("foodList");
+        foodList.innerHTML = "";
+
+        const items = getItems();
+        const today = new Date();
+
+        items.forEach((item, index) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item";
+
+            const expiryDate = new Date(item.expiry);
+            const diffTime = expiryDate - today;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+            if (diffDays <= 3) {
+                itemDiv.classList.add("expire-soon");
+            }
+
+            itemDiv.innerHTML = `
+                <strong>${item.name}</strong><br>
+                Expiry Date: ${item.expiry}
+                <button class="delete-btn" onclick="deleteItem(${index})">Delete</button>
+            `;
+
+            foodList.appendChild(itemDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
