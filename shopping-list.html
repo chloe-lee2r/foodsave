@@ -1,1 +1,168 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping List</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1976D2;
+        }
+
+        .item {
+            background: #fafafa;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .delete-btn {
+            background: red;
+            margin-top: 5px;
+        }
+
+        .delete-btn:hover {
+            background: darkred;
+        }
+
+        .total {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Shopping List</h1>
+
+    <input type="text" id="itemName" placeholder="Item name">
+    <input type="number" id="itemPrice" placeholder="Price ($)">
+    <input type="number" id="itemQty" placeholder="Quantity">
+    <button onclick="addItem()">Add to List</button>
+
+    <div id="shoppingList"></div>
+
+    <div class="total" id="totalCost">Total: $0</div>
+
+    <a href="index.html">⬅ Back to Home</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", displayItems);
+
+    function getItems() {
+        return JSON.parse(localStorage.getItem("shoppingItems")) || [];
+    }
+
+    function saveItems(items) {
+        localStorage.setItem("shoppingItems", JSON.stringify(items));
+    }
+
+    function addItem() {
+        const name = document.getElementById("itemName").value;
+        const price = parseFloat(document.getElementById("itemPrice").value);
+        const qty = parseInt(document.getElementById("itemQty").value);
+
+        if (!name || isNaN(price) || isNaN(qty)) {
+            alert("Please fill all fields correctly.");
+            return;
+        }
+
+        const items = getItems();
+        items.push({ name, price, qty });
+        saveItems(items);
+
+        document.getElementById("itemName").value = "";
+        document.getElementById("itemPrice").value = "";
+        document.getElementById("itemQty").value = "";
+
+        displayItems();
+    }
+
+    function deleteItem(index) {
+        const items = getItems();
+        items.splice(index, 1);
+        saveItems(items);
+        displayItems();
+    }
+
+    function displayItems() {
+        const list = document.getElementById("shoppingList");
+        const totalDisplay = document.getElementById("totalCost");
+
+        list.innerHTML = "";
+        let total = 0;
+
+        const items = getItems();
+
+        items.forEach((item, index) => {
+            const itemTotal = item.price * item.qty;
+            total += itemTotal;
+
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+                <strong>${item.name}</strong><br>
+                $${item.price} × ${item.qty} = $${itemTotal.toFixed(2)}
+                <button class="delete-btn" onclick="deleteItem(${index})">Delete</button>
+            `;
+            list.appendChild(div);
+        });
+
+        totalDisplay.textContent = "Total: $" + total.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
