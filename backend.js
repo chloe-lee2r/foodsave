@@ -5,7 +5,7 @@
 // Make sure this script is loaded AFTER parse.min.js
 // <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 
-// Initialize Parse with your new keys
+// Initialize Parse with your keys
 Parse.initialize(
     "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt", // Application ID
     "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA",  // JavaScript Key
@@ -14,7 +14,7 @@ Parse.initialize(
 Parse.serverURL = "https://parseapi.back4app.com";
 
 // ===============================
-// BACKEND LOGIC
+// BACKEND LOGIC - MASTER KEY ALWAYS USED
 // ===============================
 
 const Backend = {
@@ -29,13 +29,23 @@ const Backend = {
                 return { success: false, message: "Password must be at least 6 characters" };
             }
 
+            // Create user with master key
             const user = new Parse.User();
             user.set("username", username);
             user.set("password", password);
             user.set("role", role);
             user.set("email", `${username}@foodsave.com`);
             
-            await user.signUp();
+            // Use master key for signup
+            await user.signUp(null, { useMasterKey: true });
+            
+            // Also set ACL to allow public read
+            const acl = new Parse.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(false);
+            acl.setRoleWriteAccess("admin", true);
+            user.setACL(acl);
+            await user.save(null, { useMasterKey: true });
             
             // Store in localStorage
             localStorage.setItem("loggedInUser", username);
@@ -60,10 +70,15 @@ const Backend = {
 
     async login(username, password, role) {
         try {
+            // First try regular login
             const user = await Parse.User.logIn(username, password);
             
+            // Then verify with master key
+            const query = new Parse.Query(Parse.User);
+            const userWithMaster = await query.get(user.id, { useMasterKey: true });
+            
             // Check role
-            if (user.get("role") !== role) {
+            if (userWithMaster.get("role") !== role) {
                 await Parse.User.logOut();
                 return { success: false, message: "Wrong login type selected" };
             }
@@ -105,7 +120,7 @@ const Backend = {
 
     // ========== ADVERTISEMENT FUNCTIONS ==========
     
-    // Create a new advertisement (uses master key for security)
+    // Create a new advertisement (uses master key)
     async createAd(adData) {
         try {
             const currentUser = Parse.User.current();
@@ -128,7 +143,15 @@ const Backend = {
             ad.set("views", 0);
             ad.set("claimed", 0);
             
-            // Use master key for write operations
+            // Set ACL for public read
+            const acl = new Parse.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(false);
+            acl.setRoleWriteAccess("admin", true);
+            acl.setWriteAccess(currentUser.id, true); // Owner can write
+            ad.setACL(acl);
+            
+            // ALWAYS use master key
             await ad.save(null, { useMasterKey: true });
             
             return { success: true, ad };
@@ -166,6 +189,7 @@ const Backend = {
             // Limit results
             query.limit(options.limit || 100);
             
+            // ALWAYS use master key
             const ads = await query.find({ useMasterKey: true });
             
             return ads.map(ad => ({
@@ -204,6 +228,7 @@ const Backend = {
             query.equalTo("shopId", shopId);
             query.descending("createdAt");
             
+            // ALWAYS use master key
             const ads = await query.find({ useMasterKey: true });
             
             return ads.map(ad => ({
@@ -235,9 +260,10 @@ const Backend = {
             const Ad = Parse.Object.extend("Advertisement");
             const query = new Parse.Query(Ad);
             
+            // ALWAYS use master key
             const ad = await query.get(adId, { useMasterKey: true });
             
-            // Check if this ad belongs to the current user
+            // Check if this ad belongs to the current user (using master key)
             if (ad.get("shopId") !== currentUser.id) {
                 return { success: false, message: "Unauthorized" };
             }
@@ -253,6 +279,7 @@ const Backend = {
                 }
             });
             
+            // ALWAYS use master key
             await ad.save(null, { useMasterKey: true });
             
             return { success: true };
@@ -274,6 +301,7 @@ const Backend = {
             const Ad = Parse.Object.extend("Advertisement");
             const query = new Parse.Query(Ad);
             
+            // ALWAYS use master key
             const ad = await query.get(adId, { useMasterKey: true });
             
             // Check if this ad belongs to the current user
@@ -281,6 +309,7 @@ const Backend = {
                 return { success: false, message: "Unauthorized" };
             }
             
+            // ALWAYS use master key
             await ad.destroy({ useMasterKey: true });
             
             return { success: true };
@@ -291,12 +320,13 @@ const Backend = {
         }
     },
 
-    // Increment view count (when someone views the ad)
+    // Increment view count
     async incrementViews(adId) {
         try {
             const Ad = Parse.Object.extend("Advertisement");
             const query = new Parse.Query(Ad);
             
+            // ALWAYS use master key
             const ad = await query.get(adId, { useMasterKey: true });
             ad.increment("views");
             await ad.save(null, { useMasterKey: true });
@@ -309,12 +339,13 @@ const Backend = {
         }
     },
 
-    // Mark as claimed (when someone uses the discount)
+    // Mark as claimed
     async incrementClaimed(adId) {
         try {
             const Ad = Parse.Object.extend("Advertisement");
             const query = new Parse.Query(Ad);
             
+            // ALWAYS use master key
             const ad = await query.get(adId, { useMasterKey: true });
             ad.increment("claimed");
             await ad.save(null, { useMasterKey: true });
@@ -327,22 +358,8 @@ const Backend = {
         }
     },
 
-    // Search advertisements by location (for future GPS feature)
-    async searchNearby(latitude, longitude, radius = 10) {
-        try {
-            // This requires GeoPoints in Back4App
-            // For now, return all active ads
-            return await this.getActiveAds();
-            
-        } catch (error) {
-            console.error("Search nearby error:", error);
-            return [];
-        }
-    },
-
-    // ========== FRIDGE/INVENTORY FUNCTIONS ==========
+    // ========== FRIDGE FUNCTIONS ==========
     
-    // Save fridge items to cloud
     async saveFridgeItems(items) {
         try {
             const currentUser = Parse.User.current();
@@ -352,7 +369,7 @@ const Backend = {
 
             const Fridge = Parse.Object.extend("Fridge");
             
-            // Delete existing items for this user
+            // Delete existing items (with master key)
             const query = new Parse.Query(Fridge);
             query.equalTo("userId", currentUser.id);
             const oldItems = await query.find({ useMasterKey: true });
@@ -366,9 +383,18 @@ const Backend = {
                 fridgeItem.set("expiryDate", new Date(item.expiry));
                 fridgeItem.set("category", item.category || "other");
                 fridgeItem.set("addedDate", new Date());
+                
+                // Set ACL
+                const acl = new Parse.ACL();
+                acl.setPublicReadAccess(false);
+                acl.setReadAccess(currentUser.id, true);
+                acl.setWriteAccess(currentUser.id, true);
+                fridgeItem.setACL(acl);
+                
                 return fridgeItem;
             });
             
+            // ALWAYS use master key
             await Parse.Object.saveAll(newItems, { useMasterKey: true });
             
             return { success: true };
@@ -379,7 +405,6 @@ const Backend = {
         }
     },
 
-    // Load fridge items from cloud
     async loadFridgeItems() {
         try {
             const currentUser = Parse.User.current();
@@ -391,6 +416,7 @@ const Backend = {
             query.equalTo("userId", currentUser.id);
             query.descending("createdAt");
             
+            // ALWAYS use master key
             const items = await query.find({ useMasterKey: true });
             
             return items.map(item => ({
@@ -407,7 +433,6 @@ const Backend = {
 
     // ========== SHOPPING LIST FUNCTIONS ==========
     
-    // Save shopping lists to cloud
     async saveShoppingLists(lists) {
         try {
             const currentUser = Parse.User.current();
@@ -417,7 +442,7 @@ const Backend = {
 
             const ShoppingLists = Parse.Object.extend("ShoppingLists");
             
-            // Delete existing
+            // Delete existing (with master key)
             const query = new Parse.Query(ShoppingLists);
             query.equalTo("userId", currentUser.id);
             const oldLists = await query.find({ useMasterKey: true });
@@ -429,6 +454,14 @@ const Backend = {
             newLists.set("lists", JSON.stringify(lists));
             newLists.set("lastUpdated", new Date());
             
+            // Set ACL
+            const acl = new Parse.ACL();
+            acl.setPublicReadAccess(false);
+            acl.setReadAccess(currentUser.id, true);
+            acl.setWriteAccess(currentUser.id, true);
+            newLists.setACL(acl);
+            
+            // ALWAYS use master key
             await newLists.save(null, { useMasterKey: true });
             
             return { success: true };
@@ -439,7 +472,6 @@ const Backend = {
         }
     },
 
-    // Load shopping lists from cloud
     async loadShoppingLists() {
         try {
             const currentUser = Parse.User.current();
@@ -451,6 +483,7 @@ const Backend = {
             query.equalTo("userId", currentUser.id);
             query.descending("lastUpdated");
             
+            // ALWAYS use master key
             const result = await query.first({ useMasterKey: true });
             
             if (result) {
@@ -467,9 +500,13 @@ const Backend = {
 
     // ========== SYNC FUNCTIONS ==========
     
-    // Sync all local data to cloud
     async syncAll() {
         try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
             // Sync shopping lists
             const localLists = localStorage.getItem("shoplists");
             if (localLists) {
@@ -490,7 +527,6 @@ const Backend = {
         }
     },
 
-    // Load all cloud data to local
     async loadAll() {
         try {
             // Load shopping lists
@@ -515,29 +551,60 @@ const Backend = {
 
     // ========== UTILITY ==========
     
-    // Check if user is authenticated
     isAuthenticated() {
         return Parse.User.current() !== null;
     },
 
-    // Get current user role
     getUserRole() {
         const user = Parse.User.current();
         return user ? user.get("role") : null;
     },
 
-    // Test connection to Back4App
     async testConnection() {
         try {
             const TestObject = Parse.Object.extend("TestConnection");
             const testObject = new TestObject();
             testObject.set("test", "Hello at " + new Date().toISOString());
+            testObject.set("masterKey", "used");
+            
+            // Set ACL for testing
+            const acl = new Parse.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            testObject.setACL(acl);
+            
+            // ALWAYS use master key
             await testObject.save({ useMasterKey: true });
-            console.log("✅ Back4App connection successful!");
+            console.log("✅ foodsave cloud connected");
             return { success: true };
         } catch (error) {
-            console.error("❌ Back4App connection failed:", error);
+            console.error("❌ foodsave cloud error:", error);
             return { success: false, error };
+        }
+    },
+
+    // Force create user with master key (bypass all permissions)
+    async forceCreateUser(username, password, role) {
+        try {
+            const user = new Parse.User();
+            user.set("username", username);
+            user.set("password", password);
+            user.set("role", role);
+            user.set("email", `${username}@foodsave.com`);
+            
+            // Set ACL to allow login
+            const acl = new Parse.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(false);
+            user.setACL(acl);
+            
+            // Force with master key
+            await user.signUp(null, { useMasterKey: true });
+            
+            return { success: true };
+        } catch (error) {
+            console.error("Force create error:", error);
+            return { success: false, message: error.message };
         }
     }
 };
