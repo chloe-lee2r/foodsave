@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Shop Owner Login</title>
+    <title>FoodSave Login</title>
     <style>
         body {
             font-family: Arial;
@@ -16,11 +16,12 @@
             background: white;
             padding: 30px;
             border-radius: 10px;
-            width: 300px;
+            width: 320px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
-        input, button {
+        input, button, select {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
@@ -41,7 +42,13 @@
 <body>
 
 <div class="box">
-    <h2>Shop Owner Login</h2>
+    <h2>FoodSave Login</h2>
+
+    <!-- NEW: Role Selector -->
+    <select id="role">
+        <option value="user">Login as User</option>
+        <option value="shop">Login as Shop Owner</option>
+    </select>
 
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
@@ -50,40 +57,50 @@
     <button onclick="register()">Register</button>
 </div>
 
+<!-- Backend connector -->
+<script src="backend.js"></script>
+
 <script>
-function getUsers() {
-    return JSON.parse(localStorage.getItem("shopUsers")) || [];
-}
+async function register() {
+    const username = usernameEl().value;
+    const password = passwordEl().value;
+    const role = roleEl().value;
 
-function saveUsers(users) {
-    localStorage.setItem("shopUsers", JSON.stringify(users));
-}
+    const res = await Backend.register(username, password, role);
 
-function register() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const users = getUsers();
-    users.push({ username, password });
-    saveUsers(users);
-
-    alert("Registered successfully!");
-}
-
-function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const users = getUsers();
-    const found = users.find(u => u.username === username && u.password === password);
-
-    if (found) {
-        localStorage.setItem("loggedInShop", username);
-        window.location.href = "advertise.html";
+    if (res.success) {
+        alert("Registered successfully!");
     } else {
-        alert("Invalid login.");
+        alert(res.message);
     }
 }
+
+async function login() {
+    const username = usernameEl().value;
+    const password = passwordEl().value;
+    const role = roleEl().value;
+
+    const res = await Backend.login(username, password, role);
+
+    if (res.success) {
+        localStorage.setItem("loggedInUser", username);
+        localStorage.setItem("userRole", role);
+
+        // redirect based on role
+        if (role === "shop") {
+            window.location.href = "advertise.html";
+        } else {
+            window.location.href = "browse.html";
+        }
+    } else {
+        alert(res.message);
+    }
+}
+
+// helpers
+const usernameEl = () => document.getElementById("username");
+const passwordEl = () => document.getElementById("password");
+const roleEl = () => document.getElementById("role");
 </script>
 
 </body>
