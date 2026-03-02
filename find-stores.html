@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Stores - Discounted Food</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .store {
+            background: #fafafa;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .discount {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        h2, h3 {
+            margin-top: 20px;
+        }
+
+        .logout {
+            background: #333;
+            margin-top: 10px;
+        }
+
+        a {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Find Stores with Discounted Food</h2>
+    <div id="welcome"></div>
+    <button class="logout" onclick="logout()">Logout</button>
+
+    <h3>Search Food Item</h3>
+    <input type="text" id="foodSearch" placeholder="Enter food name">
+    <button onclick="findStores()">Search</button>
+
+    <div id="storeResults"></div>
+
+    <a href="shopping-list.html">⬅ Back to Shopping List</a>
+</div>
+
+<script>
+// Check consumer login
+document.addEventListener("DOMContentLoaded", function() {
+    const user = localStorage.getItem("loggedInConsumer");
+    if (!user) {
+        alert("Please login first.");
+        window.location.href = "consumer-login.html";
+        return;
+    }
+    document.getElementById("welcome").innerText = "Welcome, " + user;
+});
+
+function logout() {
+    localStorage.removeItem("loggedInConsumer");
+    window.location.href = "consumer-login.html";
+}
+
+// Find stores that have discounted specific food
+function findStores() {
+    const keyword = document.getElementById("foodSearch").value.toLowerCase();
+    const ads = JSON.parse(localStorage.getItem("foodAds")) || [];
+    const resultsDiv = document.getElementById("storeResults");
+    resultsDiv.innerHTML = "";
+
+    const matches = ads.filter(ad => ad.food.toLowerCase().includes(keyword));
+
+    if (matches.length === 0) {
+        resultsDiv.innerHTML = "<p>No stores found for this food.</p>";
+        return;
+    }
+
+    matches.forEach(ad => {
+        const div = document.createElement("div");
+        div.className = "store";
+        div.innerHTML = `
+            <strong>${ad.food}</strong><br>
+            Discount: <span class="discount">${ad.discount}%</span><br>
+            Shop: ${ad.shop}<br>
+            Expires: ${ad.expiry}
+        `;
+        resultsDiv.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>
