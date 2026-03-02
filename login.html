@@ -2,106 +2,62 @@
 <html>
 <head>
     <title>FoodSave Login</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 320px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        input, button, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-        }
-
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #45a049;
-        }
-    </style>
 </head>
 <body>
+<h2>Login</h2>
 
-<div class="box">
-    <h2>FoodSave Login</h2>
+<select id="role">
+    <option value="consumer">Consumer</option>
+    <option value="advertiser">Advertiser</option>
+</select>
 
-    <!-- NEW: Role Selector -->
-    <select id="role">
-        <option value="user">Login as User</option>
-        <option value="shop">Login as Shop Owner</option>
-    </select>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
 
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<button onclick="register()">Register</button>
 
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
-</div>
-
-<!-- Backend connector -->
+<script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 
 <script>
 async function register() {
-    const username = usernameEl().value;
-    const password = passwordEl().value;
     const role = roleEl().value;
 
-    const res = await Backend.register(username, password, role);
+    const res = await Backend.register(
+        usernameEl().value,
+        passwordEl().value,
+        role
+    );
 
-    if (res.success) {
-        alert("Registered successfully!");
-    } else {
-        alert(res.message);
-    }
+    alert(res.success ? "Registered!" : res.message);
 }
 
 async function login() {
-    const username = usernameEl().value;
-    const password = passwordEl().value;
     const role = roleEl().value;
 
-    const res = await Backend.login(username, password, role);
+    const res = await Backend.login(
+        usernameEl().value,
+        passwordEl().value,
+        role
+    );
 
-    if (res.success) {
-        localStorage.setItem("loggedInUser", username);
-        localStorage.setItem("userRole", role);
-
-        // redirect based on role
-        if (role === "shop") {
-            window.location.href = "advertise.html";
-        } else {
-            window.location.href = "browse.html";
-        }
-    } else {
+    if (!res.success) {
         alert(res.message);
+        return;
+    }
+
+    // redirect by role
+    if (role === "advertiser") {
+        location.href = "advertise.html";
+    } else {
+        location.href = "index.html";
     }
 }
 
-// helpers
 const usernameEl = () => document.getElementById("username");
 const passwordEl = () => document.getElementById("password");
 const roleEl = () => document.getElementById("role");
 </script>
-
 </body>
 </html>
