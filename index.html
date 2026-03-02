@@ -2,202 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Food Inventory Tracker</title>
-
+    <title>Food Manager App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #f0f2f5;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
             background: white;
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            padding: 40px;
             border-radius: 10px;
+            text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            text-align: center;
-        }
-
-        select, input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
+        a {
+            display: block;
+            margin: 15px 0;
+            padding: 12px;
+            text-decoration: none;
             background: #4CAF50;
             color: white;
-            border: none;
             border-radius: 6px;
-            cursor: pointer;
         }
 
-        button:hover {
+        a:hover {
             background: #45a049;
-        }
-
-        .item {
-            background: #fafafa;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 6px;
-            border-left: 5px solid #4CAF50;
-        }
-
-        .expire-soon {
-            border-left: 5px solid #ff4d4d;
-            background: #ffe6e6;
-        }
-
-        .delete-btn {
-            background: #ff4d4d;
-            margin-top: 8px;
-        }
-
-        .delete-btn:hover {
-            background: #cc0000;
         }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-    <h1>Food Inventory</h1>
-
-    <!-- Dropdown -->
-    <select id="foodDropdown">
-        <option value="">Select food item</option>
-    </select>
-
-    <!-- Manual input -->
-    <input type="text" id="foodName" placeholder="Or type food name">
-
-    <input type="date" id="expiryDate">
-    <button onclick="addItem()">Add Item</button>
-
-    <h2>Your Fridge</h2>
-    <div id="foodList"></div>
+    <h1>Food Manager</h1>
+    <a href="fridge.html">Fridge Inventory</a>
+    <a href="shopping-list.html">Shopping List</a>
 </div>
-
-<script>
-    const commonFoods = [
-        "Milk",
-        "Eggs",
-        "Bread",
-        "Rice",
-        "Chicken",
-        "Beef",
-        "Apples",
-        "Bananas",
-        "Cheese",
-        "Yogurt"
-    ];
-
-    document.addEventListener("DOMContentLoaded", () => {
-        populateDropdown();
-        displayItems();
-    });
-
-    function getItems() {
-        return JSON.parse(localStorage.getItem("foodItems")) || [];
-    }
-
-    function saveItems(items) {
-        localStorage.setItem("foodItems", JSON.stringify(items));
-    }
-
-    function populateDropdown() {
-        const dropdown = document.getElementById("foodDropdown");
-        dropdown.innerHTML = '<option value="">Select food item</option>';
-
-        const items = getItems();
-        const pastItems = items.map(item => item.name);
-
-        const allFoods = [...new Set([...commonFoods, ...pastItems])];
-
-        allFoods.forEach(food => {
-            const option = document.createElement("option");
-            option.value = food;
-            option.textContent = food;
-            dropdown.appendChild(option);
-        });
-    }
-
-    function addItem() {
-        const dropdownValue = document.getElementById("foodDropdown").value;
-        const manualInput = document.getElementById("foodName").value;
-        const expiry = document.getElementById("expiryDate").value;
-
-        const name = manualInput || dropdownValue;
-
-        if (!name || !expiry) {
-            alert("Please select/type a food and choose expiry date.");
-            return;
-        }
-
-        const items = getItems();
-        items.push({ name, expiry });
-        saveItems(items);
-
-        document.getElementById("foodName").value = "";
-        document.getElementById("foodDropdown").value = "";
-        document.getElementById("expiryDate").value = "";
-
-        populateDropdown();
-        displayItems();
-    }
-
-    function deleteItem(index) {
-        const items = getItems();
-        items.splice(index, 1);
-        saveItems(items);
-        populateDropdown();
-        displayItems();
-    }
-
-    function displayItems() {
-        const foodList = document.getElementById("foodList");
-        foodList.innerHTML = "";
-
-        const items = getItems();
-        const today = new Date();
-
-        items.forEach((item, index) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "item";
-
-            const expiryDate = new Date(item.expiry);
-            const diffDays = (expiryDate - today) / (1000 * 60 * 60 * 24);
-
-            if (diffDays <= 3) {
-                itemDiv.classList.add("expire-soon");
-            }
-
-            itemDiv.innerHTML = `
-                <strong>${item.name}</strong><br>
-                Expiry Date: ${item.expiry}
-                <button class="delete-btn" onclick="deleteItem(${index})">Delete</button>
-            `;
-
-            foodList.appendChild(itemDiv);
-        });
-    }
-</script>
 
 </body>
 </html>
