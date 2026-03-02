@@ -35,12 +35,13 @@
             padding: 24px 20px;
             background: linear-gradient(135deg, #007aff, #00c6ff);
             color: white;
+            position: relative;
         }
         
         .welcome {
             font-size: 28px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .date {
@@ -48,7 +49,27 @@
             opacity: 0.9;
         }
         
-        /* Role Selector (for demo - remove in production) */
+        .logout-btn {
+            position: absolute;
+            top: 24px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+        }
+        
+        .logout-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
+        }
+        
+        /* Role Demo Toggle (remove in production) */
         .role-demo {
             background: #f0f0f0;
             padding: 12px 20px;
@@ -76,6 +97,7 @@
         /* Content Sections */
         .content {
             padding: 20px;
+            padding-bottom: 80px;
         }
         
         .section-title {
@@ -83,6 +105,15 @@
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-all {
+            font-size: 14px;
+            color: #007aff;
+            text-decoration: none;
         }
         
         /* Consumer Grid */
@@ -138,6 +169,13 @@
             align-items: center;
             gap: 12px;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .recent-item:active {
+            background: #f0f2f5;
+            transform: translateX(5px);
         }
         
         .recent-emoji {
@@ -168,6 +206,11 @@
         .recent-price {
             color: #007aff;
             font-weight: 600;
+        }
+        
+        .recent-shop {
+            font-size: 12px;
+            color: #34c759;
         }
         
         /* Advertiser Section */
@@ -220,11 +263,29 @@
             border-radius: 12px;
             margin-bottom: 8px;
             border-left: 4px solid #34c759;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .ad-item:active {
+            background: #f0f2f5;
+            transform: translateX(5px);
+        }
+        
+        .ad-item.expiring-soon {
+            border-left-color: #ff3b30;
         }
         
         .ad-title {
             font-weight: 600;
             margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .ad-discount {
+            color: #34c759;
+            font-weight: 600;
         }
         
         .ad-meta {
@@ -234,9 +295,12 @@
             gap: 12px;
         }
         
-        .ad-discount {
-            color: #34c759;
-            font-weight: 600;
+        .ad-stats {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+            display: flex;
+            gap: 16px;
         }
         
         /* Bottom Nav */
@@ -249,9 +313,10 @@
             margin: 0 auto;
             background: white;
             border-top: 1px solid #f0f0f0;
-            padding: 12px 20px;
+            padding: 8px 20px;
             display: flex;
             justify-content: space-around;
+            z-index: 100;
         }
         
         .nav-item {
@@ -260,6 +325,8 @@
             font-size: 12px;
             text-align: center;
             transition: 0.2s;
+            padding: 4px 0;
+            flex: 1;
         }
         
         .nav-item.active {
@@ -268,40 +335,23 @@
         
         .nav-emoji {
             font-size: 20px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             display: block;
         }
         
-        /* Logout Button */
-        .logout-btn {
-            position: absolute;
-            top: 24px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
+        /* Loading States */
+        .loading-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            animation: pulse 1.5s infinite;
         }
         
-        .logout-btn:active {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-        
-        .empty-emoji {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
         }
         
         /* Hide sections based on role */
@@ -328,6 +378,43 @@
         body.advertiser .consumer-only {
             display: none;
         }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .empty-emoji {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .quick-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .quick-btn:active {
+            background: #e0e2e5;
+        }
     </style>
 </head>
 <body class="consumer">
@@ -353,17 +440,17 @@
                     <a href="shoplist.html" class="consumer-card">
                         <div class="card-emoji">🛒</div>
                         <div class="card-title">my lists</div>
-                        <div class="card-desc">shopping lists</div>
+                        <div class="card-desc" id="listCount">0 items</div>
                     </a>
                     <a href="find-stores.html" class="consumer-card">
                         <div class="card-emoji">🔍</div>
                         <div class="card-title">find stores</div>
-                        <div class="card-desc">deals near you</div>
+                        <div class="card-desc" id="dealsCount">loading...</div>
                     </a>
                     <a href="fridge.html" class="consumer-card">
                         <div class="card-emoji">🧊</div>
                         <div class="card-title">my fridge</div>
-                        <div class="card-desc">track expiry</div>
+                        <div class="card-desc" id="fridgeCount">0 items</div>
                     </a>
                     <a href="#" class="consumer-card" onclick="comingSoon('recipes')">
                         <div class="card-emoji">🍳</div>
@@ -372,23 +459,29 @@
                     </a>
                 </div>
                 
-                <!-- Recent Items -->
+                <!-- Recent Deals -->
                 <div class="recent-section">
-                    <div class="section-title">recently added</div>
-                    <div id="recentItems"></div>
+                    <div class="section-title">
+                        hot deals near you
+                        <a href="find-stores.html" class="view-all">view all →</a>
+                    </div>
+                    <div id="recentDeals"></div>
                 </div>
                 
-                <!-- Nearby Deals -->
+                <!-- Recently Added to Fridge -->
                 <div class="recent-section">
-                    <div class="section-title">hot deals near you</div>
-                    <div id="nearbyDeals"></div>
+                    <div class="section-title">
+                        recently in fridge
+                        <a href="fridge.html" class="view-all">view all →</a>
+                    </div>
+                    <div id="recentFridge"></div>
                 </div>
             </div>
             
             <!-- ADVERTISER SECTION -->
             <div class="advertiser-only">
                 <!-- Stats -->
-                <div class="stats-card">
+                <div class="stats-card" id="statsCard">
                     <div class="stats-row">
                         <span class="stat-label">active ads</span>
                         <span class="stat-number" id="activeAds">0</span>
@@ -396,6 +489,10 @@
                     <div class="stats-row">
                         <span class="stat-label">views today</span>
                         <span class="stat-number" id="viewsToday">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-label">total claimed</span>
+                        <span class="stat-number" id="totalClaimed">0</span>
                     </div>
                 </div>
                 
@@ -422,9 +519,18 @@
                     </a>
                 </div>
                 
-                <!-- Current Ads -->
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="quickPost()">📢 quick post</button>
+                    <button class="quick-btn" onclick="syncWithCloud()">↻ sync</button>
+                </div>
+                
+                <!-- Your Active Ads -->
                 <div class="recent-section">
-                    <div class="section-title">your active ads</div>
+                    <div class="section-title">
+                        your active deals
+                        <a href="advertise.html" class="view-all">manage →</a>
+                    </div>
                     <div id="shopAds"></div>
                 </div>
             </div>
@@ -451,45 +557,186 @@
         </div>
     </div>
     
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
     <script>
         // ==================== STATE ====================
-        let currentRole = 'consumer'; // 'consumer' or 'advertiser'
-        
-        // Sample data
-        const recentItems = [
-            { name: 'milk', emoji: '🥛', price: 3.99, store: 'whole foods' },
-            { name: 'eggs', emoji: '🥚', price: 4.99, store: 'trader joes' },
-            { name: 'bread', emoji: '🍞', price: 2.99, store: 'walmart' }
-        ];
-        
-        const deals = [
-            { item: 'milk', discount: '20%', store: 'whole foods', distance: '0.3mi' },
-            { item: 'eggs', discount: '15%', store: 'trader joes', distance: '0.5mi' },
-            { item: 'chicken', discount: '25%', store: 'walmart', distance: '0.8mi' }
-        ];
-        
-        const shopAds = [
-            { item: 'organic milk', discount: '20%', expiry: '2024-03-25', views: 45 },
-            { item: 'free range eggs', discount: '15%', expiry: '2024-03-26', views: 32 },
-            { item: 'sourdough bread', discount: '30%', expiry: '2024-03-24', views: 28 }
-        ];
+        let currentRole = 'consumer';
+        let refreshInterval;
         
         // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Set date
             const date = new Date();
             document.getElementById('currentDate').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
-            // Load role from localStorage
+            // Check logged in user
+            const user = Backend.getCurrentUser();
             const savedRole = localStorage.getItem('userRole') || 'consumer';
-            switchRole(savedRole);
             
-            // Load content
-            loadRecentItems();
-            loadDeals();
-            loadShopAds();
+            if (user) {
+                currentRole = savedRole;
+                updateWelcomeMessage(user.get('username'), savedRole);
+            }
+            
+            switchRole(currentRole);
+            
+            // Load initial data
+            await loadAllData();
+            
+            // Refresh every 30 seconds
+            refreshInterval = setInterval(loadAllData, 30000);
         });
+        
+        // ==================== DATA LOADING ====================
+        async function loadAllData() {
+            if (currentRole === 'consumer') {
+                await loadConsumerData();
+            } else {
+                await loadAdvertiserData();
+            }
+        }
+        
+        async function loadConsumerData() {
+            try {
+                // Load deals
+                const deals = await Backend.getActiveAds({ limit: 3 });
+                document.getElementById('dealsCount').textContent = `${deals.length} deals`;
+                displayRecentDeals(deals);
+                
+                // Load fridge items
+                const fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
+                document.getElementById('fridgeCount').textContent = `${fridgeItems.length} items`;
+                displayRecentFridge(fridgeItems.slice(0, 3));
+                
+                // Load list count
+                const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
+                const totalItems = Object.values(lists).reduce((sum, list) => 
+                    sum + (list.items?.length || 0), 0);
+                document.getElementById('listCount').textContent = `${totalItems} items`;
+                
+            } catch (error) {
+                console.error('Error loading consumer data:', error);
+            }
+        }
+        
+        async function loadAdvertiserData() {
+            try {
+                const user = Backend.getCurrentUser();
+                if (!user) return;
+                
+                const ads = await Backend.getShopAds(user.id);
+                
+                // Update stats
+                const activeAds = ads.filter(ad => ad.active !== false);
+                const totalViews = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
+                const totalClaimed = ads.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
+                
+                document.getElementById('activeAds').textContent = activeAds.length;
+                document.getElementById('viewsToday').textContent = totalViews;
+                document.getElementById('totalClaimed').textContent = totalClaimed;
+                
+                displayShopAds(activeAds.slice(0, 5));
+                
+            } catch (error) {
+                console.error('Error loading advertiser data:', error);
+            }
+        }
+        
+        function displayRecentDeals(deals) {
+            const container = document.getElementById('recentDeals');
+            
+            if (!deals || deals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">🔍</div>
+                        <div>no deals available</div>
+                        <div style="font-size:13px; margin-top:8px;">check back later</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = deals.map(deal => `
+                <div class="recent-item" onclick="window.location.href='find-stores.html'">
+                    <div class="recent-emoji">🏷️</div>
+                    <div class="recent-details">
+                        <div class="recent-name">${deal.foodName}</div>
+                        <div class="recent-meta">${deal.shopName}</div>
+                    </div>
+                    <div class="recent-price">-${deal.discount}%</div>
+                </div>
+            `).join('');
+        }
+        
+        function displayRecentFridge(items) {
+            const container = document.getElementById('recentFridge');
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">🧊</div>
+                        <div>fridge is empty</div>
+                        <div style="font-size:13px; margin-top:8px;">add items in fridge tracker</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = items.map(item => {
+                const daysUntil = Math.ceil((new Date(item.expiry) - new Date()) / (1000*60*60*24));
+                const emoji = daysUntil <= 2 ? '⚠️' : '✅';
+                
+                return `
+                    <div class="recent-item" onclick="window.location.href='fridge.html'">
+                        <div class="recent-emoji">${emoji}</div>
+                        <div class="recent-details">
+                            <div class="recent-name">${item.name}</div>
+                            <div class="recent-meta">expires in ${daysUntil} days</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function displayShopAds(ads) {
+            const container = document.getElementById('shopAds');
+            
+            if (!ads || ads.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">📢</div>
+                        <div>no active ads</div>
+                        <div style="font-size:13px; margin-top:8px;">post your first deal</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = ads.map(ad => {
+                const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                const isExpiringSoon = daysUntil <= 2;
+                
+                return `
+                    <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''}" 
+                         onclick="window.location.href='advertise.html'">
+                        <div class="ad-title">
+                            <span>${ad.foodName}</span>
+                            <span class="ad-discount">${ad.discount}% off</span>
+                        </div>
+                        <div class="ad-meta">
+                            <span>expires in ${daysUntil} days</span>
+                        </div>
+                        <div class="ad-stats">
+                            <span>👁️ ${ad.views || 0}</span>
+                            <span>✅ ${ad.claimed || 0}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
         
         // ==================== ROLE SWITCHING ====================
         function switchRole(role) {
@@ -499,87 +746,50 @@
             document.body.className = role;
             
             // Update welcome message
-            const welcome = role === 'consumer' ? 'hi, consumer' : 'welcome back, shop owner';
-            document.getElementById('welcomeMessage').textContent = welcome;
+            const user = Backend.getCurrentUser();
+            const username = user ? user.get('username') : (role === 'consumer' ? 'consumer' : 'shop owner');
+            updateWelcomeMessage(username, role);
             
             // Update active button
-            document.querySelectorAll('.role-btn').forEach(btn => {
-                btn.classList.remove('active');
+            document.querySelectorAll('.role-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', 
+                    (index === 0 && role === 'consumer') || 
+                    (index === 1 && role === 'advertiser')
+                );
             });
-            document.querySelectorAll('.role-btn')[role === 'consumer' ? 0 : 1].classList.add('active');
             
             // Save to localStorage
             localStorage.setItem('userRole', role);
-            if (role === 'advertiser') {
-                localStorage.setItem('loggedInShop', 'demo shop');
-            } else {
-                localStorage.setItem('loggedInConsumer', 'demo user');
+            
+            // Load role-specific data
+            loadAllData();
+        }
+        
+        function updateWelcomeMessage(username, role) {
+            const welcome = role === 'consumer' 
+                ? `hi, ${username}` 
+                : `welcome back, ${username}`;
+            document.getElementById('welcomeMessage').textContent = welcome;
+        }
+        
+        // ==================== ACTIONS ====================
+        async function logout() {
+            clearInterval(refreshInterval);
+            const result = await Backend.logout();
+            if (result.success) {
+                window.location.href = 'login.html';
             }
-            
-            // Update stats for advertiser
-            if (role === 'advertiser') {
-                document.getElementById('activeAds').textContent = shopAds.length;
-                document.getElementById('viewsToday').textContent = 
-                    shopAds.reduce((sum, ad) => sum + ad.views, 0);
-            }
         }
         
-        // ==================== LOAD CONTENT ====================
-        function loadRecentItems() {
-            const container = document.getElementById('recentItems');
-            if (!container) return;
-            
-            container.innerHTML = recentItems.map(item => `
-                <div class="recent-item">
-                    <div class="recent-emoji">${item.emoji}</div>
-                    <div class="recent-details">
-                        <div class="recent-name">${item.name}</div>
-                        <div class="recent-meta">${item.store}</div>
-                    </div>
-                    <div class="recent-price">$${item.price.toFixed(2)}</div>
-                </div>
-            `).join('');
+        function quickPost() {
+            window.location.href = 'advertise.html';
         }
         
-        function loadDeals() {
-            const container = document.getElementById('nearbyDeals');
-            if (!container) return;
-            
-            container.innerHTML = deals.map(deal => `
-                <div class="recent-item" onclick="window.location.href='find-stores.html'">
-                    <div class="recent-emoji">🏷️</div>
-                    <div class="recent-details">
-                        <div class="recent-name">${deal.item} • ${deal.discount} off</div>
-                        <div class="recent-meta">${deal.store} • ${deal.distance}</div>
-                    </div>
-                    <div style="color:#34c759;">→</div>
-                </div>
-            `).join('');
-        }
-        
-        function loadShopAds() {
-            const container = document.getElementById('shopAds');
-            if (!container) return;
-            
-            container.innerHTML = shopAds.map(ad => `
-                <div class="ad-item">
-                    <div class="ad-title">${ad.item}</div>
-                    <div class="ad-meta">
-                        <span class="ad-discount">${ad.discount} off</span>
-                        <span>expires: ${ad.expiry}</span>
-                        <span>👁️ ${ad.views}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // ==================== UTILS ====================
-        function logout() {
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('loggedInShop');
-            localStorage.removeItem('loggedInConsumer');
-            switchRole('consumer');
-            showNotification('logged out');
+        async function syncWithCloud() {
+            showNotification('syncing...');
+            await Backend.syncAll();
+            await loadAllData();
+            showNotification('synced!');
         }
         
         function comingSoon(feature) {
@@ -591,10 +801,19 @@
             alert(msg);
         }
         
+        // ==================== CLEANUP ====================
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+        
         // Make functions global
         window.switchRole = switchRole;
         window.logout = logout;
         window.comingSoon = comingSoon;
+        window.quickPost = quickPost;
+        window.syncWithCloud = syncWithCloud;
     </script>
 </body>
 </html>
