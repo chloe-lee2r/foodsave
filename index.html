@@ -10,22 +10,30 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
-
         .container {
             background: white;
             padding: 40px;
             border-radius: 10px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
         }
-
         h1 {
             margin-bottom: 30px;
+            color: #333;
         }
-
+        h2 {
+            color: #666;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 10px;
+        }
         a {
             display: block;
             margin: 12px 0;
@@ -36,31 +44,47 @@
             border-radius: 6px;
             transition: 0.2s;
         }
-
         a:hover {
             background: #45a049;
+            transform: translateY(-2px);
         }
-
-        h2 {
-            margin-top: 30px;
+        .logout-btn {
+            background: #f44336;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background: #d32f2f;
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Smart Food Manager</h1>
-
+    <h1>🍎 Smart Food Manager</h1>
+    
     <h2>Consumer Access</h2>
-    <a href="consumer-login.html">Consumer Login / Register</a>
+    <a href="login.html">Consumer Login / Register</a>
     <a href="shopping-list.html">Shopping List</a>
     <a href="find-stores.html">Find Stores with Discounts</a>
     <a href="fridge.html">Fridge Inventory</a>
-
+    
     <h2>Shop Owner Access</h2>
     <a href="login.html">Shop Owner Login / Register</a>
     <a href="advertise.html">Advertise Expiring Food</a>
+    
+    <button class="logout-btn" onclick="logout()" style="display:none" id="logoutBtn">Logout</button>
 </div>
 
+<script>
+    // Check if user is logged in
+    const user = localStorage.getItem("loggedInUser");
+    if (user) {
+        document.getElementById("logoutBtn").style.display = "block";
+    }
+    
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+</script>
 </body>
 </html>
