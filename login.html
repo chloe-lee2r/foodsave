@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Owner Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Shop Owner Login</h2>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+</div>
+
+<script>
+function getUsers() {
+    return JSON.parse(localStorage.getItem("shopUsers")) || [];
+}
+
+function saveUsers(users) {
+    localStorage.setItem("shopUsers", JSON.stringify(users));
+}
+
+function register() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const users = getUsers();
+    users.push({ username, password });
+    saveUsers(users);
+
+    alert("Registered successfully!");
+}
+
+function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const users = getUsers();
+    const found = users.find(u => u.username === username && u.password === password);
+
+    if (found) {
+        localStorage.setItem("loggedInShop", username);
+        window.location.href = "advertise.html";
+    } else {
+        alert("Invalid login.");
+    }
+}
+</script>
+
+</body>
+</html>
