@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Food Manager App</title>
+    <title>Smart Food Manager</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +11,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .container {
@@ -21,27 +22,44 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
+        h1 {
+            margin-bottom: 30px;
+        }
+
         a {
             display: block;
-            margin: 15px 0;
+            margin: 12px 0;
             padding: 12px;
-            text-decoration: none;
             background: #4CAF50;
             color: white;
+            text-decoration: none;
             border-radius: 6px;
+            transition: 0.2s;
         }
 
         a:hover {
             background: #45a049;
+        }
+
+        h2 {
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Food Manager</h1>
-    <a href="fridge.html">Fridge Inventory</a>
+    <h1>Smart Food Manager</h1>
+
+    <h2>Consumer Access</h2>
+    <a href="consumer-login.html">Consumer Login / Register</a>
     <a href="shopping-list.html">Shopping List</a>
+    <a href="find-stores.html">Find Stores with Discounts</a>
+    <a href="fridge.html">Fridge Inventory</a>
+
+    <h2>Shop Owner Access</h2>
+    <a href="login.html">Shop Owner Login / Register</a>
+    <a href="advertise.html">Advertise Expiring Food</a>
 </div>
 
 </body>
