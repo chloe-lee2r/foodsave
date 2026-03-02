@@ -22,31 +22,41 @@
         h2 {
             text-align: center;
             margin-bottom: 30px;
+            color: #333;
         }
         select, input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 8px 0;
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
+            font-size: 14px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
         button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 8px 0;
-            background: #4CAF50;
-            color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
         }
-        button:hover {
+        .login-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        .login-btn:hover {
             background: #45a049;
         }
         .register-btn {
             background: #2196F3;
+            color: white;
         }
         .register-btn:hover {
             background: #1976D2;
@@ -58,22 +68,56 @@
             text-decoration: none;
             color: #666;
         }
+        a:hover {
+            color: #4CAF50;
+        }
+        .error-message {
+            color: #f44336;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 4px;
+            display: none;
+        }
+        .success-message {
+            color: #4CAF50;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 4px;
+            display: none;
+        }
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>FoodSave Login</h2>
+    <h2>🍎 FoodSave Login</h2>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
     
     <select id="role">
         <option value="consumer">Consumer</option>
         <option value="advertiser">Shop Owner</option>
     </select>
     
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
+    <input id="username" placeholder="Username" autocomplete="off">
+    <input id="password" type="password" placeholder="Password (min. 6 characters)">
     
-    <button onclick="login()">Login</button>
+    <button class="login-btn" onclick="login()">Login</button>
     <button class="register-btn" onclick="register()">Register</button>
+    
+    <div class="info-text">
+        New user? Register first, then login.
+    </div>
     
     <a href="index.html">⬅ Back to Home</a>
 </div>
@@ -82,47 +126,93 @@
 <script src="backend.js"></script>
 
 <script>
+// Clear any old session data on page load
+document.addEventListener("DOMContentLoaded", function() {
+    // Don't automatically clear - only if there's an error
+    console.log("Login page loaded");
+});
+
+function showError(message) {
+    const errorDiv = document.getElementById("errorMessage");
+    errorDiv.style.display = "block";
+    errorDiv.textContent = message;
+    
+    // Hide success message if visible
+    document.getElementById("successMessage").style.display = "none";
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        errorDiv.style.display = "none";
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById("successMessage");
+    successDiv.style.display = "block";
+    successDiv.textContent = message;
+    
+    // Hide error message if visible
+    document.getElementById("errorMessage").style.display = "none";
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+        successDiv.style.display = "none";
+    }, 3000);
+}
+
 async function register() {
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     const role = document.getElementById("role").value;
     
     if (!username || !password) {
-        alert("Please fill all fields");
+        showError("Please fill all fields");
         return;
     }
     
+    if (password.length < 6) {
+        showError("Password must be at least 6 characters");
+        return;
+    }
+    
+    console.log("Attempting registration...");
     const res = await Backend.register(username, password, role);
     
     if (res.success) {
-        alert("Registered successfully! Please login.");
+        showSuccess("✅ Registered successfully! You can now login.");
+        // Clear password field for security
+        document.getElementById("password").value = "";
     } else {
-        alert("Registration failed: " + res.message);
+        showError("❌ " + res.message);
     }
 }
 
 async function login() {
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     const role = document.getElementById("role").value;
     
     if (!username || !password) {
-        alert("Please fill all fields");
+        showError("Please fill all fields");
         return;
     }
     
+    console.log("Attempting login...");
     const res = await Backend.login(username, password, role);
     
-    if (!res.success) {
-        alert(res.message);
-        return;
-    }
-    
-    // redirect by role
-    if (role === "advertiser") {
-        location.href = "advertise.html";
+    if (res.success) {
+        showSuccess("✅ Login successful! Redirecting...");
+        
+        // Small delay to show success message
+        setTimeout(() => {
+            if (role === "advertiser") {
+                window.location.href = "advertise.html";
+            } else {
+                window.location.href = "shopping-list.html";
+            }
+        }, 1000);
     } else {
-        location.href = "shopping-list.html";
+        showError("❌ " + res.message);
     }
 }
 </script>
