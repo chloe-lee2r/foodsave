@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodSave • Back4App Setup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+        
+        .key-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .step {
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #007aff;
+            transition: 0.2s;
+        }
+        
+        .step.success {
+            background: #e8f5e8;
+            border-left-color: #34c759;
+        }
+        
+        .step.error {
+            background: #ffebee;
+            border-left-color: #ff3b30;
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: #007aff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step.success .step-number {
+            background: #34c759;
+        }
+        
+        .step.error .step-number {
+            background: #ff3b30;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .step-message {
+            color: #666;
+            font-size: 14px;
+            margin-left: 40px;
+        }
+        
+        .step-details {
+            margin-left: 40px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #999;
+        }
+        
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 16px 0;
+            transition: 0.2s;
+        }
+        
+        button:hover {
+            background: #005bbf;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px 0;
+            display: none;
+        }
+        
+        .status.success {
+            display: block;
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+        }
+        
+        .footer a {
+            color: #007aff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥗 foodsave</h1>
+        <div class="subtitle">Back4App Database Setup</div>
+        
+        <div class="key-info">
+            <strong>App ID:</strong> 46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt<br>
+            <strong>JS Key:</strong> GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA<br>
+            <strong>Master Key:</strong> WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM<br>
+            <strong>Server:</strong> https://parseapi.back4app.com
+        </div>
+        
+        <div id="steps">
+            <div class="step" id="step1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Test Connection</div>
+                </div>
+                <div class="step-message" id="step1Message">Waiting to start...</div>
+            </div>
+            
+            <div class="step" id="step2">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Create Advertisement Class</div>
+                </div>
+                <div class="step-message" id="step2Message">Not started</div>
+            </div>
+            
+            <div class="step" id="step3">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Create Fridge Class</div>
+                </div>
+                <div class="step-message" id="step3Message">Not started</div>
+            </div>
+            
+            <div class="step" id="step4">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Create ShoppingLists Class</div>
+                </div>
+                <div class="step-message" id="step4Message">Not started</div>
+            </div>
+            
+            <div class="step" id="step5">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Set Class Permissions</div>
+                </div>
+                <div class="step-message" id="step5Message">Not started</div>
+            </div>
+        </div>
+        
+        <button onclick="runSetup()" id="setupBtn">🚀 Run Setup</button>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="footer">
+            Run this once to set up your Back4App database.<br>
+            <a href="login.html">← Back to Login</a>
+        </div>
+    </div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script>
+        // Initialize with master key for setup
+        Parse.initialize(
+            "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt",
+            "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA",
+            "WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM"
+        );
+        Parse.serverURL = "https://parseapi.back4app.com";
+        
+        async function runSetup() {
+            const btn = document.getElementById('setupBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Setting up...';
+            
+            // Step 1: Test Connection
+            await testConnection();
+            
+            // Step 2: Create Advertisement Class
+            await createAdvertisementClass();
+            
+            // Step 3: Create Fridge Class
+            await createFridgeClass();
+            
+            // Step 4: Create ShoppingLists Class
+            await createShoppingListsClass();
+            
+            // Step 5: Set Permissions
+            await setPermissions();
+            
+            btn.innerHTML = '✅ Setup Complete!';
+            document.getElementById('status').className = 'status success';
+            document.getElementById('status').innerHTML = '✅ All classes created successfully! You can now use the app.';
+        }
+        
+        async function testConnection() {
+            const step = document.getElementById('step1');
+            const message = document.getElementById('step1Message');
+            
+            try {
+                message.innerHTML = 'Testing connection...';
+                
+                const TestObject = Parse.Object.extend("SetupTest");
+                const testObj = new TestObject();
+                testObj.set("test", "connection");
+                await testObj.save(null, { useMasterKey: true });
+                
+                step.className = 'step success';
+                message.innerHTML = '✅ Connected to Back4App successfully!';
+                
+            } catch (error) {
+                step.className = 'step error';
+                message.innerHTML = '❌ Connection failed: ' + error.message;
+                throw error;
+            }
+        }
+        
+        async function createAdvertisementClass() {
+            const step = document.getElementById('step2');
+            const message = document.getElementById('step2Message');
+            
+            try {
+                message.innerHTML = 'Creating Advertisement class...';
+                
+                const Ad = Parse.Object.extend("Advertisement");
+                const testAd = new Ad();
+                
+                // Create test object to establish schema
+                testAd.set("foodName", "test");
+                testAd.set("discount", 10);
+                testAd.set("expiryDate", new Date());
+                testAd.set("shopName", "test");
+                testAd.set("shopId", "test");
+                testAd.set("description", "test");
+                testAd.set("originalPrice", 0);
+                testAd.set("category", "other");
+                testAd.set("active", true);
+                testAd.set("views", 0);
+                testAd.set("claimed", 0);
+                
+                await testAd.save(null, { useMasterKey: true });
+                await testAd.destroy({ useMasterKey: true });
+                
+                step.className = 'step success';
+                message.innerHTML = '✅ Advertisement class created!';
+                
+            } catch (error) {
+                step.className = 'step error';
+                message.innerHTML = '❌ Failed: ' + error.message;
+                throw error;
+            }
+        }
+        
+        async function createFridgeClass() {
+            const step = document.getElementById('step3');
+            const message = document.getElementById('step3Message');
+            
+            try {
+                message.innerHTML = 'Creating Fridge class...';
+                
+                const Fridge = Parse.Object.extend("Fridge");
+                const testFridge = new Fridge();
+                
+                testFridge.set("userId", "test");
+                testFridge.set("name", "test");
+                testFridge.set("expiryDate", new Date());
+                testFridge.set("category", "other");
+                testFridge.set("addedDate", new Date());
+                
+                await testFridge.save(null, { useMasterKey: true });
+                await testFridge.destroy({ useMasterKey: true });
+                
+                step.className = 'step success';
+                message.innerHTML = '✅ Fridge class created!';
+                
+            } catch (error) {
+                step.className = 'step error';
+                message.innerHTML = '❌ Failed: ' + error.message;
+                throw error;
+            }
+        }
+        
+        async function createShoppingListsClass() {
+            const step = document.getElementById('step4');
+            const message = document.getElementById('step4Message');
+            
+            try {
+                message.innerHTML = 'Creating ShoppingLists class...';
+                
+                const ShoppingLists = Parse.Object.extend("ShoppingLists");
+                const testLists = new ShoppingLists();
+                
+                testLists.set("userId", "test");
+                testLists.set("lists", "[]");
+                testLists.set("lastUpdated", new Date());
+                
+                await testLists.save(null, { useMasterKey: true });
+                await testLists.destroy({ useMasterKey: true });
+                
+                step.className = 'step success';
+                message.innerHTML = '✅ ShoppingLists class created!';
+                
+            } catch (error) {
+                step.className = 'step error';
+                message.innerHTML = '❌ Failed: ' + error.message;
+                throw error;
+            }
+        }
+        
+        async function setPermissions() {
+            const step = document.getElementById('step5');
+            const message = document.getElementById('step5Message');
+            
+            try {
+                message.innerHTML = 'Setting class permissions...';
+                
+                // Create a test user to set up the class
+                const username = 'setup_' + Date.now();
+                const user = new Parse.User();
+                user.set("username", username);
+                user.set("password", "password123");
+                user.set("role", "consumer");
+                user.set("email", username + "@test.com");
+                
+                await user.signUp(null, { useMasterKey: true });
+                
+                // Log instructions for manual steps
+                message.innerHTML = '✅ Classes created!<br>';
+                message.innerHTML += '<div class="step-details">';
+                message.innerHTML += '📝 Next steps:<br>';
+                message.innerHTML += '1. Go to Back4App Dashboard<br>';
+                message.innerHTML += '2. Click on your app<br>';
+                message.innerHTML += '3. Go to "Database"<br>';
+                message.innerHTML += '4. For each class, set:<br>';
+                message.innerHTML += '   • Public Read: ✅<br>';
+                message.innerHTML += '   • Public Write: ❌<br>';
+                message.innerHTML += '   • Authenticated Write: ✅<br>';
+                message.innerHTML += '</div>';
+                
+                step.className = 'step success';
+                
+            } catch (error) {
+                step.className = 'step error';
+                message.innerHTML = '❌ Failed: ' + error.message;
+                throw error;
+            }
+        }
+    </script>
+</body>
+</html>
