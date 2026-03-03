@@ -606,7 +606,10 @@
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <!-- Loaded dynamically -->
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading deals...
+                    </div>
                 </div>
                 
                 <!-- Fridge Summary Section -->
@@ -615,7 +618,10 @@
                     <a href="fridge.html" class="view-all">manage →</a>
                 </div>
                 <div class="fridge-summary-card" id="fridgeSummary">
-                    <!-- Loaded dynamically -->
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading fridge...
+                    </div>
                 </div>
             </div>
             
@@ -623,7 +629,10 @@
             <div class="advertiser-only">
                 <!-- Shop Profile Card - Clickable to profile -->
                 <div class="profile-card" id="shopProfile" onclick="goToProfile()">
-                    <!-- Loaded dynamically -->
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading profile...
+                    </div>
                 </div>
                 
                 <div class="shop-actions">
@@ -650,7 +659,10 @@
                     <a href="advertise.html" class="view-all">manage →</a>
                 </div>
                 <div class="ads-list" id="shopAds">
-                    <!-- Loaded dynamically -->
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading ads...
+                    </div>
                 </div>
             </div>
         </div>
@@ -759,26 +771,51 @@
             document.getElementById('userBadge').textContent = 'consumer';
             document.getElementById('verifiedBadge').style.display = 'none';
             
-            // Load hot deals
-            const deals = await Backend.getActiveAds({ limit: 3 });
-            displayHotDeals(deals);
-            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+            try {
+                // Load hot deals
+                const deals = await Backend.getActiveAds({ limit: 3 });
+                displayHotDeals(deals);
+                document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+            } catch (error) {
+                console.error('Error loading deals:', error);
+                document.getElementById('recentDeals').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">🔍</div>
+                        <div>error loading deals</div>
+                    </div>
+                `;
+            }
             
-            // Load fridge items and display summary
-            const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
-            document.getElementById('fridgeCount').textContent = fridge.length + ' items';
-            displayFridgeSummary(fridge);
+            try {
+                // Load fridge items
+                const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
+                document.getElementById('fridgeCount').textContent = fridge.length + ' items';
+                displayFridgeSummary(fridge);
+            } catch (error) {
+                console.error('Error loading fridge:', error);
+                document.getElementById('fridgeSummary').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">🧊</div>
+                        <div>error loading fridge</div>
+                    </div>
+                `;
+            }
             
-            // Load list count
-            const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
-            const totalItems = Object.values(lists).reduce((sum, list) => 
-                sum + (list.items?.length || 0), 0);
-            document.getElementById('listCount').textContent = totalItems + ' items';
+            try {
+                // Load list count
+                const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
+                const totalItems = Object.values(lists).reduce((sum, list) => 
+                    sum + (list.items?.length || 0), 0);
+                document.getElementById('listCount').textContent = totalItems + ' items';
+            } catch (error) {
+                console.error('Error loading lists:', error);
+                document.getElementById('listCount').textContent = '0 items';
+            }
         }
         
         async function loadAdvertiserData() {
             const businessName = localStorage.getItem('businessName') || 'your shop';
-            const businessDetails = JSON.parse(localStorage.getItem('businessDetails')) || {};
+            const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
             
             document.getElementById('userBadge').textContent = businessRole;
             if (isVerified) {
@@ -788,9 +825,19 @@
             // Load shop profile
             displayShopProfile(businessDetails);
             
-            // Load shop ads
-            const ads = await Backend.getBusinessAds();
-            displayShopAds(ads);
+            try {
+                // Load shop ads - FIXED: changed from getBusinessAds to getShopAds
+                const ads = await Backend.getShopAds();
+                displayShopAds(ads);
+            } catch (error) {
+                console.error('Error loading ads:', error);
+                document.getElementById('shopAds').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">📢</div>
+                        <div>error loading ads</div>
+                    </div>
+                `;
+            }
         }
         
         // ==================== CONSUMER DISPLAY FUNCTIONS ====================
@@ -865,6 +912,38 @@
                 })
                 .slice(0, 3); // Show top 3
             
+            let previewHtml = '';
+            if (expiringSoon.length > 0) {
+                previewHtml = `
+                    <div class="fridge-items-preview">
+                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
+                        ${expiringSoon.map(item => {
+                            const expiry = new Date(item.expiry);
+                            const diffDays = Math.round((expiry - today) / (1000*60*60*24));
+                            const status = diffDays === 0 ? 'today' : `${diffDays} days`;
+                            return `
+                                <div class="fridge-item-preview">
+                                    <span>${item.name}</span>
+                                    <span class="expiry-badge warning">${status}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else if (items.length > 0) {
+                previewHtml = `
+                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
+                        ✅ no items expiring soon
+                    </div>
+                `;
+            } else {
+                previewHtml = `
+                    <div class="fridge-items-preview" style="text-align: center;">
+                        🧊 your fridge is empty
+                    </div>
+                `;
+            }
+            
             container.innerHTML = `
                 <div class="fridge-header">
                     <h3>🧊 fridge status</h3>
@@ -886,32 +965,7 @@
                     </div>
                 </div>
                 
-                ${expiringSoon.length > 0 ? `
-                    <div class="fridge-items-preview">
-                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
-                        ${expiringSoon.map(item => {
-                            const expiry = new Date(item.expiry);
-                            const diffDays = Math.round((expiry - today) / (1000*60*60*24));
-                            const status = diffDays === 0 ? 'today' : `${diffDays} days`;
-                            return `
-                                <div class="fridge-item-preview">
-                                    <span>${item.name}</span>
-                                    <span class="expiry-badge warning">${status}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                ` : items.length > 0 ? `
-                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
-                        ✅ no items expiring soon
-                    </div>
-                : ''}
-                
-                ${items.length === 0 ? `
-                    <div class="fridge-items-preview" style="text-align: center;">
-                        🧊 your fridge is empty
-                    </div>
-                ` : ''}
+                ${previewHtml}
             `;
         }
         
