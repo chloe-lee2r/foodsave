@@ -27,8 +27,20 @@
             max-width: 400px;
             background: white;
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* Header */
@@ -42,6 +54,12 @@
         .logo {
             font-size: 48px;
             margin-bottom: 12px;
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .app-name {
@@ -61,11 +79,12 @@
             margin-top: 8px;
         }
         
-        /* Form */
+        /* Form Container */
         .form-container {
             padding: 24px;
         }
         
+        /* Role Selector */
         .role-selector {
             display: flex;
             gap: 12px;
@@ -85,13 +104,14 @@
             font-weight: 500;
             color: #666;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         
         .role-btn.active {
             background: white;
             color: #007aff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transform: scale(1.02);
         }
         
         .role-btn.consumer.active {
@@ -100,6 +120,37 @@
         
         .role-btn.shop.active {
             color: #007aff;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            transition: all 0.3s ease;
+        }
+        
+        .form-section.hidden {
+            display: none;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title span {
+            background: #007aff;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
         }
         
         .input-group {
@@ -111,49 +162,53 @@
             color: #666;
             margin-bottom: 6px;
             display: block;
+            font-weight: 500;
         }
         
         .input-field {
             width: 100%;
-            padding: 16px;
-            border: 1px solid #e0e0e0;
+            padding: 14px;
+            border: 2px solid #f0f0f0;
             border-radius: 16px;
             font-size: 16px;
             background: #fafafa;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         
         .input-field:focus {
             outline: none;
             border-color: #007aff;
             background: white;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.1);
         }
         
         .input-field.consumer:focus {
             border-color: #34c759;
         }
         
-        .input-field.shop:focus {
-            border-color: #007aff;
+        /* Shop Details Grid */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
         }
         
-        .password-hint {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-            margin-left: 4px;
-        }
-        
+        /* Action Buttons */
         .action-btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             border: none;
             border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
             margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .login-btn {
@@ -176,26 +231,29 @@
             transform: scale(0.98);
         }
         
-        .login-btn:disabled, .register-btn:disabled {
+        .action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
         
+        /* Divider */
         .divider {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin: 24px 0;
+            margin: 20px 0;
             color: #999;
             font-size: 14px;
         }
         
         .divider-line {
             flex: 1;
-            height: 1px;
-            background: #f0f0f0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f0f0f0, transparent);
         }
         
+        /* Back Link */
         .back-link {
             display: block;
             text-align: center;
@@ -203,6 +261,7 @@
             color: #666;
             font-size: 14px;
             padding: 12px;
+            transition: 0.2s;
         }
         
         .back-link:hover {
@@ -211,11 +270,23 @@
         
         /* Status Messages */
         .status-message {
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 16px;
             font-size: 14px;
             display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .status-message.error {
@@ -239,15 +310,15 @@
             border: 1px solid #bbdefb;
         }
         
-        /* Loading */
+        /* Loading Spinner */
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
             margin-right: 8px;
         }
         
@@ -255,15 +326,81 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Demo notice */
-        .demo-notice {
-            background: #fff3e0;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 16px;
+        /* Password Strength */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+        }
+        
+        .strength-bar.weak {
+            width: 33%;
+            background: #ff3b30;
+        }
+        
+        .strength-bar.medium {
+            width: 66%;
+            background: #ff9500;
+        }
+        
+        .strength-bar.strong {
+            width: 100%;
+            background: #34c759;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 4px;
+        }
+        
+        .tooltip-icon {
+            width: 16px;
+            height: 16px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
-            color: #e65100;
-            text-align: center;
+            color: #666;
+            cursor: help;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            z-index: 100;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+        }
+        
+        /* Responsive */
+        @media (max-width: 380px) {
+            .shop-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -279,11 +416,6 @@
             <!-- Status Messages -->
             <div id="statusMessage" class="status-message"></div>
             
-            <!-- Demo Notice (remove in production) -->
-            <div class="demo-notice">
-                🔧 demo: use any username, password min 6 chars
-            </div>
-            
             <!-- Role Selector -->
             <div class="role-selector" id="roleSelector">
                 <button class="role-btn consumer active" onclick="setRole('consumer')">
@@ -294,25 +426,120 @@
                 </button>
             </div>
             
-            <!-- Login Form -->
-            <div class="input-group">
-                <label class="input-label">username</label>
-                <input type="text" class="input-field" id="username" placeholder="enter username" autocomplete="off">
+            <!-- CONSUMER FORM -->
+            <div id="consumerForm" class="form-section">
+                <div class="input-group">
+                    <label class="input-label">username</label>
+                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">password</label>
+                    <input type="password" class="input-field consumer" id="consumerPassword" placeholder="••••••••">
+                    <div class="password-strength" id="consumerStrength">
+                        <div class="strength-bar"></div>
+                    </div>
+                </div>
+                
+                <button class="action-btn login-btn" onclick="handleLogin('consumer')" id="consumerLoginBtn">
+                    log in as consumer
+                </button>
+                
+                <button class="action-btn register-btn" onclick="handleRegister('consumer')" id="consumerRegisterBtn">
+                    create consumer account
+                </button>
             </div>
             
-            <div class="input-group">
-                <label class="input-label">password</label>
-                <input type="password" class="input-field" id="password" placeholder="••••••••">
-                <div class="password-hint">minimum 6 characters</div>
+            <!-- SHOP OWNER FORM (Enhanced) -->
+            <div id="shopForm" class="form-section hidden">
+                <!-- Shop Details -->
+                <div class="section-title">
+                    <span>🏪</span> shop details
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">shop name</label>
+                    <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market">
+                </div>
+                
+                <div class="shop-grid">
+                    <div class="input-group">
+                        <label class="input-label">phone</label>
+                        <input type="tel" class="input-field" id="shopPhone" placeholder="(555) 123-4567">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">email</label>
+                        <input type="email" class="input-field" id="shopEmail" placeholder="shop@example.com">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">address</label>
+                    <input type="text" class="input-field" id="shopAddress" placeholder="123 Main St, City, State">
+                </div>
+                
+                <div class="shop-grid">
+                    <div class="input-group">
+                        <label class="input-label">latitude</label>
+                        <input type="text" class="input-field" id="shopLat" placeholder="40.7128">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">longitude</label>
+                        <input type="text" class="input-field" id="shopLng" placeholder="-74.0060">
+                    </div>
+                </div>
+                
+                <!-- Account Details -->
+                <div class="section-title" style="margin-top: 16px;">
+                    <span>🔐</span> account details
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">username 
+                        <span class="tooltip">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">used for login</span>
+                        </span>
+                    </label>
+                    <input type="text" class="input-field" id="shopUsername" placeholder="choose a username">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">password</label>
+                    <input type="password" class="input-field" id="shopPassword" placeholder="••••••••" onkeyup="checkPasswordStrength(this.value, 'shop')">
+                    <div class="password-strength" id="shopStrength">
+                        <div class="strength-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- Hours of Operation (Optional) -->
+                <div class="section-title" style="margin-top: 16px;">
+                    <span>🕐</span> hours (optional)
+                </div>
+                
+                <div class="shop-grid">
+                    <div class="input-group">
+                        <label class="input-label">open</label>
+                        <input type="time" class="input-field" id="shopOpen" value="09:00">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">close</label>
+                        <input type="time" class="input-field" id="shopClose" value="21:00">
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <button class="action-btn login-btn" onclick="handleShopLogin()" id="shopLoginBtn">
+                    log in as shop
+                </button>
+                
+                <button class="action-btn register-btn" onclick="handleShopRegister()" id="shopRegisterBtn">
+                    register shop
+                </button>
             </div>
-            
-            <button class="action-btn login-btn" id="loginBtn" onclick="handleLogin()">
-                log in
-            </button>
-            
-            <button class="action-btn register-btn" id="registerBtn" onclick="handleRegister()">
-                create account
-            </button>
             
             <div class="divider">
                 <span class="divider-line"></span>
@@ -340,8 +567,20 @@
                 redirectToHome(role);
             }
             
-            // Test connection on load
+            // Test connection
             testConnection();
+            
+            // Set default dates
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            // Pre-fill with demo data for testing
+            document.getElementById('shopName').value = "Demo Market";
+            document.getElementById('shopPhone').value = "555-0123";
+            document.getElementById('shopEmail').value = "demo@market.com";
+            document.getElementById('shopAddress').value = "123 Main St";
+            document.getElementById('shopLat').value = "40.7128";
+            document.getElementById('shopLng').value = "-74.0060";
         });
         
         // ==================== ROLE HANDLING ====================
@@ -355,47 +594,67 @@
             
             if (role === 'consumer') {
                 document.querySelector('.role-btn.consumer').classList.add('active');
-                document.querySelector('.login-btn').style.background = '#34c759';
-                document.querySelector('.register-btn').style.background = '#34c759';
+                document.getElementById('consumerForm').classList.remove('hidden');
+                document.getElementById('shopForm').classList.add('hidden');
             } else {
                 document.querySelector('.role-btn.shop').classList.add('active');
-                document.querySelector('.login-btn').style.background = '#007aff';
-                document.querySelector('.register-btn').style.background = '#007aff';
+                document.getElementById('shopForm').classList.remove('hidden');
+                document.getElementById('consumerForm').classList.add('hidden');
             }
         }
         
-        // ==================== AUTH ACTIONS ====================
-        async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+        // ==================== PASSWORD STRENGTH ====================
+        function checkPasswordStrength(password, type) {
+            const strengthBar = document.querySelector(`#${type}Strength .strength-bar`);
+            let strength = 0;
             
-            // Validate
+            if (password.length >= 6) strength += 1;
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            
+            strengthBar.className = 'strength-bar';
+            
+            if (password.length === 0) {
+                strengthBar.style.width = '0';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('weak');
+            } else if (strength <= 4) {
+                strengthBar.classList.add('medium');
+            } else {
+                strengthBar.classList.add('strong');
+            }
+        }
+        
+        // ==================== CONSUMER ACTIONS ====================
+        async function handleLogin(role) {
+            const username = document.getElementById('consumerUsername').value.trim();
+            const password = document.getElementById('consumerPassword').value;
+            
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 return;
             }
             
-            // Disable buttons
-            setButtonsDisabled(true);
+            setButtonsDisabled(true, 'consumer');
             showStatus('logging in...', 'info');
             
-            // Attempt login
-            const result = await Backend.login(username, password, currentRole);
+            const result = await Backend.login(username, password, role);
             
             if (result.success) {
-                showStatus('login successful! redirecting...', 'success');
-                setTimeout(() => redirectToHome(currentRole), 1000);
+                showStatus('login successful!', 'success');
+                setTimeout(() => redirectToHome(role), 1000);
             } else {
                 showStatus(result.message || 'login failed', 'error');
-                setButtonsDisabled(false);
+                setButtonsDisabled(false, 'consumer');
             }
         }
         
-        async function handleRegister() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+        async function handleRegister(role) {
+            const username = document.getElementById('consumerUsername').value.trim();
+            const password = document.getElementById('consumerPassword').value;
             
-            // Validate
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 return;
@@ -406,32 +665,108 @@
                 return;
             }
             
-            // Disable buttons
-            setButtonsDisabled(true);
+            setButtonsDisabled(true, 'consumer');
             showStatus('creating account...', 'info');
             
-            // Attempt registration
-            const result = await Backend.register(username, password, currentRole);
+            const result = await Backend.register(username, password, role);
             
             if (result.success) {
                 showStatus('account created! logging in...', 'success');
-                // Auto login after registration
                 setTimeout(async () => {
-                    const loginResult = await Backend.login(username, password, currentRole);
+                    const loginResult = await Backend.login(username, password, role);
                     if (loginResult.success) {
-                        redirectToHome(currentRole);
+                        redirectToHome(role);
                     }
                 }, 1000);
             } else {
                 showStatus(result.message || 'registration failed', 'error');
-                setButtonsDisabled(false);
+                setButtonsDisabled(false, 'consumer');
+            }
+        }
+        
+        // ==================== SHOP OWNER ACTIONS ====================
+        async function handleShopRegister() {
+            const username = document.getElementById('shopUsername').value.trim();
+            const password = document.getElementById('shopPassword').value;
+            
+            // Validate required fields
+            if (!username || !password) {
+                showStatus('please enter username and password', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showStatus('password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            // Collect shop details
+            const shopData = {
+                name: document.getElementById('shopName').value.trim(),
+                phone: document.getElementById('shopPhone').value.trim(),
+                email: document.getElementById('shopEmail').value.trim(),
+                address: document.getElementById('shopAddress').value.trim(),
+                latitude: document.getElementById('shopLat').value.trim(),
+                longitude: document.getElementById('shopLng').value.trim(),
+                openTime: document.getElementById('shopOpen').value,
+                closeTime: document.getElementById('shopClose').value
+            };
+            
+            setButtonsDisabled(true, 'shop');
+            showStatus('creating shop account...', 'info');
+            
+            // First register the user
+            const result = await Backend.register(username, password, 'advertiser');
+            
+            if (result.success) {
+                // Save shop details (you'll need to add this to backend.js)
+                localStorage.setItem('shopDetails', JSON.stringify(shopData));
+                
+                showStatus('shop registered! logging in...', 'success');
+                setTimeout(async () => {
+                    const loginResult = await Backend.login(username, password, 'advertiser');
+                    if (loginResult.success) {
+                        redirectToHome('advertiser');
+                    }
+                }, 1000);
+            } else {
+                showStatus(result.message || 'registration failed', 'error');
+                setButtonsDisabled(false, 'shop');
+            }
+        }
+        
+        async function handleShopLogin() {
+            const username = document.getElementById('shopUsername').value.trim();
+            const password = document.getElementById('shopPassword').value;
+            
+            if (!username || !password) {
+                showStatus('please enter username and password', 'error');
+                return;
+            }
+            
+            setButtonsDisabled(true, 'shop');
+            showStatus('logging in...', 'info');
+            
+            const result = await Backend.login(username, password, 'advertiser');
+            
+            if (result.success) {
+                showStatus('login successful!', 'success');
+                setTimeout(() => redirectToHome('advertiser'), 1000);
+            } else {
+                showStatus(result.message || 'login failed', 'error');
+                setButtonsDisabled(false, 'shop');
             }
         }
         
         // ==================== UTILITY FUNCTIONS ====================
-        function setButtonsDisabled(disabled) {
-            document.getElementById('loginBtn').disabled = disabled;
-            document.getElementById('registerBtn').disabled = disabled;
+        function setButtonsDisabled(disabled, type) {
+            if (type === 'consumer') {
+                document.getElementById('consumerLoginBtn').disabled = disabled;
+                document.getElementById('consumerRegisterBtn').disabled = disabled;
+            } else {
+                document.getElementById('shopLoginBtn').disabled = disabled;
+                document.getElementById('shopRegisterBtn').disabled = disabled;
+            }
         }
         
         function showStatus(message, type = 'info') {
@@ -441,43 +776,32 @@
         }
         
         function redirectToHome(role) {
-            if (role === 'advertiser') {
-                window.location.href = 'index.html'; // index handles both roles
-            } else {
-                window.location.href = 'index.html';
-            }
+            window.location.href = 'index.html';
         }
         
         async function testConnection() {
-            try {
-                const result = await Backend.testConnection();
-                if (result.success) {
-                    console.log('✅ connected to foodsave cloud');
-                } else {
-                    console.warn('⚠️ using offline mode');
-                }
-            } catch (error) {
-                console.warn('⚠️ offline mode -', error.message);
+            const result = await Backend.testConnection();
+            if (!result.success) {
+                console.warn('⚠️ offline mode');
             }
         }
         
-        // Allow enter key to submit
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleLogin();
-            }
+        // Enter key handlers
+        document.getElementById('consumerPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin('consumer');
         });
         
-        document.getElementById('username').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('password').focus();
-            }
+        document.getElementById('shopPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleShopLogin();
         });
         
         // Make functions global
         window.setRole = setRole;
         window.handleLogin = handleLogin;
         window.handleRegister = handleRegister;
+        window.handleShopLogin = handleShopLogin;
+        window.handleShopRegister = handleShopRegister;
+        window.checkPasswordStrength = checkPasswordStrength;
     </script>
 </body>
 </html>
