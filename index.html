@@ -14,7 +14,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
+            background: #f5f7fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -32,16 +32,48 @@
         
         /* Header */
         .header {
-            padding: 24px 20px;
-            background: linear-gradient(135deg, #007aff, #00c6ff);
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #34c759, #007aff);
             color: white;
-            position: relative;
         }
         
-        .welcome {
-            font-size: 28px;
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 20px;
             font-weight: 600;
             margin-bottom: 4px;
+        }
+        
+        .user-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            backdrop-filter: blur(5px);
         }
         
         .date {
@@ -51,7 +83,7 @@
         
         .logout-btn {
             position: absolute;
-            top: 24px;
+            top: 30px;
             right: 20px;
             background: rgba(255,255,255,0.2);
             border: none;
@@ -61,87 +93,58 @@
             font-size: 14px;
             cursor: pointer;
             backdrop-filter: blur(5px);
-            transition: 0.2s;
         }
         
         .logout-btn:active {
             background: rgba(255,255,255,0.3);
-            transform: scale(0.95);
         }
         
-        /* Role Demo Toggle (remove in production) */
-        .role-demo {
-            background: #f0f0f0;
-            padding: 12px 20px;
-            display: flex;
-            gap: 10px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .role-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            background: white;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .role-btn.active {
-            background: #007aff;
-            color: white;
-        }
-        
-        /* Content Sections */
+        /* Content */
         .content {
             padding: 20px;
             padding-bottom: 80px;
         }
         
         .section-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .view-all {
-            font-size: 14px;
-            color: #007aff;
-            text-decoration: none;
+        /* CONSUMER SECTION */
+        .consumer-only {
+            display: none;
         }
         
-        /* Consumer Grid */
-        .consumer-grid {
+        body.consumer .consumer-only {
+            display: block;
+        }
+        
+        .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 24px;
         }
         
-        .consumer-card {
+        .action-card {
             background: #f8f9fa;
             border-radius: 16px;
-            padding: 20px 12px;
-            text-align: center;
+            padding: 20px;
             text-decoration: none;
             color: #1a1a1a;
             transition: 0.2s;
             border: 1px solid #f0f0f0;
         }
         
-        .consumer-card:active {
+        .action-card:active {
             transform: scale(0.97);
             background: #f0f2f5;
         }
         
         .card-emoji {
-            font-size: 32px;
+            font-size: 28px;
             margin-bottom: 8px;
         }
         
@@ -155,30 +158,29 @@
             color: #666;
         }
         
-        /* Recent Items */
-        .recent-section {
+        .card-stats {
+            font-size: 11px;
+            color: #34c759;
+            margin-top: 4px;
+        }
+        
+        /* Recent Deals */
+        .deals-list {
             margin-bottom: 24px;
         }
         
-        .recent-item {
+        .deal-item {
             background: #f8f9fa;
-            padding: 12px 16px;
+            padding: 16px;
             border-radius: 12px;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
             border: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: 0.2s;
         }
         
-        .recent-item:active {
-            background: #f0f2f5;
-            transform: translateX(5px);
-        }
-        
-        .recent-emoji {
+        .deal-icon {
             width: 40px;
             height: 40px;
             background: white;
@@ -189,98 +191,184 @@
             font-size: 20px;
         }
         
-        .recent-details {
+        .deal-details {
             flex: 1;
         }
         
-        .recent-name {
-            font-weight: 500;
-            margin-bottom: 2px;
+        .deal-name {
+            font-weight: 600;
+            margin-bottom: 4px;
         }
         
-        .recent-meta {
+        .deal-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .deal-discount {
+            color: #34c759;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* Fridge Summary */
+        .fridge-summary {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .fridge-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 16px 0;
+        }
+        
+        .fridge-stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #007aff;
+        }
+        
+        .stat-label {
             font-size: 12px;
             color: #666;
         }
         
-        .recent-price {
-            color: #007aff;
+        /* ADVERTISER SECTION */
+        .advertiser-only {
+            display: none;
+        }
+        
+        body.advertiser .advertiser-only {
+            display: block;
+        }
+        
+        /* Shop Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .profile-name {
+            flex: 1;
+        }
+        
+        .profile-name h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .profile-meta {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        
+        .stat-box .number {
+            font-size: 20px;
             font-weight: 600;
         }
         
-        .recent-shop {
-            font-size: 12px;
-            color: #34c759;
+        .stat-box .label {
+            font-size: 11px;
+            opacity: 0.8;
         }
         
-        /* Advertiser Section */
-        .advertiser-grid {
+        /* Shop Actions */
+        .shop-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 24px;
         }
         
-        .advertiser-card {
+        .shop-action {
             background: #f8f9fa;
             border-radius: 16px;
-            padding: 20px 12px;
+            padding: 20px;
             text-align: center;
             text-decoration: none;
             color: #1a1a1a;
-            transition: 0.2s;
             border: 1px solid #f0f0f0;
         }
         
-        .stats-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 24px;
+        .shop-action:active {
+            background: #f0f2f5;
         }
         
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .stat-number {
+        .action-icon {
             font-size: 24px;
-            font-weight: 600;
+            margin-bottom: 8px;
         }
         
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
+        /* Shop Ads */
+        .ads-list {
+            margin-bottom: 20px;
         }
         
-        /* Current Ads */
         .ad-item {
             background: #f8f9fa;
             padding: 16px;
             border-radius: 12px;
             margin-bottom: 8px;
             border-left: 4px solid #34c759;
-            cursor: pointer;
-            transition: 0.2s;
         }
         
-        .ad-item:active {
-            background: #f0f2f5;
-            transform: translateX(5px);
+        .ad-item.expiring {
+            border-left-color: #ff9500;
         }
         
-        .ad-item.expiring-soon {
-            border-left-color: #ff3b30;
-        }
-        
-        .ad-title {
-            font-weight: 600;
-            margin-bottom: 4px;
+        .ad-header {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .ad-food {
+            font-weight: 600;
         }
         
         .ad-discount {
@@ -289,18 +377,10 @@
         }
         
         .ad-meta {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
             display: flex;
             gap: 12px;
-        }
-        
-        .ad-stats {
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
-            display: flex;
-            gap: 16px;
         }
         
         /* Bottom Nav */
@@ -316,7 +396,6 @@
             padding: 8px 20px;
             display: flex;
             justify-content: space-around;
-            z-index: 100;
         }
         
         .nav-item {
@@ -324,9 +403,8 @@
             color: #999;
             font-size: 12px;
             text-align: center;
-            transition: 0.2s;
-            padding: 4px 0;
             flex: 1;
+            padding: 4px 0;
         }
         
         .nav-item.active {
@@ -340,52 +418,33 @@
         }
         
         /* Loading States */
-        .loading-item {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            animation: pulse 1.5s infinite;
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
         }
         
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
         }
         
-        /* Hide sections based on role */
-        .consumer-only {
-            display: none;
-        }
-        
-        .advertiser-only {
-            display: none;
-        }
-        
-        body.consumer .consumer-only {
-            display: block;
-        }
-        
-        body.consumer .advertiser-only {
-            display: none;
-        }
-        
-        body.advertiser .advertiser-only {
-            display: block;
-        }
-        
-        body.advertiser .consumer-only {
-            display: none;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 30px 20px;
+            padding: 30px;
             color: #999;
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 16px;
         }
         
         .empty-emoji {
@@ -393,145 +452,90 @@
             margin-bottom: 12px;
             opacity: 0.5;
         }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        
-        .quick-btn {
-            flex: 1;
-            padding: 10px;
-            background: #f0f2f5;
-            border: none;
-            border-radius: 10px;
-            font-size: 13px;
-            color: #666;
-            cursor: pointer;
-        }
-        
-        .quick-btn:active {
-            background: #e0e2e5;
-        }
     </style>
 </head>
-<body class="consumer">
+<body>
     <div class="app">
         <!-- Header -->
         <div class="header">
-            <div class="welcome" id="welcomeMessage">hi, consumer</div>
+            <div class="greeting">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">loading...</div>
+                    <div class="user-badge" id="userBadge">consumer</div>
+                </div>
+            </div>
             <div class="date" id="currentDate"></div>
-            <button class="logout-btn" onclick="logout()" id="logoutBtn">logout</button>
+            <button class="logout-btn" onclick="logout()">logout</button>
         </div>
         
-        <!-- Role Demo Toggle (remove in production) -->
-        <div class="role-demo">
-            <button class="role-btn active" onclick="switchRole('consumer')">👤 consumer</button>
-            <button class="role-btn" onclick="switchRole('advertiser')">🏪 advertiser</button>
-        </div>
-        
-        <!-- Main Content -->
+        <!-- Content -->
         <div class="content">
-            <!-- CONSUMER SECTION -->
+            <!-- CONSUMER VIEW -->
             <div class="consumer-only">
-                <div class="consumer-grid">
-                    <a href="shoplist.html" class="consumer-card">
+                <div class="quick-actions">
+                    <a href="shoplist.html" class="action-card">
                         <div class="card-emoji">🛒</div>
                         <div class="card-title">my lists</div>
                         <div class="card-desc" id="listCount">0 items</div>
                     </a>
-                    <a href="find-stores.html" class="consumer-card">
+                    <a href="find-stores.html" class="action-card">
                         <div class="card-emoji">🔍</div>
-                        <div class="card-title">find stores</div>
-                        <div class="card-desc" id="dealsCount">loading...</div>
+                        <div class="card-title">find deals</div>
+                        <div class="card-desc" id="dealsCount">0 nearby</div>
                     </a>
-                    <a href="fridge.html" class="consumer-card">
+                    <a href="fridge.html" class="action-card">
                         <div class="card-emoji">🧊</div>
                         <div class="card-title">my fridge</div>
                         <div class="card-desc" id="fridgeCount">0 items</div>
                     </a>
-                    <a href="#" class="consumer-card" onclick="comingSoon('recipes')">
+                    <a href="#" class="action-card" onclick="comingSoon('recipes')">
                         <div class="card-emoji">🍳</div>
                         <div class="card-title">recipes</div>
                         <div class="card-desc">coming soon</div>
                     </a>
                 </div>
                 
-                <!-- Recent Deals -->
-                <div class="recent-section">
-                    <div class="section-title">
-                        hot deals near you
-                        <a href="find-stores.html" class="view-all">view all →</a>
-                    </div>
-                    <div id="recentDeals"></div>
+                <div class="section-title">recent deals</div>
+                <div class="deals-list" id="recentDeals">
+                    <!-- Loaded dynamically -->
                 </div>
                 
-                <!-- Recently Added to Fridge -->
-                <div class="recent-section">
-                    <div class="section-title">
-                        recently in fridge
-                        <a href="fridge.html" class="view-all">view all →</a>
-                    </div>
-                    <div id="recentFridge"></div>
+                <div class="section-title">fridge summary</div>
+                <div class="fridge-summary" id="fridgeSummary">
+                    <!-- Loaded dynamically -->
                 </div>
             </div>
             
-            <!-- ADVERTISER SECTION -->
+            <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
-                <!-- Stats -->
-                <div class="stats-card" id="statsCard">
-                    <div class="stats-row">
-                        <span class="stat-label">active ads</span>
-                        <span class="stat-number" id="activeAds">0</span>
-                    </div>
-                    <div class="stats-row">
-                        <span class="stat-label">views today</span>
-                        <span class="stat-number" id="viewsToday">0</span>
-                    </div>
-                    <div class="stats-row">
-                        <span class="stat-label">total claimed</span>
-                        <span class="stat-number" id="totalClaimed">0</span>
-                    </div>
+                <!-- Shop Profile -->
+                <div class="profile-card" id="shopProfile">
+                    <!-- Loaded dynamically -->
                 </div>
                 
-                <div class="advertiser-grid">
-                    <a href="advertise.html" class="advertiser-card">
-                        <div class="card-emoji">📢</div>
-                        <div class="card-title">post ad</div>
-                        <div class="card-desc">list discounted food</div>
+                <div class="shop-actions">
+                    <a href="advertise.html" class="shop-action">
+                        <div class="action-icon">📢</div>
+                        <div>post ad</div>
                     </a>
-                    <a href="#" class="advertiser-card" onclick="comingSoon('analytics')">
-                        <div class="card-emoji">📊</div>
-                        <div class="card-title">analytics</div>
-                        <div class="card-desc">view performance</div>
+                    <a href="#" class="shop-action" onclick="showProfile()">
+                        <div class="action-icon">👤</div>
+                        <div>profile</div>
                     </a>
-                    <a href="#" class="advertiser-card" onclick="comingSoon('inventory')">
-                        <div class="card-emoji">📦</div>
-                        <div class="card-title">inventory</div>
-                        <div class="card-desc">manage stock</div>
+                    <a href="#" class="shop-action" onclick="comingSoon('analytics')">
+                        <div class="action-icon">📊</div>
+                        <div>analytics</div>
                     </a>
-                    <a href="#" class="advertiser-card" onclick="comingSoon('customers')">
-                        <div class="card-emoji">👥</div>
-                        <div class="card-title">customers</div>
-                        <div class="card-desc">engagement</div>
+                    <a href="#" class="shop-action" onclick="comingSoon('customers')">
+                        <div class="action-icon">👥</div>
+                        <div>customers</div>
                     </a>
                 </div>
                 
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <button class="quick-btn" onclick="quickPost()">📢 quick post</button>
-                    <button class="quick-btn" onclick="syncWithCloud()">↻ sync</button>
-                </div>
-                
-                <!-- Your Active Ads -->
-                <div class="recent-section">
-                    <div class="section-title">
-                        your active deals
-                        <a href="advertise.html" class="view-all">manage →</a>
-                    </div>
-                    <div id="shopAds"></div>
+                <div class="section-title">your active deals</div>
+                <div class="ads-list" id="shopAds">
+                    <!-- Loaded dynamically -->
                 </div>
             </div>
         </div>
@@ -542,20 +546,87 @@
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
             </a>
-            <a href="shoplist.html" class="nav-item">
-                <span class="nav-emoji">🛒</span>
-                <span>lists</span>
+            <a href="#" class="nav-item" onclick="navigateToRolePage()">
+                <span class="nav-emoji" id="navIcon">🛒</span>
+                <span id="navLabel">lists</span>
             </a>
-            <a href="find-stores.html" class="nav-item">
-                <span class="nav-emoji">🔍</span>
-                <span>deals</span>
+            <a href="#" class="nav-item" onclick="comingSoon('notifications')">
+                <span class="nav-emoji">🔔</span>
+                <span>alerts</span>
             </a>
-            <a href="#" class="nav-item" onclick="comingSoon('profile')">
+            <a href="#" class="nav-item" onclick="showProfile()">
                 <span class="nav-emoji">👤</span>
                 <span>profile</span>
             </a>
         </div>
     </div>
+    
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h3>shop profile</h3>
+            <div id="profileDetails"></div>
+            <button onclick="closeModal()">close</button>
+        </div>
+    </div>
+    
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 16px;
+        }
+        
+        .modal-content .detail-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .modal-content .detail-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .modal-content .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .modal-content button {
+            width: 100%;
+            padding: 14px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-weight: 600;
+        }
+    </style>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
@@ -563,35 +634,39 @@
     <script>
         // ==================== STATE ====================
         let currentRole = 'consumer';
-        let refreshInterval;
+        let currentUser = null;
         
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check login
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || !role) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            currentUser = user;
+            currentRole = role;
+            
+            // Set body class
+            document.body.className = role;
+            
             // Set date
             const date = new Date();
             document.getElementById('currentDate').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
-            // Check logged in user
-            const user = Backend.getCurrentUser();
-            const savedRole = localStorage.getItem('userRole') || 'consumer';
+            // Update navigation based on role
+            updateNavigation();
             
-            if (user) {
-                currentRole = savedRole;
-                updateWelcomeMessage(user.get('username'), savedRole);
-            }
-            
-            switchRole(currentRole);
-            
-            // Load initial data
-            await loadAllData();
-            
-            // Refresh every 30 seconds
-            refreshInterval = setInterval(loadAllData, 30000);
+            // Load data
+            await loadUserData();
         });
         
-        // ==================== DATA LOADING ====================
-        async function loadAllData() {
+        // ==================== LOAD DATA ====================
+        async function loadUserData() {
             if (currentRole === 'consumer') {
                 await loadConsumerData();
             } else {
@@ -600,49 +675,43 @@
         }
         
         async function loadConsumerData() {
-            try {
-                // Load deals
-                const deals = await Backend.getActiveAds({ limit: 3 });
-                document.getElementById('dealsCount').textContent = `${deals.length} deals`;
-                displayRecentDeals(deals);
-                
-                // Load fridge items
-                const fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
-                document.getElementById('fridgeCount').textContent = `${fridgeItems.length} items`;
-                displayRecentFridge(fridgeItems.slice(0, 3));
-                
-                // Load list count
-                const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
-                const totalItems = Object.values(lists).reduce((sum, list) => 
-                    sum + (list.items?.length || 0), 0);
-                document.getElementById('listCount').textContent = `${totalItems} items`;
-                
-            } catch (error) {
-                console.error('Error loading consumer data:', error);
-            }
+            // Set user info
+            document.getElementById('userName').textContent = localStorage.getItem('loggedInConsumer') || 'consumer';
+            document.getElementById('userBadge').textContent = 'consumer';
+            
+            // Load deals
+            const deals = await Backend.getActiveAds({ limit: 3 });
+            displayRecentDeals(deals);
+            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+            
+            // Load fridge items
+            const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
+            document.getElementById('fridgeCount').textContent = fridge.length + ' items';
+            
+            // Display fridge summary
+            displayFridgeSummary(fridge);
+            
+            // Load list count
+            const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
+            const totalItems = Object.values(lists).reduce((sum, list) => 
+                sum + (list.items?.length || 0), 0);
+            document.getElementById('listCount').textContent = totalItems + ' items';
         }
         
         async function loadAdvertiserData() {
-            try {
-                const user = Backend.getCurrentUser();
-                if (!user) return;
-                
-                const ads = await Backend.getShopAds(user.id);
-                
-                // Update stats
-                const activeAds = ads.filter(ad => ad.active !== false);
-                const totalViews = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
-                const totalClaimed = ads.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
-                
-                document.getElementById('activeAds').textContent = activeAds.length;
-                document.getElementById('viewsToday').textContent = totalViews;
-                document.getElementById('totalClaimed').textContent = totalClaimed;
-                
-                displayShopAds(activeAds.slice(0, 5));
-                
-            } catch (error) {
-                console.error('Error loading advertiser data:', error);
-            }
+            const shopName = localStorage.getItem('shopName') || 'shop owner';
+            const shopDetails = JSON.parse(localStorage.getItem('shopDetails')) || {};
+            
+            document.getElementById('userName').textContent = shopName;
+            document.getElementById('userBadge').textContent = 'shop owner';
+            document.getElementById('userAvatar').textContent = '🏪';
+            
+            // Load shop profile
+            displayShopProfile(shopDetails);
+            
+            // Load shop ads
+            const ads = await Backend.getShopAds();
+            displayShopAds(ads);
         }
         
         function displayRecentDeals(deals) {
@@ -652,57 +721,97 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-emoji">🔍</div>
-                        <div>no deals available</div>
-                        <div style="font-size:13px; margin-top:8px;">check back later</div>
+                        <div>no deals nearby</div>
                     </div>
                 `;
                 return;
             }
             
             container.innerHTML = deals.map(deal => `
-                <div class="recent-item" onclick="window.location.href='find-stores.html'">
-                    <div class="recent-emoji">🏷️</div>
-                    <div class="recent-details">
-                        <div class="recent-name">${deal.foodName}</div>
-                        <div class="recent-meta">${deal.shopName}</div>
+                <div class="deal-item" onclick="window.location.href='find-stores.html'">
+                    <div class="deal-icon">🏷️</div>
+                    <div class="deal-details">
+                        <div class="deal-name">${deal.foodName}</div>
+                        <div class="deal-meta">
+                            <span>${deal.shopName}</span>
+                            <span>•</span>
+                            <span>${new Date(deal.expiryDate).toLocaleDateString()}</span>
+                        </div>
                     </div>
-                    <div class="recent-price">-${deal.discount}%</div>
+                    <div class="deal-discount">-${deal.discount}%</div>
                 </div>
             `).join('');
         }
         
-        function displayRecentFridge(items) {
-            const container = document.getElementById('recentFridge');
+        function displayFridgeSummary(items) {
+            const container = document.getElementById('fridgeSummary');
             
-            if (!items || items.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-emoji">🧊</div>
-                        <div>fridge is empty</div>
-                        <div style="font-size:13px; margin-top:8px;">add items in fridge tracker</div>
-                    </div>
-                `;
-                return;
-            }
+            const today = new Date();
+            today.setHours(0,0,0,0);
             
-            container.innerHTML = items.map(item => {
-                const daysUntil = Math.ceil((new Date(item.expiry) - new Date()) / (1000*60*60*24));
-                const emoji = daysUntil <= 2 ? '⚠️' : '✅';
-                
-                return `
-                    <div class="recent-item" onclick="window.location.href='fridge.html'">
-                        <div class="recent-emoji">${emoji}</div>
-                        <div class="recent-details">
-                            <div class="recent-name">${item.name}</div>
-                            <div class="recent-meta">expires in ${daysUntil} days</div>
-                        </div>
+            const expiring = items.filter(item => {
+                const expiry = new Date(item.expiry);
+                const diff = Math.round((expiry - today) / (1000*60*60*24));
+                return diff >= 0 && diff <= 3;
+            }).length;
+            
+            const expired = items.filter(item => {
+                const expiry = new Date(item.expiry);
+                return expiry < today;
+            }).length;
+            
+            container.innerHTML = `
+                <div class="fridge-stats">
+                    <div class="fridge-stat">
+                        <div class="stat-number">${items.length}</div>
+                        <div class="stat-label">total</div>
                     </div>
-                `;
-            }).join('');
+                    <div class="fridge-stat">
+                        <div class="stat-number" style="color:#ff9500;">${expiring}</div>
+                        <div class="stat-label">expiring</div>
+                    </div>
+                    <div class="fridge-stat">
+                        <div class="stat-number" style="color:#ff3b30;">${expired}</div>
+                        <div class="stat-label">expired</div>
+                    </div>
+                </div>
+                <a href="fridge.html" style="text-align:center; display:block; color:#007aff; text-decoration:none;">manage fridge →</a>
+            `;
         }
         
-        function displayShopAds(ads) {
+        function displayShopProfile(details) {
+            const container = document.getElementById('shopProfile');
+            
+            container.innerHTML = `
+                <div class="profile-header">
+                    <div class="profile-avatar">🏪</div>
+                    <div class="profile-name">
+                        <h3>${details.name || 'your shop'}</h3>
+                        <div class="profile-meta">${details.address || 'address not set'}</div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="number" id="profileViews">0</div>
+                        <div class="label">views</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="profileAds">0</div>
+                        <div class="label">ads</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="profileClaimed">0</div>
+                        <div class="label">claimed</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function displayShopAds(ads) {
             const container = document.getElementById('shopAds');
+            const profileAds = document.getElementById('profileAds');
+            const profileViews = document.getElementById('profileViews');
+            const profileClaimed = document.getElementById('profileClaimed');
             
             if (!ads || ads.length === 0) {
                 container.innerHTML = `
@@ -712,108 +821,117 @@
                         <div style="font-size:13px; margin-top:8px;">post your first deal</div>
                     </div>
                 `;
+                if (profileAds) profileAds.textContent = '0';
                 return;
             }
             
-            container.innerHTML = ads.map(ad => {
+            // Update stats
+            if (profileAds) profileAds.textContent = ads.length;
+            if (profileViews) profileViews.textContent = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
+            if (profileClaimed) profileClaimed.textContent = ads.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
+            
+            container.innerHTML = ads.slice(0, 5).map(ad => {
                 const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
-                const isExpiringSoon = daysUntil <= 2;
+                const expiring = daysUntil <= 2;
                 
                 return `
-                    <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''}" 
-                         onclick="window.location.href='advertise.html'">
-                        <div class="ad-title">
-                            <span>${ad.foodName}</span>
+                    <div class="ad-item ${expiring ? 'expiring' : ''}">
+                        <div class="ad-header">
+                            <span class="ad-food">${ad.foodName}</span>
                             <span class="ad-discount">${ad.discount}% off</span>
                         </div>
                         <div class="ad-meta">
                             <span>expires in ${daysUntil} days</span>
-                        </div>
-                        <div class="ad-stats">
                             <span>👁️ ${ad.views || 0}</span>
                             <span>✅ ${ad.claimed || 0}</span>
                         </div>
                     </div>
                 `;
             }).join('');
-        }
-        
-        // ==================== ROLE SWITCHING ====================
-        function switchRole(role) {
-            currentRole = role;
             
-            // Update body class
-            document.body.className = role;
-            
-            // Update welcome message
-            const user = Backend.getCurrentUser();
-            const username = user ? user.get('username') : (role === 'consumer' ? 'consumer' : 'shop owner');
-            updateWelcomeMessage(username, role);
-            
-            // Update active button
-            document.querySelectorAll('.role-btn').forEach((btn, index) => {
-                btn.classList.toggle('active', 
-                    (index === 0 && role === 'consumer') || 
-                    (index === 1 && role === 'advertiser')
-                );
-            });
-            
-            // Save to localStorage
-            localStorage.setItem('userRole', role);
-            
-            // Load role-specific data
-            loadAllData();
-        }
-        
-        function updateWelcomeMessage(username, role) {
-            const welcome = role === 'consumer' 
-                ? `hi, ${username}` 
-                : `welcome back, ${username}`;
-            document.getElementById('welcomeMessage').textContent = welcome;
-        }
-        
-        // ==================== ACTIONS ====================
-        async function logout() {
-            clearInterval(refreshInterval);
-            const result = await Backend.logout();
-            if (result.success) {
-                window.location.href = 'login.html';
+            if (ads.length > 5) {
+                container.innerHTML += `<a href="advertise.html" style="text-align:center; display:block; margin-top:12px; color:#007aff; text-decoration:none;">view all ${ads.length} ads →</a>`;
             }
         }
         
-        function quickPost() {
-            window.location.href = 'advertise.html';
+        // ==================== NAVIGATION ====================
+        function updateNavigation() {
+            const navIcon = document.getElementById('navIcon');
+            const navLabel = document.getElementById('navLabel');
+            
+            if (currentRole === 'consumer') {
+                navIcon.textContent = '🛒';
+                navLabel.textContent = 'lists';
+            } else {
+                navIcon.textContent = '📢';
+                navLabel.textContent = 'post ad';
+            }
         }
         
-        async function syncWithCloud() {
-            showNotification('syncing...');
-            await Backend.syncAll();
-            await loadAllData();
-            showNotification('synced!');
+        function navigateToRolePage() {
+            if (currentRole === 'consumer') {
+                window.location.href = 'shoplist.html';
+            } else {
+                window.location.href = 'advertise.html';
+            }
+        }
+        
+        // ==================== PROFILE ====================
+        function showProfile() {
+            if (currentRole === 'advertiser') {
+                const details = JSON.parse(localStorage.getItem('shopDetails')) || {};
+                const modal = document.getElementById('profileModal');
+                const modalContent = document.getElementById('profileDetails');
+                
+                modalContent.innerHTML = `
+                    <div class="detail-row">
+                        <div class="detail-label">shop name</div>
+                        <div class="detail-value">${details.name || 'not set'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">phone</div>
+                        <div class="detail-value">${details.phone || 'not set'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">email</div>
+                        <div class="detail-value">${details.email || 'not set'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">address</div>
+                        <div class="detail-value">${details.address || 'not set'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">hours</div>
+                        <div class="detail-value">${details.openTime || '09:00'} - ${details.closeTime || '21:00'}</div>
+                    </div>
+                `;
+                
+                modal.classList.add('show');
+            } else {
+                comingSoon('consumer profile');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+        
+        // ==================== UTILS ====================
+        async function logout() {
+            await Backend.logout();
+            window.location.href = 'login.html';
         }
         
         function comingSoon(feature) {
-            showNotification(`🔜 ${feature} coming soon`);
+            alert(`✨ ${feature} coming soon!`);
         }
-        
-        function showNotification(msg) {
-            // Simple alert for now
-            alert(msg);
-        }
-        
-        // ==================== CLEANUP ====================
-        window.addEventListener('beforeunload', () => {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        });
         
         // Make functions global
-        window.switchRole = switchRole;
         window.logout = logout;
+        window.showProfile = showProfile;
+        window.closeModal = closeModal;
         window.comingSoon = comingSoon;
-        window.quickPost = quickPost;
-        window.syncWithCloud = syncWithCloud;
+        window.navigateToRolePage = navigateToRolePage;
     </script>
 </body>
 </html>
