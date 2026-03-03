@@ -443,7 +443,7 @@
                 </div>
                 
                 <div class="input-group">
-                    <label class="input-label">shop name</label>
+                    <label class="input-label">business name</label>
                     <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market">
                 </div>
                 
@@ -693,7 +693,7 @@
             }
             
             // Collect shop details
-            const shopDetails = {
+            const businessDetails = {
                 name: document.getElementById('shopName').value.trim() || username,
                 phone: document.getElementById('shopPhone').value.trim(),
                 email: document.getElementById('shopEmail').value.trim(),
@@ -701,14 +701,15 @@
                 latitude: document.getElementById('shopLat').value.trim(),
                 longitude: document.getElementById('shopLng').value.trim(),
                 openTime: document.getElementById('shopOpen').value,
-                closeTime: document.getElementById('shopClose').value
+                closeTime: document.getElementById('shopClose').value,
+                type: 'grocery'
             };
             
             setButtonsDisabled(true, 'shop');
             showStatus('creating shop account...', 'info');
             
-            // Register with shop details
-            const result = await Backend.register(username, password, 'advertiser', shopDetails);
+            // Register with business details
+            const result = await Backend.register(username, password, 'advertiser', businessDetails);
             
             if (result.success) {
                 showStatus('shop registered! logging in...', 'success');
