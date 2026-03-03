@@ -2,45 +2,32 @@
 // BACK4APP CONFIGURATION
 // ===============================
 
-// Make sure this script is loaded AFTER parse.min.js
-// <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
-
-// IMPORTANT: For development only - enabling master key in browser
-// In production, never expose master key in client code!
-
-// Initialize Parse with your keys
+// Initialize Parse (without master key in init)
 Parse.initialize(
     "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt", // Application ID
-    "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA"   // JavaScript Key (no master key here)
+    "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA"   // JavaScript Key
 );
-
-// Set server URL
 Parse.serverURL = "https://parseapi.back4app.com";
 
-// Store master key separately for use in requests
+// Master key for admin operations
 const MASTER_KEY = "WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM";
 
-// Helper function to make requests with master key
-async function parseRequestWithMasterKey(fn) {
+// Helper function for master key operations
+async function withMasterKey(fn) {
+    Parse.CoreManager.set('MASTER_KEY', MASTER_KEY);
     try {
-        // Set master key headers for this request
-        Parse.CoreManager.set('MASTER_KEY', MASTER_KEY);
         const result = await fn();
-        Parse.CoreManager.set('MASTER_KEY', null); // Clear after
+        Parse.CoreManager.set('MASTER_KEY', null);
         return result;
     } catch (error) {
-        Parse.CoreManager.set('MASTER_KEY', null); // Clear on error
+        Parse.CoreManager.set('MASTER_KEY', null);
         throw error;
     }
 }
 
-// ===============================
-// BACKEND LOGIC - Fixed for browser
-// ===============================
-
 const Backend = {
-    // ========== USER AUTH (without master key - users need regular auth) ==========
-    async register(username, password, role) {
+    // ========== USER AUTH ==========
+    async register(username, password, role, businessDetails = null) {
         try {
             if (!username || !password || !role) {
                 return { success: false, message: "All fields are required" };
@@ -54,17 +41,42 @@ const Backend = {
             user.set("username", username);
             user.set("password", password);
             user.set("role", role);
-            user.set("email", `${username}@foodsave.com`);
+            user.set("email", businessDetails?.email || `${username}@foodsave.com`);
             
-            // Regular signup - no master key needed
+            // Add business details if advertiser
+            if (role === "advertiser" && businessDetails) {
+                user.set("businessName", businessDetails.name);
+                user.set("businessPhone", businessDetails.phone);
+                user.set("businessEmail", businessDetails.email);
+                user.set("businessAddress", businessDetails.address);
+                user.set("businessLat", parseFloat(businessDetails.latitude) || 0);
+                user.set("businessLng", parseFloat(businessDetails.longitude) || 0);
+                user.set("businessOpen", businessDetails.openTime || "09:00");
+                user.set("businessClose", businessDetails.closeTime || "21:00");
+                user.set("businessType", businessDetails.type || "grocery");
+                user.set("businessTaxId", businessDetails.taxId || "");
+                user.set("businessVerified", false);
+                user.set("businessRole", "owner"); // First user is owner
+                user.set("businessStaff", []); // Array of staff user IDs
+            }
+            
             await user.signUp();
             
             // Store in localStorage
             localStorage.setItem("loggedInUser", username);
             localStorage.setItem("userRole", role);
+            
             if (role === "advertiser") {
                 localStorage.setItem("loggedInShop", username);
-                localStorage.setItem("shopName", username);
+                localStorage.setItem("businessName", businessDetails?.name || username);
+                localStorage.setItem("businessRole", "owner");
+                if (businessDetails) {
+                    localStorage.setItem("businessDetails", JSON.stringify({
+                        ...businessDetails,
+                        verified: false,
+                        role: "owner"
+                    }));
+                }
             } else {
                 localStorage.setItem("loggedInConsumer", username);
             }
@@ -82,10 +94,8 @@ const Backend = {
 
     async login(username, password, role) {
         try {
-            // Regular login - no master key needed
             const user = await Parse.User.logIn(username, password);
             
-            // Check role (user object already has this)
             if (user.get("role") !== role) {
                 await Parse.User.logOut();
                 return { success: false, message: "Wrong login type selected" };
@@ -94,9 +104,30 @@ const Backend = {
             // Store in localStorage
             localStorage.setItem("loggedInUser", username);
             localStorage.setItem("userRole", role);
+            
             if (role === "advertiser") {
                 localStorage.setItem("loggedInShop", username);
-                localStorage.setItem("shopName", username);
+                localStorage.setItem("businessName", user.get("businessName") || username);
+                localStorage.setItem("businessRole", user.get("businessRole") || "staff");
+                localStorage.setItem("businessVerified", user.get("businessVerified") ? "true" : "false");
+                
+                // Store business details
+                const businessDetails = {
+                    name: user.get("businessName") || username,
+                    phone: user.get("businessPhone") || "",
+                    email: user.get("businessEmail") || "",
+                    address: user.get("businessAddress") || "",
+                    latitude: user.get("businessLat") || "",
+                    longitude: user.get("businessLng") || "",
+                    openTime: user.get("businessOpen") || "09:00",
+                    closeTime: user.get("businessClose") || "21:00",
+                    type: user.get("businessType") || "grocery",
+                    taxId: user.get("businessTaxId") || "",
+                    verified: user.get("businessVerified") || false,
+                    role: user.get("businessRole") || "staff"
+                };
+                localStorage.setItem("businessDetails", JSON.stringify(businessDetails));
+                
             } else {
                 localStorage.setItem("loggedInConsumer", username);
             }
@@ -126,9 +157,256 @@ const Backend = {
         return Parse.User.current();
     },
 
-    // ========== ADVERTISEMENT FUNCTIONS (using master key) ==========
+    // ========== BUSINESS PROFILE FUNCTIONS ==========
     
-    // Create a new advertisement
+    async getBusinessProfile() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            return await withMasterKey(async () => {
+                return {
+                    id: currentUser.id,
+                    username: currentUser.get("username"),
+                    businessName: currentUser.get("businessName"),
+                    businessPhone: currentUser.get("businessPhone"),
+                    businessEmail: currentUser.get("businessEmail"),
+                    businessAddress: currentUser.get("businessAddress"),
+                    businessLat: currentUser.get("businessLat"),
+                    businessLng: currentUser.get("businessLng"),
+                    businessOpen: currentUser.get("businessOpen"),
+                    businessClose: currentUser.get("businessClose"),
+                    businessType: currentUser.get("businessType"),
+                    businessTaxId: currentUser.get("businessTaxId"),
+                    businessVerified: currentUser.get("businessVerified"),
+                    businessRole: currentUser.get("businessRole"),
+                    businessStaff: currentUser.get("businessStaff") || [],
+                    createdAt: currentUser.get("createdAt")
+                };
+            });
+        } catch (error) {
+            console.error("Get business profile error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async updateBusinessProfile(updates) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            // Check permissions (only owner and managers can edit)
+            const userRole = currentUser.get("businessRole");
+            if (userRole !== "owner" && userRole !== "manager") {
+                return { success: false, message: "Only owners and managers can edit business profile" };
+            }
+
+            return await withMasterKey(async () => {
+                Object.keys(updates).forEach(key => {
+                    if (key.startsWith('business')) {
+                        currentUser.set(key, updates[key]);
+                    }
+                });
+                
+                await currentUser.save();
+                
+                // Update localStorage
+                const businessDetails = JSON.parse(localStorage.getItem("businessDetails") || "{}");
+                Object.assign(businessDetails, updates);
+                localStorage.setItem("businessDetails", JSON.stringify(businessDetails));
+                
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Update business profile error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    // ========== STAFF MANAGEMENT ==========
+    
+    async addStaffMember(staffUsername, staffRole = "staff") {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            // Only owners can add staff
+            if (currentUser.get("businessRole") !== "owner") {
+                return { success: false, message: "Only owners can add staff members" };
+            }
+
+            return await withMasterKey(async () => {
+                // Find staff user
+                const query = new Parse.Query(Parse.User);
+                query.equalTo("username", staffUsername);
+                const staffUser = await query.first();
+                
+                if (!staffUser) {
+                    return { success: false, message: "User not found" };
+                }
+
+                // Get current staff list
+                const staffList = currentUser.get("businessStaff") || [];
+                
+                // Check if already added
+                if (staffList.includes(staffUser.id)) {
+                    return { success: false, message: "Staff member already added" };
+                }
+
+                // Add to staff list
+                staffList.push(staffUser.id);
+                currentUser.set("businessStaff", staffList);
+                await currentUser.save();
+
+                // Set staff member's business role
+                staffUser.set("businessRole", staffRole);
+                staffUser.set("businessName", currentUser.get("businessName"));
+                staffUser.set("businessId", currentUser.id);
+                await staffUser.save();
+
+                return { success: true, message: "Staff member added" };
+            });
+        } catch (error) {
+            console.error("Add staff error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async removeStaffMember(staffId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            // Only owners can remove staff
+            if (currentUser.get("businessRole") !== "owner") {
+                return { success: false, message: "Only owners can remove staff members" };
+            }
+
+            return await withMasterKey(async () => {
+                const staffList = currentUser.get("businessStaff") || [];
+                const updatedList = staffList.filter(id => id !== staffId);
+                currentUser.set("businessStaff", updatedList);
+                await currentUser.save();
+
+                // Clear staff member's business role
+                const staffUser = await new Parse.Query(Parse.User).get(staffId, { useMasterKey: true });
+                staffUser.unset("businessRole");
+                staffUser.unset("businessName");
+                staffUser.unset("businessId");
+                await staffUser.save();
+
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Remove staff error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getStaffList() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            return await withMasterKey(async () => {
+                const staffIds = currentUser.get("businessStaff") || [];
+                if (staffIds.length === 0) return [];
+
+                const query = new Parse.Query(Parse.User);
+                query.containedIn("objectId", staffIds);
+                const staffUsers = await query.find();
+
+                return staffUsers.map(user => ({
+                    id: user.id,
+                    username: user.get("username"),
+                    role: user.get("businessRole"),
+                    email: user.get("email"),
+                    lastLogin: user.get("lastLogin")
+                }));
+            });
+        } catch (error) {
+            console.error("Get staff list error:", error);
+            return [];
+        }
+    },
+
+    // ========== BUSINESS VERIFICATION ==========
+    
+    async submitVerification(documents) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            // Only owners can submit verification
+            if (currentUser.get("businessRole") !== "owner") {
+                return { success: false, message: "Only owners can submit verification" };
+            }
+
+            return await withMasterKey(async () => {
+                const Verification = Parse.Object.extend("BusinessVerification");
+                const verification = new Verification();
+                
+                verification.set("businessId", currentUser.id);
+                verification.set("businessName", currentUser.get("businessName"));
+                verification.set("documents", documents);
+                verification.set("status", "pending");
+                verification.set("submittedAt", new Date());
+                
+                await verification.save();
+                
+                return { success: true, message: "Verification submitted" };
+            });
+        } catch (error) {
+            console.error("Submit verification error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getVerificationStatus() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            return await withMasterKey(async () => {
+                const query = new Parse.Query("BusinessVerification");
+                query.equalTo("businessId", currentUser.id);
+                query.descending("submittedAt");
+                
+                const result = await query.first();
+                
+                if (result) {
+                    return {
+                        status: result.get("status"),
+                        submittedAt: result.get("submittedAt"),
+                        reviewedAt: result.get("reviewedAt"),
+                        notes: result.get("notes")
+                    };
+                }
+                
+                return null;
+            });
+        } catch (error) {
+            console.error("Get verification status error:", error);
+            return null;
+        }
+    },
+
+    // ========== ADVERTISEMENT FUNCTIONS ==========
+    
     async createAd(adData) {
         try {
             const currentUser = Parse.User.current();
@@ -136,22 +414,28 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Use master key for this operation
-            return await parseRequestWithMasterKey(async () => {
+            // Check if business is verified for posting ads
+            if (!currentUser.get("businessVerified")) {
+                return { success: false, message: "Business must be verified to post ads" };
+            }
+
+            return await withMasterKey(async () => {
                 const Ad = Parse.Object.extend("Advertisement");
                 const ad = new Ad();
                 
                 ad.set("foodName", adData.foodName);
                 ad.set("discount", parseFloat(adData.discount));
                 ad.set("expiryDate", new Date(adData.expiryDate));
-                ad.set("shopName", adData.shopName);
-                ad.set("shopId", currentUser.id);
+                ad.set("businessName", currentUser.get("businessName"));
+                ad.set("businessId", currentUser.id);
                 ad.set("description", adData.description || "");
                 ad.set("originalPrice", parseFloat(adData.originalPrice) || 0);
                 ad.set("category", adData.category || "other");
                 ad.set("active", true);
                 ad.set("views", 0);
                 ad.set("claimed", 0);
+                ad.set("postedBy", currentUser.id);
+                ad.set("postedByRole", currentUser.get("businessRole"));
                 
                 await ad.save();
                 return { success: true, ad };
@@ -163,10 +447,9 @@ const Backend = {
         }
     },
 
-    // Get all active advertisements
     async getActiveAds(options = {}) {
         try {
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const Ad = Parse.Object.extend("Advertisement");
                 const query = new Parse.Query(Ad);
                 
@@ -177,8 +460,8 @@ const Backend = {
                     query.equalTo("category", options.category);
                 }
                 
-                if (options.shopId) {
-                    query.equalTo("shopId", options.shopId);
+                if (options.businessId) {
+                    query.equalTo("businessId", options.businessId);
                 }
                 
                 if (options.search) {
@@ -194,12 +477,14 @@ const Backend = {
                     foodName: ad.get("foodName"),
                     discount: ad.get("discount"),
                     expiryDate: ad.get("expiryDate"),
-                    shopName: ad.get("shopName"),
+                    businessName: ad.get("businessName"),
                     description: ad.get("description"),
                     originalPrice: ad.get("originalPrice"),
                     category: ad.get("category"),
                     views: ad.get("views"),
                     claimed: ad.get("claimed"),
+                    postedBy: ad.get("postedBy"),
+                    postedByRole: ad.get("postedByRole"),
                     createdAt: ad.get("createdAt")
                 }));
             });
@@ -210,21 +495,20 @@ const Backend = {
         }
     },
 
-    // Get advertisements for a specific shop
-    async getShopAds(shopId) {
+    async getBusinessAds(businessId) {
         try {
-            return await parseRequestWithMasterKey(async () => {
-                if (!shopId) {
+            return await withMasterKey(async () => {
+                if (!businessId) {
                     const currentUser = Parse.User.current();
-                    shopId = currentUser?.id;
+                    businessId = currentUser?.id;
                 }
                 
-                if (!shopId) return [];
+                if (!businessId) return [];
                 
                 const Ad = Parse.Object.extend("Advertisement");
                 const query = new Parse.Query(Ad);
                 
-                query.equalTo("shopId", shopId);
+                query.equalTo("businessId", businessId);
                 query.descending("createdAt");
                 
                 const ads = await query.find();
@@ -234,121 +518,19 @@ const Backend = {
                     foodName: ad.get("foodName"),
                     discount: ad.get("discount"),
                     expiryDate: ad.get("expiryDate"),
-                    shopName: ad.get("shopName"),
+                    businessName: ad.get("businessName"),
                     active: ad.get("active"),
                     views: ad.get("views"),
                     claimed: ad.get("claimed"),
+                    postedBy: ad.get("postedBy"),
+                    postedByRole: ad.get("postedByRole"),
                     createdAt: ad.get("createdAt")
                 }));
             });
             
         } catch (error) {
-            console.error("Get shop ads error:", error);
+            console.error("Get business ads error:", error);
             return [];
-        }
-    },
-
-    // Update advertisement
-    async updateAd(adId, updates) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) {
-                return { success: false, message: "Please login first" };
-            }
-
-            return await parseRequestWithMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                const ad = await query.get(adId);
-                
-                if (ad.get("shopId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
-                }
-                
-                Object.keys(updates).forEach(key => {
-                    if (key === 'expiryDate') {
-                        ad.set(key, new Date(updates[key]));
-                    } else if (key === 'discount' || key === 'originalPrice') {
-                        ad.set(key, parseFloat(updates[key]));
-                    } else {
-                        ad.set(key, updates[key]);
-                    }
-                });
-                
-                await ad.save();
-                return { success: true };
-            });
-            
-        } catch (error) {
-            console.error("Update ad error:", error);
-            return { success: false, message: error.message };
-        }
-    },
-
-    // Delete advertisement
-    async deleteAd(adId) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) {
-                return { success: false, message: "Please login first" };
-            }
-
-            return await parseRequestWithMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                const ad = await query.get(adId);
-                
-                if (ad.get("shopId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
-                }
-                
-                await ad.destroy();
-                return { success: true };
-            });
-            
-        } catch (error) {
-            console.error("Delete ad error:", error);
-            return { success: false, message: error.message };
-        }
-    },
-
-    // Increment view count
-    async incrementViews(adId) {
-        try {
-            return await parseRequestWithMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                const ad = await query.get(adId);
-                ad.increment("views");
-                await ad.save();
-                return { success: true };
-            });
-            
-        } catch (error) {
-            console.error("Increment views error:", error);
-            return { success: false };
-        }
-    },
-
-    // Mark as claimed
-    async incrementClaimed(adId) {
-        try {
-            return await parseRequestWithMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                const ad = await query.get(adId);
-                ad.increment("claimed");
-                await ad.save();
-                return { success: true };
-            });
-            
-        } catch (error) {
-            console.error("Increment claimed error:", error);
-            return { success: false };
         }
     },
 
@@ -361,7 +543,7 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const Fridge = Parse.Object.extend("Fridge");
                 
                 const query = new Parse.Query(Fridge);
@@ -394,7 +576,7 @@ const Backend = {
             const currentUser = Parse.User.current();
             if (!currentUser) return [];
 
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const Fridge = Parse.Object.extend("Fridge");
                 const query = new Parse.Query(Fridge);
                 
@@ -425,7 +607,7 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const ShoppingLists = Parse.Object.extend("ShoppingLists");
                 
                 const query = new Parse.Query(ShoppingLists);
@@ -453,7 +635,7 @@ const Backend = {
             const currentUser = Parse.User.current();
             if (!currentUser) return null;
 
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const ShoppingLists = Parse.Object.extend("ShoppingLists");
                 const query = new Parse.Query(ShoppingLists);
                 
@@ -532,15 +714,23 @@ const Backend = {
         return user ? user.get("role") : null;
     },
 
+    getBusinessRole() {
+        const user = Parse.User.current();
+        return user ? user.get("businessRole") : null;
+    },
+
+    isVerified() {
+        const user = Parse.User.current();
+        return user ? user.get("businessVerified") : false;
+    },
+
     async testConnection() {
         try {
-            return await parseRequestWithMasterKey(async () => {
+            return await withMasterKey(async () => {
                 const TestObject = Parse.Object.extend("TestConnection");
-                const testObject = new TestObject();
-                testObject.set("test", "Hello at " + new Date().toISOString());
-                testObject.set("masterKey", "used");
-                
-                await testObject.save();
+                const testObj = new TestObject();
+                testObj.set("test", "Hello at " + new Date().toISOString());
+                await testObj.save();
                 console.log("✅ foodsave cloud connected");
                 return { success: true };
             });
