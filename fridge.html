@@ -69,6 +69,22 @@
             color: #000;
         }
         
+        .sync-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .sync-btn:active {
+            background: #e8ecf0;
+            transform: rotate(180deg);
+        }
+        
         .logout-btn {
             width: 40px;
             height: 40px;
@@ -94,18 +110,19 @@
         
         /* Stats Card */
         .stats-card {
-            background: linear-gradient(135deg, #007aff, #00c6ff);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px;
             border-radius: 16px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.2);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
         }
         
         .stat-item {
             text-align: center;
+            flex: 1;
         }
         
         .stat-value {
@@ -115,15 +132,8 @@
         }
         
         .stat-label {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.9;
-        }
-        
-        .expiring-stat {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 500;
         }
         
         /* Add Section */
@@ -156,13 +166,13 @@
         
         .dropdown:focus, .input-field:focus {
             outline: none;
-            border-color: #007aff;
+            border-color: #667eea;
         }
         
         .add-btn {
             width: 100%;
             padding: 16px;
-            background: #34c759;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 12px;
@@ -177,8 +187,13 @@
         }
         
         .add-btn:active {
-            background: #2db14e;
+            background: #5a67d8;
             transform: scale(0.98);
+        }
+        
+        .add-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         
         /* Items Section */
@@ -198,9 +213,10 @@
         .sort-btn {
             background: none;
             border: none;
-            color: #007aff;
+            color: #667eea;
             font-size: 14px;
             padding: 4px 8px;
+            cursor: pointer;
         }
         
         .items-container {
@@ -307,6 +323,17 @@
             opacity: 0.5;
         }
         
+        .add-link {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+        
         /* Bottom Nav */
         .bottom-nav {
             position: fixed;
@@ -334,13 +361,63 @@
         }
         
         .nav-item.active {
-            color: #007aff;
+            color: #667eea;
         }
         
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+        }
+        
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            white-space: nowrap;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
         }
     </style>
 </head>
@@ -350,6 +427,7 @@
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>my fridge</h1>
+            <button class="sync-btn" onclick="syncWithCloud()">↻</button>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
@@ -382,7 +460,7 @@
                 <input type="text" id="foodName" class="input-field" placeholder="Or type custom food name">
                 <input type="date" id="expiryDate" class="input-field">
                 
-                <button class="add-btn" onclick="addItem()">
+                <button class="add-btn" onclick="addItem()" id="addBtn">
                     <span>➕</span> add to fridge
                 </button>
             </div>
@@ -394,7 +472,10 @@
             </div>
             
             <div class="items-container" id="itemsContainer">
-                <!-- Items will be loaded here -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    loading your fridge...
+                </div>
             </div>
         </div>
         
@@ -419,6 +500,12 @@
         </div>
     </div>
     
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
     <script>
         const commonFoods = [
             "Milk", "Eggs", "Bread", "Rice", "Chicken",
@@ -428,35 +515,48 @@
         ];
         
         let sortAscending = true;
+        let items = [];
         
         document.addEventListener("DOMContentLoaded", function() {
             // Check login
-            const user = localStorage.getItem("loggedInConsumer") || localStorage.getItem("loggedInUser");
+            const user = Backend.getCurrentUser();
             if (!user) {
                 alert("Please login first.");
                 window.location.href = "login.html";
                 return;
             }
-            populateDropdown();
-            displayItems();
+            loadFridgeItems();
         });
         
-        function getItems() {
-            return JSON.parse(localStorage.getItem("foodItems")) || [];
+        async function loadFridgeItems() {
+            try {
+                items = await Backend.loadFridgeItems();
+                populateDropdown();
+                displayItems();
+                showNotification('Fridge loaded from cloud', 'success');
+            } catch (error) {
+                console.error('Error loading fridge:', error);
+                items = [];
+                displayItems();
+                showNotification('Error loading fridge', 'error');
+            }
         }
         
-        function saveItems(items) {
-            localStorage.setItem("foodItems", JSON.stringify(items));
-            displayItems(); // Refresh display
+        async function saveItems() {
+            try {
+                await Backend.saveFridgeItems(items);
+                showNotification('Saved to cloud', 'success');
+            } catch (error) {
+                console.error('Error saving fridge:', error);
+                showNotification('Error saving to cloud', 'error');
+            }
         }
         
         function populateDropdown() {
             const dropdown = document.getElementById("foodDropdown");
             dropdown.innerHTML = '<option value="">Select food item</option>';
             
-            const items = getItems();
             const pastItems = items.map(item => item.name);
-            
             const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
             
             allFoods.forEach(food => {
@@ -467,7 +567,7 @@
             });
         }
         
-        function addItem() {
+        async function addItem() {
             const dropdownValue = document.getElementById("foodDropdown").value;
             const manualInput = document.getElementById("foodName").value.trim();
             const expiry = document.getElementById("expiryDate").value;
@@ -475,7 +575,7 @@
             const name = manualInput || dropdownValue;
             
             if (!name || !expiry) {
-                alert("Please select/type a food and choose expiry date.");
+                showNotification("Please select/type a food and choose expiry date.", "error");
                 return;
             }
             
@@ -485,47 +585,48 @@
             const expiryDate = new Date(expiry);
             
             if (expiryDate < today) {
-                alert("Expiry date cannot be in the past!");
+                showNotification("Expiry date cannot be in the past!", "error");
                 return;
             }
             
-            const items = getItems();
             items.push({ 
                 name, 
                 expiry,
                 addedDate: new Date().toISOString()
             });
-            saveItems(items);
             
-            // Clear form
+            await saveItems();
+            
             document.getElementById("foodName").value = "";
             document.getElementById("foodDropdown").value = "";
             document.getElementById("expiryDate").value = "";
             
             populateDropdown();
+            displayItems();
+            showNotification(`Added ${name} to fridge`, "success");
         }
         
-        function deleteItem(index) {
+        async function deleteItem(index) {
             if (confirm("Remove this item from fridge?")) {
-                const items = getItems();
                 items.splice(index, 1);
-                saveItems(items);
+                await saveItems();
                 populateDropdown();
+                displayItems();
+                showNotification("Item removed", "success");
             }
         }
         
-        function duplicateItem(index) {
-            const items = getItems();
+        async function duplicateItem(index) {
             const original = items[index];
-            
-            // Add a copy with new expiry date
             items.push({ 
                 name: original.name, 
                 expiry: original.expiry,
                 addedDate: new Date().toISOString()
             });
-            saveItems(items);
+            await saveItems();
             populateDropdown();
+            displayItems();
+            showNotification(`Added another ${original.name}`, "success");
         }
         
         function toggleSort() {
@@ -535,7 +636,6 @@
         
         function displayItems() {
             const container = document.getElementById("itemsContainer");
-            const items = getItems();
             
             // Update stats
             updateStats(items);
@@ -545,7 +645,8 @@
                     <div class="empty-state">
                         <div class="empty-emoji">🧊</div>
                         <div>your fridge is empty</div>
-                        <div style="font-size:13px; margin-top:8px;">add items to track expiry</div>
+                        <div style="font-size:13px; margin-top:8px;">add items to track expiry dates</div>
+                        <a href="#" class="add-link" onclick="document.getElementById('foodName').focus()">➕ add items</a>
                     </div>
                 `;
                 return;
@@ -592,7 +693,6 @@
                     status = `good for ${diffDays} days`;
                 }
                 
-                // Get emoji based on food
                 const foodEmoji = getFoodEmoji(item.name);
                 
                 return `
@@ -650,9 +750,21 @@
             document.getElementById('expiredItems').textContent = expired;
         }
         
+        async function syncWithCloud() {
+            await loadFridgeItems();
+        }
+        
         function logout() {
-            // Don't clear everything, just redirect
             window.location.href = "index.html";
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
         }
         
         // Make functions global
@@ -660,6 +772,7 @@
         window.deleteItem = deleteItem;
         window.duplicateItem = duplicateItem;
         window.toggleSort = toggleSort;
+        window.syncWithCloud = syncWithCloud;
         window.logout = logout;
     </script>
 </body>
