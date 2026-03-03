@@ -1,1 +1,790 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsave • business profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #007aff;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        /* Verification Badge */
+        .verification-badge {
+            background: #f5f7fa;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .badge-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #ffebee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .badge-icon.verified {
+            background: #e8f5e8;
+        }
+        
+        .badge-info {
+            flex: 1;
+        }
+        
+        .badge-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .badge-status {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .verify-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        /* Role Info */
+        .role-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .role-details {
+            flex: 1;
+        }
+        
+        .role-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .role-permissions {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin: 16px;
+            gap: 8px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #f5f7fa;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .tab.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 16px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+            display: block;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #fafafa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+            background: white;
+        }
+        
+        .form-input:disabled {
+            background: #f5f5f5;
+            color: #999;
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 16px;
+        }
+        
+        /* Staff List */
+        .staff-list {
+            margin-top: 16px;
+        }
+        
+        .staff-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .staff-avatar {
+            width: 40px;
+            height: 40px;
+            background: #e8eaf6;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .staff-details {
+            flex: 1;
+        }
+        
+        .staff-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .staff-role {
+            font-size: 12px;
+            color: #666;
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+        
+        .staff-role.owner {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .staff-role.manager {
+            background: #e3f2fd;
+            color: #007aff;
+        }
+        
+        .remove-staff {
+            color: #ff3b30;
+            background: none;
+            border: none;
+            font-size: 20px;
+            padding: 8px;
+        }
+        
+        /* Add Staff Form */
+        .add-staff {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+        
+        .add-staff h4 {
+            margin-bottom: 12px;
+        }
+        
+        /* Verification Documents */
+        .doc-upload {
+            border: 2px dashed #f0f0f0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .doc-list {
+            margin-top: 16px;
+        }
+        
+        .doc-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Status Messages */
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status-message.show {
+            display: block;
+        }
+        
+        .status-message.success {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
+        .status-message.error {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .status-message.info {
+            background: #e3f2fd;
+            color: #007aff;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>business profile</h1>
+        </div>
+        
+        <!-- Verification Status -->
+        <div class="verification-badge" id="verificationBadge">
+            <div class="badge-icon" id="badgeIcon">⏳</div>
+            <div class="badge-info">
+                <div class="badge-title" id="badgeTitle">Verification Pending</div>
+                <div class="badge-status" id="badgeStatus">Complete verification to post ads</div>
+            </div>
+            <button class="verify-btn" id="verifyBtn" onclick="showVerification()">verify</button>
+        </div>
+        
+        <!-- Role Banner -->
+        <div class="role-banner" id="roleBanner">
+            <div class="role-icon" id="roleIcon">👑</div>
+            <div class="role-details">
+                <div class="role-name" id="roleName">Business Owner</div>
+                <div class="role-permissions" id="rolePermissions">Full access • Can manage staff</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profile')">profile</button>
+            <button class="tab" onclick="switchTab('staff')">staff</button>
+            <button class="tab" onclick="switchTab('verification')">verification</button>
+        </div>
+        
+        <!-- Profile Tab -->
+        <div class="tab-content active" id="profileTab">
+            <div class="form-group">
+                <label class="form-label">business name</label>
+                <input type="text" class="form-input" id="businessName" placeholder="Your business name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">phone</label>
+                <input type="tel" class="form-input" id="businessPhone" placeholder="(555) 123-4567">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">email</label>
+                <input type="email" class="form-input" id="businessEmail" placeholder="business@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">address</label>
+                <input type="text" class="form-input" id="businessAddress" placeholder="123 Main St, City, State">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">latitude</label>
+                    <input type="text" class="form-input" id="businessLat" placeholder="40.7128">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">longitude</label>
+                    <input type="text" class="form-input" id="businessLng" placeholder="-74.0060">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">open time</label>
+                    <input type="time" class="form-input" id="businessOpen" value="09:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">close time</label>
+                    <input type="time" class="form-input" id="businessClose" value="21:00">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">business type</label>
+                <select class="form-input" id="businessType">
+                    <option value="grocery">Grocery Store</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="bakery">Bakery</option>
+                    <option value="butcher">Butcher Shop</option>
+                    <option value="farmers">Farmers Market</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <button class="save-btn" onclick="saveProfile()">save changes</button>
+        </div>
+        
+        <!-- Staff Tab -->
+        <div class="tab-content" id="staffTab">
+            <div class="staff-list" id="staffList">
+                <!-- Staff items loaded here -->
+            </div>
+            
+            <div class="add-staff" id="addStaffSection">
+                <h4>add staff member</h4>
+                <div class="form-group">
+                    <input type="text" class="form-input" id="staffUsername" placeholder="staff username">
+                </div>
+                <div class="form-group">
+                    <select class="form-input" id="staffRole">
+                        <option value="staff">Staff</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <button class="save-btn" onclick="addStaff()">add staff</button>
+            </div>
+        </div>
+        
+        <!-- Verification Tab -->
+        <div class="tab-content" id="verificationTab">
+            <div class="form-group">
+                <label class="form-label">tax ID / business license</label>
+                <input type="text" class="form-input" id="taxId" placeholder="Enter tax ID or license number">
+            </div>
+            
+            <div class="doc-upload" onclick="uploadDocument()">
+                <div style="font-size: 32px; margin-bottom: 8px;">📎</div>
+                <div>click to upload business license</div>
+                <div style="font-size: 12px; color: #999; margin-top: 8px;">PDF or image, max 5MB</div>
+            </div>
+            
+            <div class="doc-list" id="docList"></div>
+            
+            <button class="save-btn" onclick="submitVerification()">submit for verification</button>
+        </div>
+        
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="advertise.html" class="nav-item">
+                <span class="nav-emoji">📢</span>
+                <span>ads</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">👤</span>
+                <span>profile</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Status Message -->
+    <div class="status-message" id="statusMessage"></div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
+    <script>
+        let currentTab = 'profile';
+        let businessRole = 'staff';
+        let isVerified = false;
+        let documents = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if logged in as advertiser
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'advertiser') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            businessRole = localStorage.getItem('businessRole') || 'staff';
+            isVerified = localStorage.getItem('businessVerified') === 'true';
+            
+            updateRoleUI();
+            updateVerificationUI();
+            await loadBusinessData();
+            await loadStaffList();
+        });
+        
+        function updateRoleUI() {
+            const roleIcon = document.getElementById('roleIcon');
+            const roleName = document.getElementById('roleName');
+            const rolePermissions = document.getElementById('rolePermissions');
+            const addStaffSection = document.getElementById('addStaffSection');
+            
+            switch(businessRole) {
+                case 'owner':
+                    roleIcon.textContent = '👑';
+                    roleName.textContent = 'Business Owner';
+                    rolePermissions.textContent = 'Full access • Can manage staff and edit all settings';
+                    addStaffSection.style.display = 'block';
+                    break;
+                case 'manager':
+                    roleIcon.textContent = '⭐';
+                    roleName.textContent = 'Manager';
+                    rolePermissions.textContent = 'Can post ads and edit business info';
+                    addStaffSection.style.display = 'none';
+                    break;
+                default:
+                    roleIcon.textContent = '👤';
+                    roleName.textContent = 'Staff';
+                    rolePermissions.textContent = 'Can only post ads';
+                    addStaffSection.style.display = 'none';
+            }
+        }
+        
+        function updateVerificationUI() {
+            const badgeIcon = document.getElementById('badgeIcon');
+            const badgeTitle = document.getElementById('badgeTitle');
+            const badgeStatus = document.getElementById('badgeStatus');
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            if (isVerified) {
+                badgeIcon.className = 'badge-icon verified';
+                badgeIcon.textContent = '✅';
+                badgeTitle.textContent = 'Verified Business';
+                badgeStatus.textContent = 'Your business is verified';
+                verifyBtn.style.display = 'none';
+            } else {
+                badgeIcon.className = 'badge-icon';
+                badgeIcon.textContent = '⏳';
+                badgeTitle.textContent = 'Verification Pending';
+                badgeStatus.textContent = 'Complete verification to post ads';
+                verifyBtn.style.display = 'block';
+            }
+        }
+        
+        async function loadBusinessData() {
+            const result = await Backend.getBusinessProfile();
+            
+            if (result.success) {
+                const data = result;
+                document.getElementById('businessName').value = data.businessName || '';
+                document.getElementById('businessPhone').value = data.businessPhone || '';
+                document.getElementById('businessEmail').value = data.businessEmail || '';
+                document.getElementById('businessAddress').value = data.businessAddress || '';
+                document.getElementById('businessLat').value = data.businessLat || '';
+                document.getElementById('businessLng').value = data.businessLng || '';
+                document.getElementById('businessOpen').value = data.businessOpen || '09:00';
+                document.getElementById('businessClose').value = data.businessClose || '21:00';
+                document.getElementById('businessType').value = data.businessType || 'grocery';
+                document.getElementById('taxId').value = data.businessTaxId || '';
+            }
+        }
+        
+        async function loadStaffList() {
+            const staff = await Backend.getStaffList();
+            const container = document.getElementById('staffList');
+            
+            if (staff.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members yet</div>';
+                return;
+            }
+            
+            container.innerHTML = staff.map(member => `
+                <div class="staff-item">
+                    <div class="staff-avatar">👤</div>
+                    <div class="staff-details">
+                        <div class="staff-name">${member.username}</div>
+                        <span class="staff-role ${member.role}">${member.role}</span>
+                    </div>
+                    ${businessRole === 'owner' ? `
+                        <button class="remove-staff" onclick="removeStaff('${member.id}')">✕</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        async function saveProfile() {
+            const updates = {
+                businessName: document.getElementById('businessName').value,
+                businessPhone: document.getElementById('businessPhone').value,
+                businessEmail: document.getElementById('businessEmail').value,
+                businessAddress: document.getElementById('businessAddress').value,
+                businessLat: document.getElementById('businessLat').value,
+                businessLng: document.getElementById('businessLng').value,
+                businessOpen: document.getElementById('businessOpen').value,
+                businessClose: document.getElementById('businessClose').value,
+                businessType: document.getElementById('businessType').value
+            };
+            
+            const result = await Backend.updateBusinessProfile(updates);
+            
+            if (result.success) {
+                showStatus('Profile updated successfully', 'success');
+            } else {
+                showStatus(result.message, 'error');
+            }
+        }
+        
+        async function addStaff() {
+            const username = document.getElementById('staffUsername').value;
+            const role = document.getElementById('staffRole').value;
+            
+            if (!username) {
+                showStatus('Please enter username', 'error');
+                return;
+            }
+            
+            const result = await Backend.addStaffMember(username, role);
+            
+            if (result.success) {
+                showStatus('Staff member added', 'success');
+                document.getElementById('staffUsername').value = '';
+                await loadStaffList();
+            } else {
+                showStatus(result.message, 'error');
+            }
+        }
+        
+        async function removeStaff(staffId) {
+            if (!confirm('Remove this staff member?')) return;
+            
+            const result = await Backend.removeStaffMember(staffId);
+            
+            if (result.success) {
+                showStatus('Staff member removed', 'success');
+                await loadStaffList();
+            } else {
+                showStatus(result.message, 'error');
+            }
+        }
+        
+        function uploadDocument() {
+            // Simulate file upload
+            const fileName = `license_${Date.now()}.pdf`;
+            documents.push(fileName);
+            
+            const docList = document.getElementById('docList');
+            docList.innerHTML = documents.map(doc => `
+                <div class="doc-item">
+                    <span>📄</span>
+                    <span>${doc}</span>
+                </div>
+            `).join('');
+        }
+        
+        async function submitVerification() {
+            const taxId = document.getElementById('taxId').value;
+            
+            if (!taxId) {
+                showStatus('Please enter tax ID', 'error');
+                return;
+            }
+            
+            if (documents.length === 0) {
+                showStatus('Please upload business license', 'error');
+                return;
+            }
+            
+            const result = await Backend.submitVerification({
+                taxId,
+                documents
+            });
+            
+            if (result.success) {
+                showStatus('Verification submitted! We\'ll review within 24-48 hours', 'success');
+            } else {
+                showStatus(result.message, 'error');
+            }
+        }
+        
+        function showVerification() {
+            switchTab('verification');
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tabs
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', 
+                    (i === 0 && tab === 'profile') ||
+                    (i === 1 && tab === 'staff') ||
+                    (i === 2 && tab === 'verification')
+                );
+            });
+            
+            // Update content
+            document.getElementById('profileTab').classList.toggle('active', tab === 'profile');
+            document.getElementById('staffTab').classList.toggle('active', tab === 'staff');
+            document.getElementById('verificationTab').classList.toggle('active', tab === 'verification');
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('statusMessage');
+            status.textContent = message;
+            status.className = `status-message show ${type}`;
+            setTimeout(() => status.classList.remove('show'), 3000);
+        }
+        
+        // Make functions global
+        window.switchTab = switchTab;
+        window.saveProfile = saveProfile;
+        window.addStaff = addStaff;
+        window.removeStaff = removeStaff;
+        window.uploadDocument = uploadDocument;
+        window.submitVerification = submitVerification;
+        window.showVerification = showVerification;
+    </script>
+</body>
+</html>
