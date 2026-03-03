@@ -356,46 +356,6 @@
             background: #34c759;
         }
         
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            margin-left: 4px;
-        }
-        
-        .tooltip-icon {
-            width: 16px;
-            height: 16px;
-            background: #f0f0f0;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-            cursor: help;
-        }
-        
-        .tooltip-text {
-            visibility: hidden;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1a1a;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            white-space: nowrap;
-            margin-bottom: 8px;
-            z-index: 100;
-        }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-        }
-        
         /* Responsive */
         @media (max-width: 380px) {
             .shop-grid {
@@ -441,20 +401,45 @@
                     </div>
                 </div>
                 
-                <button class="action-btn login-btn" onclick="handleLogin('consumer')" id="consumerLoginBtn">
+                <button class="action-btn login-btn" onclick="handleConsumerLogin()" id="consumerLoginBtn">
                     log in as consumer
                 </button>
                 
-                <button class="action-btn register-btn" onclick="handleRegister('consumer')" id="consumerRegisterBtn">
+                <button class="action-btn register-btn" onclick="handleConsumerRegister()" id="consumerRegisterBtn">
                     create consumer account
                 </button>
             </div>
             
-            <!-- SHOP OWNER FORM (Enhanced) -->
+            <!-- SHOP OWNER FORM -->
             <div id="shopForm" class="form-section hidden">
-                <!-- Shop Details -->
+                <!-- Login Section -->
                 <div class="section-title">
-                    <span>🏪</span> shop details
+                    <span>🔐</span> login to existing shop
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">username</label>
+                    <input type="text" class="input-field" id="shopLoginUsername" placeholder="your shop username">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">password</label>
+                    <input type="password" class="input-field" id="shopLoginPassword" placeholder="••••••••">
+                </div>
+                
+                <button class="action-btn login-btn" onclick="handleShopLogin()" id="shopLoginBtn">
+                    log in as shop
+                </button>
+                
+                <div class="divider">
+                    <span class="divider-line"></span>
+                    <span>new shop?</span>
+                    <span class="divider-line"></span>
+                </div>
+                
+                <!-- Registration Section -->
+                <div class="section-title">
+                    <span>🏪</span> register new shop
                 </div>
                 
                 <div class="input-group">
@@ -491,18 +476,8 @@
                     </div>
                 </div>
                 
-                <!-- Account Details -->
-                <div class="section-title" style="margin-top: 16px;">
-                    <span>🔐</span> account details
-                </div>
-                
                 <div class="input-group">
-                    <label class="input-label">username 
-                        <span class="tooltip">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltip-text">used for login</span>
-                        </span>
-                    </label>
+                    <label class="input-label">username for login</label>
                     <input type="text" class="input-field" id="shopUsername" placeholder="choose a username">
                 </div>
                 
@@ -514,30 +489,20 @@
                     </div>
                 </div>
                 
-                <!-- Hours of Operation (Optional) -->
-                <div class="section-title" style="margin-top: 16px;">
-                    <span>🕐</span> hours (optional)
-                </div>
-                
                 <div class="shop-grid">
                     <div class="input-group">
-                        <label class="input-label">open</label>
+                        <label class="input-label">open time</label>
                         <input type="time" class="input-field" id="shopOpen" value="09:00">
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">close</label>
+                        <label class="input-label">close time</label>
                         <input type="time" class="input-field" id="shopClose" value="21:00">
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
-                <button class="action-btn login-btn" onclick="handleShopLogin()" id="shopLoginBtn">
-                    log in as shop
-                </button>
-                
                 <button class="action-btn register-btn" onclick="handleShopRegister()" id="shopRegisterBtn">
-                    register shop
+                    register new shop
                 </button>
             </div>
             
@@ -564,11 +529,10 @@
             const user = Backend.getCurrentUser();
             if (user) {
                 const role = localStorage.getItem('userRole');
-                redirectToHome(role);
+                if (role) {
+                    window.location.href = 'index.html';
+                }
             }
-            
-            // Test connection
-            testConnection();
             
             // Set default dates
             const tomorrow = new Date();
@@ -581,6 +545,7 @@
             document.getElementById('shopAddress').value = "123 Main St";
             document.getElementById('shopLat').value = "40.7128";
             document.getElementById('shopLng').value = "-74.0060";
+            document.getElementById('shopUsername').value = "demo_shop";
         });
         
         // ==================== ROLE HANDLING ====================
@@ -628,7 +593,7 @@
         }
         
         // ==================== CONSUMER ACTIONS ====================
-        async function handleLogin(role) {
+        async function handleConsumerLogin() {
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
             
@@ -640,18 +605,20 @@
             setButtonsDisabled(true, 'consumer');
             showStatus('logging in...', 'info');
             
-            const result = await Backend.login(username, password, role);
+            const result = await Backend.login(username, password, 'consumer');
             
             if (result.success) {
                 showStatus('login successful!', 'success');
-                setTimeout(() => redirectToHome(role), 1000);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
             } else {
                 showStatus(result.message || 'login failed', 'error');
                 setButtonsDisabled(false, 'consumer');
             }
         }
         
-        async function handleRegister(role) {
+        async function handleConsumerRegister() {
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
             
@@ -668,14 +635,14 @@
             setButtonsDisabled(true, 'consumer');
             showStatus('creating account...', 'info');
             
-            const result = await Backend.register(username, password, role);
+            const result = await Backend.register(username, password, 'consumer');
             
             if (result.success) {
                 showStatus('account created! logging in...', 'success');
                 setTimeout(async () => {
-                    const loginResult = await Backend.login(username, password, role);
+                    const loginResult = await Backend.login(username, password, 'consumer');
                     if (loginResult.success) {
-                        redirectToHome(role);
+                        window.location.href = 'index.html';
                     }
                 }, 1000);
             } else {
@@ -685,6 +652,31 @@
         }
         
         // ==================== SHOP OWNER ACTIONS ====================
+        async function handleShopLogin() {
+            const username = document.getElementById('shopLoginUsername').value.trim();
+            const password = document.getElementById('shopLoginPassword').value;
+            
+            if (!username || !password) {
+                showStatus('please enter username and password', 'error');
+                return;
+            }
+            
+            setButtonsDisabled(true, 'shop');
+            showStatus('logging in...', 'info');
+            
+            const result = await Backend.login(username, password, 'advertiser');
+            
+            if (result.success) {
+                showStatus('login successful!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                showStatus(result.message || 'login failed', 'error');
+                setButtonsDisabled(false, 'shop');
+            }
+        }
+        
         async function handleShopRegister() {
             const username = document.getElementById('shopUsername').value.trim();
             const password = document.getElementById('shopPassword').value;
@@ -701,8 +693,8 @@
             }
             
             // Collect shop details
-            const shopData = {
-                name: document.getElementById('shopName').value.trim(),
+            const shopDetails = {
+                name: document.getElementById('shopName').value.trim() || username,
                 phone: document.getElementById('shopPhone').value.trim(),
                 email: document.getElementById('shopEmail').value.trim(),
                 address: document.getElementById('shopAddress').value.trim(),
@@ -715,45 +707,19 @@
             setButtonsDisabled(true, 'shop');
             showStatus('creating shop account...', 'info');
             
-            // First register the user
-            const result = await Backend.register(username, password, 'advertiser');
+            // Register with shop details
+            const result = await Backend.register(username, password, 'advertiser', shopDetails);
             
             if (result.success) {
-                // Save shop details (you'll need to add this to backend.js)
-                localStorage.setItem('shopDetails', JSON.stringify(shopData));
-                
                 showStatus('shop registered! logging in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'advertiser');
                     if (loginResult.success) {
-                        redirectToHome('advertiser');
+                        window.location.href = 'index.html';
                     }
                 }, 1000);
             } else {
                 showStatus(result.message || 'registration failed', 'error');
-                setButtonsDisabled(false, 'shop');
-            }
-        }
-        
-        async function handleShopLogin() {
-            const username = document.getElementById('shopUsername').value.trim();
-            const password = document.getElementById('shopPassword').value;
-            
-            if (!username || !password) {
-                showStatus('please enter username and password', 'error');
-                return;
-            }
-            
-            setButtonsDisabled(true, 'shop');
-            showStatus('logging in...', 'info');
-            
-            const result = await Backend.login(username, password, 'advertiser');
-            
-            if (result.success) {
-                showStatus('login successful!', 'success');
-                setTimeout(() => redirectToHome('advertiser'), 1000);
-            } else {
-                showStatus(result.message || 'login failed', 'error');
                 setButtonsDisabled(false, 'shop');
             }
         }
@@ -775,30 +741,23 @@
             statusEl.className = `status-message ${type}`;
         }
         
-        function redirectToHome(role) {
-            window.location.href = 'index.html';
-        }
-        
-        async function testConnection() {
-            const result = await Backend.testConnection();
-            if (!result.success) {
-                console.warn('⚠️ offline mode');
-            }
-        }
-        
         // Enter key handlers
         document.getElementById('consumerPassword').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin('consumer');
+            if (e.key === 'Enter') handleConsumerLogin();
+        });
+        
+        document.getElementById('shopLoginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleShopLogin();
         });
         
         document.getElementById('shopPassword').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleShopLogin();
+            if (e.key === 'Enter') handleShopRegister();
         });
         
         // Make functions global
         window.setRole = setRole;
-        window.handleLogin = handleLogin;
-        window.handleRegister = handleRegister;
+        window.handleConsumerLogin = handleConsumerLogin;
+        window.handleConsumerRegister = handleConsumerRegister;
         window.handleShopLogin = handleShopLogin;
         window.handleShopRegister = handleShopRegister;
         window.checkPasswordStrength = checkPasswordStrength;
