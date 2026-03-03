@@ -111,6 +111,11 @@
             border-radius: 20px;
             font-size: 13px;
             font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .verify-btn:active {
+            background: #005bbf;
         }
         
         /* Role Info */
@@ -166,6 +171,7 @@
             border-radius: 10px;
             font-weight: 500;
             color: #666;
+            cursor: pointer;
         }
         
         .tab.active {
@@ -225,6 +231,16 @@
             font-weight: 600;
             font-size: 16px;
             margin-top: 16px;
+            cursor: pointer;
+        }
+        
+        .save-btn:active {
+            background: #2db14e;
+        }
+        
+        .save-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         
         /* Staff List */
@@ -264,11 +280,9 @@
         
         .staff-role {
             font-size: 12px;
-            color: #666;
-            display: inline-block;
             padding: 2px 8px;
-            background: #e0e0e0;
             border-radius: 10px;
+            display: inline-block;
         }
         
         .staff-role.owner {
@@ -281,12 +295,18 @@
             color: #007aff;
         }
         
+        .staff-role.staff {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
         .remove-staff {
             color: #ff3b30;
             background: none;
             border: none;
             font-size: 20px;
             padding: 8px;
+            cursor: pointer;
         }
         
         /* Add Staff Form */
@@ -308,6 +328,11 @@
             text-align: center;
             border-radius: 12px;
             margin-bottom: 16px;
+            cursor: pointer;
+        }
+        
+        .doc-upload:active {
+            background: #f5f5f5;
         }
         
         .doc-list {
@@ -326,11 +351,17 @@
         
         /* Status Messages */
         .status-message {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 16px;
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
             font-size: 14px;
+            z-index: 1000;
             display: none;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
         .status-message.show {
@@ -338,18 +369,50 @@
         }
         
         .status-message.success {
-            background: #e8f5e8;
-            color: #34c759;
+            background: #34c759;
+            color: white;
         }
         
         .status-message.error {
-            background: #ffebee;
-            color: #ff3b30;
+            background: #ff3b30;
+            color: white;
         }
         
         .status-message.info {
-            background: #e3f2fd;
-            color: #007aff;
+            background: #007aff;
+            color: white;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* Bottom Nav */
@@ -373,6 +436,7 @@
             font-size: 12px;
             text-align: center;
             flex: 1;
+            padding: 4px 0;
         }
         
         .nav-item.active {
@@ -400,7 +464,7 @@
                 <div class="badge-title" id="badgeTitle">Verification Pending</div>
                 <div class="badge-status" id="badgeStatus">Complete verification to post ads</div>
             </div>
-            <button class="verify-btn" id="verifyBtn" onclick="showVerification()">verify</button>
+            <button class="verify-btn" id="verifyBtn" onclick="switchTab('verification')">verify</button>
         </div>
         
         <!-- Role Banner -->
@@ -475,13 +539,16 @@
                 </select>
             </div>
             
-            <button class="save-btn" onclick="saveProfile()">save changes</button>
+            <button class="save-btn" onclick="saveProfile()" id="saveProfileBtn">save changes</button>
         </div>
         
         <!-- Staff Tab -->
         <div class="tab-content" id="staffTab">
             <div class="staff-list" id="staffList">
-                <!-- Staff items loaded here -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    loading staff...
+                </div>
             </div>
             
             <div class="add-staff" id="addStaffSection">
@@ -495,7 +562,7 @@
                         <option value="manager">Manager</option>
                     </select>
                 </div>
-                <button class="save-btn" onclick="addStaff()">add staff</button>
+                <button class="save-btn" onclick="addStaff()" id="addStaffBtn">add staff</button>
             </div>
         </div>
         
@@ -514,7 +581,7 @@
             
             <div class="doc-list" id="docList"></div>
             
-            <button class="save-btn" onclick="submitVerification()">submit for verification</button>
+            <button class="save-btn" onclick="submitVerification()" id="verifySubmitBtn">submit for verification</button>
         </div>
         
         <!-- Bottom Nav -->
@@ -541,11 +608,14 @@
     <script src="backend.js"></script>
     
     <script>
+        // ==================== STATE ====================
         let currentTab = 'profile';
-        let businessRole = 'staff';
+        let businessRole = 'owner'; // Default to owner for first user
         let isVerified = false;
         let documents = [];
+        let canEdit = true; // Owners and managers can edit
         
+        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if logged in as advertiser
             const user = Backend.getCurrentUser();
@@ -556,13 +626,24 @@
                 return;
             }
             
-            businessRole = localStorage.getItem('businessRole') || 'staff';
+            // Get business role from localStorage (set during login/register)
+            businessRole = localStorage.getItem('businessRole') || 'owner'; // First user is owner
             isVerified = localStorage.getItem('businessVerified') === 'true';
+            
+            // Set edit permissions
+            canEdit = businessRole === 'owner' || businessRole === 'manager';
             
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
             await loadStaffList();
+            
+            // Check URL for tab parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                switchTab(tabParam);
+            }
         });
         
         function updateRoleUI() {
@@ -570,25 +651,30 @@
             const roleName = document.getElementById('roleName');
             const rolePermissions = document.getElementById('rolePermissions');
             const addStaffSection = document.getElementById('addStaffSection');
+            const saveProfileBtn = document.getElementById('saveProfileBtn');
             
+            // Set role-specific UI
             switch(businessRole) {
                 case 'owner':
                     roleIcon.textContent = '👑';
                     roleName.textContent = 'Business Owner';
                     rolePermissions.textContent = 'Full access • Can manage staff and edit all settings';
                     addStaffSection.style.display = 'block';
+                    saveProfileBtn.disabled = false;
                     break;
                 case 'manager':
                     roleIcon.textContent = '⭐';
                     roleName.textContent = 'Manager';
                     rolePermissions.textContent = 'Can post ads and edit business info';
                     addStaffSection.style.display = 'none';
+                    saveProfileBtn.disabled = false;
                     break;
-                default:
+                default: // staff
                     roleIcon.textContent = '👤';
                     roleName.textContent = 'Staff';
                     rolePermissions.textContent = 'Can only post ads';
                     addStaffSection.style.display = 'none';
+                    saveProfileBtn.disabled = true;
             }
         }
         
@@ -609,52 +695,80 @@
                 badgeIcon.textContent = '⏳';
                 badgeTitle.textContent = 'Verification Pending';
                 badgeStatus.textContent = 'Complete verification to post ads';
-                verifyBtn.style.display = 'block';
+                
+                // Only owners can verify
+                if (businessRole === 'owner') {
+                    verifyBtn.style.display = 'block';
+                } else {
+                    verifyBtn.style.display = 'none';
+                }
             }
         }
         
         async function loadBusinessData() {
-            const result = await Backend.getBusinessProfile();
-            
-            if (result.success) {
-                const data = result;
-                document.getElementById('businessName').value = data.businessName || '';
-                document.getElementById('businessPhone').value = data.businessPhone || '';
-                document.getElementById('businessEmail').value = data.businessEmail || '';
-                document.getElementById('businessAddress').value = data.businessAddress || '';
-                document.getElementById('businessLat').value = data.businessLat || '';
-                document.getElementById('businessLng').value = data.businessLng || '';
-                document.getElementById('businessOpen').value = data.businessOpen || '09:00';
-                document.getElementById('businessClose').value = data.businessClose || '21:00';
-                document.getElementById('businessType').value = data.businessType || 'grocery';
-                document.getElementById('taxId').value = data.businessTaxId || '';
+            try {
+                const result = await Backend.getBusinessProfile();
+                
+                if (result.success) {
+                    const data = result;
+                    document.getElementById('businessName').value = data.businessName || '';
+                    document.getElementById('businessPhone').value = data.businessPhone || '';
+                    document.getElementById('businessEmail').value = data.businessEmail || '';
+                    document.getElementById('businessAddress').value = data.businessAddress || '';
+                    document.getElementById('businessLat').value = data.businessLat || '';
+                    document.getElementById('businessLng').value = data.businessLng || '';
+                    document.getElementById('businessOpen').value = data.businessOpen || '09:00';
+                    document.getElementById('businessClose').value = data.businessClose || '21:00';
+                    document.getElementById('businessType').value = data.businessType || 'grocery';
+                    document.getElementById('taxId').value = data.businessTaxId || '';
+                    
+                    // Disable inputs if can't edit
+                    if (!canEdit) {
+                        document.querySelectorAll('#profileTab .form-input').forEach(input => {
+                            input.disabled = true;
+                        });
+                    }
+                }
+            } catch (error) {
+                showStatus('Error loading business data', 'error');
             }
         }
         
         async function loadStaffList() {
-            const staff = await Backend.getStaffList();
             const container = document.getElementById('staffList');
             
-            if (staff.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members yet</div>';
-                return;
-            }
-            
-            container.innerHTML = staff.map(member => `
-                <div class="staff-item">
-                    <div class="staff-avatar">👤</div>
-                    <div class="staff-details">
-                        <div class="staff-name">${member.username}</div>
-                        <span class="staff-role ${member.role}">${member.role}</span>
+            try {
+                const staff = await Backend.getStaffList();
+                
+                if (staff.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members yet</div>';
+                    return;
+                }
+                
+                container.innerHTML = staff.map(member => `
+                    <div class="staff-item">
+                        <div class="staff-avatar">👤</div>
+                        <div class="staff-details">
+                            <div class="staff-name">${member.username}</div>
+                            <span class="staff-role ${member.role}">${member.role}</span>
+                        </div>
+                        ${businessRole === 'owner' ? `
+                            <button class="remove-staff" onclick="removeStaff('${member.id}')">✕</button>
+                        ` : ''}
                     </div>
-                    ${businessRole === 'owner' ? `
-                        <button class="remove-staff" onclick="removeStaff('${member.id}')">✕</button>
-                    ` : ''}
-                </div>
-            `).join('');
+                `).join('');
+                
+            } catch (error) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Error loading staff</div>';
+            }
         }
         
         async function saveProfile() {
+            if (!canEdit) {
+                showStatus('You do not have permission to edit', 'error');
+                return;
+            }
+            
             const updates = {
                 businessName: document.getElementById('businessName').value,
                 businessPhone: document.getElementById('businessPhone').value,
@@ -672,12 +786,17 @@
             if (result.success) {
                 showStatus('Profile updated successfully', 'success');
             } else {
-                showStatus(result.message, 'error');
+                showStatus(result.message || 'Update failed', 'error');
             }
         }
         
         async function addStaff() {
-            const username = document.getElementById('staffUsername').value;
+            if (businessRole !== 'owner') {
+                showStatus('Only owners can add staff', 'error');
+                return;
+            }
+            
+            const username = document.getElementById('staffUsername').value.trim();
             const role = document.getElementById('staffRole').value;
             
             if (!username) {
@@ -692,11 +811,16 @@
                 document.getElementById('staffUsername').value = '';
                 await loadStaffList();
             } else {
-                showStatus(result.message, 'error');
+                showStatus(result.message || 'Failed to add staff', 'error');
             }
         }
         
         async function removeStaff(staffId) {
+            if (businessRole !== 'owner') {
+                showStatus('Only owners can remove staff', 'error');
+                return;
+            }
+            
             if (!confirm('Remove this staff member?')) return;
             
             const result = await Backend.removeStaffMember(staffId);
@@ -705,7 +829,7 @@
                 showStatus('Staff member removed', 'success');
                 await loadStaffList();
             } else {
-                showStatus(result.message, 'error');
+                showStatus(result.message || 'Failed to remove staff', 'error');
             }
         }
         
@@ -724,7 +848,12 @@
         }
         
         async function submitVerification() {
-            const taxId = document.getElementById('taxId').value;
+            if (businessRole !== 'owner') {
+                showStatus('Only owners can submit verification', 'error');
+                return;
+            }
+            
+            const taxId = document.getElementById('taxId').value.trim();
             
             if (!taxId) {
                 showStatus('Please enter tax ID', 'error');
@@ -744,12 +873,8 @@
             if (result.success) {
                 showStatus('Verification submitted! We\'ll review within 24-48 hours', 'success');
             } else {
-                showStatus(result.message, 'error');
+                showStatus(result.message || 'Submission failed', 'error');
             }
-        }
-        
-        function showVerification() {
-            switchTab('verification');
         }
         
         function switchTab(tab) {
@@ -784,7 +909,6 @@
         window.removeStaff = removeStaff;
         window.uploadDocument = uploadDocument;
         window.submitVerification = submitVerification;
-        window.showVerification = showVerification;
     </script>
 </body>
 </html>
