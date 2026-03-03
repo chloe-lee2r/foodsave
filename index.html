@@ -179,7 +179,7 @@
             color: #666;
         }
         
-        /* Recent Deals */
+        /* Hot Deals Section */
         .deals-list {
             margin-bottom: 24px;
         }
@@ -193,6 +193,11 @@
             align-items: center;
             gap: 12px;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .deal-item:active {
+            background: #f0f2f5;
         }
         
         .deal-icon {
@@ -222,39 +227,105 @@
             gap: 8px;
         }
         
+        .deal-shop {
+            color: #007aff;
+        }
+        
         .deal-discount {
             color: #34c759;
             font-weight: 600;
             font-size: 14px;
         }
         
-        /* Fridge Summary */
-        .fridge-summary {
-            background: #f8f9fa;
+        /* Fridge Summary Card */
+        .fridge-summary-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
             border-radius: 16px;
-            padding: 16px;
             margin-bottom: 24px;
         }
         
-        .fridge-stats {
+        .fridge-header {
             display: flex;
-            justify-content: space-around;
-            margin: 16px 0;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .fridge-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .fridge-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .fridge-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
         
         .fridge-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
         }
         
         .stat-number {
             font-size: 24px;
             font-weight: 600;
-            color: #007aff;
+            margin-bottom: 4px;
         }
         
         .stat-label {
             font-size: 12px;
-            color: #666;
+            opacity: 0.9;
+        }
+        
+        .fridge-items-preview {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        
+        .fridge-item-preview {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .fridge-item-preview:last-child {
+            margin-bottom: 0;
+        }
+        
+        .expiry-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .expiry-badge.good {
+            background: rgba(52, 199, 89, 0.3);
+            color: #34c759;
+        }
+        
+        .expiry-badge.warning {
+            background: rgba(255, 149, 0, 0.3);
+            color: #ff9500;
+        }
+        
+        .expiry-badge.expired {
+            background: rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
         }
         
         /* ADVERTISER SECTION */
@@ -529,19 +600,21 @@
                     </a>
                 </div>
                 
+                <!-- Hot Deals Section -->
                 <div class="section-title">
-                    recent deals
+                    🔥 hot deals near you
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
                     <!-- Loaded dynamically -->
                 </div>
                 
+                <!-- Fridge Summary Section -->
                 <div class="section-title">
-                    fridge summary
-                    <a href="fridge.html" class="view-all">view all →</a>
+                    🧊 your fridge
+                    <a href="fridge.html" class="view-all">manage →</a>
                 </div>
-                <div class="fridge-summary" id="fridgeSummary">
+                <div class="fridge-summary-card" id="fridgeSummary">
                     <!-- Loaded dynamically -->
                 </div>
             </div>
@@ -686,16 +759,14 @@
             document.getElementById('userBadge').textContent = 'consumer';
             document.getElementById('verifiedBadge').style.display = 'none';
             
-            // Load deals
+            // Load hot deals
             const deals = await Backend.getActiveAds({ limit: 3 });
-            displayRecentDeals(deals);
+            displayHotDeals(deals);
             document.getElementById('dealsCount').textContent = deals.length + ' nearby';
             
-            // Load fridge items
+            // Load fridge items and display summary
             const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
             document.getElementById('fridgeCount').textContent = fridge.length + ' items';
-            
-            // Display fridge summary
             displayFridgeSummary(fridge);
             
             // Load list count
@@ -722,7 +793,8 @@
             displayShopAds(ads);
         }
         
-        function displayRecentDeals(deals) {
+        // ==================== CONSUMER DISPLAY FUNCTIONS ====================
+        function displayHotDeals(deals) {
             const container = document.getElementById('recentDeals');
             
             if (!deals || deals.length === 0) {
@@ -730,25 +802,32 @@
                     <div class="empty-state">
                         <div class="empty-emoji">🔍</div>
                         <div>no deals nearby</div>
+                        <div style="font-size:13px; margin-top:8px;">check back later for discounts</div>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = deals.map(deal => `
-                <div class="deal-item" onclick="window.location.href='find-stores.html'">
-                    <div class="deal-icon">🏷️</div>
-                    <div class="deal-details">
-                        <div class="deal-name">${deal.foodName}</div>
-                        <div class="deal-meta">
-                            <span>${deal.businessName || deal.shopName}</span>
-                            <span>•</span>
-                            <span>${new Date(deal.expiryDate).toLocaleDateString()}</span>
+            container.innerHTML = deals.map(deal => {
+                // Calculate days until expiry
+                const daysUntil = Math.ceil((new Date(deal.expiryDate) - new Date()) / (1000*60*60*24));
+                const expiryText = daysUntil <= 1 ? '🔥 today only' : `${daysUntil} days left`;
+                
+                return `
+                    <div class="deal-item" onclick="window.location.href='find-stores.html'">
+                        <div class="deal-icon">🏷️</div>
+                        <div class="deal-details">
+                            <div class="deal-name">${deal.foodName}</div>
+                            <div class="deal-meta">
+                                <span class="deal-shop">${deal.businessName || deal.shopName}</span>
+                                <span>•</span>
+                                <span>${expiryText}</span>
+                            </div>
                         </div>
+                        <div class="deal-discount">-${deal.discount}%</div>
                     </div>
-                    <div class="deal-discount">-${deal.discount}%</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
         function displayFridgeSummary(items) {
@@ -757,35 +836,86 @@
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            const expiring = items.filter(item => {
-                const expiry = new Date(item.expiry);
-                const diff = Math.round((expiry - today) / (1000*60*60*24));
-                return diff >= 0 && diff <= 3;
-            }).length;
+            // Calculate stats
+            let good = 0;
+            let expiring = 0;
+            let expired = 0;
             
-            const expired = items.filter(item => {
+            items.forEach(item => {
                 const expiry = new Date(item.expiry);
-                return expiry < today;
-            }).length;
+                expiry.setHours(0,0,0,0);
+                const diffDays = Math.round((expiry - today) / (1000*60*60*24));
+                
+                if (diffDays < 0) {
+                    expired++;
+                } else if (diffDays <= 3) {
+                    expiring++;
+                } else {
+                    good++;
+                }
+            });
+            
+            // Get items expiring soon for preview
+            const expiringSoon = items
+                .filter(item => {
+                    const expiry = new Date(item.expiry);
+                    expiry.setHours(0,0,0,0);
+                    const diffDays = Math.round((expiry - today) / (1000*60*60*24));
+                    return diffDays >= 0 && diffDays <= 3;
+                })
+                .slice(0, 3); // Show top 3
             
             container.innerHTML = `
+                <div class="fridge-header">
+                    <h3>🧊 fridge status</h3>
+                    <a href="fridge.html" class="fridge-link">view all →</a>
+                </div>
+                
                 <div class="fridge-stats">
                     <div class="fridge-stat">
-                        <div class="stat-number">${items.length}</div>
-                        <div class="stat-label">total</div>
+                        <div class="stat-number">${good}</div>
+                        <div class="stat-label">good</div>
                     </div>
                     <div class="fridge-stat">
-                        <div class="stat-number" style="color:#ff9500;">${expiring}</div>
-                        <div class="stat-label">expiring</div>
+                        <div class="stat-number" style="color: #ff9500;">${expiring}</div>
+                        <div class="stat-label">expiring soon</div>
                     </div>
                     <div class="fridge-stat">
-                        <div class="stat-number" style="color:#ff3b30;">${expired}</div>
+                        <div class="stat-number" style="color: #ff3b30;">${expired}</div>
                         <div class="stat-label">expired</div>
                     </div>
                 </div>
+                
+                ${expiringSoon.length > 0 ? `
+                    <div class="fridge-items-preview">
+                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
+                        ${expiringSoon.map(item => {
+                            const expiry = new Date(item.expiry);
+                            const diffDays = Math.round((expiry - today) / (1000*60*60*24));
+                            const status = diffDays === 0 ? 'today' : `${diffDays} days`;
+                            return `
+                                <div class="fridge-item-preview">
+                                    <span>${item.name}</span>
+                                    <span class="expiry-badge warning">${status}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                ` : items.length > 0 ? `
+                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
+                        ✅ no items expiring soon
+                    </div>
+                : ''}
+                
+                ${items.length === 0 ? `
+                    <div class="fridge-items-preview" style="text-align: center;">
+                        🧊 your fridge is empty
+                    </div>
+                ` : ''}
             `;
         }
         
+        // ==================== ADVERTISER DISPLAY FUNCTIONS ====================
         function displayShopProfile(details) {
             const container = document.getElementById('shopProfile');
             const roleDisplay = businessRole === 'owner' ? '👑 owner' : 
