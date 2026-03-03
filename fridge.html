@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>foodsave • fridge</title>
     <style>
+        /* Keep all existing styles from before */
         * {
             margin: 0;
             padding: 0;
@@ -54,35 +55,12 @@
             text-decoration: none;
             color: #007aff;
             font-size: 20px;
-            transition: 0.2s;
-        }
-        
-        .back-link:active {
-            background: #e8ecf0;
-            transform: scale(0.95);
         }
         
         .header h1 {
             flex: 1;
             font-size: 20px;
             font-weight: 600;
-            color: #000;
-        }
-        
-        .sync-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #f5f7fa;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .sync-btn:active {
-            background: #e8ecf0;
-            transform: rotate(180deg);
         }
         
         .logout-btn {
@@ -93,19 +71,7 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            transition: 0.2s;
             color: #ff3b30;
-        }
-        
-        .logout-btn:active {
-            background: #e8ecf0;
-            transform: scale(0.95);
-        }
-        
-        /* Content */
-        .content {
-            padding: 16px;
-            padding-bottom: 80px;
         }
         
         /* Stats Card */
@@ -114,10 +80,9 @@
             color: white;
             padding: 20px;
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin: 16px;
             display: flex;
             justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
         }
         
         .stat-item {
@@ -141,7 +106,7 @@
             background: #f8f9fa;
             border-radius: 16px;
             padding: 16px;
-            margin-bottom: 20px;
+            margin: 16px;
         }
         
         .section-title {
@@ -149,8 +114,6 @@
             font-weight: 600;
             color: #666;
             margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
         .dropdown, .input-field {
@@ -161,12 +124,6 @@
             font-size: 16px;
             background: white;
             margin-bottom: 12px;
-            transition: 0.2s;
-        }
-        
-        .dropdown:focus, .input-field:focus {
-            outline: none;
-            border-color: #667eea;
         }
         
         .add-btn {
@@ -179,48 +136,28 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
         
-        .add-btn:active {
-            background: #5a67d8;
-            transform: scale(0.98);
-        }
-        
-        .add-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        /* Items Section */
+        /* Items */
         .items-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            margin: 16px;
         }
         
         .items-title {
-            font-size: 16px;
             font-weight: 600;
-            color: #1a1a1a;
         }
         
         .sort-btn {
             background: none;
             border: none;
             color: #667eea;
-            font-size: 14px;
-            padding: 4px 8px;
-            cursor: pointer;
         }
         
         .items-container {
-            margin-bottom: 20px;
+            margin: 16px;
+            margin-bottom: 80px;
         }
         
         .item {
@@ -231,7 +168,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: 0.2s;
             border-left: 4px solid #34c759;
         }
         
@@ -262,23 +198,12 @@
         
         .item-name {
             font-weight: 600;
-            color: #1a1a1a;
             margin-bottom: 4px;
         }
         
         .item-expiry {
             font-size: 13px;
             color: #666;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .item-status {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.05);
         }
         
         .item-actions {
@@ -294,15 +219,6 @@
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .item-btn:active {
-            background: #e8ecf0;
-            transform: scale(0.95);
         }
         
         .delete-btn {
@@ -313,8 +229,6 @@
             text-align: center;
             padding: 40px 20px;
             color: #999;
-            background: #f8f9fa;
-            border-radius: 16px;
         }
         
         .empty-emoji {
@@ -331,7 +245,6 @@
             color: white;
             text-decoration: none;
             border-radius: 25px;
-            font-size: 14px;
         }
         
         /* Bottom Nav */
@@ -347,7 +260,6 @@
             padding: 8px 20px;
             display: flex;
             justify-content: space-around;
-            z-index: 100;
         }
         
         .nav-item {
@@ -355,8 +267,6 @@
             color: #999;
             font-size: 12px;
             text-align: center;
-            transition: 0.2s;
-            padding: 4px 0;
             flex: 1;
         }
         
@@ -368,27 +278,6 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
-        }
-        
-        /* Loading States */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
         
         /* Notification */
@@ -404,8 +293,6 @@
             font-size: 14px;
             transition: 0.3s;
             z-index: 1000;
-            white-space: nowrap;
-            max-width: 90%;
         }
         
         .notification.show {
@@ -427,56 +314,47 @@
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>my fridge</h1>
-            <button class="sync-btn" onclick="syncWithCloud()">↻</button>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
-        <!-- Content -->
-        <div class="content">
-            <!-- Stats -->
-            <div class="stats-card" id="statsCard">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalItems">0</div>
-                    <div class="stat-label">total</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="expiringItems">0</div>
-                    <div class="stat-label">expiring soon</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="expiredItems">0</div>
-                    <div class="stat-label">expired</div>
-                </div>
+        <!-- Stats -->
+        <div class="stats-card">
+            <div class="stat-item">
+                <div class="stat-value" id="totalItems">0</div>
+                <div class="stat-label">total</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-value" id="expiringItems">0</div>
+                <div class="stat-label">expiring soon</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="expiredItems">0</div>
+                <div class="stat-label">expired</div>
+            </div>
+        </div>
+        
+        <!-- Add Item -->
+        <div class="add-section">
+            <div class="section-title">➕ add to fridge</div>
             
-            <!-- Add Item -->
-            <div class="add-section">
-                <div class="section-title">➕ add to fridge</div>
-                
-                <select id="foodDropdown" class="dropdown">
-                    <option value="">Select food item</option>
-                </select>
-                
-                <input type="text" id="foodName" class="input-field" placeholder="Or type custom food name">
-                <input type="date" id="expiryDate" class="input-field">
-                
-                <button class="add-btn" onclick="addItem()" id="addBtn">
-                    <span>➕</span> add to fridge
-                </button>
-            </div>
+            <select id="foodDropdown" class="dropdown">
+                <option value="">Select food item</option>
+            </select>
             
-            <!-- Items -->
-            <div class="items-header">
-                <span class="items-title">your items</span>
-                <button class="sort-btn" onclick="toggleSort()">sort by date ↓</button>
-            </div>
+            <input type="text" id="foodName" class="input-field" placeholder="Or type custom food name">
+            <input type="date" id="expiryDate" class="input-field">
             
-            <div class="items-container" id="itemsContainer">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    loading your fridge...
-                </div>
-            </div>
+            <button class="add-btn" onclick="addItem()">add to fridge</button>
+        </div>
+        
+        <!-- Items -->
+        <div class="items-header">
+            <span class="items-title">your items</span>
+            <button class="sort-btn" onclick="toggleSort()">sort by date ↓</button>
+        </div>
+        
+        <div class="items-container" id="itemsContainer">
+            <!-- Items loaded here -->
         </div>
         
         <!-- Bottom Navigation -->
@@ -503,9 +381,6 @@
     <!-- Notification -->
     <div class="notification" id="notification"></div>
     
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
-    <script src="backend.js"></script>
-    
     <script>
         const commonFoods = [
             "Milk", "Eggs", "Bread", "Rice", "Chicken",
@@ -515,47 +390,32 @@
         ];
         
         let sortAscending = true;
-        let items = [];
         
         document.addEventListener("DOMContentLoaded", function() {
             // Check login
-            const user = Backend.getCurrentUser();
+            const user = localStorage.getItem("loggedInUser");
             if (!user) {
-                alert("Please login first.");
                 window.location.href = "login.html";
                 return;
             }
-            loadFridgeItems();
+            populateDropdown();
+            displayItems();
         });
         
-        async function loadFridgeItems() {
-            try {
-                items = await Backend.loadFridgeItems();
-                populateDropdown();
-                displayItems();
-                showNotification('Fridge loaded from cloud', 'success');
-            } catch (error) {
-                console.error('Error loading fridge:', error);
-                items = [];
-                displayItems();
-                showNotification('Error loading fridge', 'error');
-            }
+        function getItems() {
+            return JSON.parse(localStorage.getItem("foodItems")) || [];
         }
         
-        async function saveItems() {
-            try {
-                await Backend.saveFridgeItems(items);
-                showNotification('Saved to cloud', 'success');
-            } catch (error) {
-                console.error('Error saving fridge:', error);
-                showNotification('Error saving to cloud', 'error');
-            }
+        function saveItems(items) {
+            localStorage.setItem("foodItems", JSON.stringify(items));
+            displayItems();
         }
         
         function populateDropdown() {
             const dropdown = document.getElementById("foodDropdown");
             dropdown.innerHTML = '<option value="">Select food item</option>';
             
+            const items = getItems();
             const pastItems = items.map(item => item.name);
             const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
             
@@ -567,7 +427,7 @@
             });
         }
         
-        async function addItem() {
+        function addItem() {
             const dropdownValue = document.getElementById("foodDropdown").value;
             const manualInput = document.getElementById("foodName").value.trim();
             const expiry = document.getElementById("expiryDate").value;
@@ -589,43 +449,42 @@
                 return;
             }
             
+            const items = getItems();
             items.push({ 
                 name, 
                 expiry,
                 addedDate: new Date().toISOString()
             });
-            
-            await saveItems();
+            saveItems(items);
             
             document.getElementById("foodName").value = "";
             document.getElementById("foodDropdown").value = "";
             document.getElementById("expiryDate").value = "";
             
             populateDropdown();
-            displayItems();
             showNotification(`Added ${name} to fridge`, "success");
         }
         
-        async function deleteItem(index) {
+        function deleteItem(index) {
             if (confirm("Remove this item from fridge?")) {
+                const items = getItems();
                 items.splice(index, 1);
-                await saveItems();
+                saveItems(items);
                 populateDropdown();
-                displayItems();
                 showNotification("Item removed", "success");
             }
         }
         
-        async function duplicateItem(index) {
+        function duplicateItem(index) {
+            const items = getItems();
             const original = items[index];
             items.push({ 
                 name: original.name, 
                 expiry: original.expiry,
                 addedDate: new Date().toISOString()
             });
-            await saveItems();
+            saveItems(items);
             populateDropdown();
-            displayItems();
             showNotification(`Added another ${original.name}`, "success");
         }
         
@@ -636,6 +495,7 @@
         
         function displayItems() {
             const container = document.getElementById("itemsContainer");
+            const items = getItems();
             
             // Update stats
             updateStats(items);
@@ -660,7 +520,6 @@
             });
             
             container.innerHTML = sortedItems.map((item, index) => {
-                // Find original index for delete
                 const originalIndex = items.findIndex(i => 
                     i.name === item.name && 
                     i.expiry === item.expiry &&
@@ -701,13 +560,12 @@
                         <div class="item-details">
                             <div class="item-name">${item.name}</div>
                             <div class="item-expiry">
-                                <span>📅 ${item.expiry}</span>
-                                <span class="item-status">${status}</span>
+                                📅 ${item.expiry} • ${status}
                             </div>
                         </div>
                         <div class="item-actions">
-                            <button class="item-btn" onclick="duplicateItem(${originalIndex})" title="add another">📋</button>
-                            <button class="item-btn delete-btn" onclick="deleteItem(${originalIndex})" title="remove">🗑️</button>
+                            <button class="item-btn" onclick="duplicateItem(${originalIndex})">📋</button>
+                            <button class="item-btn delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -750,10 +608,6 @@
             document.getElementById('expiredItems').textContent = expired;
         }
         
-        async function syncWithCloud() {
-            await loadFridgeItems();
-        }
-        
         function logout() {
             window.location.href = "index.html";
         }
@@ -772,7 +626,6 @@
         window.deleteItem = deleteItem;
         window.duplicateItem = duplicateItem;
         window.toggleSort = toggleSort;
-        window.syncWithCloud = syncWithCloud;
         window.logout = logout;
     </script>
 </body>
