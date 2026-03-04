@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>foodsave • fridge</title>
     <style>
-        /* Keep all existing styles from before */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -28,10 +26,8 @@
             background: white;
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            position: relative;
         }
         
-        /* Header */
         .header {
             padding: 20px 16px;
             background: white;
@@ -39,9 +35,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .back-link {
@@ -74,13 +67,17 @@
             color: #ff3b30;
         }
         
-        /* Stats Card */
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        
         .stats-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px;
             border-radius: 16px;
-            margin: 16px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
         }
@@ -101,12 +98,11 @@
             opacity: 0.9;
         }
         
-        /* Add Section */
         .add-section {
             background: #f8f9fa;
             border-radius: 16px;
             padding: 16px;
-            margin: 16px;
+            margin-bottom: 20px;
         }
         
         .section-title {
@@ -138,11 +134,10 @@
             cursor: pointer;
         }
         
-        /* Items */
         .items-header {
             display: flex;
             justify-content: space-between;
-            margin: 16px;
+            margin: 16px 0;
         }
         
         .items-title {
@@ -153,11 +148,11 @@
             background: none;
             border: none;
             color: #667eea;
+            cursor: pointer;
         }
         
         .items-container {
-            margin: 16px;
-            margin-bottom: 80px;
+            margin-bottom: 20px;
         }
         
         .item {
@@ -247,7 +242,6 @@
             border-radius: 25px;
         }
         
-        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -279,85 +273,52 @@
             margin-bottom: 2px;
             display: block;
         }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #1a1a1a;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            transition: 0.3s;
-            z-index: 1000;
-        }
-        
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        .notification.success {
-            background: #34c759;
-        }
-        
-        .notification.error {
-            background: #ff3b30;
-        }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Header -->
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>my fridge</h1>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
-        <!-- Stats -->
-        <div class="stats-card">
-            <div class="stat-item">
-                <div class="stat-value" id="totalItems">0</div>
-                <div class="stat-label">total</div>
+        <div class="content">
+            <div class="stats-card">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalItems">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="expiringItems">0</div>
+                    <div class="stat-label">expiring</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="expiredItems">0</div>
+                    <div class="stat-label">expired</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="expiringItems">0</div>
-                <div class="stat-label">expiring soon</div>
+            
+            <div class="add-section">
+                <div class="section-title">➕ add to fridge</div>
+                <select id="foodDropdown" class="dropdown">
+                    <option value="">Select food</option>
+                </select>
+                <input type="text" id="foodName" class="input-field" placeholder="Or type custom food">
+                <input type="date" id="expiryDate" class="input-field">
+                <button class="add-btn" onclick="addItem()">add to fridge</button>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="expiredItems">0</div>
-                <div class="stat-label">expired</div>
+            
+            <div class="items-header">
+                <span class="items-title">your items</span>
+                <button class="sort-btn" onclick="toggleSort()">sort by date ↓</button>
+            </div>
+            
+            <div class="items-container" id="itemsContainer">
+                <!-- Items loaded here -->
             </div>
         </div>
         
-        <!-- Add Item -->
-        <div class="add-section">
-            <div class="section-title">➕ add to fridge</div>
-            
-            <select id="foodDropdown" class="dropdown">
-                <option value="">Select food item</option>
-            </select>
-            
-            <input type="text" id="foodName" class="input-field" placeholder="Or type custom food name">
-            <input type="date" id="expiryDate" class="input-field">
-            
-            <button class="add-btn" onclick="addItem()">add to fridge</button>
-        </div>
-        
-        <!-- Items -->
-        <div class="items-header">
-            <span class="items-title">your items</span>
-            <button class="sort-btn" onclick="toggleSort()">sort by date ↓</button>
-        </div>
-        
-        <div class="items-container" id="itemsContainer">
-            <!-- Items loaded here -->
-        </div>
-        
-        <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -378,23 +339,16 @@
         </div>
     </div>
     
-    <!-- Notification -->
-    <div class="notification" id="notification"></div>
-    
     <script>
         const commonFoods = [
             "Milk", "Eggs", "Bread", "Rice", "Chicken",
-            "Beef", "Apples", "Bananas", "Cheese", "Yogurt",
-            "Tomatoes", "Lettuce", "Carrots", "Potatoes", "Onions",
-            "Butter", "Orange Juice", "Fish", "Pork", "Spinach"
+            "Beef", "Apples", "Bananas", "Cheese", "Yogurt"
         ];
         
         let sortAscending = true;
         
         document.addEventListener("DOMContentLoaded", function() {
-            // Check login
-            const user = localStorage.getItem("loggedInUser");
-            if (!user) {
+            if (!localStorage.getItem("loggedInUser")) {
                 window.location.href = "login.html";
                 return;
             }
@@ -413,8 +367,7 @@
         
         function populateDropdown() {
             const dropdown = document.getElementById("foodDropdown");
-            dropdown.innerHTML = '<option value="">Select food item</option>';
-            
+            dropdown.innerHTML = '<option value="">Select food</option>';
             const items = getItems();
             const pastItems = items.map(item => item.name);
             const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
@@ -428,64 +381,31 @@
         }
         
         function addItem() {
-            const dropdownValue = document.getElementById("foodDropdown").value;
-            const manualInput = document.getElementById("foodName").value.trim();
+            const name = document.getElementById("foodName").value.trim() || document.getElementById("foodDropdown").value;
             const expiry = document.getElementById("expiryDate").value;
             
-            const name = manualInput || dropdownValue;
-            
             if (!name || !expiry) {
-                showNotification("Please select/type a food and choose expiry date.", "error");
-                return;
-            }
-            
-            // Validate expiry date is in the future
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const expiryDate = new Date(expiry);
-            
-            if (expiryDate < today) {
-                showNotification("Expiry date cannot be in the past!", "error");
+                alert("Please fill all fields");
                 return;
             }
             
             const items = getItems();
-            items.push({ 
-                name, 
-                expiry,
-                addedDate: new Date().toISOString()
-            });
+            items.push({ name, expiry });
             saveItems(items);
             
             document.getElementById("foodName").value = "";
             document.getElementById("foodDropdown").value = "";
             document.getElementById("expiryDate").value = "";
-            
             populateDropdown();
-            showNotification(`Added ${name} to fridge`, "success");
         }
         
         function deleteItem(index) {
-            if (confirm("Remove this item from fridge?")) {
+            if (confirm("Remove this item?")) {
                 const items = getItems();
                 items.splice(index, 1);
                 saveItems(items);
                 populateDropdown();
-                showNotification("Item removed", "success");
             }
-        }
-        
-        function duplicateItem(index) {
-            const items = getItems();
-            const original = items[index];
-            items.push({ 
-                name: original.name, 
-                expiry: original.expiry,
-                addedDate: new Date().toISOString()
-            });
-            saveItems(items);
-            populateDropdown();
-            showNotification(`Added another ${original.name}`, "success");
         }
         
         function toggleSort() {
@@ -497,7 +417,6 @@
             const container = document.getElementById("itemsContainer");
             const items = getItems();
             
-            // Update stats
             updateStats(items);
             
             if (items.length === 0) {
@@ -505,103 +424,65 @@
                     <div class="empty-state">
                         <div class="empty-emoji">🧊</div>
                         <div>your fridge is empty</div>
-                        <div style="font-size:13px; margin-top:8px;">add items to track expiry dates</div>
-                        <a href="#" class="add-link" onclick="document.getElementById('foodName').focus()">➕ add items</a>
                     </div>
                 `;
                 return;
             }
             
-            // Sort items
             const sortedItems = [...items].sort((a, b) => {
-                const dateA = new Date(a.expiry);
-                const dateB = new Date(b.expiry);
-                return sortAscending ? dateA - dateB : dateB - dateA;
+                return sortAscending ? new Date(a.expiry) - new Date(b.expiry) : new Date(b.expiry) - new Date(a.expiry);
             });
             
             container.innerHTML = sortedItems.map((item, index) => {
-                const originalIndex = items.findIndex(i => 
-                    i.name === item.name && 
-                    i.expiry === item.expiry &&
-                    i.addedDate === item.addedDate
-                );
-                
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const expiryDate = new Date(item.expiry);
-                expiryDate.setHours(0, 0, 0, 0);
-                const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
+                today.setHours(0,0,0,0);
+                const expiry = new Date(item.expiry);
+                expiry.setHours(0,0,0,0);
+                const diffDays = Math.round((expiry - today) / (1000*60*60*24));
                 
-                let status = "";
                 let statusClass = "";
-                let icon = "✅";
+                let statusText = "";
                 
                 if (diffDays < 0) {
-                    status = "expired";
                     statusClass = "expired";
-                    icon = "⚠️";
+                    statusText = "expired";
                 } else if (diffDays === 0) {
-                    status = "expires today!";
                     statusClass = "expiring-soon";
-                    icon = "🔥";
+                    statusText = "expires today!";
                 } else if (diffDays <= 3) {
-                    status = `expires in ${diffDays} days`;
                     statusClass = "expiring-soon";
-                    icon = "⚠️";
-                } else {
-                    status = `good for ${diffDays} days`;
+                    statusText = `${diffDays} days left`;
                 }
-                
-                const foodEmoji = getFoodEmoji(item.name);
                 
                 return `
                     <div class="item ${statusClass}">
-                        <div class="item-icon">${foodEmoji}</div>
+                        <div class="item-icon">🍽️</div>
                         <div class="item-details">
                             <div class="item-name">${item.name}</div>
-                            <div class="item-expiry">
-                                📅 ${item.expiry} • ${status}
-                            </div>
+                            <div class="item-expiry">📅 ${item.expiry} • ${statusText}</div>
                         </div>
                         <div class="item-actions">
-                            <button class="item-btn" onclick="duplicateItem(${originalIndex})">📋</button>
-                            <button class="item-btn delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
+                            <button class="item-btn delete-btn" onclick="deleteItem(${index})">🗑️</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
         
-        function getFoodEmoji(name) {
-            name = name.toLowerCase();
-            if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return '🥛';
-            if (name.includes('egg')) return '🥚';
-            if (name.includes('bread')) return '🍞';
-            if (name.includes('chicken') || name.includes('beef') || name.includes('pork') || name.includes('fish')) return '🥩';
-            if (name.includes('apple')) return '🍎';
-            if (name.includes('banana')) return '🍌';
-            if (name.includes('rice')) return '🍚';
-            if (name.includes('pasta')) return '🍝';
-            if (name.includes('carrot') || name.includes('lettuce') || name.includes('tomato')) return '🥬';
-            return '🍽️';
-        }
-        
         function updateStats(items) {
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            today.setHours(0,0,0,0);
             
-            const expiring = items.filter(item => {
-                const expiry = new Date(item.expiry);
-                expiry.setHours(0, 0, 0, 0);
-                const diff = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
-                return diff >= 0 && diff <= 3;
-            }).length;
+            let expiring = 0, expired = 0;
             
-            const expired = items.filter(item => {
+            items.forEach(item => {
                 const expiry = new Date(item.expiry);
-                expiry.setHours(0, 0, 0, 0);
-                return expiry < today;
-            }).length;
+                expiry.setHours(0,0,0,0);
+                const diff = Math.round((expiry - today) / (1000*60*60*24));
+                
+                if (diff < 0) expired++;
+                else if (diff <= 3) expiring++;
+            });
             
             document.getElementById('totalItems').textContent = items.length;
             document.getElementById('expiringItems').textContent = expiring;
@@ -612,19 +493,8 @@
             window.location.href = "index.html";
         }
         
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification show ${type}`;
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 2000);
-        }
-        
-        // Make functions global
         window.addItem = addItem;
         window.deleteItem = deleteItem;
-        window.duplicateItem = duplicateItem;
         window.toggleSort = toggleSort;
         window.logout = logout;
     </script>
