@@ -237,7 +237,7 @@
             font-size: 14px;
         }
         
-        /* Fridge Summary Card - FIXED to work with localStorage */
+        /* Fridge Summary Card - FIXED with 3 clear columns */
         .fridge-summary-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -265,57 +265,49 @@
             opacity: 0.9;
         }
         
-        .fridge-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .fridge-stat {
-            background: rgba(255,255,255,0.2);
-            padding: 12px;
-            border-radius: 12px;
+        .fridge-stats-grid {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
             text-align: center;
         }
         
+        .fridge-stat-column {
+            flex: 1;
+        }
+        
         .stat-number {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
             margin-bottom: 4px;
         }
         
         .stat-label {
-            font-size: 12px;
+            font-size: 14px;
             opacity: 0.9;
         }
         
-        .fridge-items-preview {
-            background: rgba(255,255,255,0.1);
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
+        .stat-good {
+            color: #ffffff;
         }
         
-        .fridge-item-preview {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+        .stat-expiring {
+            color: #ffd700;
         }
         
-        .fridge-item-preview:last-child {
-            margin-bottom: 0;
+        .stat-expired {
+            color: #ff9f9f;
         }
         
-        .expiry-badge {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
+        .fridge-footer {
+            text-align: center;
+            margin-top: 16px;
         }
         
-        .expiry-badge.warning {
-            background: rgba(255, 149, 0, 0.3);
-            color: #ff9500;
+        .fridge-footer a {
+            color: white;
+            text-decoration: underline;
+            opacity: 0.9;
         }
         
         /* ADVERTISER SECTION */
@@ -580,7 +572,7 @@
                     </a>
                 </div>
                 
-                <!-- Hot Deals Section (keeping but simplified) -->
+                <!-- Hot Deals Section -->
                 <div class="section-title">
                     🔥 hot deals near you
                     <a href="find-stores.html" class="view-all">view all →</a>
@@ -592,7 +584,7 @@
                     </div>
                 </div>
                 
-                <!-- Fridge Summary Section - FIXED to work with localStorage -->
+                <!-- Fridge Summary Section - FIXED with 3 clear columns -->
                 <div class="section-title">
                     🧊 your fridge
                     <a href="fridge.html" class="view-all">manage →</a>
@@ -739,9 +731,11 @@
             document.getElementById('userBadge').textContent = 'consumer';
             document.getElementById('verifiedBadge').style.display = 'none';
             
-            // Load fridge items - THIS IS THE KEY FIX
+            // Load fridge items -直接从localStorage读取
             const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
             document.getElementById('fridgeCount').textContent = fridge.length + ' items';
+            
+            // 调用修复后的fridge summary函数
             displayFridgeSummary(fridge);
             
             // Load list count
@@ -750,7 +744,7 @@
                 sum + (list.items?.length || 0), 0);
             document.getElementById('listCount').textContent = totalItems + ' items';
             
-            // Deals count (simplified)
+            // Deals count
             const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
             document.getElementById('dealsCount').textContent = deals.length + ' nearby';
         }
@@ -775,89 +769,57 @@
         
         // ==================== DISPLAY FUNCTIONS ====================
         
-        // FIXED: This function actually reads from localStorage now
+        // FIXED: Simple function that shows 3 numbers with clear labels
         function displayFridgeSummary(items) {
             const container = document.getElementById('fridgeSummary');
             
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
             
             let good = 0;
             let expiring = 0;
             let expired = 0;
-            const expiringItems = [];
             
-            // Calculate stats from actual fridge items
+            // Calculate each category
             items.forEach(item => {
                 const expiry = new Date(item.expiry);
-                expiry.setHours(0,0,0,0);
-                const diffDays = Math.round((expiry - today) / (1000*60*60*24));
+                expiry.setHours(0, 0, 0, 0);
+                const diffDays = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
                 
                 if (diffDays < 0) {
-                    expired++;
+                    expired++; // Past expiry date
                 } else if (diffDays <= 3) {
-                    expiring++;
-                    expiringItems.push({ name: item.name, days: diffDays });
+                    expiring++; // 0-3 days left
                 } else {
-                    good++;
+                    good++; // More than 3 days left
                 }
             });
             
-            // Show expiring items preview (max 2)
-            let previewHtml = '';
-            if (expiringItems.length > 0) {
-                previewHtml = `
-                    <div class="fridge-items-preview">
-                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
-                        ${expiringItems.slice(0, 2).map(item => {
-                            const status = item.days === 0 ? 'today' : `${item.days} days`;
-                            return `
-                                <div class="fridge-item-preview">
-                                    <span>${item.name}</span>
-                                    <span class="expiry-badge warning">${status}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                        ${expiringItems.length > 2 ? `<div style="text-align:center; margin-top:4px;">+${expiringItems.length-2} more</div>` : ''}
-                    </div>
-                `;
-            } else if (items.length > 0) {
-                previewHtml = `
-                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
-                        ✅ no items expiring soon
-                    </div>
-                `;
-            }
-            
+            // Display the 3 numbers with clear labels
             container.innerHTML = `
                 <div class="fridge-header">
                     <h3>🧊 fridge status</h3>
                     <a href="fridge.html" class="fridge-link">view all →</a>
                 </div>
                 
-                <div class="fridge-stats">
-                    <div class="fridge-stat">
-                        <div class="stat-number">${good}</div>
+                <div class="fridge-stats-grid">
+                    <div class="fridge-stat-column">
+                        <div class="stat-number stat-good">${good}</div>
                         <div class="stat-label">good</div>
                     </div>
-                    <div class="fridge-stat">
-                        <div class="stat-number" style="color: #ff9500;">${expiring}</div>
+                    <div class="fridge-stat-column">
+                        <div class="stat-number stat-expiring">${expiring}</div>
                         <div class="stat-label">expiring</div>
                     </div>
-                    <div class="fridge-stat">
-                        <div class="stat-number" style="color: #ff3b30;">${expired}</div>
+                    <div class="fridge-stat-column">
+                        <div class="stat-number stat-expired">${expired}</div>
                         <div class="stat-label">expired</div>
                     </div>
                 </div>
                 
-                ${previewHtml || ''}
-                
                 ${items.length === 0 ? `
-                    <div class="fridge-items-preview" style="text-align: center;">
-                        🧊 your fridge is empty
-                        <div style="margin-top: 8px;">
-                            <a href="fridge.html" style="color: white; text-decoration: underline;">add items →</a>
-                        </div>
+                    <div class="fridge-footer">
+                        <a href="fridge.html">add items to fridge →</a>
                     </div>
                 ` : ''}
             `;
