@@ -525,7 +525,7 @@
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <!-- Will be populated from find-stores data -->
+                    <div class="empty-state">🔍 loading deals...</div>
                 </div>
                 
                 <!-- Fridge Summary -->
@@ -608,7 +608,7 @@
                     <a href="advertise.html" class="view-all">manage →</a>
                 </div>
                 <div class="ads-list" id="shopAds">
-                    <!-- Will be populated -->
+                    <div class="empty-state">📢 no active ads</div>
                 </div>
             </div>
         </div>
@@ -715,13 +715,13 @@
         function loadConsumerData() {
             loadFridgeData();
             loadListCount();
-            loadDealsData(); // This now uses the same data as find-stores.html
+            loadDealsData();
         }
         
+        // FRIDGE - WORKING
         function loadFridgeData() {
             const items = JSON.parse(localStorage.getItem('foodItems')) || [];
             
-            // Update total count
             document.getElementById('fridgeCount').textContent = items.length + ' items';
             
             const today = new Date();
@@ -746,12 +746,10 @@
                 }
             });
             
-            // Update the 3 numbers
             document.getElementById('goodCount').textContent = good;
             document.getElementById('expiringCount').textContent = expiring;
             document.getElementById('expiredCount').textContent = expired;
             
-            // Show footer message if empty
             const footer = document.getElementById('fridgeFooter');
             if (items.length === 0) {
                 footer.innerHTML = '<a href="fridge.html">add items to fridge →</a>';
@@ -771,8 +769,7 @@
             document.getElementById('listCount').textContent = total + ' items';
         }
         
-        // ==================== DEALS FUNCTION ====================
-        // This uses the SAME data source as find-stores.html
+        // DEALS - FIXED to use same data as find-stores.html
         function loadDealsData() {
             // Get deals from the same place as find-stores.html
             const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
@@ -787,23 +784,30 @@
                 return;
             }
             
-            // Sort by discount percentage (highest first) and take top 3
-            const topDeals = [...deals]
-                .sort((a, b) => (b.discount || 0) - (a.discount || 0))
-                .slice(0, 3);
+            // Sort by discount (highest first) and take top 3
+            const topDeals = [...deals].sort((a, b) => (b.discount || 0) - (a.discount || 0)).slice(0, 3);
             
-            container.innerHTML = topDeals.map(deal => {
-                // Calculate days left
-                const daysLeft = Math.ceil((new Date(deal.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                const daysText = daysLeft <= 1 ? '🔥 today only' : `${daysLeft} days left`;
+            let html = '';
+            for (let i = 0; i < topDeals.length; i++) {
+                const deal = topDeals[i];
                 
-                return `
+                // Calculate days left
+                const expiryDate = new Date(deal.expiryDate);
+                const today = new Date();
+                const diffTime = expiryDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let daysText = diffDays + ' days left';
+                if (diffDays <= 0) daysText = '🔥 expired';
+                else if (diffDays === 1) daysText = '🔥 tomorrow';
+                
+                html += `
                     <div class="deal-item" onclick="window.location.href='find-stores.html'">
                         <div class="deal-icon">🏷️</div>
                         <div class="deal-details">
-                            <div class="deal-name">${deal.foodName || 'Unknown item'}</div>
+                            <div class="deal-name">${deal.foodName || 'Item'}</div>
                             <div class="deal-meta">
-                                <span class="deal-shop">${deal.shopName || 'Unknown shop'}</span>
+                                <span class="deal-shop">${deal.shopName || 'Store'}</span>
                                 <span>•</span>
                                 <span>${daysText}</span>
                             </div>
@@ -811,7 +815,9 @@
                         <div class="deal-discount">-${deal.discount || 0}%</div>
                     </div>
                 `;
-            }).join('');
+            }
+            
+            container.innerHTML = html;
         }
         
         // ==================== ADVERTISER FUNCTIONS ====================
@@ -829,7 +835,6 @@
             
             document.getElementById('shopAdCount').textContent = shopAds.length;
             
-            // Calculate total views and claims
             let views = 0, claimed = 0;
             shopAds.forEach(ad => {
                 views += ad.views || 0;
@@ -838,7 +843,6 @@
             document.getElementById('shopViews').textContent = views;
             document.getElementById('shopClaimed').textContent = claimed;
             
-            // Display ads
             const container = document.getElementById('shopAds');
             
             if (shopAds.length === 0) {
@@ -852,10 +856,14 @@
                 return;
             }
             
-            container.innerHTML = shopAds.slice(0, 5).map(ad => {
+            let html = '';
+            for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
+                const ad = shopAds[i];
                 const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
-                return `
-                    <div class="ad-item ${daysUntil <= 2 ? 'expiring' : ''}">
+                const expiringClass = daysUntil <= 2 ? 'expiring' : '';
+                
+                html += `
+                    <div class="ad-item ${expiringClass}">
                         <div class="ad-header">
                             <span class="ad-food">${ad.foodName}</span>
                             <span class="ad-discount">${ad.discount}% off</span>
@@ -863,7 +871,9 @@
                         <div class="ad-meta">expires in ${daysUntil} days</div>
                     </div>
                 `;
-            }).join('');
+            }
+            
+            container.innerHTML = html;
         }
         
         // ==================== UTILS ====================
