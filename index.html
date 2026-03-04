@@ -9,7 +9,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -27,7 +26,6 @@
             background: white;
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            position: relative;
         }
         
         /* Header */
@@ -75,7 +73,6 @@
             background: rgba(255,255,255,0.2);
             border-radius: 20px;
             font-size: 12px;
-            backdrop-filter: blur(5px);
         }
         
         .verified-badge {
@@ -104,11 +101,6 @@
             border-radius: 20px;
             font-size: 14px;
             cursor: pointer;
-            backdrop-filter: blur(5px);
-        }
-        
-        .logout-btn:active {
-            background: rgba(255,255,255,0.3);
         }
         
         /* Content */
@@ -155,13 +147,7 @@
             padding: 20px;
             text-decoration: none;
             color: #1a1a1a;
-            transition: 0.2s;
             border: 1px solid #f0f0f0;
-        }
-        
-        .action-card:active {
-            transform: scale(0.97);
-            background: #f0f2f5;
         }
         
         .card-emoji {
@@ -193,11 +179,6 @@
             align-items: center;
             gap: 12px;
             border: 1px solid #f0f0f0;
-            cursor: pointer;
-        }
-        
-        .deal-item:active {
-            background: #f0f2f5;
         }
         
         .deal-icon {
@@ -234,11 +215,10 @@
         .deal-discount {
             color: #34c759;
             font-weight: 600;
-            font-size: 14px;
         }
         
-        /* Fridge Summary Card - FIXED with 3 clear columns */
-        .fridge-summary-card {
+        /* Fridge Summary */
+        .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px;
@@ -249,37 +229,33 @@
         .fridge-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .fridge-header h3 {
             font-size: 18px;
-            font-weight: 600;
         }
         
         .fridge-link {
             color: white;
             text-decoration: none;
-            font-size: 14px;
             opacity: 0.9;
         }
         
-        .fridge-stats-grid {
+        .stats-row {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
             text-align: center;
+            margin: 20px 0;
         }
         
-        .fridge-stat-column {
+        .stat-box {
             flex: 1;
         }
         
         .stat-number {
             font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-weight: bold;
         }
         
         .stat-label {
@@ -287,27 +263,26 @@
             opacity: 0.9;
         }
         
-        .stat-good {
+        .good-number {
             color: #ffffff;
         }
         
-        .stat-expiring {
+        .expiring-number {
             color: #ffd700;
         }
         
-        .stat-expired {
+        .expired-number {
             color: #ff9f9f;
         }
         
         .fridge-footer {
             text-align: center;
-            margin-top: 16px;
+            margin-top: 10px;
         }
         
         .fridge-footer a {
             color: white;
             text-decoration: underline;
-            opacity: 0.9;
         }
         
         /* ADVERTISER SECTION */
@@ -319,7 +294,6 @@
             display: block;
         }
         
-        /* Shop Profile Card */
         .profile-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -327,11 +301,6 @@
             border-radius: 16px;
             margin-bottom: 20px;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .profile-card:active {
-            transform: scale(0.98);
         }
         
         .profile-header {
@@ -350,10 +319,6 @@
             align-items: center;
             justify-content: center;
             font-size: 30px;
-        }
-        
-        .profile-name {
-            flex: 1;
         }
         
         .profile-name h3 {
@@ -397,10 +362,8 @@
         
         .stat-box .label {
             font-size: 11px;
-            opacity: 0.8;
         }
         
-        /* Shop Actions */
         .shop-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -410,16 +373,12 @@
         
         .shop-action {
             background: #f8f9fa;
-            border-radius: 16px;
             padding: 20px;
             text-align: center;
             text-decoration: none;
             color: #1a1a1a;
             border: 1px solid #f0f0f0;
-        }
-        
-        .shop-action:active {
-            background: #f0f2f5;
+            border-radius: 16px;
         }
         
         .action-icon {
@@ -427,7 +386,6 @@
             margin-bottom: 8px;
         }
         
-        /* Shop Ads */
         .ads-list {
             margin-bottom: 20px;
         }
@@ -438,10 +396,6 @@
             border-radius: 12px;
             margin-bottom: 8px;
             border-left: 4px solid #34c759;
-        }
-        
-        .ad-item.expiring {
-            border-left-color: #ff9500;
         }
         
         .ad-header {
@@ -462,8 +416,6 @@
         .ad-meta {
             font-size: 12px;
             color: #666;
-            display: flex;
-            gap: 12px;
         }
         
         /* Bottom Nav */
@@ -500,19 +452,12 @@
             display: block;
         }
         
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 30px;
             color: #999;
             background: #f8f9fa;
             border-radius: 16px;
-        }
-        
-        .empty-emoji {
-            font-size: 40px;
-            margin-bottom: 12px;
-            opacity: 0.5;
         }
         
         .add-link {
@@ -523,7 +468,6 @@
             color: white;
             text-decoration: none;
             border-radius: 20px;
-            font-size: 14px;
         }
     </style>
 </head>
@@ -534,11 +478,9 @@
             <div class="greeting">
                 <div class="user-avatar" id="userAvatar" onclick="goToProfile()">👤</div>
                 <div class="user-info">
-                    <div class="user-name" id="userName">
-                        loading...
-                        <span class="verified-badge" id="verifiedBadge" style="display: none;">✓ verified</span>
-                    </div>
+                    <div class="user-name" id="userName">loading...</div>
                     <div class="user-badge" id="userBadge">consumer</div>
+                    <span class="verified-badge" id="verifiedBadge" style="display: none;">✓ verified</span>
                 </div>
             </div>
             <div class="date" id="currentDate"></div>
@@ -578,27 +520,63 @@
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <div class="empty-state">
-                        <div class="empty-emoji">🔍</div>
-                        <div>check back for deals</div>
-                    </div>
+                    <!-- Will be populated -->
                 </div>
                 
-                <!-- Fridge Summary Section - FIXED with 3 clear columns -->
+                <!-- Fridge Summary -->
                 <div class="section-title">
                     🧊 your fridge
                     <a href="fridge.html" class="view-all">manage →</a>
                 </div>
-                <div class="fridge-summary-card" id="fridgeSummary">
-                    <!-- Will be populated by JavaScript -->
+                <div class="fridge-summary" id="fridgeSummary">
+                    <div class="fridge-header">
+                        <h3>fridge status</h3>
+                        <a href="fridge.html" class="fridge-link">view all →</a>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-number good-number" id="goodCount">0</div>
+                            <div class="stat-label">good</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number expiring-number" id="expiringCount">0</div>
+                            <div class="stat-label">expiring</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number expired-number" id="expiredCount">0</div>
+                            <div class="stat-label">expired</div>
+                        </div>
+                    </div>
+                    <div class="fridge-footer" id="fridgeFooter"></div>
                 </div>
             </div>
             
             <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
-                <!-- Shop Profile Card -->
+                <!-- Shop Profile -->
                 <div class="profile-card" id="shopProfile" onclick="goToProfile()">
-                    <!-- Loaded from localStorage -->
+                    <div class="profile-header">
+                        <div class="profile-avatar">🏪</div>
+                        <div class="profile-name">
+                            <h3 id="shopName">your shop</h3>
+                            <div class="profile-meta" id="shopAddress">tap to edit</div>
+                            <div class="verification-status" id="verificationStatus">⏳ pending</div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-box">
+                            <div class="number" id="shopAdCount">0</div>
+                            <div class="label">ads</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="number" id="shopViews">0</div>
+                            <div class="label">views</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="number" id="shopClaimed">0</div>
+                            <div class="label">claimed</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="shop-actions">
@@ -625,7 +603,7 @@
                     <a href="advertise.html" class="view-all">manage →</a>
                 </div>
                 <div class="ads-list" id="shopAds">
-                    <!-- Loaded from localStorage -->
+                    <!-- Will be populated -->
                 </div>
             </div>
         </div>
@@ -647,8 +625,6 @@
         </div>
     </div>
     
-    <script src="backend.js"></script>
-    
     <script>
         // ==================== STATE ====================
         let currentRole = 'consumer';
@@ -656,7 +632,7 @@
         let isVerified = false;
         
         // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             // Check login
             const user = localStorage.getItem('loggedInUser');
             const role = localStorage.getItem('userRole');
@@ -670,8 +646,17 @@
             businessRole = localStorage.getItem('businessRole') || 'staff';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
-            // Set body class
+            // Set body class for role-based views
             document.body.className = role;
+            
+            // Set user info
+            document.getElementById('userName').textContent = user;
+            document.getElementById('userBadge').textContent = role === 'consumer' ? 'consumer' : businessRole;
+            
+            // Show verified badge if applicable
+            if (role === 'advertiser' && isVerified) {
+                document.getElementById('verifiedBadge').style.display = 'inline-block';
+            }
             
             // Set date
             const date = new Date();
@@ -681,8 +666,12 @@
             // Update navigation
             updateNavigation();
             
-            // Load data
-            loadUserData();
+            // Load data based on role
+            if (role === 'consumer') {
+                loadConsumerData();
+            } else {
+                loadAdvertiserData();
+            }
         });
         
         // ==================== NAVIGATION ====================
@@ -715,63 +704,18 @@
             }
         }
         
-        // ==================== LOAD DATA ====================
-        function loadUserData() {
-            const userName = localStorage.getItem('loggedInUser') || 'user';
-            document.getElementById('userName').innerHTML = userName;
-            
-            if (currentRole === 'consumer') {
-                loadConsumerData();
-            } else {
-                loadAdvertiserData();
-            }
-        }
-        
+        // ==================== CONSUMER FUNCTIONS ====================
         function loadConsumerData() {
-            document.getElementById('userBadge').textContent = 'consumer';
-            document.getElementById('verifiedBadge').style.display = 'none';
-            
-            // Load fridge items -直接从localStorage读取
-            const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
-            document.getElementById('fridgeCount').textContent = fridge.length + ' items';
-            
-            // 调用修复后的fridge summary函数
-            displayFridgeSummary(fridge);
-            
-            // Load list count
-            const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
-            const totalItems = Object.values(lists).reduce((sum, list) => 
-                sum + (list.items?.length || 0), 0);
-            document.getElementById('listCount').textContent = totalItems + ' items';
-            
-            // Deals count
-            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
-            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+            loadFridgeData();
+            loadListCount();
+            loadDealsData();
         }
         
-        function loadAdvertiserData() {
-            const businessName = localStorage.getItem('businessName') || 'your shop';
-            const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
+        function loadFridgeData() {
+            const items = JSON.parse(localStorage.getItem('foodItems')) || [];
             
-            document.getElementById('userBadge').textContent = businessRole;
-            if (isVerified) {
-                document.getElementById('verifiedBadge').style.display = 'inline-block';
-            }
-            
-            // Load shop profile
-            displayShopProfile(businessDetails);
-            
-            // Load shop ads
-            const ads = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
-            const shopAds = ads.filter(ad => ad.shopName === businessName);
-            displayShopAds(shopAds);
-        }
-        
-        // ==================== DISPLAY FUNCTIONS ====================
-        
-        // FIXED: Simple function that shows 3 numbers with clear labels
-        function displayFridgeSummary(items) {
-            const container = document.getElementById('fridgeSummary');
+            // Update total count
+            document.getElementById('fridgeCount').textContent = items.length + ' items';
             
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -780,73 +724,101 @@
             let expiring = 0;
             let expired = 0;
             
-            // Calculate each category
             items.forEach(item => {
-                const expiry = new Date(item.expiry);
-                expiry.setHours(0, 0, 0, 0);
-                const diffDays = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
+                const expiryDate = new Date(item.expiry);
+                expiryDate.setHours(0, 0, 0, 0);
+                
+                const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
                 
                 if (diffDays < 0) {
-                    expired++; // Past expiry date
+                    expired++;
                 } else if (diffDays <= 3) {
-                    expiring++; // 0-3 days left
+                    expiring++;
                 } else {
-                    good++; // More than 3 days left
+                    good++;
                 }
             });
             
-            // Display the 3 numbers with clear labels
-            container.innerHTML = `
-                <div class="fridge-header">
-                    <h3>🧊 fridge status</h3>
-                    <a href="fridge.html" class="fridge-link">view all →</a>
-                </div>
-                
-                <div class="fridge-stats-grid">
-                    <div class="fridge-stat-column">
-                        <div class="stat-number stat-good">${good}</div>
-                        <div class="stat-label">good</div>
-                    </div>
-                    <div class="fridge-stat-column">
-                        <div class="stat-number stat-expiring">${expiring}</div>
-                        <div class="stat-label">expiring</div>
-                    </div>
-                    <div class="fridge-stat-column">
-                        <div class="stat-number stat-expired">${expired}</div>
-                        <div class="stat-label">expired</div>
-                    </div>
-                </div>
-                
-                ${items.length === 0 ? `
-                    <div class="fridge-footer">
-                        <a href="fridge.html">add items to fridge →</a>
-                    </div>
-                ` : ''}
-            `;
-        }
-        
-        function displayShopProfile(details) {
-            const container = document.getElementById('shopProfile');
-            const roleDisplay = businessRole === 'owner' ? '👑 owner' : 
-                              businessRole === 'manager' ? '⭐ manager' : '👤 staff';
+            // Update the 3 numbers
+            document.getElementById('goodCount').textContent = good;
+            document.getElementById('expiringCount').textContent = expiring;
+            document.getElementById('expiredCount').textContent = expired;
             
-            container.innerHTML = `
-                <div class="profile-header">
-                    <div class="profile-avatar">🏪</div>
-                    <div class="profile-name">
-                        <h3>${details.name || 'your shop'}</h3>
-                        <div class="profile-meta">${details.address || 'tap to edit'}</div>
-                        <div class="verification-status">${isVerified ? '✅ verified' : '⏳ pending'}</div>
-                    </div>
-                </div>
-                <div style="margin-bottom:12px;">Role: ${roleDisplay}</div>
-            `;
+            // Show footer message if empty
+            const footer = document.getElementById('fridgeFooter');
+            if (items.length === 0) {
+                footer.innerHTML = '<a href="fridge.html">add items to fridge →</a>';
+            } else {
+                footer.innerHTML = '';
+            }
         }
         
-        function displayShopAds(ads) {
+        function loadListCount() {
+            const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
+            let total = 0;
+            for (let key in lists) {
+                if (lists[key].items) {
+                    total += lists[key].items.length;
+                }
+            }
+            document.getElementById('listCount').textContent = total + ' items';
+        }
+        
+        function loadDealsData() {
+            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+            
+            const container = document.getElementById('recentDeals');
+            
+            if (deals.length === 0) {
+                container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
+                return;
+            }
+            
+            container.innerHTML = deals.slice(0, 3).map(deal => `
+                <div class="deal-item">
+                    <div class="deal-icon">🏷️</div>
+                    <div class="deal-details">
+                        <div class="deal-name">${deal.foodName}</div>
+                        <div class="deal-meta">
+                            <span class="deal-shop">${deal.shopName}</span>
+                            <span>•</span>
+                            <span>${Math.ceil((new Date(deal.expiryDate) - new Date())/(1000*60*60*24))} days left</span>
+                        </div>
+                    </div>
+                    <div class="deal-discount">-${deal.discount}%</div>
+                </div>
+            `).join('');
+        }
+        
+        // ==================== ADVERTISER FUNCTIONS ====================
+        function loadAdvertiserData() {
+            const businessName = localStorage.getItem('businessName') || 'your shop';
+            const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
+            
+            document.getElementById('shopName').textContent = businessName;
+            document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
+            document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
+            
+            // Load shop ads
+            const ads = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            const shopAds = ads.filter(ad => ad.shopName === businessName);
+            
+            document.getElementById('shopAdCount').textContent = shopAds.length;
+            
+            // Calculate total views and claims
+            let views = 0, claimed = 0;
+            shopAds.forEach(ad => {
+                views += ad.views || 0;
+                claimed += ad.claimed || 0;
+            });
+            document.getElementById('shopViews').textContent = views;
+            document.getElementById('shopClaimed').textContent = claimed;
+            
+            // Display ads
             const container = document.getElementById('shopAds');
             
-            if (!ads || ads.length === 0) {
+            if (shopAds.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-emoji">📢</div>
@@ -857,7 +829,7 @@
                 return;
             }
             
-            container.innerHTML = ads.slice(0, 5).map(ad => {
+            container.innerHTML = shopAds.slice(0, 5).map(ad => {
                 const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
                 return `
                     <div class="ad-item ${daysUntil <= 2 ? 'expiring' : ''}">
@@ -878,7 +850,7 @@
         }
         
         function comingSoon(feature) {
-            alert(`✨ ${feature} coming soon!`);
+            alert('✨ ' + feature + ' coming soon!');
         }
         
         // Make functions global
