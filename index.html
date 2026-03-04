@@ -518,27 +518,6 @@
             display: block;
         }
         
-        /* Loading States */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -617,10 +596,7 @@
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading deals...
-                    </div>
+                    <!-- Loaded from localStorage -->
                 </div>
                 
                 <!-- Fridge Summary Section -->
@@ -629,21 +605,15 @@
                     <a href="fridge.html" class="view-all">manage →</a>
                 </div>
                 <div class="fridge-summary-card" id="fridgeSummary">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading fridge...
-                    </div>
+                    <!-- Loaded from localStorage -->
                 </div>
             </div>
             
             <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
-                <!-- Shop Profile Card - Clickable to profile -->
+                <!-- Shop Profile Card -->
                 <div class="profile-card" id="shopProfile" onclick="goToProfile()">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading profile...
-                    </div>
+                    <!-- Loaded from localStorage -->
                 </div>
                 
                 <div class="shop-actions">
@@ -670,10 +640,7 @@
                     <a href="advertise.html" class="view-all">manage →</a>
                 </div>
                 <div class="ads-list" id="shopAds">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading ads...
-                    </div>
+                    <!-- Loaded from localStorage -->
                 </div>
             </div>
         </div>
@@ -695,36 +662,28 @@
         </div>
     </div>
     
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
     
     <script>
         // ==================== STATE ====================
         let currentRole = 'consumer';
-        let currentUser = null;
         let businessRole = 'staff';
         let isVerified = false;
         
         // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('DOM loaded, checking login...');
-            
+        document.addEventListener('DOMContentLoaded', () => {
             // Check login
-            const user = Backend.getCurrentUser();
+            const user = localStorage.getItem('loggedInUser');
             const role = localStorage.getItem('userRole');
             
             if (!user || !role) {
-                console.log('No user found, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
             
-            currentUser = user;
             currentRole = role;
             businessRole = localStorage.getItem('businessRole') || 'staff';
             isVerified = localStorage.getItem('businessVerified') === 'true';
-            
-            console.log('User role:', currentRole);
             
             // Set body class
             document.body.className = role;
@@ -734,11 +693,11 @@
             document.getElementById('currentDate').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
-            // Update navigation based on role
+            // Update navigation
             updateNavigation();
             
             // Load data
-            await loadUserData();
+            loadUserData();
         });
         
         // ==================== NAVIGATION ====================
@@ -772,60 +731,39 @@
         }
         
         // ==================== LOAD DATA ====================
-        async function loadUserData() {
+        function loadUserData() {
             const userName = localStorage.getItem('loggedInUser') || 'user';
             document.getElementById('userName').innerHTML = userName;
             
             if (currentRole === 'consumer') {
-                await loadConsumerData();
+                loadConsumerData();
             } else {
-                await loadAdvertiserData();
+                loadAdvertiserData();
             }
         }
         
-        async function loadConsumerData() {
-            console.log('Loading consumer data...');
+        function loadConsumerData() {
             document.getElementById('userBadge').textContent = 'consumer';
             document.getElementById('verifiedBadge').style.display = 'none';
             
-            // Load hot deals from Backend
-            try {
-                console.log('Fetching deals from Back4App...');
-                const deals = await Backend.getActiveAds({ limit: 3 });
-                console.log('Deals received:', deals);
-                displayHotDeals(deals);
-                document.getElementById('dealsCount').textContent = deals.length + ' nearby';
-            } catch (error) {
-                console.error('Error loading deals:', error);
-                displayHotDeals([]); // Show empty state
-            }
+            // Load deals from localStorage
+            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            displayHotDeals(deals.slice(0, 3));
+            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
             
-            // Load fridge items from Backend
-            try {
-                console.log('Loading fridge items from Back4App...');
-                const fridge = await Backend.loadFridgeItems();
-                console.log('Fridge items:', fridge);
-                document.getElementById('fridgeCount').textContent = fridge.length + ' items';
-                displayFridgeSummary(fridge);
-            } catch (error) {
-                console.error('Error loading fridge:', error);
-                displayFridgeSummary([]); // Show empty state
-            }
+            // Load fridge items
+            const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
+            document.getElementById('fridgeCount').textContent = fridge.length + ' items';
+            displayFridgeSummary(fridge);
             
-            // Load list count from localStorage (for now)
-            try {
-                const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
-                const totalItems = Object.values(lists).reduce((sum, list) => 
-                    sum + (list.items?.length || 0), 0);
-                document.getElementById('listCount').textContent = totalItems + ' items';
-            } catch (error) {
-                console.error('Error loading lists:', error);
-                document.getElementById('listCount').textContent = '0 items';
-            }
+            // Load list count
+            const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
+            const totalItems = Object.values(lists).reduce((sum, list) => 
+                sum + (list.items?.length || 0), 0);
+            document.getElementById('listCount').textContent = totalItems + ' items';
         }
         
-        async function loadAdvertiserData() {
-            console.log('Loading advertiser data...');
+        function loadAdvertiserData() {
             const businessName = localStorage.getItem('businessName') || 'your shop';
             const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
             
@@ -837,19 +775,13 @@
             // Load shop profile
             displayShopProfile(businessDetails);
             
-            // Load shop ads from Backend
-            try {
-                console.log('Fetching shop ads from Back4App...');
-                const ads = await Backend.getShopAds();
-                console.log('Shop ads received:', ads);
-                displayShopAds(ads);
-            } catch (error) {
-                console.error('Error loading ads:', error);
-                displayShopAds([]); // Show empty state
-            }
+            // Load shop ads
+            const ads = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            const shopAds = ads.filter(ad => ad.shopName === businessName);
+            displayShopAds(shopAds);
         }
         
-        // ==================== CONSUMER DISPLAY FUNCTIONS ====================
+        // ==================== DISPLAY FUNCTIONS ====================
         function displayHotDeals(deals) {
             const container = document.getElementById('recentDeals');
             
@@ -858,7 +790,6 @@
                     <div class="empty-state">
                         <div class="empty-emoji">🔍</div>
                         <div>no deals nearby</div>
-                        <div style="font-size:13px; margin-top:8px;">check back later for discounts</div>
                         <a href="find-stores.html" class="add-link">browse all stores</a>
                     </div>
                 `;
@@ -866,31 +797,21 @@
             }
             
             container.innerHTML = deals.map(deal => {
-                // Safely access deal properties
-                const foodName = deal.foodName || 'Unknown item';
-                const shopName = deal.businessName || deal.shopName || 'Unknown shop';
-                const discount = deal.discount || 0;
-                const expiryDate = deal.expiryDate ? new Date(deal.expiryDate) : new Date();
-                
-                // Calculate days until expiry
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                expiryDate.setHours(0,0,0,0);
-                const daysUntil = Math.ceil((expiryDate - today) / (1000*60*60*24));
+                const daysUntil = Math.ceil((new Date(deal.expiryDate) - new Date()) / (1000*60*60*24));
                 const expiryText = daysUntil <= 1 ? '🔥 today only' : `${daysUntil} days left`;
                 
                 return `
                     <div class="deal-item" onclick="window.location.href='find-stores.html'">
                         <div class="deal-icon">🏷️</div>
                         <div class="deal-details">
-                            <div class="deal-name">${foodName}</div>
+                            <div class="deal-name">${deal.foodName}</div>
                             <div class="deal-meta">
-                                <span class="deal-shop">${shopName}</span>
+                                <span class="deal-shop">${deal.shopName}</span>
                                 <span>•</span>
                                 <span>${expiryText}</span>
                             </div>
                         </div>
-                        <div class="deal-discount">-${discount}%</div>
+                        <div class="deal-discount">-${deal.discount}%</div>
                     </div>
                 `;
             }).join('');
@@ -899,34 +820,13 @@
         function displayFridgeSummary(items) {
             const container = document.getElementById('fridgeSummary');
             
-            if (!items || items.length === 0) {
-                container.innerHTML = `
-                    <div class="fridge-header">
-                        <h3>🧊 fridge status</h3>
-                        <a href="fridge.html" class="fridge-link">view all →</a>
-                    </div>
-                    <div class="fridge-items-preview" style="text-align: center;">
-                        🧊 your fridge is empty
-                        <div style="margin-top: 12px;">
-                            <a href="fridge.html" class="add-link" style="background: #34c759;">add items →</a>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            // Calculate stats
-            let good = 0;
-            let expiring = 0;
-            let expired = 0;
+            let good = 0, expiring = 0, expired = 0;
             const expiringItems = [];
             
             items.forEach(item => {
-                if (!item.expiry) return;
-                
                 const expiry = new Date(item.expiry);
                 expiry.setHours(0,0,0,0);
                 const diffDays = Math.round((expiry - today) / (1000*60*60*24));
@@ -941,31 +841,25 @@
                 }
             });
             
-            // Get items expiring soon for preview (max 3)
             const previewItems = expiringItems.slice(0, 3);
             
             let previewHtml = '';
             if (previewItems.length > 0) {
                 previewHtml = `
                     <div class="fridge-items-preview">
-                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
-                        ${previewItems.map(item => {
-                            const status = item.days === 0 ? 'today' : `${item.days} days`;
-                            return `
-                                <div class="fridge-item-preview">
-                                    <span>${item.name}</span>
-                                    <span class="expiry-badge warning">${status}</span>
-                                </div>
-                            `;
-                        }).join('')}
+                        <div style="margin-bottom: 8px;">⚠️ expiring soon:</div>
+                        ${previewItems.map(item => `
+                            <div class="fridge-item-preview">
+                                <span>${item.name}</span>
+                                <span class="expiry-badge warning">${item.days === 0 ? 'today' : item.days + ' days'}</span>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             } else if (items.length > 0) {
-                previewHtml = `
-                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
-                        ✅ no items expiring soon
-                    </div>
-                `;
+                previewHtml = `<div class="fridge-items-preview">✅ no items expiring soon</div>`;
+            } else {
+                previewHtml = `<div class="fridge-items-preview">🧊 your fridge is empty</div>`;
             }
             
             container.innerHTML = `
@@ -973,27 +867,15 @@
                     <h3>🧊 fridge status</h3>
                     <a href="fridge.html" class="fridge-link">view all →</a>
                 </div>
-                
                 <div class="fridge-stats">
-                    <div class="fridge-stat">
-                        <div class="stat-number">${good}</div>
-                        <div class="stat-label">good</div>
-                    </div>
-                    <div class="fridge-stat">
-                        <div class="stat-number" style="color: #ff9500;">${expiring}</div>
-                        <div class="stat-label">expiring soon</div>
-                    </div>
-                    <div class="fridge-stat">
-                        <div class="stat-number" style="color: #ff3b30;">${expired}</div>
-                        <div class="stat-label">expired</div>
-                    </div>
+                    <div class="fridge-stat"><div class="stat-number">${good}</div><div class="stat-label">good</div></div>
+                    <div class="fridge-stat"><div class="stat-number" style="color:#ff9500;">${expiring}</div><div class="stat-label">expiring</div></div>
+                    <div class="fridge-stat"><div class="stat-number" style="color:#ff3b30;">${expired}</div><div class="stat-label">expired</div></div>
                 </div>
-                
                 ${previewHtml}
             `;
         }
         
-        // ==================== ADVERTISER DISPLAY FUNCTIONS ====================
         function displayShopProfile(details) {
             const container = document.getElementById('shopProfile');
             const roleDisplay = businessRole === 'owner' ? '👑 owner' : 
@@ -1004,83 +886,45 @@
                     <div class="profile-avatar">🏪</div>
                     <div class="profile-name">
                         <h3>${details.name || 'your shop'}</h3>
-                        <div class="profile-meta">${details.address || 'tap to edit profile'}</div>
-                        <div class="verification-status">
-                            ${isVerified ? '✅ verified' : '⏳ verification pending'}
-                        </div>
+                        <div class="profile-meta">${details.address || 'tap to edit'}</div>
+                        <div class="verification-status">${isVerified ? '✅ verified' : '⏳ pending'}</div>
                     </div>
                 </div>
-                <div style="margin-bottom: 12px; font-size: 13px; opacity: 0.9;">
-                    Role: ${roleDisplay}
-                </div>
-                <div class="profile-stats" id="profileStats">
-                    <div class="stat-box">
-                        <div class="number" id="profileViews">0</div>
-                        <div class="label">views</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="profileAds">0</div>
-                        <div class="label">ads</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="number" id="profileClaimed">0</div>
-                        <div class="label">claimed</div>
-                    </div>
-                </div>
+                <div style="margin-bottom:12px;">Role: ${roleDisplay}</div>
             `;
         }
         
         function displayShopAds(ads) {
             const container = document.getElementById('shopAds');
-            const profileAds = document.getElementById('profileAds');
-            const profileViews = document.getElementById('profileViews');
-            const profileClaimed = document.getElementById('profileClaimed');
             
             if (!ads || ads.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-emoji">📢</div>
                         <div>no active ads</div>
-                        <div style="font-size:13px; margin-top:8px;">post your first deal</div>
                         <a href="advertise.html" class="add-link">post ad →</a>
                     </div>
                 `;
-                if (profileAds) profileAds.textContent = '0';
                 return;
             }
             
-            // Update stats
-            if (profileAds) profileAds.textContent = ads.length;
-            if (profileViews) profileViews.textContent = ads.reduce((sum, ad) => sum + (ad.views || 0), 0);
-            if (profileClaimed) profileClaimed.textContent = ads.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
-            
             container.innerHTML = ads.slice(0, 5).map(ad => {
                 const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
-                const expiring = daysUntil <= 2;
-                
                 return `
-                    <div class="ad-item ${expiring ? 'expiring' : ''}">
+                    <div class="ad-item ${daysUntil <= 2 ? 'expiring' : ''}">
                         <div class="ad-header">
                             <span class="ad-food">${ad.foodName}</span>
                             <span class="ad-discount">${ad.discount}% off</span>
                         </div>
-                        <div class="ad-meta">
-                            <span>expires in ${daysUntil} days</span>
-                            <span>👁️ ${ad.views || 0}</span>
-                            <span>✅ ${ad.claimed || 0}</span>
-                        </div>
+                        <div class="ad-meta">expires in ${daysUntil} days</div>
                     </div>
                 `;
             }).join('');
-            
-            if (ads.length > 5) {
-                container.innerHTML += `<a href="advertise.html" style="text-align:center; display:block; margin-top:12px; color:#007aff; text-decoration:none;">view all ${ads.length} ads →</a>`;
-            }
         }
         
         // ==================== UTILS ====================
-        async function logout() {
-            await Backend.logout();
+        function logout() {
+            localStorage.clear();
             window.location.href = 'login.html';
         }
         
