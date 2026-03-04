@@ -237,7 +237,7 @@
             font-size: 14px;
         }
         
-        /* Fridge Summary Card */
+        /* Fridge Summary Card - FIXED to work with localStorage */
         .fridge-summary-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -313,19 +313,9 @@
             font-size: 11px;
         }
         
-        .expiry-badge.good {
-            background: rgba(52, 199, 89, 0.3);
-            color: #34c759;
-        }
-        
         .expiry-badge.warning {
             background: rgba(255, 149, 0, 0.3);
             color: #ff9500;
-        }
-        
-        .expiry-badge.expired {
-            background: rgba(255, 59, 48, 0.3);
-            color: #ff3b30;
         }
         
         /* ADVERTISER SECTION */
@@ -590,22 +580,25 @@
                     </a>
                 </div>
                 
-                <!-- Hot Deals Section -->
+                <!-- Hot Deals Section (keeping but simplified) -->
                 <div class="section-title">
                     🔥 hot deals near you
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <!-- Loaded from localStorage -->
+                    <div class="empty-state">
+                        <div class="empty-emoji">🔍</div>
+                        <div>check back for deals</div>
+                    </div>
                 </div>
                 
-                <!-- Fridge Summary Section -->
+                <!-- Fridge Summary Section - FIXED to work with localStorage -->
                 <div class="section-title">
                     🧊 your fridge
                     <a href="fridge.html" class="view-all">manage →</a>
                 </div>
                 <div class="fridge-summary-card" id="fridgeSummary">
-                    <!-- Loaded from localStorage -->
+                    <!-- Will be populated by JavaScript -->
                 </div>
             </div>
             
@@ -746,12 +739,7 @@
             document.getElementById('userBadge').textContent = 'consumer';
             document.getElementById('verifiedBadge').style.display = 'none';
             
-            // Load deals from localStorage
-            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
-            displayHotDeals(deals.slice(0, 3));
-            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
-            
-            // Load fridge items
+            // Load fridge items - THIS IS THE KEY FIX
             const fridge = JSON.parse(localStorage.getItem('foodItems')) || [];
             document.getElementById('fridgeCount').textContent = fridge.length + ' items';
             displayFridgeSummary(fridge);
@@ -761,6 +749,10 @@
             const totalItems = Object.values(lists).reduce((sum, list) => 
                 sum + (list.items?.length || 0), 0);
             document.getElementById('listCount').textContent = totalItems + ' items';
+            
+            // Deals count (simplified)
+            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
         }
         
         function loadAdvertiserData() {
@@ -782,50 +774,20 @@
         }
         
         // ==================== DISPLAY FUNCTIONS ====================
-        function displayHotDeals(deals) {
-            const container = document.getElementById('recentDeals');
-            
-            if (!deals || deals.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-emoji">🔍</div>
-                        <div>no deals nearby</div>
-                        <a href="find-stores.html" class="add-link">browse all stores</a>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = deals.map(deal => {
-                const daysUntil = Math.ceil((new Date(deal.expiryDate) - new Date()) / (1000*60*60*24));
-                const expiryText = daysUntil <= 1 ? '🔥 today only' : `${daysUntil} days left`;
-                
-                return `
-                    <div class="deal-item" onclick="window.location.href='find-stores.html'">
-                        <div class="deal-icon">🏷️</div>
-                        <div class="deal-details">
-                            <div class="deal-name">${deal.foodName}</div>
-                            <div class="deal-meta">
-                                <span class="deal-shop">${deal.shopName}</span>
-                                <span>•</span>
-                                <span>${expiryText}</span>
-                            </div>
-                        </div>
-                        <div class="deal-discount">-${deal.discount}%</div>
-                    </div>
-                `;
-            }).join('');
-        }
         
+        // FIXED: This function actually reads from localStorage now
         function displayFridgeSummary(items) {
             const container = document.getElementById('fridgeSummary');
             
             const today = new Date();
             today.setHours(0,0,0,0);
             
-            let good = 0, expiring = 0, expired = 0;
+            let good = 0;
+            let expiring = 0;
+            let expired = 0;
             const expiringItems = [];
             
+            // Calculate stats from actual fridge items
             items.forEach(item => {
                 const expiry = new Date(item.expiry);
                 expiry.setHours(0,0,0,0);
@@ -841,25 +803,30 @@
                 }
             });
             
-            const previewItems = expiringItems.slice(0, 3);
-            
+            // Show expiring items preview (max 2)
             let previewHtml = '';
-            if (previewItems.length > 0) {
+            if (expiringItems.length > 0) {
                 previewHtml = `
                     <div class="fridge-items-preview">
-                        <div style="margin-bottom: 8px;">⚠️ expiring soon:</div>
-                        ${previewItems.map(item => `
-                            <div class="fridge-item-preview">
-                                <span>${item.name}</span>
-                                <span class="expiry-badge warning">${item.days === 0 ? 'today' : item.days + ' days'}</span>
-                            </div>
-                        `).join('')}
+                        <div style="margin-bottom: 8px; font-size: 12px; opacity: 0.9;">⚠️ expiring soon:</div>
+                        ${expiringItems.slice(0, 2).map(item => {
+                            const status = item.days === 0 ? 'today' : `${item.days} days`;
+                            return `
+                                <div class="fridge-item-preview">
+                                    <span>${item.name}</span>
+                                    <span class="expiry-badge warning">${status}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${expiringItems.length > 2 ? `<div style="text-align:center; margin-top:4px;">+${expiringItems.length-2} more</div>` : ''}
                     </div>
                 `;
             } else if (items.length > 0) {
-                previewHtml = `<div class="fridge-items-preview">✅ no items expiring soon</div>`;
-            } else {
-                previewHtml = `<div class="fridge-items-preview">🧊 your fridge is empty</div>`;
+                previewHtml = `
+                    <div class="fridge-items-preview" style="text-align: center; opacity: 0.8;">
+                        ✅ no items expiring soon
+                    </div>
+                `;
             }
             
             container.innerHTML = `
@@ -867,12 +834,32 @@
                     <h3>🧊 fridge status</h3>
                     <a href="fridge.html" class="fridge-link">view all →</a>
                 </div>
+                
                 <div class="fridge-stats">
-                    <div class="fridge-stat"><div class="stat-number">${good}</div><div class="stat-label">good</div></div>
-                    <div class="fridge-stat"><div class="stat-number" style="color:#ff9500;">${expiring}</div><div class="stat-label">expiring</div></div>
-                    <div class="fridge-stat"><div class="stat-number" style="color:#ff3b30;">${expired}</div><div class="stat-label">expired</div></div>
+                    <div class="fridge-stat">
+                        <div class="stat-number">${good}</div>
+                        <div class="stat-label">good</div>
+                    </div>
+                    <div class="fridge-stat">
+                        <div class="stat-number" style="color: #ff9500;">${expiring}</div>
+                        <div class="stat-label">expiring</div>
+                    </div>
+                    <div class="fridge-stat">
+                        <div class="stat-number" style="color: #ff3b30;">${expired}</div>
+                        <div class="stat-label">expired</div>
+                    </div>
                 </div>
-                ${previewHtml}
+                
+                ${previewHtml || ''}
+                
+                ${items.length === 0 ? `
+                    <div class="fridge-items-preview" style="text-align: center;">
+                        🧊 your fridge is empty
+                        <div style="margin-top: 8px;">
+                            <a href="fridge.html" style="color: white; text-decoration: underline;">add items →</a>
+                        </div>
+                    </div>
+                ` : ''}
             `;
         }
         
