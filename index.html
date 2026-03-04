@@ -179,6 +179,11 @@
             align-items: center;
             gap: 12px;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .deal-item:active {
+            background: #f0f2f5;
         }
         
         .deal-icon {
@@ -520,7 +525,7 @@
                     <a href="find-stores.html" class="view-all">view all →</a>
                 </div>
                 <div class="deals-list" id="recentDeals">
-                    <!-- Will be populated -->
+                    <!-- Will be populated from find-stores data -->
                 </div>
                 
                 <!-- Fridge Summary -->
@@ -625,6 +630,8 @@
         </div>
     </div>
     
+    <script src="backend.js"></script>
+    
     <script>
         // ==================== STATE ====================
         let currentRole = 'consumer';
@@ -708,7 +715,7 @@
         function loadConsumerData() {
             loadFridgeData();
             loadListCount();
-            loadDealsData();
+            loadDealsData(); // This now uses the same data as find-stores.html
         }
         
         function loadFridgeData() {
@@ -764,8 +771,13 @@
             document.getElementById('listCount').textContent = total + ' items';
         }
         
+        // ==================== DEALS FUNCTION ====================
+        // This uses the SAME data source as find-stores.html
         function loadDealsData() {
+            // Get deals from the same place as find-stores.html
             const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
+            
+            // Update count
             document.getElementById('dealsCount').textContent = deals.length + ' nearby';
             
             const container = document.getElementById('recentDeals');
@@ -775,20 +787,31 @@
                 return;
             }
             
-            container.innerHTML = deals.slice(0, 3).map(deal => `
-                <div class="deal-item">
-                    <div class="deal-icon">🏷️</div>
-                    <div class="deal-details">
-                        <div class="deal-name">${deal.foodName}</div>
-                        <div class="deal-meta">
-                            <span class="deal-shop">${deal.shopName}</span>
-                            <span>•</span>
-                            <span>${Math.ceil((new Date(deal.expiryDate) - new Date())/(1000*60*60*24))} days left</span>
+            // Sort by discount percentage (highest first) and take top 3
+            const topDeals = [...deals]
+                .sort((a, b) => (b.discount || 0) - (a.discount || 0))
+                .slice(0, 3);
+            
+            container.innerHTML = topDeals.map(deal => {
+                // Calculate days left
+                const daysLeft = Math.ceil((new Date(deal.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const daysText = daysLeft <= 1 ? '🔥 today only' : `${daysLeft} days left`;
+                
+                return `
+                    <div class="deal-item" onclick="window.location.href='find-stores.html'">
+                        <div class="deal-icon">🏷️</div>
+                        <div class="deal-details">
+                            <div class="deal-name">${deal.foodName || 'Unknown item'}</div>
+                            <div class="deal-meta">
+                                <span class="deal-shop">${deal.shopName || 'Unknown shop'}</span>
+                                <span>•</span>
+                                <span>${daysText}</span>
+                            </div>
                         </div>
+                        <div class="deal-discount">-${deal.discount || 0}%</div>
                     </div>
-                    <div class="deal-discount">-${deal.discount}%</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
         // ==================== ADVERTISER FUNCTIONS ====================
@@ -800,7 +823,7 @@
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
             
-            // Load shop ads
+            // Load shop ads from same data source
             const ads = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
             const shopAds = ads.filter(ad => ad.shopName === businessName);
             
