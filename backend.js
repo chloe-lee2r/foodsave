@@ -56,7 +56,7 @@ const Backend = {
                 user.set("businessType", businessDetails.type || "grocery");
                 user.set("businessTaxId", businessDetails.taxId || "");
                 user.set("businessVerified", false);
-                user.set("businessRole", "owner"); // First user is owner
+                user.set("businessRole", "owner"); // FIXED: First user is OWNER, not staff
                 user.set("businessStaff", []); // Array of staff user IDs
             }
             
@@ -69,7 +69,9 @@ const Backend = {
             if (role === "advertiser") {
                 localStorage.setItem("loggedInShop", username);
                 localStorage.setItem("businessName", businessDetails?.name || username);
-                localStorage.setItem("businessRole", "owner");
+                localStorage.setItem("businessRole", "owner"); // FIXED: Set as owner
+                localStorage.setItem("businessVerified", "false");
+                
                 if (businessDetails) {
                     localStorage.setItem("businessDetails", JSON.stringify({
                         ...businessDetails,
@@ -108,8 +110,13 @@ const Backend = {
             if (role === "advertiser") {
                 localStorage.setItem("loggedInShop", username);
                 localStorage.setItem("businessName", user.get("businessName") || username);
-                localStorage.setItem("businessRole", user.get("businessRole") || "staff");
-                localStorage.setItem("businessVerified", user.get("businessVerified") ? "true" : "false");
+                
+                // Get business role from user object, default to 'staff' if not set
+                const userBusinessRole = user.get("businessRole") || 'staff';
+                localStorage.setItem("businessRole", userBusinessRole);
+                
+                const isVerified = user.get("businessVerified") || false;
+                localStorage.setItem("businessVerified", isVerified ? "true" : "false");
                 
                 // Store business details
                 const businessDetails = {
@@ -123,8 +130,8 @@ const Backend = {
                     closeTime: user.get("businessClose") || "21:00",
                     type: user.get("businessType") || "grocery",
                     taxId: user.get("businessTaxId") || "",
-                    verified: user.get("businessVerified") || false,
-                    role: user.get("businessRole") || "staff"
+                    verified: isVerified,
+                    role: userBusinessRole
                 };
                 localStorage.setItem("businessDetails", JSON.stringify(businessDetails));
                 
@@ -478,6 +485,7 @@ const Backend = {
                     discount: ad.get("discount"),
                     expiryDate: ad.get("expiryDate"),
                     businessName: ad.get("businessName"),
+                    shopName: ad.get("businessName"), // Alias for compatibility
                     description: ad.get("description"),
                     originalPrice: ad.get("originalPrice"),
                     category: ad.get("category"),
@@ -531,6 +539,109 @@ const Backend = {
         } catch (error) {
             console.error("Get business ads error:", error);
             return [];
+        }
+    },
+
+    // Alias for backward compatibility
+    async getShopAds(businessId) {
+        return this.getBusinessAds(businessId);
+    },
+
+    async updateAd(adId, updates) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                const ad = await query.get(adId);
+                
+                if (ad.get("businessId") !== currentUser.id) {
+                    return { success: false, message: "Unauthorized" };
+                }
+                
+                Object.keys(updates).forEach(key => {
+                    if (key === 'expiryDate') {
+                        ad.set(key, new Date(updates[key]));
+                    } else {
+                        ad.set(key, updates[key]);
+                    }
+                });
+                
+                await ad.save();
+                return { success: true };
+            });
+            
+        } catch (error) {
+            console.error("Update ad error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async deleteAd(adId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                const ad = await query.get(adId);
+                
+                if (ad.get("businessId") !== currentUser.id) {
+                    return { success: false, message: "Unauthorized" };
+                }
+                
+                await ad.destroy();
+                return { success: true };
+            });
+            
+        } catch (error) {
+            console.error("Delete ad error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async incrementViews(adId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                const ad = await query.get(adId);
+                ad.increment("views");
+                await ad.save();
+                return { success: true };
+            });
+            
+        } catch (error) {
+            console.error("Increment views error:", error);
+            return { success: false };
+        }
+    },
+
+    async incrementClaimed(adId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                const ad = await query.get(adId);
+                ad.increment("claimed");
+                await ad.save();
+                return { success: true };
+            });
+            
+        } catch (error) {
+            console.error("Increment claimed error:", error);
+            return { success: false };
         }
     },
 
