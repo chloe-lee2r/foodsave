@@ -84,6 +84,11 @@
             border-left: 4px solid #ff9500;
         }
         
+        .banner-verified {
+            background: #e8f5e8;
+            border-left-color: #34c759;
+        }
+        
         .banner-icon {
             width: 40px;
             height: 40px;
@@ -107,11 +112,6 @@
         .banner-text {
             font-size: 13px;
             color: #666;
-        }
-        
-        .banner-verified {
-            background: #e8f5e8;
-            border-left-color: #34c759;
         }
         
         /* Role Banner */
@@ -524,15 +524,17 @@
                 <div class="add-staff" id="addStaffSection">
                     <h4>add staff member</h4>
                     <div class="form-group">
-                        <input type="text" class="form-input" id="staffUsername" placeholder="username">
+                        <label class="form-label">username</label>
+                        <input type="text" class="form-input" id="staffUsername" placeholder="enter username">
                     </div>
                     <div class="form-group">
+                        <label class="form-label">role</label>
                         <select class="form-select" id="staffRole">
-                            <option value="staff">Staff</option>
-                            <option value="manager">Manager</option>
+                            <option value="staff">👤 Staff (can post ads)</option>
+                            <option value="manager">⭐ Manager (can edit profile & post ads)</option>
                         </select>
                     </div>
-                    <button class="save-btn" onclick="addStaff()">add staff</button>
+                    <button class="save-btn" onclick="addStaff()">add staff member</button>
                 </div>
             </div>
             
@@ -540,17 +542,19 @@
             <div class="tab-content" id="verificationTab">
                 <div class="form-group">
                     <label class="form-label">tax ID / license</label>
-                    <input type="text" class="form-input" id="taxId">
+                    <input type="text" class="form-input" id="taxId" placeholder="enter tax ID or license number">
                 </div>
                 
                 <div class="doc-upload" onclick="uploadDocument()">
                     <div style="font-size: 32px; margin-bottom: 8px;">📎</div>
-                    <div>click to upload document</div>
+                    <div>click to upload business license</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 8px;">PDF or image</div>
                 </div>
                 
                 <div class="doc-list" id="docList"></div>
                 
-                <button class="save-btn" onclick="submitVerification()">submit for verification</button>
+                <button class="save-btn" onclick="submitVerification()" id="verifyBtn">submit for verification</button>
+                <p style="font-size:12px; color:#999; text-align:center; margin-top:12px;">Once verified, you can post ads</p>
             </div>
         </div>
         
@@ -597,6 +601,9 @@
             businessRole = localStorage.getItem('businessRole') || 'owner';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
+            console.log('Business role:', businessRole);
+            console.log('Verified:', isVerified);
+            
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
@@ -614,21 +621,21 @@
                 case 'owner':
                     roleIcon.textContent = '👑';
                     roleName.textContent = 'Business Owner';
-                    rolePermissions.textContent = 'Full access • Manage staff';
+                    rolePermissions.textContent = 'Full access • Can manage staff';
                     addStaffSection.style.display = 'block';
                     saveProfileBtn.disabled = false;
                     break;
                 case 'manager':
                     roleIcon.textContent = '⭐';
                     roleName.textContent = 'Manager';
-                    rolePermissions.textContent = 'Edit business info';
+                    rolePermissions.textContent = 'Can edit profile and post ads';
                     addStaffSection.style.display = 'none';
                     saveProfileBtn.disabled = false;
                     break;
                 default:
                     roleIcon.textContent = '👤';
                     roleName.textContent = 'Staff';
-                    rolePermissions.textContent = 'View only';
+                    rolePermissions.textContent = 'Can only view profile';
                     addStaffSection.style.display = 'none';
                     saveProfileBtn.disabled = true;
             }
@@ -639,17 +646,20 @@
             const icon = document.getElementById('bannerIcon');
             const title = document.getElementById('bannerTitle');
             const text = document.getElementById('bannerText');
+            const verifyBtn = document.getElementById('verifyBtn');
             
             if (isVerified) {
                 banner.className = 'verification-banner banner-verified';
                 icon.textContent = '✅';
                 title.textContent = 'Verified Business';
                 text.textContent = 'You can post ads';
+                if (verifyBtn) verifyBtn.disabled = true;
             } else {
                 banner.className = 'verification-banner';
                 icon.textContent = '⏳';
                 title.textContent = 'Verification Pending';
                 text.textContent = 'Complete verification to post ads';
+                if (verifyBtn) verifyBtn.disabled = false;
             }
         }
         
@@ -667,6 +677,13 @@
                 document.getElementById('businessOpen').value = user.get('businessOpen') || '09:00';
                 document.getElementById('businessClose').value = user.get('businessClose') || '21:00';
                 document.getElementById('taxId').value = user.get('businessTaxId') || '';
+                
+                // Disable if not owner/manager
+                if (businessRole !== 'owner' && businessRole !== 'manager') {
+                    document.querySelectorAll('#profileTab input').forEach(input => {
+                        input.disabled = true;
+                    });
+                }
                 
             } catch (error) {
                 showStatus('Error loading business data', 'error');
@@ -777,7 +794,7 @@
         }
         
         function uploadDocument() {
-            const fileName = `doc_${Date.now()}.pdf`;
+            const fileName = `license_${Date.now()}.pdf`;
             documents.push(fileName);
             
             const docList = document.getElementById('docList');
@@ -815,7 +832,19 @@
             });
             
             if (result.success) {
-                showStatus('Verification submitted!', 'success');
+                showStatus('Business verified! You can now post ads.', 'success');
+                // Update UI
+                isVerified = true;
+                updateVerificationUI();
+                
+                // Update localStorage
+                localStorage.setItem('businessVerified', 'true');
+                const details = JSON.parse(localStorage.getItem('businessDetails') || '{}');
+                details.verified = true;
+                localStorage.setItem('businessDetails', JSON.stringify(details));
+                
+                // Disable verify button
+                document.getElementById('verifyBtn').disabled = true;
             } else {
                 showStatus(result.message, 'error');
             }
@@ -848,6 +877,7 @@
             window.location.href = 'index.html';
         }
         
+        // Make functions global
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.addStaff = addStaff;
