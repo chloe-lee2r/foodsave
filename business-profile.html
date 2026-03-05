@@ -9,7 +9,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -27,10 +26,8 @@
             background: white;
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            position: relative;
         }
         
-        /* Header */
         .header {
             padding: 20px 16px;
             background: white;
@@ -38,9 +35,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .back-link {
@@ -62,69 +56,71 @@
             font-weight: 600;
         }
         
-        /* Verification Badge */
-        .verification-badge {
-            background: #f5f7fa;
-            padding: 16px;
-            margin: 16px;
+        .logout-btn {
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
+            background: #f5f7fa;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #ff3b30;
+        }
+        
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        
+        /* Verification Banner */
+        .verification-banner {
+            background: #fff3e0;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border: 1px solid #f0f0f0;
+            border-left: 4px solid #ff9500;
         }
         
-        .badge-icon {
+        .banner-icon {
             width: 40px;
             height: 40px;
+            background: white;
             border-radius: 20px;
-            background: #ffebee;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
         }
         
-        .badge-icon.verified {
-            background: #e8f5e8;
-        }
-        
-        .badge-info {
+        .banner-content {
             flex: 1;
         }
         
-        .badge-title {
+        .banner-title {
             font-weight: 600;
             margin-bottom: 4px;
         }
         
-        .badge-status {
+        .banner-text {
             font-size: 13px;
             color: #666;
         }
         
-        .verify-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
+        .banner-verified {
+            background: #e8f5e8;
+            border-left-color: #34c759;
         }
         
-        .verify-btn:active {
-            background: #005bbf;
-        }
-        
-        /* Role Info */
+        /* Role Banner */
         .role-banner {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            margin: 16px;
             padding: 16px;
             border-radius: 12px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -159,8 +155,8 @@
         /* Tabs */
         .tabs {
             display: flex;
-            margin: 16px;
             gap: 8px;
+            margin-bottom: 20px;
         }
         
         .tab {
@@ -175,14 +171,13 @@
         }
         
         .tab.active {
-            background: #007aff;
+            background: #667eea;
             color: white;
         }
         
         /* Tab Content */
         .tab-content {
             display: none;
-            padding: 16px;
         }
         
         .tab-content.active {
@@ -201,7 +196,7 @@
             display: block;
         }
         
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 14px;
             border: 2px solid #f0f0f0;
@@ -210,9 +205,9 @@
             background: #fafafa;
         }
         
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #007aff;
+            border-color: #667eea;
             background: white;
         }
         
@@ -349,7 +344,7 @@
             gap: 8px;
         }
         
-        /* Status Messages */
+        /* Status Message */
         .status-message {
             position: fixed;
             bottom: 80px;
@@ -360,7 +355,6 @@
             font-size: 14px;
             z-index: 1000;
             display: none;
-            animation: slideUp 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
@@ -379,40 +373,8 @@
         }
         
         .status-message.info {
-            background: #007aff;
+            background: #667eea;
             color: white;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translate(-50%, 20px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
-        }
-        
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
         
         /* Bottom Nav */
@@ -436,17 +398,36 @@
             font-size: 12px;
             text-align: center;
             flex: 1;
-            padding: 4px 0;
         }
         
         .nav-item.active {
-            color: #007aff;
+            color: #667eea;
         }
         
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -455,133 +436,122 @@
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>business profile</h1>
+            <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
-        <!-- Verification Status -->
-        <div class="verification-badge" id="verificationBadge">
-            <div class="badge-icon" id="badgeIcon">⏳</div>
-            <div class="badge-info">
-                <div class="badge-title" id="badgeTitle">Verification Pending</div>
-                <div class="badge-status" id="badgeStatus">Complete verification to post ads</div>
-            </div>
-            <button class="verify-btn" id="verifyBtn" onclick="switchTab('verification')">verify</button>
-        </div>
-        
-        <!-- Role Banner -->
-        <div class="role-banner" id="roleBanner">
-            <div class="role-icon" id="roleIcon">👑</div>
-            <div class="role-details">
-                <div class="role-name" id="roleName">Business Owner</div>
-                <div class="role-permissions" id="rolePermissions">Full access • Can manage staff</div>
-            </div>
-        </div>
-        
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('profile')">profile</button>
-            <button class="tab" onclick="switchTab('staff')">staff</button>
-            <button class="tab" onclick="switchTab('verification')">verification</button>
-        </div>
-        
-        <!-- Profile Tab -->
-        <div class="tab-content active" id="profileTab">
-            <div class="form-group">
-                <label class="form-label">business name</label>
-                <input type="text" class="form-input" id="businessName" placeholder="Your business name">
+        <div class="content">
+            <!-- Verification Banner -->
+            <div class="verification-banner" id="verificationBanner">
+                <div class="banner-icon" id="bannerIcon">⏳</div>
+                <div class="banner-content">
+                    <div class="banner-title" id="bannerTitle">Verification Pending</div>
+                    <div class="banner-text" id="bannerText">Complete verification to post ads</div>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">phone</label>
-                <input type="tel" class="form-input" id="businessPhone" placeholder="(555) 123-4567">
+            <!-- Role Banner -->
+            <div class="role-banner" id="roleBanner">
+                <div class="role-icon" id="roleIcon">👑</div>
+                <div class="role-details">
+                    <div class="role-name" id="roleName">Business Owner</div>
+                    <div class="role-permissions" id="rolePermissions">Full access</div>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">email</label>
-                <input type="email" class="form-input" id="businessEmail" placeholder="business@example.com">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('profile')">profile</button>
+                <button class="tab" onclick="switchTab('staff')">staff</button>
+                <button class="tab" onclick="switchTab('verification')">verify</button>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">address</label>
-                <input type="text" class="form-input" id="businessAddress" placeholder="123 Main St, City, State">
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <!-- Profile Tab -->
+            <div class="tab-content active" id="profileTab">
                 <div class="form-group">
-                    <label class="form-label">latitude</label>
-                    <input type="text" class="form-input" id="businessLat" placeholder="40.7128">
+                    <label class="form-label">business name</label>
+                    <input type="text" class="form-input" id="businessName">
                 </div>
+                
                 <div class="form-group">
-                    <label class="form-label">longitude</label>
-                    <input type="text" class="form-input" id="businessLng" placeholder="-74.0060">
+                    <label class="form-label">phone</label>
+                    <input type="tel" class="form-input" id="businessPhone">
                 </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                
                 <div class="form-group">
-                    <label class="form-label">open time</label>
-                    <input type="time" class="form-input" id="businessOpen" value="09:00">
+                    <label class="form-label">email</label>
+                    <input type="email" class="form-input" id="businessEmail">
                 </div>
+                
                 <div class="form-group">
-                    <label class="form-label">close time</label>
-                    <input type="time" class="form-input" id="businessClose" value="21:00">
+                    <label class="form-label">address</label>
+                    <input type="text" class="form-input" id="businessAddress">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">latitude</label>
+                        <input type="text" class="form-input" id="businessLat">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">longitude</label>
+                        <input type="text" class="form-input" id="businessLng">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">open time</label>
+                        <input type="time" class="form-input" id="businessOpen" value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">close time</label>
+                        <input type="time" class="form-input" id="businessClose" value="21:00">
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveProfile()" id="saveProfileBtn">save changes</button>
+            </div>
+            
+            <!-- Staff Tab -->
+            <div class="tab-content" id="staffTab">
+                <div class="staff-list" id="staffList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading staff...
+                    </div>
+                </div>
+                
+                <div class="add-staff" id="addStaffSection">
+                    <h4>add staff member</h4>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="staffUsername" placeholder="username">
+                    </div>
+                    <div class="form-group">
+                        <select class="form-select" id="staffRole">
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <button class="save-btn" onclick="addStaff()">add staff</button>
                 </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">business type</label>
-                <select class="form-input" id="businessType">
-                    <option value="grocery">Grocery Store</option>
-                    <option value="restaurant">Restaurant</option>
-                    <option value="bakery">Bakery</option>
-                    <option value="butcher">Butcher Shop</option>
-                    <option value="farmers">Farmers Market</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
-            <button class="save-btn" onclick="saveProfile()" id="saveProfileBtn">save changes</button>
-        </div>
-        
-        <!-- Staff Tab -->
-        <div class="tab-content" id="staffTab">
-            <div class="staff-list" id="staffList">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    loading staff...
-                </div>
-            </div>
-            
-            <div class="add-staff" id="addStaffSection">
-                <h4>add staff member</h4>
+            <!-- Verification Tab -->
+            <div class="tab-content" id="verificationTab">
                 <div class="form-group">
-                    <input type="text" class="form-input" id="staffUsername" placeholder="staff username">
+                    <label class="form-label">tax ID / license</label>
+                    <input type="text" class="form-input" id="taxId">
                 </div>
-                <div class="form-group">
-                    <select class="form-input" id="staffRole">
-                        <option value="staff">Staff</option>
-                        <option value="manager">Manager</option>
-                    </select>
+                
+                <div class="doc-upload" onclick="uploadDocument()">
+                    <div style="font-size: 32px; margin-bottom: 8px;">📎</div>
+                    <div>click to upload document</div>
                 </div>
-                <button class="save-btn" onclick="addStaff()" id="addStaffBtn">add staff</button>
+                
+                <div class="doc-list" id="docList"></div>
+                
+                <button class="save-btn" onclick="submitVerification()">submit for verification</button>
             </div>
-        </div>
-        
-        <!-- Verification Tab -->
-        <div class="tab-content" id="verificationTab">
-            <div class="form-group">
-                <label class="form-label">tax ID / business license</label>
-                <input type="text" class="form-input" id="taxId" placeholder="Enter tax ID or license number">
-            </div>
-            
-            <div class="doc-upload" onclick="uploadDocument()">
-                <div style="font-size: 32px; margin-bottom: 8px;">📎</div>
-                <div>click to upload business license</div>
-                <div style="font-size: 12px; color: #999; margin-top: 8px;">PDF or image, max 5MB</div>
-            </div>
-            
-            <div class="doc-list" id="docList"></div>
-            
-            <button class="save-btn" onclick="submitVerification()" id="verifySubmitBtn">submit for verification</button>
         </div>
         
         <!-- Bottom Nav -->
@@ -608,16 +578,13 @@
     <script src="backend.js"></script>
     
     <script>
-        // ==================== STATE ====================
-        let currentTab = 'profile';
-        let businessRole = 'owner'; // Default to owner for first user
+        let businessRole = 'staff';
         let isVerified = false;
         let documents = [];
-        let canEdit = true; // Owners and managers can edit
+        let currentUser = null;
         
-        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if logged in as advertiser
+            // Check login
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -626,24 +593,14 @@
                 return;
             }
             
-            // Get business role from localStorage (set during login/register)
-            businessRole = localStorage.getItem('businessRole') || 'owner'; // First user is owner
+            currentUser = user;
+            businessRole = localStorage.getItem('businessRole') || 'owner';
             isVerified = localStorage.getItem('businessVerified') === 'true';
-            
-            // Set edit permissions
-            canEdit = businessRole === 'owner' || businessRole === 'manager';
             
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
             await loadStaffList();
-            
-            // Check URL for tab parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab');
-            if (tabParam) {
-                switchTab(tabParam);
-            }
         });
         
         function updateRoleUI() {
@@ -653,84 +610,97 @@
             const addStaffSection = document.getElementById('addStaffSection');
             const saveProfileBtn = document.getElementById('saveProfileBtn');
             
-            // Set role-specific UI
             switch(businessRole) {
                 case 'owner':
                     roleIcon.textContent = '👑';
                     roleName.textContent = 'Business Owner';
-                    rolePermissions.textContent = 'Full access • Can manage staff and edit all settings';
+                    rolePermissions.textContent = 'Full access • Manage staff';
                     addStaffSection.style.display = 'block';
                     saveProfileBtn.disabled = false;
                     break;
                 case 'manager':
                     roleIcon.textContent = '⭐';
                     roleName.textContent = 'Manager';
-                    rolePermissions.textContent = 'Can post ads and edit business info';
+                    rolePermissions.textContent = 'Edit business info';
                     addStaffSection.style.display = 'none';
                     saveProfileBtn.disabled = false;
                     break;
-                default: // staff
+                default:
                     roleIcon.textContent = '👤';
                     roleName.textContent = 'Staff';
-                    rolePermissions.textContent = 'Can only post ads';
+                    rolePermissions.textContent = 'View only';
                     addStaffSection.style.display = 'none';
                     saveProfileBtn.disabled = true;
             }
         }
         
         function updateVerificationUI() {
-            const badgeIcon = document.getElementById('badgeIcon');
-            const badgeTitle = document.getElementById('badgeTitle');
-            const badgeStatus = document.getElementById('badgeStatus');
-            const verifyBtn = document.getElementById('verifyBtn');
+            const banner = document.getElementById('verificationBanner');
+            const icon = document.getElementById('bannerIcon');
+            const title = document.getElementById('bannerTitle');
+            const text = document.getElementById('bannerText');
             
             if (isVerified) {
-                badgeIcon.className = 'badge-icon verified';
-                badgeIcon.textContent = '✅';
-                badgeTitle.textContent = 'Verified Business';
-                badgeStatus.textContent = 'Your business is verified';
-                verifyBtn.style.display = 'none';
+                banner.className = 'verification-banner banner-verified';
+                icon.textContent = '✅';
+                title.textContent = 'Verified Business';
+                text.textContent = 'You can post ads';
             } else {
-                badgeIcon.className = 'badge-icon';
-                badgeIcon.textContent = '⏳';
-                badgeTitle.textContent = 'Verification Pending';
-                badgeStatus.textContent = 'Complete verification to post ads';
-                
-                // Only owners can verify
-                if (businessRole === 'owner') {
-                    verifyBtn.style.display = 'block';
-                } else {
-                    verifyBtn.style.display = 'none';
-                }
+                banner.className = 'verification-banner';
+                icon.textContent = '⏳';
+                title.textContent = 'Verification Pending';
+                text.textContent = 'Complete verification to post ads';
             }
         }
         
         async function loadBusinessData() {
             try {
-                const result = await Backend.getBusinessProfile();
+                // Get user data from Parse
+                const user = Backend.getCurrentUser();
                 
-                if (result.success) {
-                    const data = result;
-                    document.getElementById('businessName').value = data.businessName || '';
-                    document.getElementById('businessPhone').value = data.businessPhone || '';
-                    document.getElementById('businessEmail').value = data.businessEmail || '';
-                    document.getElementById('businessAddress').value = data.businessAddress || '';
-                    document.getElementById('businessLat').value = data.businessLat || '';
-                    document.getElementById('businessLng').value = data.businessLng || '';
-                    document.getElementById('businessOpen').value = data.businessOpen || '09:00';
-                    document.getElementById('businessClose').value = data.businessClose || '21:00';
-                    document.getElementById('businessType').value = data.businessType || 'grocery';
-                    document.getElementById('taxId').value = data.businessTaxId || '';
-                    
-                    // Disable inputs if can't edit
-                    if (!canEdit) {
-                        document.querySelectorAll('#profileTab .form-input').forEach(input => {
-                            input.disabled = true;
-                        });
-                    }
-                }
+                document.getElementById('businessName').value = user.get('businessName') || '';
+                document.getElementById('businessPhone').value = user.get('businessPhone') || '';
+                document.getElementById('businessEmail').value = user.get('businessEmail') || '';
+                document.getElementById('businessAddress').value = user.get('businessAddress') || '';
+                document.getElementById('businessLat').value = user.get('businessLat') || '';
+                document.getElementById('businessLng').value = user.get('businessLng') || '';
+                document.getElementById('businessOpen').value = user.get('businessOpen') || '09:00';
+                document.getElementById('businessClose').value = user.get('businessClose') || '21:00';
+                document.getElementById('taxId').value = user.get('businessTaxId') || '';
+                
             } catch (error) {
                 showStatus('Error loading business data', 'error');
+            }
+        }
+        
+        async function saveProfile() {
+            if (businessRole !== 'owner' && businessRole !== 'manager') {
+                showStatus('You don\'t have permission to edit', 'error');
+                return;
+            }
+            
+            const updates = {
+                businessName: document.getElementById('businessName').value,
+                businessPhone: document.getElementById('businessPhone').value,
+                businessEmail: document.getElementById('businessEmail').value,
+                businessAddress: document.getElementById('businessAddress').value,
+                businessLat: document.getElementById('businessLat').value,
+                businessLng: document.getElementById('businessLng').value,
+                businessOpen: document.getElementById('businessOpen').value,
+                businessClose: document.getElementById('businessClose').value
+            };
+            
+            const result = await Backend.updateBusinessProfile(updates);
+            
+            if (result.success) {
+                showStatus('Profile updated', 'success');
+                // Update localStorage
+                const details = JSON.parse(localStorage.getItem('businessDetails') || '{}');
+                Object.assign(details, updates);
+                localStorage.setItem('businessDetails', JSON.stringify(details));
+                localStorage.setItem('businessName', updates.businessName);
+            } else {
+                showStatus(result.message, 'error');
             }
         }
         
@@ -741,7 +711,7 @@
                 const staff = await Backend.getStaffList();
                 
                 if (staff.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members yet</div>';
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members</div>';
                     return;
                 }
                 
@@ -763,33 +733,6 @@
             }
         }
         
-        async function saveProfile() {
-            if (!canEdit) {
-                showStatus('You do not have permission to edit', 'error');
-                return;
-            }
-            
-            const updates = {
-                businessName: document.getElementById('businessName').value,
-                businessPhone: document.getElementById('businessPhone').value,
-                businessEmail: document.getElementById('businessEmail').value,
-                businessAddress: document.getElementById('businessAddress').value,
-                businessLat: document.getElementById('businessLat').value,
-                businessLng: document.getElementById('businessLng').value,
-                businessOpen: document.getElementById('businessOpen').value,
-                businessClose: document.getElementById('businessClose').value,
-                businessType: document.getElementById('businessType').value
-            };
-            
-            const result = await Backend.updateBusinessProfile(updates);
-            
-            if (result.success) {
-                showStatus('Profile updated successfully', 'success');
-            } else {
-                showStatus(result.message || 'Update failed', 'error');
-            }
-        }
-        
         async function addStaff() {
             if (businessRole !== 'owner') {
                 showStatus('Only owners can add staff', 'error');
@@ -800,18 +743,18 @@
             const role = document.getElementById('staffRole').value;
             
             if (!username) {
-                showStatus('Please enter username', 'error');
+                showStatus('Enter username', 'error');
                 return;
             }
             
             const result = await Backend.addStaffMember(username, role);
             
             if (result.success) {
-                showStatus('Staff member added', 'success');
+                showStatus('Staff added', 'success');
                 document.getElementById('staffUsername').value = '';
                 await loadStaffList();
             } else {
-                showStatus(result.message || 'Failed to add staff', 'error');
+                showStatus(result.message, 'error');
             }
         }
         
@@ -826,16 +769,15 @@
             const result = await Backend.removeStaffMember(staffId);
             
             if (result.success) {
-                showStatus('Staff member removed', 'success');
+                showStatus('Staff removed', 'success');
                 await loadStaffList();
             } else {
-                showStatus(result.message || 'Failed to remove staff', 'error');
+                showStatus(result.message, 'error');
             }
         }
         
         function uploadDocument() {
-            // Simulate file upload
-            const fileName = `license_${Date.now()}.pdf`;
+            const fileName = `doc_${Date.now()}.pdf`;
             documents.push(fileName);
             
             const docList = document.getElementById('docList');
@@ -845,23 +787,25 @@
                     <span>${doc}</span>
                 </div>
             `).join('');
+            
+            showStatus('Document uploaded', 'success');
         }
         
         async function submitVerification() {
             if (businessRole !== 'owner') {
-                showStatus('Only owners can submit verification', 'error');
+                showStatus('Only owners can verify', 'error');
                 return;
             }
             
             const taxId = document.getElementById('taxId').value.trim();
             
             if (!taxId) {
-                showStatus('Please enter tax ID', 'error');
+                showStatus('Enter tax ID', 'error');
                 return;
             }
             
             if (documents.length === 0) {
-                showStatus('Please upload business license', 'error');
+                showStatus('Upload documents', 'error');
                 return;
             }
             
@@ -871,28 +815,26 @@
             });
             
             if (result.success) {
-                showStatus('Verification submitted! We\'ll review within 24-48 hours', 'success');
+                showStatus('Verification submitted!', 'success');
             } else {
-                showStatus(result.message || 'Submission failed', 'error');
+                showStatus(result.message, 'error');
             }
         }
         
         function switchTab(tab) {
-            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            // Update tabs
-            document.querySelectorAll('.tab').forEach((t, i) => {
-                t.classList.toggle('active', 
-                    (i === 0 && tab === 'profile') ||
-                    (i === 1 && tab === 'staff') ||
-                    (i === 2 && tab === 'verification')
-                );
-            });
-            
-            // Update content
-            document.getElementById('profileTab').classList.toggle('active', tab === 'profile');
-            document.getElementById('staffTab').classList.toggle('active', tab === 'staff');
-            document.getElementById('verificationTab').classList.toggle('active', tab === 'verification');
+            if (tab === 'profile') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('profileTab').classList.add('active');
+            } else if (tab === 'staff') {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('staffTab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.getElementById('verificationTab').classList.add('active');
+            }
         }
         
         function showStatus(message, type) {
@@ -902,13 +844,17 @@
             setTimeout(() => status.classList.remove('show'), 3000);
         }
         
-        // Make functions global
+        function logout() {
+            window.location.href = 'index.html';
+        }
+        
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.addStaff = addStaff;
         window.removeStaff = removeStaff;
         window.uploadDocument = uploadDocument;
         window.submitVerification = submitVerification;
+        window.logout = logout;
     </script>
 </body>
 </html>
