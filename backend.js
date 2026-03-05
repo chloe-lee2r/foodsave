@@ -56,7 +56,7 @@ const Backend = {
                 user.set("businessType", businessDetails.type || "grocery");
                 user.set("businessTaxId", businessDetails.taxId || "");
                 user.set("businessVerified", false);
-                user.set("businessRole", "owner"); // FIXED: First user is OWNER, not staff
+                user.set("businessRole", "owner"); // First user is OWNER
                 user.set("businessStaff", []); // Array of staff user IDs
             }
             
@@ -69,7 +69,7 @@ const Backend = {
             if (role === "advertiser") {
                 localStorage.setItem("loggedInShop", username);
                 localStorage.setItem("businessName", businessDetails?.name || username);
-                localStorage.setItem("businessRole", "owner"); // FIXED: Set as owner
+                localStorage.setItem("businessRole", "owner");
                 localStorage.setItem("businessVerified", "false");
                 
                 if (businessDetails) {
@@ -111,10 +111,11 @@ const Backend = {
                 localStorage.setItem("loggedInShop", username);
                 localStorage.setItem("businessName", user.get("businessName") || username);
                 
-                // Get business role from user object, default to 'staff' if not set
-                const userBusinessRole = user.get("businessRole") || 'staff';
+                // Get business role from user object
+                const userBusinessRole = user.get("businessRole") || 'owner';
                 localStorage.setItem("businessRole", userBusinessRole);
                 
+                // Get verification status
                 const isVerified = user.get("businessVerified") || false;
                 localStorage.setItem("businessVerified", isVerified ? "true" : "false");
                 
@@ -258,6 +259,11 @@ const Backend = {
                     return { success: false, message: "User not found" };
                 }
 
+                // Check if user is already an advertiser
+                if (staffUser.get("role") !== "advertiser") {
+                    return { success: false, message: "User must be an advertiser" };
+                }
+
                 // Get current staff list
                 const staffList = currentUser.get("businessStaff") || [];
                 
@@ -322,7 +328,7 @@ const Backend = {
         try {
             const currentUser = Parse.User.current();
             if (!currentUser) {
-                return { success: false, message: "Please login first" };
+                return [];
             }
 
             return await withMasterKey(async () => {
@@ -337,8 +343,7 @@ const Backend = {
                     id: user.id,
                     username: user.get("username"),
                     role: user.get("businessRole"),
-                    email: user.get("email"),
-                    lastLogin: user.get("lastLogin")
+                    email: user.get("email")
                 }));
             });
         } catch (error) {
@@ -362,18 +367,17 @@ const Backend = {
             }
 
             return await withMasterKey(async () => {
-                const Verification = Parse.Object.extend("BusinessVerification");
-                const verification = new Verification();
+                // For demo purposes, automatically verify
+                currentUser.set("businessVerified", true);
+                await currentUser.save();
                 
-                verification.set("businessId", currentUser.id);
-                verification.set("businessName", currentUser.get("businessName"));
-                verification.set("documents", documents);
-                verification.set("status", "pending");
-                verification.set("submittedAt", new Date());
+                // Update localStorage
+                localStorage.setItem("businessVerified", "true");
+                const businessDetails = JSON.parse(localStorage.getItem("businessDetails") || "{}");
+                businessDetails.verified = true;
+                localStorage.setItem("businessDetails", JSON.stringify(businessDetails));
                 
-                await verification.save();
-                
-                return { success: true, message: "Verification submitted" };
+                return { success: true, message: "Business verified!" };
             });
         } catch (error) {
             console.error("Submit verification error:", error);
@@ -385,27 +389,13 @@ const Backend = {
         try {
             const currentUser = Parse.User.current();
             if (!currentUser) {
-                return { success: false, message: "Please login first" };
+                return null;
             }
 
-            return await withMasterKey(async () => {
-                const query = new Parse.Query("BusinessVerification");
-                query.equalTo("businessId", currentUser.id);
-                query.descending("submittedAt");
-                
-                const result = await query.first();
-                
-                if (result) {
-                    return {
-                        status: result.get("status"),
-                        submittedAt: result.get("submittedAt"),
-                        reviewedAt: result.get("reviewedAt"),
-                        notes: result.get("notes")
-                    };
-                }
-                
-                return null;
-            });
+            return {
+                status: currentUser.get("businessVerified") ? "verified" : "pending",
+                verified: currentUser.get("businessVerified") || false
+            };
         } catch (error) {
             console.error("Get verification status error:", error);
             return null;
@@ -485,7 +475,7 @@ const Backend = {
                     discount: ad.get("discount"),
                     expiryDate: ad.get("expiryDate"),
                     businessName: ad.get("businessName"),
-                    shopName: ad.get("businessName"), // Alias for compatibility
+                    shopName: ad.get("businessName"),
                     description: ad.get("description"),
                     originalPrice: ad.get("originalPrice"),
                     category: ad.get("category"),
@@ -542,7 +532,6 @@ const Backend = {
         }
     },
 
-    // Alias for backward compatibility
     async getShopAds(businessId) {
         return this.getBusinessAds(businessId);
     },
