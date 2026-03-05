@@ -630,6 +630,7 @@
         </div>
     </div>
     
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
     
     <script>
@@ -640,6 +641,8 @@
         
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("🔵 Page loaded");
+            
             // Check login
             const user = localStorage.getItem('loggedInUser');
             const role = localStorage.getItem('userRole');
@@ -713,9 +716,10 @@
         
         // ==================== CONSUMER FUNCTIONS ====================
         function loadConsumerData() {
+            console.log("🟢 Loading consumer data");
             loadFridgeData();
             loadListCount();
-            loadDealsData();
+            loadDealsData(); // This now uses Backend like find-stores.html
         }
         
         // FRIDGE - WORKING
@@ -769,55 +773,59 @@
             document.getElementById('listCount').textContent = total + ' items';
         }
         
-        // DEALS - FIXED to use same data as find-stores.html
-        function loadDealsData() {
-            // Get deals from the same place as find-stores.html
-            const deals = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
-            
-            // Update count
-            document.getElementById('dealsCount').textContent = deals.length + ' nearby';
+        // DEALS - FIXED to use same Backend as find-stores.html
+        async function loadDealsData() {
+            console.log("🟡 Loading deals from Backend...");
             
             const container = document.getElementById('recentDeals');
             
-            if (deals.length === 0) {
-                container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
-                return;
-            }
-            
-            // Sort by discount (highest first) and take top 3
-            const topDeals = [...deals].sort((a, b) => (b.discount || 0) - (a.discount || 0)).slice(0, 3);
-            
-            let html = '';
-            for (let i = 0; i < topDeals.length; i++) {
-                const deal = topDeals[i];
+            try {
+                // Use the SAME function as find-stores.html
+                const ads = await Backend.getActiveAds({ limit: 3 });
                 
-                // Calculate days left
-                const expiryDate = new Date(deal.expiryDate);
-                const today = new Date();
-                const diffTime = expiryDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                console.log("📦 Deals received:", ads);
                 
-                let daysText = diffDays + ' days left';
-                if (diffDays <= 0) daysText = '🔥 expired';
-                else if (diffDays === 1) daysText = '🔥 tomorrow';
+                // Update count
+                document.getElementById('dealsCount').textContent = ads.length + ' nearby';
                 
-                html += `
-                    <div class="deal-item" onclick="window.location.href='find-stores.html'">
-                        <div class="deal-icon">🏷️</div>
-                        <div class="deal-details">
-                            <div class="deal-name">${deal.foodName || 'Item'}</div>
-                            <div class="deal-meta">
-                                <span class="deal-shop">${deal.shopName || 'Store'}</span>
-                                <span>•</span>
-                                <span>${daysText}</span>
+                if (ads.length === 0) {
+                    container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
+                    return;
+                }
+                
+                // Sort by discount (highest first)
+                const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
+                
+                let html = '';
+                for (let i = 0; i < sortedAds.length; i++) {
+                    const ad = sortedAds[i];
+                    
+                    // Calculate days left (same as find-stores.html)
+                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    
+                    html += `
+                        <div class="deal-item" onclick="window.location.href='find-stores.html'">
+                            <div class="deal-icon">🏷️</div>
+                            <div class="deal-details">
+                                <div class="deal-name">${ad.foodName}</div>
+                                <div class="deal-meta">
+                                    <span class="deal-shop">${ad.shopName}</span>
+                                    <span>•</span>
+                                    <span>${daysUntil} days left</span>
+                                </div>
                             </div>
+                            <div class="deal-discount">-${ad.discount}%</div>
                         </div>
-                        <div class="deal-discount">-${deal.discount || 0}%</div>
-                    </div>
-                `;
+                    `;
+                }
+                
+                container.innerHTML = html;
+                console.log("✅ Deals displayed");
+                
+            } catch (error) {
+                console.error("❌ Error loading deals:", error);
+                container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>';
             }
-            
-            container.innerHTML = html;
         }
         
         // ==================== ADVERTISER FUNCTIONS ====================
@@ -829,51 +837,60 @@
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
             
-            // Load shop ads from same data source
-            const ads = JSON.parse(localStorage.getItem('foodsave_ads')) || [];
-            const shopAds = ads.filter(ad => ad.shopName === businessName);
-            
-            document.getElementById('shopAdCount').textContent = shopAds.length;
-            
-            let views = 0, claimed = 0;
-            shopAds.forEach(ad => {
-                views += ad.views || 0;
-                claimed += ad.claimed || 0;
-            });
-            document.getElementById('shopViews').textContent = views;
-            document.getElementById('shopClaimed').textContent = claimed;
-            
-            const container = document.getElementById('shopAds');
-            
-            if (shopAds.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-emoji">📢</div>
-                        <div>no active ads</div>
-                        <a href="advertise.html" class="add-link">post ad →</a>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
-                const ad = shopAds[i];
-                const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
-                const expiringClass = daysUntil <= 2 ? 'expiring' : '';
+            // Load shop ads from Backend
+            loadShopAds(businessName);
+        }
+        
+        async function loadShopAds(businessName) {
+            try {
+                const allAds = await Backend.getActiveAds();
+                const shopAds = allAds.filter(ad => ad.shopName === businessName);
                 
-                html += `
-                    <div class="ad-item ${expiringClass}">
-                        <div class="ad-header">
-                            <span class="ad-food">${ad.foodName}</span>
-                            <span class="ad-discount">${ad.discount}% off</span>
+                document.getElementById('shopAdCount').textContent = shopAds.length;
+                
+                let views = 0, claimed = 0;
+                shopAds.forEach(ad => {
+                    views += ad.views || 0;
+                    claimed += ad.claimed || 0;
+                });
+                document.getElementById('shopViews').textContent = views;
+                document.getElementById('shopClaimed').textContent = claimed;
+                
+                const container = document.getElementById('shopAds');
+                
+                if (shopAds.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-emoji">📢</div>
+                            <div>no active ads</div>
+                            <a href="advertise.html" class="add-link">post ad →</a>
                         </div>
-                        <div class="ad-meta">expires in ${daysUntil} days</div>
-                    </div>
-                `;
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
+                    const ad = shopAds[i];
+                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    const expiringClass = daysUntil <= 2 ? 'expiring' : '';
+                    
+                    html += `
+                        <div class="ad-item ${expiringClass}">
+                            <div class="ad-header">
+                                <span class="ad-food">${ad.foodName}</span>
+                                <span class="ad-discount">${ad.discount}% off</span>
+                            </div>
+                            <div class="ad-meta">expires in ${daysUntil} days</div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error("Error loading shop ads:", error);
             }
-            
-            container.innerHTML = html;
         }
         
         // ==================== UTILS ====================
