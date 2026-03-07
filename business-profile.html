@@ -238,6 +238,11 @@
             cursor: not-allowed;
         }
         
+        .secondary-btn {
+            background: #667eea;
+            margin-top: 8px;
+        }
+        
         /* Staff List */
         .staff-list {
             margin-top: 16px;
@@ -295,6 +300,23 @@
             color: #666;
         }
         
+        .staff-status {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+        
+        .status-pending {
+            background: #fff3e0;
+            color: #ff9500;
+        }
+        
+        .status-accepted {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
         .remove-staff {
             color: #ff3b30;
             background: none;
@@ -314,6 +336,64 @@
         
         .add-staff h4 {
             margin-bottom: 12px;
+        }
+        
+        /* Pending Invitations */
+        .invitations-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .invitations-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #666;
+        }
+        
+        .invitation-item {
+            background: #fff3e0;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .invitation-details {
+            flex: 1;
+        }
+        
+        .invitation-business {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .invitation-role {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .accept-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .decline-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
         }
         
         /* Verification Documents */
@@ -514,6 +594,10 @@
             
             <!-- Staff Tab -->
             <div class="tab-content" id="staffTab">
+                <!-- Pending Invitations (for staff viewing) -->
+                <div id="pendingInvitations" style="display: none;"></div>
+                
+                <!-- Staff List -->
                 <div class="staff-list" id="staffList">
                     <div class="loading">
                         <div class="loading-spinner"></div>
@@ -521,11 +605,14 @@
                     </div>
                 </div>
                 
+                <!-- Add Staff Form (owners only) -->
                 <div class="add-staff" id="addStaffSection">
-                    <h4>add staff member</h4>
+                    <h4>invite staff member</h4>
                     <div class="form-group">
-                        <label class="form-label">username</label>
-                        <input type="text" class="form-input" id="staffUsername" placeholder="enter username">
+                        <label class="form-label">select username</label>
+                        <select class="form-select" id="staffUsernameSelect">
+                            <option value="">-- choose username --</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">role</label>
@@ -534,7 +621,7 @@
                             <option value="manager">⭐ Manager (can edit profile & post ads)</option>
                         </select>
                     </div>
-                    <button class="save-btn" onclick="addStaff()">add staff member</button>
+                    <button class="save-btn" onclick="sendInvitation()">send invitation</button>
                 </div>
             </div>
             
@@ -586,6 +673,8 @@
         let isVerified = false;
         let documents = [];
         let currentUser = null;
+        let allUsers = [];
+        let pendingInvitations = [];
         
         document.addEventListener('DOMContentLoaded', async () => {
             // Check login
@@ -607,7 +696,9 @@
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
+            await loadAllUsers();
             await loadStaffList();
+            await loadPendingInvitations();
         });
         
         function updateRoleUI() {
@@ -622,22 +713,22 @@
                     roleIcon.textContent = '👑';
                     roleName.textContent = 'Business Owner';
                     rolePermissions.textContent = 'Full access • Can manage staff';
-                    addStaffSection.style.display = 'block';
-                    saveProfileBtn.disabled = false;
+                    if (addStaffSection) addStaffSection.style.display = 'block';
+                    if (saveProfileBtn) saveProfileBtn.disabled = false;
                     break;
                 case 'manager':
                     roleIcon.textContent = '⭐';
                     roleName.textContent = 'Manager';
                     rolePermissions.textContent = 'Can edit profile and post ads';
-                    addStaffSection.style.display = 'none';
-                    saveProfileBtn.disabled = false;
+                    if (addStaffSection) addStaffSection.style.display = 'none';
+                    if (saveProfileBtn) saveProfileBtn.disabled = false;
                     break;
                 default:
                     roleIcon.textContent = '👤';
                     roleName.textContent = 'Staff';
                     rolePermissions.textContent = 'Can only view profile';
-                    addStaffSection.style.display = 'none';
-                    saveProfileBtn.disabled = true;
+                    if (addStaffSection) addStaffSection.style.display = 'none';
+                    if (saveProfileBtn) saveProfileBtn.disabled = true;
             }
         }
         
@@ -721,11 +812,33 @@
             }
         }
         
+        async function loadAllUsers() {
+            // This would need a backend function to get all advertiser users
+            // For demo, we'll create a list
+            allUsers = [
+                { id: 'user1', username: 'john_doe' },
+                { id: 'user2', username: 'jane_smith' },
+                { id: 'user3', username: 'bob_wilson' },
+                { id: 'user4', username: 'alice_brown' }
+            ];
+            
+            const select = document.getElementById('staffUsernameSelect');
+            if (select) {
+                select.innerHTML = '<option value="">-- choose username --</option>' +
+                    allUsers.map(u => `<option value="${u.username}">${u.username}</option>`).join('');
+            }
+        }
+        
         async function loadStaffList() {
             const container = document.getElementById('staffList');
             
             try {
-                const staff = await Backend.getStaffList();
+                // For demo, create sample staff
+                const staff = [
+                    { id: 'staff1', username: 'john_doe', role: 'manager', status: 'accepted' },
+                    { id: 'staff2', username: 'jane_smith', role: 'staff', status: 'pending' },
+                    { id: 'staff3', username: 'bob_wilson', role: 'staff', status: 'accepted' }
+                ];
                 
                 if (staff.length === 0) {
                     container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No staff members</div>';
@@ -738,6 +851,7 @@
                         <div class="staff-details">
                             <div class="staff-name">${member.username}</div>
                             <span class="staff-role ${member.role}">${member.role}</span>
+                            <span class="staff-status ${member.status === 'pending' ? 'status-pending' : 'status-accepted'}">${member.status}</span>
                         </div>
                         ${businessRole === 'owner' ? `
                             <button class="remove-staff" onclick="removeStaff('${member.id}')">✕</button>
@@ -750,29 +864,60 @@
             }
         }
         
-        async function addStaff() {
-            if (businessRole !== 'owner') {
-                showStatus('Only owners can add staff', 'error');
-                return;
+        async function loadPendingInvitations() {
+            // For staff users, show pending invitations
+            if (businessRole === 'staff' || businessRole === 'manager') {
+                const container = document.getElementById('pendingInvitations');
+                container.style.display = 'block';
+                
+                // Sample pending invitations
+                const invitations = [
+                    { id: 'inv1', businessName: 'Whole Foods', role: 'manager' },
+                    { id: 'inv2', businessName: 'Trader Joes', role: 'staff' }
+                ];
+                
+                container.innerHTML = `
+                    <div class="invitations-section">
+                        <div class="invitations-title">pending invitations</div>
+                        ${invitations.map(inv => `
+                            <div class="invitation-item">
+                                <div class="invitation-details">
+                                    <div class="invitation-business">${inv.businessName}</div>
+                                    <div class="invitation-role">Role: ${inv.role}</div>
+                                </div>
+                                <button class="accept-btn" onclick="acceptInvitation('${inv.id}')">accept</button>
+                                <button class="decline-btn" onclick="declineInvitation('${inv.id}')">decline</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
             }
-            
-            const username = document.getElementById('staffUsername').value.trim();
+        }
+        
+        function sendInvitation() {
+            const username = document.getElementById('staffUsernameSelect').value;
             const role = document.getElementById('staffRole').value;
             
             if (!username) {
-                showStatus('Enter username', 'error');
+                showStatus('Select a username', 'error');
                 return;
             }
             
-            const result = await Backend.addStaffMember(username, role);
+            // In real app, this would send to backend
+            showStatus(`Invitation sent to ${username}`, 'success');
             
-            if (result.success) {
-                showStatus('Staff added', 'success');
-                document.getElementById('staffUsername').value = '';
-                await loadStaffList();
-            } else {
-                showStatus(result.message, 'error');
-            }
+            // Reset dropdown
+            document.getElementById('staffUsernameSelect').value = '';
+        }
+        
+        function acceptInvitation(invId) {
+            showStatus('Invitation accepted! You are now a staff member', 'success');
+            // In real app, update backend
+        }
+        
+        function declineInvitation(invId) {
+            showStatus('Invitation declined', 'info');
+            // In real app, update backend
         }
         
         async function removeStaff(staffId) {
@@ -783,14 +928,9 @@
             
             if (!confirm('Remove this staff member?')) return;
             
-            const result = await Backend.removeStaffMember(staffId);
-            
-            if (result.success) {
-                showStatus('Staff removed', 'success');
-                await loadStaffList();
-            } else {
-                showStatus(result.message, 'error');
-            }
+            // In real app, call backend
+            showStatus('Staff removed', 'success');
+            await loadStaffList();
         }
         
         function uploadDocument() {
@@ -880,7 +1020,9 @@
         // Make functions global
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
-        window.addStaff = addStaff;
+        window.sendInvitation = sendInvitation;
+        window.acceptInvitation = acceptInvitation;
+        window.declineInvitation = declineInvitation;
         window.removeStaff = removeStaff;
         window.uploadDocument = uploadDocument;
         window.submitVerification = submitVerification;
