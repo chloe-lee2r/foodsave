@@ -243,6 +243,107 @@
             margin-top: 8px;
         }
         
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed #667eea;
+            background: #f0f4ff;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .file-upload-area:hover {
+            background: #e8eeff;
+            border-color: #5a67d8;
+        }
+        
+        .file-upload-area.dragover {
+            background: #dbe4ff;
+            border-color: #434190;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        
+        .upload-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-list {
+            margin-top: 16px;
+        }
+        
+        .file-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+        
+        .file-size {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .file-remove {
+            color: #ff3b30;
+            background: none;
+            border: none;
+            font-size: 20px;
+            padding: 8px;
+            cursor: pointer;
+        }
+        
+        .file-progress {
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .file-progress-bar {
+            height: 100%;
+            background: #34c759;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
         /* Staff List */
         .staff-list {
             margin-top: 16px;
@@ -394,34 +495,6 @@
             border-radius: 20px;
             font-size: 12px;
             cursor: pointer;
-        }
-        
-        /* Verification Documents */
-        .doc-upload {
-            border: 2px dashed #f0f0f0;
-            padding: 20px;
-            text-align: center;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-        
-        .doc-upload:active {
-            background: #f5f5f5;
-        }
-        
-        .doc-list {
-            margin-top: 16px;
-        }
-        
-        .doc-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
         /* Status Message */
@@ -632,13 +705,16 @@
                     <input type="text" class="form-input" id="taxId" placeholder="enter tax ID or license number">
                 </div>
                 
-                <div class="doc-upload" onclick="uploadDocument()">
-                    <div style="font-size: 32px; margin-bottom: 8px;">📎</div>
-                    <div>click to upload business license</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 8px;">PDF or image</div>
+                <!-- Real File Uploader -->
+                <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📎</div>
+                    <div class="upload-text">Click to upload or drag files</div>
+                    <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
                 </div>
                 
-                <div class="doc-list" id="docList"></div>
+                <!-- File List -->
+                <div class="file-list" id="fileList"></div>
                 
                 <button class="save-btn" onclick="submitVerification()" id="verifyBtn">submit for verification</button>
                 <p style="font-size:12px; color:#999; text-align:center; margin-top:12px;">Once verified, you can post ads</p>
@@ -671,7 +747,7 @@
     <script>
         let businessRole = 'staff';
         let isVerified = false;
-        let documents = [];
+        let uploadedFiles = [];
         let currentUser = null;
         let allUsers = [];
         let pendingInvitations = [];
@@ -699,7 +775,133 @@
             await loadAllUsers();
             await loadStaffList();
             await loadPendingInvitations();
+            
+            // Setup drag and drop
+            setupDragAndDrop();
         });
+        
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('fileUploadArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+        }
+        
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            files = [...files];
+            files.forEach(uploadFile);
+        }
+        
+        function uploadFile(file) {
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                showStatus('File too large (max 10MB)', 'error');
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                showStatus('Invalid file type. Please upload PDF, JPG, or PNG', 'error');
+                return;
+            }
+            
+            const fileId = Date.now() + Math.random().toString(36).substr(2, 9);
+            const fileObj = {
+                id: fileId,
+                file: file,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                progress: 0,
+                status: 'uploading'
+            };
+            
+            uploadedFiles.push(fileObj);
+            updateFileList();
+            
+            // Simulate upload progress
+            simulateUpload(fileObj);
+        }
+        
+        function simulateUpload(fileObj) {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    fileObj.status = 'uploaded';
+                    clearInterval(interval);
+                }
+                fileObj.progress = progress;
+                updateFileList();
+            }, 200);
+        }
+        
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            
+            if (uploadedFiles.length === 0) {
+                fileList.innerHTML = '';
+                return;
+            }
+            
+            fileList.innerHTML = uploadedFiles.map(file => `
+                <div class="file-item" id="file-${file.id}">
+                    <div class="file-icon">${file.type.includes('pdf') ? '📄' : '🖼️'}</div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
+                        ${file.status === 'uploading' ? `
+                            <div class="file-progress">
+                                <div class="file-progress-bar" style="width: ${file.progress}%"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <button class="file-remove" onclick="removeFile('${file.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        function removeFile(fileId) {
+            uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
+            updateFileList();
+        }
         
         function updateRoleUI() {
             const roleIcon = document.getElementById('roleIcon');
@@ -933,21 +1135,6 @@
             await loadStaffList();
         }
         
-        function uploadDocument() {
-            const fileName = `license_${Date.now()}.pdf`;
-            documents.push(fileName);
-            
-            const docList = document.getElementById('docList');
-            docList.innerHTML = documents.map(doc => `
-                <div class="doc-item">
-                    <span>📄</span>
-                    <span>${doc}</span>
-                </div>
-            `).join('');
-            
-            showStatus('Document uploaded', 'success');
-        }
-        
         async function submitVerification() {
             if (businessRole !== 'owner') {
                 showStatus('Only owners can verify', 'error');
@@ -961,14 +1148,21 @@
                 return;
             }
             
-            if (documents.length === 0) {
+            if (uploadedFiles.length === 0) {
                 showStatus('Upload documents', 'error');
+                return;
+            }
+            
+            // Check if all files are uploaded
+            const uploading = uploadedFiles.some(f => f.status === 'uploading');
+            if (uploading) {
+                showStatus('Please wait for files to finish uploading', 'error');
                 return;
             }
             
             const result = await Backend.submitVerification({
                 taxId,
-                documents
+                documents: uploadedFiles.map(f => f.name)
             });
             
             if (result.success) {
@@ -1024,7 +1218,8 @@
         window.acceptInvitation = acceptInvitation;
         window.declineInvitation = declineInvitation;
         window.removeStaff = removeStaff;
-        window.uploadDocument = uploadDocument;
+        window.handleFileSelect = handleFileSelect;
+        window.removeFile = removeFile;
         window.submitVerification = submitVerification;
         window.logout = logout;
     </script>
