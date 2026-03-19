@@ -404,6 +404,31 @@ const Backend = {
 
     // ========== ADVERTISEMENT FUNCTIONS ==========
     
+    // Helper to clean up expired ads
+    async cleanupExpiredAds() {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                // Find all ads with expiry date in the past
+                query.lessThan("expiryDate", new Date());
+                
+                const expiredAds = await query.find();
+                
+                if (expiredAds.length > 0) {
+                    console.log(`🗑️ Deleting ${expiredAds.length} expired ads`);
+                    await Parse.Object.destroyAll(expiredAds);
+                }
+                
+                return { success: true, deletedCount: expiredAds.length };
+            });
+        } catch (error) {
+            console.error("Cleanup expired ads error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
     async createAd(adData) {
         try {
             const currentUser = Parse.User.current();
@@ -435,6 +460,10 @@ const Backend = {
                 ad.set("postedByRole", currentUser.get("businessRole"));
                 
                 await ad.save();
+                
+                // Clean up expired ads after creating new one
+                setTimeout(() => this.cleanupExpiredAds(), 1000);
+                
                 return { success: true, ad };
             });
             
@@ -446,12 +475,18 @@ const Backend = {
 
     async getActiveAds(options = {}) {
         try {
+            // First clean up expired ads
+            await this.cleanupExpiredAds();
+            
             return await withMasterKey(async () => {
                 const Ad = Parse.Object.extend("Advertisement");
                 const query = new Parse.Query(Ad);
                 
                 query.equalTo("active", true);
                 query.descending("createdAt");
+                
+                // Only get ads with future expiry dates
+                query.greaterThan("expiryDate", new Date());
                 
                 if (options.category && options.category !== 'all') {
                     query.equalTo("category", options.category);
@@ -495,6 +530,9 @@ const Backend = {
 
     async getBusinessAds(businessId) {
         try {
+            // Clean up expired ads for this business
+            await this.cleanupExpiredAds();
+            
             return await withMasterKey(async () => {
                 if (!businessId) {
                     const currentUser = Parse.User.current();
@@ -562,6 +600,10 @@ const Backend = {
                 });
                 
                 await ad.save();
+                
+                // Clean up expired ads after update
+                setTimeout(() => this.cleanupExpiredAds(), 1000);
+                
                 return { success: true };
             });
             
