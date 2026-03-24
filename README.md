@@ -1,2 +1,3 @@
 # foodsave
 Visit at https://chloe-lee2r.github.io/foodsave
+The Foodsave App is a platform that connects shop owners and consumers to reduce food waste and improve shopping efficiency. Shop owners can register their businesses, manage their shop profiles and post advertisements for food items that are close to expiring by providing details such as price, discount, category and expiry date. On the consumer side, users can create accounts to access a dashboard where they can discover nearby discounted food deals, manage shopping lists and track items in their virtual fridge. By linking businesses with consumers, the system helps stores clear surplus food while allowing users to save money and make more informed purchasing decisions.
