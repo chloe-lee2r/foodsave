@@ -1,0 +1,73 @@
+Terms and Conditions for FoodSave
+Last updated: [24/3/2026]
+
+1. Agreement to Terms
+By accessing or using FoodSave (https://chloe-lee2r.github.io/foodsave/), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
+
+2. Use of the Website
+You agree to use FoodSave only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.
+
+You must NOT:
+
+Attempt to crash, overload, or disrupt the website
+Interfere with the proper working of the application
+Use automated scripts, bots, or exploits to abuse the system
+Attempt unauthorized access to any part of the website
+3. No Hacking or Abuse
+Any attempt to:
+
+Hack, reverse-engineer, or exploit the website
+Bypass security measures
+Manipulate data or functionality
+is strictly prohibited and may result in blocked access and potential legal action.
+
+4. Intellectual Property & Code Usage
+All content, design, and source code on FoodSave are protected.
+
+Even though this website is hosted on GitHub and code may be publicly accessible, you are NOT allowed to:
+
+Copy, reuse, or redistribute the code without permission
+Republish or modify the code for your own projects
+Claim any part of the website as your own
+You may:
+
+View the website and its code for personal, non-commercial reference only
+5. Cookies and Data Usage
+FoodSave uses cookies and/or local storage to:
+
+Remember your saved items
+Improve user experience
+We do NOT:
+
+Sell your personal data
+Share your information with third-party companies for marketing
+By using the website, you consent to this use of cookies.
+
+6. User Data Responsibility
+You are responsible for how you use the website. While we aim to store data (like saved items), we do not guarantee permanent storage or accuracy.
+
+7. Disclaimer
+FoodSave is provided “as is” without warranties of any kind.
+
+We do not guarantee:
+
+The website will always be available
+The data will always be accurate or saved
+The site will be free from bugs or interruptions
+8. Limitation of Liability
+FoodSave will not be held responsible for:
+
+Loss of data (including saved items)
+Any damages caused by using the website
+Service interruptions or technical issues
+9. Changes to Terms
+We may update these Terms at any time. Continued use of the website means you accept any changes.
+
+10. Governing Law
+These Terms are governed by the laws of Singapore.
+
+11. Contact
+If you have any questions, contact:
+reubenyee2012@gmail.com
+
+
