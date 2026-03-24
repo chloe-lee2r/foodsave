@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>foodsave • login</title>
+    <!-- Set website icon to assets/icon.png (salad image) -->
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         * {
             margin: 0;
@@ -55,6 +58,14 @@
             font-size: 48px;
             margin-bottom: 12px;
             animation: bounce 0.5s ease;
+        }
+        
+        /* Replace emoji with actual image */
+        .logo img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            display: inline-block;
         }
         
         @keyframes bounce {
@@ -367,7 +378,9 @@
 <body>
     <div class="app">
         <div class="header">
-            <div class="logo">🥗</div>
+            <div class="logo">
+                <img src="assets/icon.png" alt="salad icon">
+            </div>
             <div class="app-name">food<span>save</span></div>
             <div class="tagline">save food • save money • save planet</div>
         </div>
