@@ -55,7 +55,7 @@ The website will always be available
 The data will always be accurate or saved
 The site will be free from bugs or interruptions
 8. Limitation of Liability
-FoodSave will not be held responsible for:
+Foodsavvi will not be held responsible for:
 
 Loss of data (including saved items)
 Any damages caused by using the website
