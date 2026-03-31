@@ -351,6 +351,10 @@
             opacity: 1;
         }
         
+        .edit-btn {
+            color: #667eea;
+        }
+        
         /* Total */
         .total {
             background: #1a1a1a;
@@ -427,7 +431,7 @@
         .modal-content {
             background: white;
             border-radius: 20px;
-            padding: 20px;
+            padding: 24px;
             width: 100%;
             max-width: 320px;
         }
@@ -437,26 +441,39 @@
             font-size: 18px;
         }
         
-        .modal-content input {
+        .modal-content input, .modal-content select {
             width: 100%;
             padding: 12px;
             border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 12px;
+            border-radius: 12px;
             font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .modal-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .modal-row input {
+            flex: 1;
+            margin-bottom: 0;
         }
         
         .modal-buttons {
             display: flex;
-            gap: 8px;
+            gap: 12px;
+            margin-top: 8px;
         }
         
         .modal-buttons button {
             flex: 1;
             padding: 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
         }
         
@@ -467,6 +484,12 @@
         
         .modal-buttons .secondary {
             background: #f0f0f0;
+            color: #666;
+        }
+        
+        /* New List Modal */
+        .new-list-modal .modal-content {
+            max-width: 320px;
         }
         
         /* Notification */
@@ -565,8 +588,33 @@
         </div>
     </div>
     
+    <!-- Edit Item Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>✏️ edit item</h3>
+            <input type="text" id="editItemName" placeholder="item name">
+            <div class="modal-row">
+                <input type="number" id="editItemPrice" placeholder="price" step="0.01" min="0">
+                <input type="number" id="editItemQty" placeholder="qty" min="1">
+            </div>
+            <select id="editItemCategory">
+                <option value="dairy">🥛 Dairy</option>
+                <option value="produce">🥬 Produce</option>
+                <option value="meat">🥩 Meat</option>
+                <option value="bakery">🥖 Bakery</option>
+                <option value="pantry">📦 Pantry</option>
+                <option value="frozen">❄️ Frozen</option>
+                <option value="other">📌 Other</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="primary" onclick="saveEditItem()">save</button>
+                <button class="secondary" onclick="closeEditModal()">cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- New List Modal -->
-    <div class="modal" id="newListModal">
+    <div class="modal new-list-modal" id="newListModal">
         <div class="modal-content">
             <h3>new list</h3>
             <input type="text" id="newListName" placeholder="list name">
@@ -588,6 +636,7 @@
         let lists = {};
         let currentListId = 'default';
         let currentCategory = 'all';
+        let editingItemIndex = -1;
         
         const categories = [
             { id: 'all', label: 'all', icon: '📋' },
@@ -613,14 +662,12 @@
         
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check login
             const user = Backend.getCurrentUser();
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
             
-            // Load lists from cloud first
             await loadListsFromCloud();
             render();
         });
@@ -736,6 +783,7 @@
                             </div>
                         </div>
                         <div class="item-actions">
+                            <button class="edit-btn" onclick="openEditModal(${originalIndex})">✏️</button>
                             <button onclick="duplicateItem(${originalIndex})">📋</button>
                             <button onclick="deleteItem(${originalIndex})">🗑️</button>
                         </div>
@@ -755,6 +803,53 @@
                     ${t.name}
                 </div>
             `).join('');
+        }
+        
+        // ==================== EDIT ITEM ====================
+        function openEditModal(index) {
+            editingItemIndex = index;
+            const item = lists[currentListId].items[index];
+            
+            document.getElementById('editItemName').value = item.name;
+            document.getElementById('editItemPrice').value = item.price || '';
+            document.getElementById('editItemQty').value = item.qty || 1;
+            document.getElementById('editItemCategory').value = item.category || 'other';
+            
+            document.getElementById('editModal').classList.add('show');
+        }
+        
+        async function saveEditItem() {
+            if (editingItemIndex === -1) return;
+            
+            const newName = document.getElementById('editItemName').value.trim();
+            const newPrice = parseFloat(document.getElementById('editItemPrice').value) || 0;
+            const newQty = parseInt(document.getElementById('editItemQty').value) || 1;
+            const newCategory = document.getElementById('editItemCategory').value;
+            
+            if (!newName) {
+                showNotification('Item name cannot be empty', 'error');
+                return;
+            }
+            
+            const oldName = lists[currentListId].items[editingItemIndex].name;
+            
+            lists[currentListId].items[editingItemIndex] = {
+                ...lists[currentListId].items[editingItemIndex],
+                name: newName,
+                price: newPrice,
+                qty: newQty,
+                category: newCategory
+            };
+            
+            await saveListsToCloud();
+            render();
+            closeEditModal();
+            showNotification(`Updated "${oldName}" → "${newName}"`, 'success');
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+            editingItemIndex = -1;
         }
         
         // ==================== LIST FUNCTIONS ====================
@@ -822,7 +917,7 @@
             document.getElementById('itemPrice').value = '';
             document.getElementById('itemQty').value = '1';
             
-            renderItems();
+            render();
             showNotification(`added ${name}`, 'success');
         }
         
@@ -840,7 +935,7 @@
         async function toggleItem(index) {
             lists[currentListId].items[index].completed = !lists[currentListId].items[index].completed;
             await saveListsToCloud();
-            renderItems();
+            render();
         }
         
         async function deleteItem(index) {
@@ -848,7 +943,7 @@
             if (confirm(`Remove "${item.name}"?`)) {
                 lists[currentListId].items.splice(index, 1);
                 await saveListsToCloud();
-                renderItems();
+                render();
                 showNotification(`removed ${item.name}`, 'success');
             }
         }
@@ -863,7 +958,7 @@
             };
             lists[currentListId].items.push(duplicate);
             await saveListsToCloud();
-            renderItems();
+            render();
             showNotification(`duplicated ${original.name}`, 'success');
         }
         
@@ -880,7 +975,7 @@
             
             lists[currentListId].items.push(item);
             await saveListsToCloud();
-            renderItems();
+            render();
             showNotification(`added ${name}`, 'success');
         }
         
@@ -899,7 +994,6 @@
             if (!confirm(`Move ${checkedItems.length} checked item(s) to fridge?`)) return;
             
             try {
-                // Load current fridge items
                 let fridgeItems = await Backend.loadFridgeItems();
                 if (!fridgeItems || fridgeItems.length === 0) {
                     fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
@@ -921,15 +1015,13 @@
                     });
                 });
                 
-                // Save to fridge
                 await Backend.saveFridgeItems(newFridgeItems);
                 localStorage.setItem('foodItems', JSON.stringify(newFridgeItems));
                 
-                // Remove checked items from shopping list
                 currentList.items = currentList.items.filter(item => !item.completed);
                 await saveListsToCloud();
                 
-                renderItems();
+                render();
                 showNotification(`Moved ${checkedItems.length} item(s) to fridge!`, 'success');
                 
             } catch (error) {
@@ -951,7 +1043,7 @@
             if (confirm(`Clear ${completedCount} completed item(s)?`)) {
                 currentList.items = currentList.items.filter(i => !i.completed);
                 await saveListsToCloud();
-                renderItems();
+                render();
                 showNotification(`Cleared ${completedCount} items`, 'success');
             }
         }
@@ -1010,6 +1102,9 @@
         window.deleteItem = deleteItem;
         window.duplicateItem = duplicateItem;
         window.quickAdd = quickAdd;
+        window.openEditModal = openEditModal;
+        window.saveEditItem = saveEditItem;
+        window.closeEditModal = closeEditModal;
         window.moveCheckedToFridge = moveCheckedToFridge;
         window.clearCompleted = clearCompleted;
         window.filterByCategory = filterByCategory;
