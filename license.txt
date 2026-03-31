@@ -2,7 +2,7 @@ Terms and Conditions for Foodsavvi
 Last updated: [31/3/2026]
 
 1. Agreement to Terms
-By accessing or using Foodsavvi (https://r293239.github.io/foodsavvi/), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
+By accessing or using Foodsavvi (https://r293239.github.io/foodsavvi/home), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
 
 2. Use of the Website
 You agree to use Foodsavvi only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.
