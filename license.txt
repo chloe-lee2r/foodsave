@@ -1,11 +1,11 @@
-Terms and Conditions for FoodSave
-Last updated: [24/3/2026]
+Terms and Conditions for Foodsavvi
+Last updated: [31/3/2026]
 
 1. Agreement to Terms
-By accessing or using FoodSave (https://chloe-lee2r.github.io/foodsave/), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
+By accessing or using Foodsavvi (https://r293239.github.io/foodsavvi/), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
 
 2. Use of the Website
-You agree to use FoodSave only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.
+You agree to use Foodsavvi only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.
 
 You must NOT:
 
@@ -22,7 +22,7 @@ Manipulate data or functionality
 is strictly prohibited and may result in blocked access and potential legal action.
 
 4. Intellectual Property & Code Usage
-All content, design, and source code on FoodSave are protected.
+All content, design, and source code on FoodSavvi are protected.
 
 Even though this website is hosted on GitHub and code may be publicly accessible, you are NOT allowed to:
 
@@ -33,7 +33,7 @@ You may:
 
 View the website and its code for personal, non-commercial reference only
 5. Cookies and Data Usage
-FoodSave uses cookies and/or local storage to:
+Foodsavvi uses cookies and/or local storage to:
 
 Remember your saved items
 Improve user experience
@@ -47,7 +47,7 @@ By using the website, you consent to this use of cookies.
 You are responsible for how you use the website. While we aim to store data (like saved items), we do not guarantee permanent storage or accuracy.
 
 7. Disclaimer
-FoodSave is provided “as is” without warranties of any kind.
+Foodsavvi is provided “as is” without warranties of any kind.
 
 We do not guarantee:
 
