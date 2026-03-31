@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>shoplist</title>
+    <title>foodsave • shoplist</title>
     <style>
         * {
             margin: 0;
@@ -69,28 +69,20 @@
             color: #000;
         }
         
-        .gps-btn {
+        .sync-btn {
             width: 40px;
             height: 40px;
             border-radius: 12px;
             background: #f5f7fa;
             border: none;
             font-size: 18px;
-            cursor: not-allowed;
-            opacity: 0.5;
-            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
         }
         
-        .gps-btn:after {
-            content: "🔜";
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 12px;
-            background: white;
-            border-radius: 20px;
-            padding: 2px 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .sync-btn:active {
+            background: #e8ecf0;
+            transform: rotate(180deg);
         }
         
         /* Main Content */
@@ -156,6 +148,38 @@
         .find-stores-btn:active {
             background: #2db14e;
             transform: scale(0.98);
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .move-to-fridge-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .clear-checked-btn {
+            background: #f0f0f0;
+            color: #666;
         }
         
         /* Add Item */
@@ -241,15 +265,6 @@
             margin-bottom: 12px;
             font-size: 14px;
             color: #666;
-        }
-        
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #ff3b30;
-            font-size: 14px;
-            padding: 4px 8px;
-            cursor: pointer;
         }
         
         /* Items */
@@ -474,6 +489,14 @@
         .notification.show {
             transform: translateX(-50%) translateY(0);
         }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
     </style>
 </head>
 <body>
@@ -482,15 +505,25 @@
         <div class="header">
             <a href="index.html" class="home-link">←</a>
             <h1>shoplist</h1>
-            <button class="gps-btn" onclick="comingSoon('GPS tracking')">📍</button>
+            <button class="sync-btn" onclick="syncWithCloud()">↻</button>
         </div>
         
         <!-- Main Content -->
         <div class="content">
-            <!-- Find Stores Button - Links to existing find-stores.html -->
+            <!-- Find Stores Button -->
             <a href="find-stores.html" class="find-stores-btn">
                 <span>🔍</span> Find Stores with Deals
             </a>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn move-to-fridge-btn" onclick="moveCheckedToFridge()">
+                    📦 move checked to fridge
+                </button>
+                <button class="action-btn clear-checked-btn" onclick="clearCompleted()">
+                    🗑️ clear checked
+                </button>
+            </div>
             
             <!-- List Selector -->
             <div class="list-selector" id="listSelector"></div>
@@ -513,7 +546,6 @@
             <!-- List Stats -->
             <div class="list-stats">
                 <span id="itemCount">0 items</span>
-                <button class="clear-btn" onclick="clearCompleted()">clear checked</button>
             </div>
             
             <!-- Items Container -->
@@ -548,6 +580,9 @@
     <!-- Notification -->
     <div class="notification" id="notification"></div>
     
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
     <script>
         // ==================== STATE ====================
         let lists = {};
@@ -577,24 +612,64 @@
         ];
         
         // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load or create default list
-            const saved = localStorage.getItem('shoplists');
-            if (saved) {
-                lists = JSON.parse(saved);
-            } else {
-                lists = {
-                    'default': {
-                        id: 'default',
-                        name: 'main',
-                        icon: '📋',
-                        items: []
-                    }
-                };
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check login
+            const user = Backend.getCurrentUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
             }
             
+            // Load lists from cloud first
+            await loadListsFromCloud();
             render();
         });
+        
+        async function loadListsFromCloud() {
+            try {
+                const cloudLists = await Backend.loadShoppingLists();
+                if (cloudLists && Object.keys(cloudLists).length > 0) {
+                    lists = cloudLists;
+                } else {
+                    const saved = localStorage.getItem('shoplists');
+                    if (saved) {
+                        lists = JSON.parse(saved);
+                    } else {
+                        lists = {
+                            'default': {
+                                id: 'default',
+                                name: 'main',
+                                icon: '📋',
+                                items: []
+                            }
+                        };
+                    }
+                }
+            } catch (error) {
+                const saved = localStorage.getItem('shoplists');
+                if (saved) {
+                    lists = JSON.parse(saved);
+                } else {
+                    lists = {
+                        'default': {
+                            id: 'default',
+                            name: 'main',
+                            icon: '📋',
+                            items: []
+                        }
+                    };
+                }
+            }
+        }
+        
+        async function saveListsToCloud() {
+            try {
+                await Backend.saveShoppingLists(lists);
+                localStorage.setItem('shoplists', JSON.stringify(lists));
+            } catch (error) {
+                localStorage.setItem('shoplists', JSON.stringify(lists));
+            }
+        }
         
         // ==================== RENDER ====================
         function render() {
@@ -633,7 +708,6 @@
             
             let items = currentList.items || [];
             
-            // Filter by category
             if (currentCategory !== 'all') {
                 items = items.filter(item => item.category === currentCategory);
             }
@@ -641,10 +715,10 @@
             if (items.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">list is empty</div>';
                 updateStats();
+                updateTotal();
                 return;
             }
             
-            // Separate active and completed
             const active = items.filter(i => !i.completed);
             const completed = items.filter(i => i.completed);
             
@@ -655,10 +729,10 @@
                         <input type="checkbox" ${item.completed ? 'checked' : ''} 
                                onchange="toggleItem(${originalIndex})">
                         <div class="item-details">
-                            <div class="item-name">${item.name}</div>
+                            <div class="item-name">${escapeHtml(item.name)}</div>
                             <div class="item-meta">
                                 <span class="item-cat">${item.category || 'other'}</span>
-                                ${item.price ? `<span class="item-price">$${item.price} × ${item.qty}</span>` : ''}
+                                ${item.price ? `<span class="item-price">$${item.price.toFixed(2)} × ${item.qty}</span>` : ''}
                             </div>
                         </div>
                         <div class="item-actions">
@@ -696,7 +770,7 @@
             document.getElementById('newListName').value = '';
         }
         
-        function createList() {
+        async function createList() {
             const name = document.getElementById('newListName').value.trim();
             if (!name) return;
             
@@ -708,7 +782,7 @@
                 items: []
             };
             
-            saveLists();
+            await saveListsToCloud();
             closeModal();
             switchList(id);
             showNotification(`created "${name}"`);
@@ -719,13 +793,13 @@
         }
         
         // ==================== ITEM FUNCTIONS ====================
-        function addItem() {
+        async function addItem() {
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value) || 0;
             const qty = parseInt(document.getElementById('itemQty').value) || 1;
             
             if (!name) {
-                showNotification('enter item name');
+                showNotification('enter item name', 'error');
                 return;
             }
             
@@ -742,15 +816,14 @@
             };
             
             lists[currentListId].items.push(item);
-            saveLists();
+            await saveListsToCloud();
             
-            // Clear form
             document.getElementById('itemName').value = '';
             document.getElementById('itemPrice').value = '';
             document.getElementById('itemQty').value = '1';
             
             renderItems();
-            showNotification(`added ${name}`);
+            showNotification(`added ${name}`, 'success');
         }
         
         function guessCategory(name) {
@@ -764,21 +837,23 @@
             return 'other';
         }
         
-        function toggleItem(index) {
+        async function toggleItem(index) {
             lists[currentListId].items[index].completed = !lists[currentListId].items[index].completed;
-            saveLists();
+            await saveListsToCloud();
             renderItems();
         }
         
-        function deleteItem(index) {
+        async function deleteItem(index) {
             const item = lists[currentListId].items[index];
-            lists[currentListId].items.splice(index, 1);
-            saveLists();
-            renderItems();
-            showNotification(`removed ${item.name}`);
+            if (confirm(`Remove "${item.name}"?`)) {
+                lists[currentListId].items.splice(index, 1);
+                await saveListsToCloud();
+                renderItems();
+                showNotification(`removed ${item.name}`, 'success');
+            }
         }
         
-        function duplicateItem(index) {
+        async function duplicateItem(index) {
             const original = lists[currentListId].items[index];
             const duplicate = {
                 ...original,
@@ -787,12 +862,12 @@
                 date: new Date().toISOString()
             };
             lists[currentListId].items.push(duplicate);
-            saveLists();
+            await saveListsToCloud();
             renderItems();
-            showNotification(`duplicated ${original.name}`);
+            showNotification(`duplicated ${original.name}`, 'success');
         }
         
-        function quickAdd(name, category) {
+        async function quickAdd(name, category) {
             const item = {
                 id: Date.now() + Math.random(),
                 name: name,
@@ -804,21 +879,95 @@
             };
             
             lists[currentListId].items.push(item);
-            saveLists();
+            await saveListsToCloud();
             renderItems();
-            showNotification(`added ${name}`);
+            showNotification(`added ${name}`, 'success');
         }
         
-        function clearCompleted() {
-            lists[currentListId].items = lists[currentListId].items.filter(i => !i.completed);
-            saveLists();
-            renderItems();
-            showNotification('cleared completed');
+        // ==================== MOVE CHECKED TO FRIDGE ====================
+        async function moveCheckedToFridge() {
+            const currentList = lists[currentListId];
+            if (!currentList) return;
+            
+            const checkedItems = currentList.items.filter(item => item.completed === true);
+            
+            if (checkedItems.length === 0) {
+                showNotification('No checked items to move', 'error');
+                return;
+            }
+            
+            if (!confirm(`Move ${checkedItems.length} checked item(s) to fridge?`)) return;
+            
+            try {
+                // Load current fridge items
+                let fridgeItems = await Backend.loadFridgeItems();
+                if (!fridgeItems || fridgeItems.length === 0) {
+                    fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
+                }
+                
+                const today = new Date();
+                const newFridgeItems = [...fridgeItems];
+                
+                checkedItems.forEach(item => {
+                    const expiryDate = new Date();
+                    expiryDate.setDate(today.getDate() + 7);
+                    const expiryDateStr = expiryDate.toISOString().split('T')[0];
+                    
+                    newFridgeItems.push({
+                        name: item.name,
+                        expiry: expiryDateStr,
+                        category: item.category || 'other',
+                        addedDate: new Date().toISOString()
+                    });
+                });
+                
+                // Save to fridge
+                await Backend.saveFridgeItems(newFridgeItems);
+                localStorage.setItem('foodItems', JSON.stringify(newFridgeItems));
+                
+                // Remove checked items from shopping list
+                currentList.items = currentList.items.filter(item => !item.completed);
+                await saveListsToCloud();
+                
+                renderItems();
+                showNotification(`Moved ${checkedItems.length} item(s) to fridge!`, 'success');
+                
+            } catch (error) {
+                console.error('Error moving items to fridge:', error);
+                showNotification('Error moving items to fridge', 'error');
+            }
+        }
+        
+        async function clearCompleted() {
+            const currentList = lists[currentListId];
+            if (!currentList) return;
+            
+            const completedCount = currentList.items.filter(i => i.completed).length;
+            if (completedCount === 0) {
+                showNotification('No completed items to clear', 'error');
+                return;
+            }
+            
+            if (confirm(`Clear ${completedCount} completed item(s)?`)) {
+                currentList.items = currentList.items.filter(i => !i.completed);
+                await saveListsToCloud();
+                renderItems();
+                showNotification(`Cleared ${completedCount} items`, 'success');
+            }
         }
         
         function filterByCategory(category) {
             currentCategory = category;
             renderItems();
+        }
+        
+        // ==================== SYNC ====================
+        async function syncWithCloud() {
+            showNotification('Syncing...', 'info');
+            await saveListsToCloud();
+            await loadListsFromCloud();
+            render();
+            showNotification('Synced!', 'success');
         }
         
         // ==================== UTILITY FUNCTIONS ====================
@@ -834,19 +983,21 @@
             document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
         }
         
-        function saveLists() {
-            localStorage.setItem('shoplists', JSON.stringify(lists));
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
-        function showNotification(msg) {
+        function showNotification(msg, type = 'info') {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
-            notif.classList.add('show');
+            notif.className = `notification show ${type}`;
             setTimeout(() => notif.classList.remove('show'), 2000);
-        }
-        
-        function comingSoon(feature) {
-            showNotification(`🔜 ${feature} coming soon`);
         }
         
         // Make functions global
@@ -859,9 +1010,10 @@
         window.deleteItem = deleteItem;
         window.duplicateItem = duplicateItem;
         window.quickAdd = quickAdd;
+        window.moveCheckedToFridge = moveCheckedToFridge;
         window.clearCompleted = clearCompleted;
         window.filterByCategory = filterByCategory;
-        window.comingSoon = comingSoon;
+        window.syncWithCloud = syncWithCloud;
     </script>
 </body>
 </html>
