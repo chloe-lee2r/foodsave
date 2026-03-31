@@ -13,40 +13,23 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #34c759 0%, #007aff 100%);
+            background: #f5f7fa;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
         
         .app {
             width: 100%;
-            max-width: 400px;
+            max-width: 800px;
+            margin: 0 auto;
             background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: slideUp 0.5s ease;
+            min-height: 100vh;
         }
         
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Hero Section */
-        .hero {
+        /* Header */
+        .header {
             background: linear-gradient(135deg, #34c759 0%, #007aff 100%);
             color: white;
-            padding: 50px 24px;
+            padding: 60px 24px;
             text-align: center;
         }
         
@@ -58,19 +41,13 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            animation: bounce 0.8s ease;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
         }
         
         .app-name {
-            font-size: 36px;
+            font-size: 48px;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
         }
         
         .app-name span {
@@ -78,106 +55,174 @@
         }
         
         .tagline {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 24px;
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 32px;
         }
         
-        .hero-buttons {
+        .cta-buttons {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             justify-content: center;
+            flex-wrap: wrap;
         }
         
-        .hero-btn {
-            padding: 12px 24px;
-            border-radius: 30px;
+        .btn {
+            padding: 14px 32px;
+            border-radius: 40px;
             font-weight: 600;
             text-decoration: none;
             transition: 0.2s;
+            display: inline-block;
         }
         
-        .hero-btn.primary {
+        .btn.primary {
             background: white;
             color: #34c759;
         }
         
-        .hero-btn.secondary {
+        .btn.secondary {
             background: rgba(255,255,255,0.2);
             color: white;
             backdrop-filter: blur(10px);
         }
         
-        .hero-btn:active {
-            transform: scale(0.95);
+        .btn:hover {
+            transform: translateY(-2px);
         }
         
-        /* Features Section */
-        .features {
-            padding: 32px 24px;
-            background: white;
+        /* Section Styles */
+        .section {
+            padding: 48px 24px;
+        }
+        
+        .section-alt {
+            background: #f8f9fa;
         }
         
         .section-title {
-            font-size: 22px;
+            font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             text-align: center;
         }
         
+        .section-subtitle {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        /* Stats Grid - Real Food Waste Facts */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ff3b30;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Feature Grid */
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 32px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
         }
         
         .feature-card {
-            text-align: center;
-            padding: 20px 12px;
-            background: #f8f9fa;
+            background: white;
+            padding: 28px 20px;
             border-radius: 20px;
-            transition: 0.2s;
-        }
-        
-        .feature-card:active {
-            transform: scale(0.97);
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
         }
         
         .feature-emoji {
-            font-size: 40px;
-            margin-bottom: 12px;
+            font-size: 48px;
+            margin-bottom: 16px;
         }
         
         .feature-title {
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 4px;
-            color: #1a1a1a;
+            margin-bottom: 8px;
         }
         
         .feature-desc {
-            font-size: 12px;
+            font-size: 14px;
             color: #666;
+            line-height: 1.4;
         }
         
-        /* How It Works */
-        .how-it-works {
-            padding: 32px 24px;
-            background: white;
-            border-top: 1px solid #f0f0f0;
+        /* Impact Section */
+        .impact-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 32px;
+            border-radius: 24px;
+            text-align: center;
+            margin-top: 20px;
         }
         
+        .impact-number {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .impact-label {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-bottom: 16px;
+        }
+        
+        .impact-text {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+        
+        /* Steps */
         .steps {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
+            max-width: 500px;
+            margin: 0 auto;
         }
         
         .step {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
         .step-number {
@@ -198,6 +243,7 @@
         }
         
         .step-title {
+            font-size: 16px;
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -208,54 +254,38 @@
         }
         
         /* CTA Section */
-        .cta {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .cta-section {
+            background: linear-gradient(135deg, #34c759 0%, #007aff 100%);
             color: white;
-            padding: 40px 24px;
             text-align: center;
+            padding: 48px 24px;
         }
         
-        .cta h3 {
-            font-size: 24px;
+        .cta-title {
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 12px;
         }
         
-        .cta p {
-            opacity: 0.9;
-            margin-bottom: 24px;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
+        .cta-text {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-bottom: 32px;
         }
         
         .cta-btn {
-            padding: 14px 28px;
-            border-radius: 30px;
+            background: white;
+            color: #34c759;
+            padding: 14px 32px;
+            border-radius: 40px;
             font-weight: 600;
             text-decoration: none;
-            transition: 0.2s;
-        }
-        
-        .cta-btn.primary {
-            background: white;
-            color: #667eea;
-        }
-        
-        .cta-btn.secondary {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        
-        .cta-btn:active {
-            transform: scale(0.95);
+            display: inline-block;
         }
         
         /* Footer */
         .footer {
-            padding: 24px;
+            padding: 32px 24px;
             text-align: center;
             background: #f8f9fa;
             border-top: 1px solid #f0f0f0;
@@ -266,283 +296,194 @@
             color: #999;
         }
         
-        /* Logged in user section */
-        .logged-in-section {
-            display: none;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .welcome-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 24px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .welcome-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .dashboard-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        
-        .dashboard-btn {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 16px;
-            text-decoration: none;
-            color: #1a1a1a;
-            text-align: center;
-            transition: 0.2s;
-        }
-        
-        .dashboard-btn:active {
-            transform: scale(0.97);
-        }
-        
-        .dashboard-emoji {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-        
-        .dashboard-title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .logout-btn {
-            width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            background: #f0f0f0;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            color: #ff3b30;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .logout-btn:active {
-            background: #e0e0e0;
-            transform: scale(0.98);
-        }
-        
-        /* Bottom Navigation */
-        .bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            border-top: 1px solid #f0f0f0;
-            padding: 8px 20px;
-            justify-content: space-around;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            text-decoration: none;
-            color: #999;
-            font-size: 12px;
-            text-align: center;
-            flex: 1;
-            padding: 4px 0;
-        }
-        
-        .nav-item.active {
-            color: #007aff;
-        }
-        
-        .nav-emoji {
-            font-size: 20px;
-            margin-bottom: 2px;
-            display: block;
+        /* Mobile */
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 20px;
+            }
+            .app-name {
+                font-size: 36px;
+            }
+            .section {
+                padding: 32px 20px;
+            }
+            .section-title {
+                font-size: 24px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .impact-number {
+                font-size: 42px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Hero Section -->
-        <div class="hero">
+        <!-- Header -->
+        <div class="header">
             <div class="logo"></div>
             <div class="app-name">food<span>save</span></div>
             <div class="tagline">stop food waste • save money • save the planet</div>
-            <div class="hero-buttons" id="heroButtons">
-                <a href="login.html" class="hero-btn primary">log in</a>
-                <a href="login.html" class="hero-btn secondary">sign up</a>
+            <div class="cta-buttons">
+                <a href="login.html" class="btn primary">get started</a>
+                <a href="#about" class="btn secondary">learn more</a>
             </div>
         </div>
         
-        <!-- Logged In Dashboard -->
-        <div class="logged-in-section" id="loggedInSection">
-            <div class="welcome-card">
-                <div class="welcome-name" id="welcomeName">welcome back!</div>
-                <div style="font-size: 14px; opacity: 0.9;">ready to save food today?</div>
+        <!-- Food Waste Stats Section -->
+        <div class="section" id="about">
+            <div class="section-title">the problem</div>
+            <div class="section-subtitle">food waste is a global crisis</div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">1/3</div>
+                    <div class="stat-label">of all food produced globally is wasted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1.3B</div>
+                    <div class="stat-label">tons of food wasted annually</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$1T</div>
+                    <div class="stat-label">economic loss from food waste each year</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">8%</div>
+                    <div class="stat-label">of global greenhouse gas emissions come from food waste</div>
+                </div>
             </div>
-            <div class="dashboard-buttons">
-                <a href="shoplist.html" class="dashboard-btn">
-                    <div class="dashboard-emoji">🛒</div>
-                    <div class="dashboard-title">shopping list</div>
-                </a>
-                <a href="fridge.html" class="dashboard-btn">
-                    <div class="dashboard-emoji">🧊</div>
-                    <div class="dashboard-title">my fridge</div>
-                </a>
-                <a href="find-stores.html" class="dashboard-btn">
-                    <div class="dashboard-emoji">🔍</div>
-                    <div class="dashboard-title">find deals</div>
-                </a>
-                <a href="business-profile.html" class="dashboard-btn" id="businessBtn" style="display: none;">
-                    <div class="dashboard-emoji">🏪</div>
-                    <div class="dashboard-title">business</div>
-                </a>
-            </div>
-            <button class="logout-btn" onclick="logout()">log out</button>
         </div>
         
-        <!-- Public Content (shown when logged out) -->
-        <div id="publicContent">
-            <div class="features">
-                <div class="section-title">why foodsave?</div>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="feature-emoji">🛒</div>
-                        <div class="feature-title">smart lists</div>
-                        <div class="feature-desc">organize shopping</div>
+        <!-- Impact Section -->
+        <div class="section section-alt">
+            <div class="section-title">the impact</div>
+            <div class="impact-card">
+                <div class="impact-number">🌍</div>
+                <div class="impact-label">if food waste were a country</div>
+                <div class="impact-text">it would be the 3rd largest emitter of greenhouse gases after the US and China</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px;">
+                <div class="feature-card" style="background: #fff3e0;">
+                    <div class="feature-emoji">💧</div>
+                    <div class="feature-title">water waste</div>
+                    <div class="feature-desc">25% of the world's fresh water is used to grow food that never gets eaten</div>
+                </div>
+                <div class="feature-card" style="background: #ffebee;">
+                    <div class="feature-emoji">🏠</div>
+                    <div class="feature-title">households</div>
+                    <div class="feature-desc">the average family throws away $1,500 of food each year</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Solution Section -->
+        <div class="section">
+            <div class="section-title">the solution</div>
+            <div class="section-subtitle">how foodsave helps</div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-emoji">🛒</div>
+                    <div class="feature-title">smart shopping lists</div>
+                    <div class="feature-desc">plan meals and buy only what you need</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">🧊</div>
+                    <div class="feature-title">fridge tracker</div>
+                    <div class="feature-desc">never forget what's in your fridge again</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">🔍</div>
+                    <div class="feature-title">discounted food</div>
+                    <div class="feature-desc">find expiring food at great prices</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">🏪</div>
+                    <div class="feature-title">business tools</div>
+                    <div class="feature-desc">for shops to reduce waste and sell surplus</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="section section-alt">
+            <div class="section-title">how it works</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">create free account</div>
+                        <div class="step-desc">sign up as consumer or shop owner</div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-emoji">🧊</div>
-                        <div class="feature-title">fridge tracker</div>
-                        <div class="feature-desc">track expiry dates</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">track your food</div>
+                        <div class="step-desc">add items to fridge and shopping lists</div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-emoji">🔍</div>
-                        <div class="feature-title">find deals</div>
-                        <div class="feature-desc">discounted food nearby</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-emoji">🏪</div>
-                        <div class="feature-title">business tools</div>
-                        <div class="feature-desc">manage your shop</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">save money & planet</div>
+                        <div class="step-desc">reduce waste and find discounted deals</div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- For Businesses Section -->
+        <div class="section">
+            <div class="section-title">for businesses</div>
+            <div class="section-subtitle">join the fight against food waste</div>
             
-            <div class="how-it-works">
-                <div class="section-title">how it works</div>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <div class="step-title">create account</div>
-                            <div class="step-desc">sign up as consumer or shop owner</div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <div class="step-title">track & save</div>
-                            <div class="step-desc">add items to fridge or shopping list</div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <div class="step-title">find deals</div>
-                            <div class="step-desc">discover discounted food near you</div>
-                        </div>
-                    </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-emoji">📢</div>
+                    <div class="feature-title">post deals</div>
+                    <div class="feature-desc">list expiring food at discount</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">📊</div>
+                    <div class="feature-title">track impact</div>
+                    <div class="feature-desc">see how much waste you've prevented</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">👥</div>
+                    <div class="feature-title">reach customers</div>
+                    <div class="feature-desc">connect with eco-conscious shoppers</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-emoji">💰</div>
+                    <div class="feature-title">increase revenue</div>
+                    <div class="feature-desc">turn waste into profit</div>
                 </div>
             </div>
             
-            <div class="cta">
-                <h3>ready to start saving?</h3>
-                <p>join the community reducing food waste</p>
-                <div class="cta-buttons">
-                    <a href="login.html" class="cta-btn primary">get started</a>
-                </div>
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="login.html" class="btn primary" style="background: #34c759; color: white; padding: 12px 24px;">register your business →</a>
             </div>
-            
-            <div class="footer">
-                <p>© 2025 foodsave • stop food waste</p>
-            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <div class="cta-title">ready to make a difference?</div>
+            <div class="cta-text">join many users already saving food and money</div>
+            <a href="login.html" class="cta-btn">get started for free →</a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 foodsave • stop food waste, start saving</p>
         </div>
     </div>
-    
-    <!-- Bottom Navigation (for logged in users) -->
-    <div class="bottom-nav" id="bottomNav">
-        <a href="#" class="nav-item active">
-            <span class="nav-emoji">🏠</span>
-            <span>home</span>
-        </a>
-        <a href="shoplist.html" class="nav-item">
-            <span class="nav-emoji">🛒</span>
-            <span>list</span>
-        </a>
-        <a href="fridge.html" class="nav-item">
-            <span class="nav-emoji">🧊</span>
-            <span>fridge</span>
-        </a>
-        <a href="find-stores.html" class="nav-item">
-            <span class="nav-emoji">🔍</span>
-            <span>deals</span>
-        </a>
-        <a href="business-profile.html" class="nav-item" id="businessNavItem" style="display: none;">
-            <span class="nav-emoji">🏪</span>
-            <span>business</span>
-        </a>
-    </div>
-    
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
-    <script src="backend.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = Backend.getCurrentUser();
-            const role = localStorage.getItem('userRole');
-            
-            if (user) {
-                // User is logged in
-                document.getElementById('heroButtons').style.display = 'none';
-                document.getElementById('publicContent').style.display = 'none';
-                document.getElementById('loggedInSection').style.display = 'block';
-                document.getElementById('bottomNav').style.display = 'flex';
-                
-                const username = user.get('username') || localStorage.getItem('loggedInUser');
-                document.getElementById('welcomeName').textContent = `hi, ${username}!`;
-                
-                // Show business button for advertisers
-                if (role === 'advertiser') {
-                    document.getElementById('businessBtn').style.display = 'block';
-                    document.getElementById('businessNavItem').style.display = 'block';
-                }
-            } else {
-                // User is logged out
-                document.getElementById('heroButtons').style.display = 'flex';
-                document.getElementById('publicContent').style.display = 'block';
-                document.getElementById('loggedInSection').style.display = 'none';
-                document.getElementById('bottomNav').style.display = 'none';
-            }
-        });
-        
-        async function logout() {
-            await Backend.logout();
-            window.location.reload();
-        }
-        
-        window.logout = logout;
-    </script>
 </body>
 </html>
