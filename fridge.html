@@ -56,6 +56,22 @@
             font-weight: 600;
         }
         
+        .sync-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .sync-btn:active {
+            background: #e8ecf0;
+            transform: rotate(180deg);
+        }
+        
         .logout-btn {
             width: 40px;
             height: 40px;
@@ -199,6 +215,33 @@
         .item-expiry {
             font-size: 13px;
             color: #666;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .days-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .days-badge.good {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
+        .days-badge.warning {
+            background: #fff3e0;
+            color: #ff9500;
+        }
+        
+        .days-badge.expired {
+            background: #ffebee;
+            color: #ff3b30;
         }
         
         .item-actions {
@@ -214,6 +257,15 @@
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .item-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .edit-btn {
+            color: #667eea;
         }
         
         .delete-btn {
@@ -240,6 +292,72 @@
             color: white;
             text-decoration: none;
             border-radius: 25px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .modal-buttons .secondary {
+            background: #f0f0f0;
+            color: #666;
         }
         
         .bottom-nav {
@@ -273,6 +391,32 @@
             margin-bottom: 2px;
             display: block;
         }
+        
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
     </style>
 </head>
 <body>
@@ -280,6 +424,7 @@
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>my fridge</h1>
+            <button class="sync-btn" onclick="syncWithCloud()">↻</button>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
@@ -339,6 +484,23 @@
         </div>
     </div>
     
+    <!-- Edit Expiry Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>✏️ edit expiry date</h3>
+            <input type="date" id="editExpiryDate" class="edit-input">
+            <div class="modal-buttons">
+                <button class="primary" onclick="saveEditExpiry()">save</button>
+                <button class="secondary" onclick="closeEditModal()">cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
     <script>
         const commonFoods = [
             "Milk", "Eggs", "Bread", "Rice", "Chicken",
@@ -346,29 +508,45 @@
         ];
         
         let sortAscending = true;
+        let items = [];
+        let editingIndex = -1;
         
-        document.addEventListener("DOMContentLoaded", function() {
-            if (!localStorage.getItem("loggedInUser")) {
+        document.addEventListener("DOMContentLoaded", async function() {
+            const user = Backend.getCurrentUser();
+            if (!user) {
                 window.location.href = "login.html";
                 return;
             }
+            await loadFridge();
             populateDropdown();
             displayItems();
         });
         
-        function getItems() {
-            return JSON.parse(localStorage.getItem("foodItems")) || [];
+        async function loadFridge() {
+            try {
+                const cloudItems = await Backend.loadFridgeItems();
+                if (cloudItems && cloudItems.length > 0) {
+                    items = cloudItems;
+                } else {
+                    items = JSON.parse(localStorage.getItem("foodItems")) || [];
+                }
+            } catch (error) {
+                items = JSON.parse(localStorage.getItem("foodItems")) || [];
+            }
         }
         
-        function saveItems(items) {
-            localStorage.setItem("foodItems", JSON.stringify(items));
-            displayItems();
+        async function saveFridge() {
+            try {
+                await Backend.saveFridgeItems(items);
+                localStorage.setItem("foodItems", JSON.stringify(items));
+            } catch (error) {
+                localStorage.setItem("foodItems", JSON.stringify(items));
+            }
         }
         
         function populateDropdown() {
             const dropdown = document.getElementById("foodDropdown");
             dropdown.innerHTML = '<option value="">Select food</option>';
-            const items = getItems();
             const pastItems = items.map(item => item.name);
             const allFoods = [...new Set([...commonFoods, ...pastItems])].sort();
             
@@ -380,32 +558,66 @@
             });
         }
         
-        function addItem() {
+        async function addItem() {
             const name = document.getElementById("foodName").value.trim() || document.getElementById("foodDropdown").value;
             const expiry = document.getElementById("expiryDate").value;
             
             if (!name || !expiry) {
-                alert("Please fill all fields");
+                showNotification("Please fill all fields", "error");
                 return;
             }
             
-            const items = getItems();
-            items.push({ name, expiry });
-            saveItems(items);
+            items.push({ name, expiry, addedDate: new Date().toISOString() });
+            await saveFridge();
             
             document.getElementById("foodName").value = "";
             document.getElementById("foodDropdown").value = "";
             document.getElementById("expiryDate").value = "";
+            
             populateDropdown();
+            displayItems();
+            showNotification(`Added ${name}`, "success");
         }
         
-        function deleteItem(index) {
+        async function deleteItem(index) {
             if (confirm("Remove this item?")) {
-                const items = getItems();
                 items.splice(index, 1);
-                saveItems(items);
+                await saveFridge();
                 populateDropdown();
+                displayItems();
+                showNotification("Item removed", "success");
             }
+        }
+        
+        function editItem(index) {
+            editingIndex = index;
+            const item = items[index];
+            document.getElementById("editExpiryDate").value = item.expiry;
+            document.getElementById("editModal").classList.add("show");
+        }
+        
+        async function saveEditExpiry() {
+            const newExpiry = document.getElementById("editExpiryDate").value;
+            
+            if (!newExpiry) {
+                showNotification("Please select a date", "error");
+                return;
+            }
+            
+            if (editingIndex >= 0 && editingIndex < items.length) {
+                const oldExpiry = items[editingIndex].expiry;
+                items[editingIndex].expiry = newExpiry;
+                await saveFridge();
+                displayItems();
+                showNotification(`Expiry date updated from ${oldExpiry} to ${newExpiry}`, "success");
+            }
+            
+            closeEditModal();
+        }
+        
+        function closeEditModal() {
+            document.getElementById("editModal").classList.remove("show");
+            editingIndex = -1;
         }
         
         function toggleSort() {
@@ -415,7 +627,6 @@
         
         function displayItems() {
             const container = document.getElementById("itemsContainer");
-            const items = getItems();
             
             updateStats(items);
             
@@ -424,6 +635,7 @@
                     <div class="empty-state">
                         <div class="empty-emoji">🧊</div>
                         <div>your fridge is empty</div>
+                        <a href="#" class="add-link" onclick="document.getElementById('foodName').focus()">➕ add items</a>
                     </div>
                 `;
                 return;
@@ -434,6 +646,7 @@
             });
             
             container.innerHTML = sortedItems.map((item, index) => {
+                const originalIndex = items.findIndex(i => i.name === item.name && i.expiry === item.expiry && i.addedDate === item.addedDate);
                 const today = new Date();
                 today.setHours(0,0,0,0);
                 const expiry = new Date(item.expiry);
@@ -442,31 +655,59 @@
                 
                 let statusClass = "";
                 let statusText = "";
+                let badgeClass = "good";
                 
                 if (diffDays < 0) {
                     statusClass = "expired";
-                    statusText = "expired";
+                    statusText = `expired ${Math.abs(diffDays)} days ago`;
+                    badgeClass = "expired";
                 } else if (diffDays === 0) {
                     statusClass = "expiring-soon";
-                    statusText = "expires today!";
+                    statusText = `expires TODAY!`;
+                    badgeClass = "warning";
                 } else if (diffDays <= 3) {
                     statusClass = "expiring-soon";
                     statusText = `${diffDays} days left`;
+                    badgeClass = "warning";
+                } else {
+                    statusText = `${diffDays} days left`;
+                    badgeClass = "good";
                 }
+                
+                // Get food emoji
+                const foodEmoji = getFoodEmoji(item.name);
                 
                 return `
                     <div class="item ${statusClass}">
-                        <div class="item-icon">🍽️</div>
+                        <div class="item-icon">${foodEmoji}</div>
                         <div class="item-details">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-expiry">📅 ${item.expiry} • ${statusText}</div>
+                            <div class="item-name">${escapeHtml(item.name)}</div>
+                            <div class="item-expiry">
+                                <span>📅 ${item.expiry}</span>
+                                <span class="days-badge ${badgeClass}">${statusText}</span>
+                            </div>
                         </div>
                         <div class="item-actions">
-                            <button class="item-btn delete-btn" onclick="deleteItem(${index})">🗑️</button>
+                            <button class="item-btn edit-btn" onclick="editItem(${originalIndex})">✏️</button>
+                            <button class="item-btn delete-btn" onclick="deleteItem(${originalIndex})">🗑️</button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+        
+        function getFoodEmoji(name) {
+            name = name.toLowerCase();
+            if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return '🥛';
+            if (name.includes('egg')) return '🥚';
+            if (name.includes('bread')) return '🍞';
+            if (name.includes('chicken') || name.includes('beef') || name.includes('pork') || name.includes('fish')) return '🥩';
+            if (name.includes('apple')) return '🍎';
+            if (name.includes('banana')) return '🍌';
+            if (name.includes('rice')) return '🍚';
+            if (name.includes('pasta')) return '🍝';
+            if (name.includes('carrot') || name.includes('lettuce') || name.includes('tomato')) return '🥬';
+            return '🍽️';
         }
         
         function updateStats(items) {
@@ -489,13 +730,43 @@
             document.getElementById('expiredItems').textContent = expired;
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        async function syncWithCloud() {
+            showNotification("Syncing...", "info");
+            await saveFridge();
+            await loadFridge();
+            displayItems();
+            showNotification("Synced!", "success");
+        }
+        
+        function showNotification(message, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => notif.classList.remove('show'), 2000);
+        }
+        
         function logout() {
             window.location.href = "index.html";
         }
         
+        // Make functions global
         window.addItem = addItem;
         window.deleteItem = deleteItem;
+        window.editItem = editItem;
+        window.saveEditExpiry = saveEditExpiry;
+        window.closeEditModal = closeEditModal;
         window.toggleSort = toggleSort;
+        window.syncWithCloud = syncWithCloud;
         window.logout = logout;
     </script>
 </body>
