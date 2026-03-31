@@ -1,5 +1,5 @@
 Terms and Conditions for Foodsavvi
-Last updated: [31/3/2026]
+Last updated: [1/4/2026]
 
 1. Agreement to Terms
 By accessing or using Foodsavvi (https://r293239.github.io/foodsavvi/home), you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.
@@ -9,17 +9,14 @@ You agree to use Foodsavvi only for lawful purposes and in a way that does not h
 
 You must NOT:
 
-Attempt to crash, overload, or disrupt the website
-Interfere with the proper working of the application
-Use automated scripts, bots, or exploits to abuse the system
+Attempt to crash, overload, or disrupt the website,
+Interfere with the proper working of the application,
+Use automated scripts, bots, or exploits to abuse the system,
 Attempt unauthorized access to any part of the website
+
 3. No Hacking or Abuse
 Any attempt to:
-
-Hack, reverse-engineer, or exploit the website
-Bypass security measures
-Manipulate data or functionality
-is strictly prohibited and may result in blocked access and potential legal action.
+Hack, reverse-engineer, or exploit the website, Bypass security measures, Manipulate data or functionality is strictly prohibited and may result in blocked access and potential legal action.
 
 4. Intellectual Property & Code Usage
 All content, design, and source code on FoodSavvi are protected.
