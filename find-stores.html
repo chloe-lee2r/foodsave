@@ -167,6 +167,64 @@
             padding: 40px 20px;
             color: #999;
         }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .claim-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        
+        .claim-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .batch-info {
+            font-size: 11px;
+            color: #666;
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .quantity-info {
+            font-size: 11px;
+            color: #34c759;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .quantity-info.low {
+            color: #ff3b30;
+        }
     </style>
 </head>
 <body>
@@ -192,28 +250,6 @@
             </div>
         </div>
     </div>
-    
-    <style>
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
@@ -268,28 +304,57 @@
                 }
                 
                 container.innerHTML = ads.map(ad => {
-                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
+                    const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     
                     return `
                         <div class="result-item">
                             <div class="result-header">
-                                <span class="result-food">${ad.foodName}</span>
+                                <span class="result-food">${escapeHtml(ad.foodName)}</span>
                                 <span class="result-discount">${ad.discount}% off</span>
                             </div>
-                            <div class="result-shop">${ad.shopName}</div>
+                            <div class="result-shop">${escapeHtml(ad.shopName)}</div>
+                            <div style="margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px;">
+                                ${ad.batchNumber ? `<span class="batch-info">📦 batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
+                                <span class="quantity-info ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
+                            </div>
                             <div class="result-expiry">
-                                expires in ${daysUntil} days • ${ad.views || 0} views
+                                offer ends in ${daysUntil} days • ${ad.views || 0} views
+                                <button class="claim-btn" onclick="claimDeal('${ad.id}', ${ad.quantityLeft || 0})" 
+                                    ${ad.quantityLeft <= 0 ? 'disabled' : ''}>
+                                    ${ad.quantityLeft <= 0 ? 'sold out' : 'claim'}
+                                </button>
                             </div>
                         </div>
                     `;
                 }).join('');
                 
             } catch (error) {
+                console.error('Error loading deals:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <div>failed to load deals</div>
                     </div>
                 `;
+            }
+        }
+        
+        async function claimDeal(adId, quantityLeft) {
+            if (quantityLeft <= 0) {
+                alert('Sorry, this deal is out of stock!');
+                return;
+            }
+            
+            const confirmClaim = confirm(`This offer has ${quantityLeft} item(s) left. Claim this deal?`);
+            if (!confirmClaim) return;
+            
+            const result = await Backend.incrementClaimed(adId);
+            
+            if (result.success) {
+                alert('Deal claimed! Visit the store to collect.');
+                await loadDeals();
+            } else {
+                alert(result.message || 'Failed to claim deal');
             }
         }
         
@@ -304,8 +369,19 @@
             loadDeals();
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
         window.filterByCategory = filterByCategory;
         window.searchDeals = searchDeals;
+        window.claimDeal = claimDeal;
     </script>
 </body>
 </html>
