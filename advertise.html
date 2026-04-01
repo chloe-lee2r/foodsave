@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -22,8 +22,7 @@
         }
         
         body {
-        font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
             min-height: 100vh;
             display: flex;
@@ -40,7 +39,6 @@
             position: relative;
         }
         
-        /* Header */
         .header {
             padding: 20px 16px;
             background: white;
@@ -112,13 +110,11 @@
             transform: scale(0.95);
         }
         
-        /* Content */
         .content {
             padding: 16px;
             padding-bottom: 80px;
         }
         
-        /* Shop Info */
         .shop-info {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -165,7 +161,6 @@
             opacity: 0.8;
         }
         
-        /* Form */
         .form-section {
             margin-bottom: 24px;
         }
@@ -238,7 +233,6 @@
             background: #34c759;
         }
         
-        /* Ads Section */
         .ads-section {
             margin-top: 24px;
         }
@@ -277,6 +271,10 @@
             border-left-color: #ff9500;
         }
         
+        .ad-item.low-quantity {
+            border-left-color: #ff3b30;
+        }
+        
         .ad-item.inactive {
             opacity: 0.6;
             border-left-color: #999;
@@ -310,6 +308,29 @@
             color: #666;
             margin-bottom: 12px;
             flex-wrap: wrap;
+        }
+        
+        .ad-batch-info {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: monospace;
+            color: #333;
+        }
+        
+        .ad-quantity {
+            background: #e8f5e8;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #34c759;
+        }
+        
+        .ad-quantity.low {
+            background: #ffebee;
+            color: #ff3b30;
         }
         
         .ad-stats {
@@ -352,6 +373,11 @@
             color: #666;
         }
         
+        .update-qty-btn {
+            background: #e3f2fd;
+            color: #007aff;
+        }
+        
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -377,7 +403,6 @@
             font-size: 14px;
         }
         
-        /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
@@ -398,7 +423,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Notification */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -427,7 +451,6 @@
             background: #ff3b30;
         }
         
-        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -462,11 +485,32 @@
             margin-bottom: 2px;
             display: block;
         }
+        
+        /* Additional styles for new fields */
+        .info-note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .batch-preview {
+            background: #f0f4ff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #667eea;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .batch-preview.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Header -->
         <div class="header">
             <a href="index.html" class="back-link">←</a>
             <h1>post advertisement</h1>
@@ -474,9 +518,7 @@
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
         
-        <!-- Content -->
         <div class="content">
-            <!-- Shop Info -->
             <div class="shop-info" id="shopInfo">
                 <div class="shop-name" id="shopNameDisplay">loading...</div>
                 <div class="verification-badge" id="verificationBadge">⏳ verification pending</div>
@@ -496,7 +538,7 @@
                 </div>
             </div>
             
-            <!-- Post New Ad Form -->
+            <!-- Post New Ad Form - EXTENDED with Batch Number and Quantity -->
             <div class="form-section">
                 <div class="section-title">post new deal</div>
                 
@@ -516,9 +558,28 @@
                     </div>
                 </div>
                 
+                <!-- NEW: Batch Number Field -->
                 <div class="form-group">
-                    <label class="form-label">expiry date</label>
-                    <input type="date" class="form-input" id="expiryDate">
+                    <label class="form-label">batch number</label>
+                    <input type="text" class="form-input" id="batchNumber" placeholder="e.g., BATCH-2401-001">
+                    <span class="info-note">Unique batch/lot number for tracking this production batch</span>
+                    <div class="batch-preview" id="batchPreview">
+                        📦 Batch ID will be: <span id="batchPreviewText"></span>
+                    </div>
+                </div>
+                
+                <!-- NEW: Quantity Left Field -->
+                <div class="form-group">
+                    <label class="form-label">quantity left</label>
+                    <input type="number" class="form-input" id="quantityLeft" placeholder="e.g., 24" min="1" step="1">
+                    <span class="info-note">Number of items available for this offer</span>
+                </div>
+                
+                <!-- CHANGED: "Expiry Date" to "Offer Ends" -->
+                <div class="form-group">
+                    <label class="form-label">offer ends</label>
+                    <input type="date" class="form-input" id="offerEnds">
+                    <span class="info-note">This offer will expire on this date (near-expiry promotion)</span>
                 </div>
                 
                 <div class="form-group">
@@ -536,7 +597,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">description (optional)</label>
-                    <input type="text" class="form-input" id="description" placeholder="e.g., organic, local">
+                    <input type="text" class="form-input" id="description" placeholder="e.g., near expiry - best before this week">
                 </div>
                 
                 <button class="post-btn" onclick="postAd()" id="postBtn">post deal</button>
@@ -559,7 +620,6 @@
             </div>
         </div>
         
-        <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -576,7 +636,6 @@
         </div>
     </div>
     
-    <!-- Notification -->
     <div class="notification" id="notification"></div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
@@ -589,7 +648,6 @@
         let businessRole = 'staff';
         
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user is logged in as advertiser
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -611,7 +669,6 @@
             
             document.getElementById('shopNameDisplay').textContent = currentShop.name;
             
-            // Update verification badge
             const badge = document.getElementById('verificationBadge');
             const postBtn = document.getElementById('postBtn');
             const verifyWarning = document.getElementById('verifyWarning');
@@ -627,17 +684,29 @@
                 verifyWarning.style.display = 'block';
             }
             
-            // Disable post button if not verified and not owner/manager
             if (!isVerified && businessRole === 'staff') {
                 postBtn.disabled = true;
             }
             
-            // Set default expiry date to tomorrow
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('expiryDate').value = tomorrow.toISOString().split('T')[0];
+            // Set default offer ends to 3 days from now (near-expiry)
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 3);
+            document.getElementById('offerEnds').value = defaultDate.toISOString().split('T')[0];
             
-            // Load ads
+            // Batch number preview
+            const batchInput = document.getElementById('batchNumber');
+            const batchPreview = document.getElementById('batchPreview');
+            const batchPreviewText = document.getElementById('batchPreviewText');
+            
+            batchInput.addEventListener('input', () => {
+                if (batchInput.value.trim()) {
+                    batchPreviewText.textContent = batchInput.value.trim();
+                    batchPreview.classList.add('show');
+                } else {
+                    batchPreview.classList.remove('show');
+                }
+            });
+            
             await loadShopAds();
         });
         
@@ -650,11 +719,12 @@
             const foodName = document.getElementById('foodName').value.trim();
             const discount = document.getElementById('discount').value;
             const price = document.getElementById('price').value;
-            const expiryDate = document.getElementById('expiryDate').value;
+            const offerEnds = document.getElementById('offerEnds').value;
             const category = document.getElementById('category').value;
             const description = document.getElementById('description').value.trim();
+            const batchNumber = document.getElementById('batchNumber').value.trim();
+            const quantityLeft = document.getElementById('quantityLeft').value;
             
-            // Validate
             if (!foodName) {
                 showNotification('Enter food name', 'error');
                 return;
@@ -665,53 +735,67 @@
                 return;
             }
             
-            if (!expiryDate) {
-                showNotification('Select expiry date', 'error');
+            if (!offerEnds) {
+                showNotification('Select offer end date', 'error');
                 return;
             }
             
-            // Check expiry date is in future
+            if (!batchNumber) {
+                showNotification('Enter batch number for tracking', 'error');
+                return;
+            }
+            
+            if (!quantityLeft || quantityLeft < 1) {
+                showNotification('Enter quantity left (at least 1)', 'error');
+                return;
+            }
+            
             const today = new Date();
             today.setHours(0,0,0,0);
-            const expiry = new Date(expiryDate);
+            const endDate = new Date(offerEnds);
             
-            if (expiry < today) {
-                showNotification('Expiry date must be in future', 'error');
+            if (endDate < today) {
+                showNotification('Offer end date must be in the future', 'error');
                 return;
             }
             
-            // Disable button during post
             const postBtn = document.getElementById('postBtn');
             postBtn.disabled = true;
             postBtn.textContent = 'posting...';
             
-            // Create ad
             const result = await Backend.createAd({
                 foodName,
                 discount,
                 originalPrice: price || 0,
-                expiryDate,
+                offerEnds: offerEnds,  // Changed from expiryDate
                 category,
                 description,
-                shopName: currentShop.name
+                shopName: currentShop.name,
+                batchNumber: batchNumber,  // NEW
+                quantityLeft: parseInt(quantityLeft)  // NEW
             });
             
             if (result.success) {
                 showNotification('Deal posted successfully!', 'success');
                 
-                // Clear form
                 document.getElementById('foodName').value = '';
                 document.getElementById('discount').value = '';
                 document.getElementById('price').value = '';
+                document.getElementById('batchNumber').value = '';
+                document.getElementById('quantityLeft').value = '';
                 document.getElementById('description').value = '';
+                document.getElementById('batchPreview').classList.remove('show');
                 
-                // Reload ads
+                // Reset offer ends to 3 days from now
+                const newDefault = new Date();
+                newDefault.setDate(newDefault.getDate() + 3);
+                document.getElementById('offerEnds').value = newDefault.toISOString().split('T')[0];
+                
                 await loadShopAds();
             } else {
                 showNotification(result.message || 'Failed to post', 'error');
             }
             
-            // Re-enable button
             postBtn.disabled = false;
             postBtn.textContent = 'post deal';
         }
@@ -722,7 +806,6 @@
             try {
                 shopAds = await Backend.getShopAds(currentShop.id);
                 
-                // Update stats
                 document.getElementById('totalAds').textContent = shopAds.length;
                 
                 const totalViews = shopAds.reduce((sum, ad) => sum + (ad.views || 0), 0);
@@ -736,30 +819,36 @@
                         <div class="empty-state">
                             <div class="empty-emoji">📢</div>
                             <div>no active deals</div>
-                            <div style="font-size:13px; margin-top:8px;">post your first deal above</div>
+                            <div style="font-size:13px; margin-top:8px;">post your first near-expiry deal above</div>
                         </div>
                     `;
                     return;
                 }
                 
-                // Sort by expiry date
-                shopAds.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+                shopAds.sort((a, b) => new Date(a.offerEnds) - new Date(b.offerEnds));
                 
                 container.innerHTML = shopAds.map(ad => {
-                    const daysUntilExpiry = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
-                    const isExpiringSoon = daysUntilExpiry <= 2;
+                    const daysUntilEnd = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
+                    const isExpiringSoon = daysUntilEnd <= 3;
+                    const isLowQuantity = ad.quantityLeft && ad.quantityLeft <= 5;
+                    
+                    let quantityClass = '';
+                    if (isLowQuantity) quantityClass = 'low';
                     
                     return `
-                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''} ${!ad.active ? 'inactive' : ''}">
+                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''} ${isLowQuantity ? 'low-quantity' : ''} ${!ad.active ? 'inactive' : ''}">
                             <div class="ad-header">
-                                <span class="ad-food">${ad.foodName}</span>
+                                <span class="ad-food">${escapeHtml(ad.foodName)}</span>
                                 <span class="ad-discount">${ad.discount}% off</span>
                             </div>
                             
                             <div class="ad-details">
                                 ${ad.originalPrice ? `<span>was $${ad.originalPrice}</span>` : ''}
-                                <span>expires: ${new Date(ad.expiryDate).toLocaleDateString()}</span>
-                                ${isExpiringSoon ? '<span style="color:#ff9500;">⚠️ soon</span>' : ''}
+                                <span class="ad-batch-info">📦 batch: ${escapeHtml(ad.batchNumber || 'N/A')}</span>
+                                <span class="ad-quantity ${quantityClass}">📊 ${ad.quantityLeft || 0} left</span>
+                                <span>offer ends: ${new Date(ad.offerEnds).toLocaleDateString()}</span>
+                                ${isExpiringSoon ? '<span style="color:#ff9500;">⚠️ ends soon</span>' : ''}
+                                ${isLowQuantity ? '<span style="color:#ff3b30;">🔥 low stock</span>' : ''}
                             </div>
                             
                             <div class="ad-stats">
@@ -770,6 +859,7 @@
                             
                             ${businessRole === 'owner' || businessRole === 'manager' ? `
                                 <div class="ad-actions">
+                                    <button class="ad-btn update-qty-btn" onclick="updateQuantity('${ad.id}', ${ad.quantityLeft || 0})">📦 update stock</button>
                                     <button class="ad-btn deactivate-btn" onclick="deactivateAd('${ad.id}')">deactivate</button>
                                     <button class="ad-btn delete-btn" onclick="deleteAd('${ad.id}')">delete</button>
                                 </div>
@@ -779,12 +869,34 @@
                 }).join('');
                 
             } catch (error) {
+                console.error('Error loading ads:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-emoji">❌</div>
                         <div>failed to load ads</div>
                     </div>
                 `;
+            }
+        }
+        
+        async function updateQuantity(adId, currentQuantity) {
+            const newQuantity = prompt(`Current quantity left: ${currentQuantity}\nEnter new quantity left:`, currentQuantity);
+            
+            if (newQuantity === null) return;
+            
+            const qty = parseInt(newQuantity);
+            if (isNaN(qty) || qty < 0) {
+                showNotification('Please enter a valid quantity', 'error');
+                return;
+            }
+            
+            const result = await Backend.updateAd(adId, { quantityLeft: qty });
+            
+            if (result.success) {
+                showNotification(`Quantity updated to ${qty}`, 'success');
+                await loadShopAds();
+            } else {
+                showNotification(result.message, 'error');
             }
         }
         
@@ -812,6 +924,16 @@
             }
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
         function showNotification(msg, type = 'info') {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
@@ -825,11 +947,11 @@
             window.location.href = 'index.html';
         }
         
-        // Make functions global
         window.postAd = postAd;
         window.loadShopAds = loadShopAds;
         window.deleteAd = deleteAd;
         window.deactivateAd = deactivateAd;
+        window.updateQuantity = updateQuantity;
         window.logout = logout;
     </script>
 </body>
