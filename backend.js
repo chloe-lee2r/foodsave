@@ -56,13 +56,12 @@ const Backend = {
                 user.set("businessType", businessDetails.type || "grocery");
                 user.set("businessTaxId", businessDetails.taxId || "");
                 user.set("businessVerified", false);
-                user.set("businessRole", "owner"); // First user is OWNER
-                user.set("businessStaff", []); // Array of staff user IDs
+                user.set("businessRole", "owner");
+                user.set("businessStaff", []);
             }
             
             await user.signUp();
             
-            // Store in localStorage
             localStorage.setItem("loggedInUser", username);
             localStorage.setItem("userRole", role);
             
@@ -103,7 +102,6 @@ const Backend = {
                 return { success: false, message: "Wrong login type selected" };
             }
 
-            // Store in localStorage
             localStorage.setItem("loggedInUser", username);
             localStorage.setItem("userRole", role);
             
@@ -111,15 +109,12 @@ const Backend = {
                 localStorage.setItem("loggedInShop", username);
                 localStorage.setItem("businessName", user.get("businessName") || username);
                 
-                // Get business role from user object
                 const userBusinessRole = user.get("businessRole") || 'owner';
                 localStorage.setItem("businessRole", userBusinessRole);
                 
-                // Get verification status
                 const isVerified = user.get("businessVerified") || false;
                 localStorage.setItem("businessVerified", isVerified ? "true" : "false");
                 
-                // Store business details
                 const businessDetails = {
                     name: user.get("businessName") || username,
                     phone: user.get("businessPhone") || "",
@@ -207,7 +202,6 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Check permissions (only owner and managers can edit)
             const userRole = currentUser.get("businessRole");
             if (userRole !== "owner" && userRole !== "manager") {
                 return { success: false, message: "Only owners and managers can edit business profile" };
@@ -222,7 +216,6 @@ const Backend = {
                 
                 await currentUser.save();
                 
-                // Update localStorage
                 const businessDetails = JSON.parse(localStorage.getItem("businessDetails") || "{}");
                 Object.assign(businessDetails, updates);
                 localStorage.setItem("businessDetails", JSON.stringify(businessDetails));
@@ -244,13 +237,11 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Only owners can add staff
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can add staff members" };
             }
 
             return await withMasterKey(async () => {
-                // Find staff user
                 const query = new Parse.Query(Parse.User);
                 query.equalTo("username", staffUsername);
                 const staffUser = await query.first();
@@ -259,25 +250,20 @@ const Backend = {
                     return { success: false, message: "User not found" };
                 }
 
-                // Check if user is already an advertiser
                 if (staffUser.get("role") !== "advertiser") {
                     return { success: false, message: "User must be an advertiser" };
                 }
 
-                // Get current staff list
                 const staffList = currentUser.get("businessStaff") || [];
                 
-                // Check if already added
                 if (staffList.includes(staffUser.id)) {
                     return { success: false, message: "Staff member already added" };
                 }
 
-                // Add to staff list
                 staffList.push(staffUser.id);
                 currentUser.set("businessStaff", staffList);
                 await currentUser.save();
 
-                // Set staff member's business role
                 staffUser.set("businessRole", staffRole);
                 staffUser.set("businessName", currentUser.get("businessName"));
                 staffUser.set("businessId", currentUser.id);
@@ -298,7 +284,6 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Only owners can remove staff
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can remove staff members" };
             }
@@ -309,7 +294,6 @@ const Backend = {
                 currentUser.set("businessStaff", updatedList);
                 await currentUser.save();
 
-                // Clear staff member's business role
                 const staffUser = await new Parse.Query(Parse.User).get(staffId, { useMasterKey: true });
                 staffUser.unset("businessRole");
                 staffUser.unset("businessName");
@@ -361,17 +345,14 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Only owners can submit verification
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can submit verification" };
             }
 
             return await withMasterKey(async () => {
-                // For demo purposes, automatically verify
                 currentUser.set("businessVerified", true);
                 await currentUser.save();
                 
-                // Update localStorage
                 localStorage.setItem("businessVerified", "true");
                 const businessDetails = JSON.parse(localStorage.getItem("businessDetails") || "{}");
                 businessDetails.verified = true;
@@ -402,32 +383,7 @@ const Backend = {
         }
     },
 
-    // ========== ADVERTISEMENT FUNCTIONS ==========
-    
-    // Helper to clean up expired ads
-    async cleanupExpiredAds() {
-        try {
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                // Find all ads with expiry date in the past
-                query.lessThan("expiryDate", new Date());
-                
-                const expiredAds = await query.find();
-                
-                if (expiredAds.length > 0) {
-                    console.log(`🗑️ Deleting ${expiredAds.length} expired ads`);
-                    await Parse.Object.destroyAll(expiredAds);
-                }
-                
-                return { success: true, deletedCount: expiredAds.length };
-            });
-        } catch (error) {
-            console.error("Cleanup expired ads error:", error);
-            return { success: false, message: error.message };
-        }
-    },
+    // ========== NEAR-EXPIRY ADVERTISEMENT FUNCTIONS ==========
     
     async createAd(adData) {
         try {
@@ -436,7 +392,6 @@ const Backend = {
                 return { success: false, message: "Please login first" };
             }
 
-            // Check if business is verified for posting ads
             if (!currentUser.get("businessVerified")) {
                 return { success: false, message: "Business must be verified to post ads" };
             }
@@ -447,7 +402,7 @@ const Backend = {
                 
                 ad.set("foodName", adData.foodName);
                 ad.set("discount", parseFloat(adData.discount));
-                ad.set("expiryDate", new Date(adData.expiryDate));
+                ad.set("offerEnds", new Date(adData.offerEnds));
                 ad.set("businessName", currentUser.get("businessName"));
                 ad.set("businessId", currentUser.id);
                 ad.set("description", adData.description || "");
@@ -458,11 +413,13 @@ const Backend = {
                 ad.set("claimed", 0);
                 ad.set("postedBy", currentUser.id);
                 ad.set("postedByRole", currentUser.get("businessRole"));
+                ad.set("batchNumber", adData.batchNumber || "");
+                ad.set("quantityLeft", parseInt(adData.quantityLeft) || 0);
+                ad.set("initialQuantity", parseInt(adData.quantityLeft) || 0);
                 
                 await ad.save();
                 
-                // Clean up expired ads after creating new one
-                setTimeout(() => this.cleanupExpiredAds(), 1000);
+                setTimeout(() => this.cleanupExpiredOffers(), 1000);
                 
                 return { success: true, ad };
             });
@@ -475,8 +432,7 @@ const Backend = {
 
     async getActiveAds(options = {}) {
         try {
-            // First clean up expired ads
-            await this.cleanupExpiredAds();
+            await this.cleanupExpiredOffers();
             
             return await withMasterKey(async () => {
                 const Ad = Parse.Object.extend("Advertisement");
@@ -484,9 +440,8 @@ const Backend = {
                 
                 query.equalTo("active", true);
                 query.descending("createdAt");
-                
-                // Only get ads with future expiry dates
-                query.greaterThan("expiryDate", new Date());
+                query.greaterThan("offerEnds", new Date());
+                query.greaterThan("quantityLeft", 0);
                 
                 if (options.category && options.category !== 'all') {
                     query.equalTo("category", options.category);
@@ -508,7 +463,7 @@ const Backend = {
                     id: ad.id,
                     foodName: ad.get("foodName"),
                     discount: ad.get("discount"),
-                    expiryDate: ad.get("expiryDate"),
+                    offerEnds: ad.get("offerEnds"),
                     businessName: ad.get("businessName"),
                     shopName: ad.get("businessName"),
                     description: ad.get("description"),
@@ -518,7 +473,10 @@ const Backend = {
                     claimed: ad.get("claimed"),
                     postedBy: ad.get("postedBy"),
                     postedByRole: ad.get("postedByRole"),
-                    createdAt: ad.get("createdAt")
+                    createdAt: ad.get("createdAt"),
+                    batchNumber: ad.get("batchNumber"),
+                    quantityLeft: ad.get("quantityLeft"),
+                    initialQuantity: ad.get("initialQuantity")
                 }));
             });
             
@@ -528,10 +486,9 @@ const Backend = {
         }
     },
 
-    async getBusinessAds(businessId) {
+    async getShopAds(businessId) {
         try {
-            // Clean up expired ads for this business
-            await this.cleanupExpiredAds();
+            await this.cleanupExpiredOffers();
             
             return await withMasterKey(async () => {
                 if (!businessId) {
@@ -553,14 +510,17 @@ const Backend = {
                     id: ad.id,
                     foodName: ad.get("foodName"),
                     discount: ad.get("discount"),
-                    expiryDate: ad.get("expiryDate"),
+                    offerEnds: ad.get("offerEnds"),
                     businessName: ad.get("businessName"),
                     active: ad.get("active"),
                     views: ad.get("views"),
                     claimed: ad.get("claimed"),
                     postedBy: ad.get("postedBy"),
                     postedByRole: ad.get("postedByRole"),
-                    createdAt: ad.get("createdAt")
+                    createdAt: ad.get("createdAt"),
+                    batchNumber: ad.get("batchNumber"),
+                    quantityLeft: ad.get("quantityLeft"),
+                    initialQuantity: ad.get("initialQuantity")
                 }));
             });
             
@@ -570,8 +530,42 @@ const Backend = {
         }
     },
 
-    async getShopAds(businessId) {
-        return this.getBusinessAds(businessId);
+    async getBusinessAds(businessId) {
+        return this.getShopAds(businessId);
+    },
+
+    async cleanupExpiredOffers() {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                query.lessThan("offerEnds", new Date());
+                
+                const expiredAds = await query.find();
+                
+                if (expiredAds.length > 0) {
+                    console.log(`🗑️ Deleting ${expiredAds.length} expired offers`);
+                    await Parse.Object.destroyAll(expiredAds);
+                }
+                
+                const zeroQuantityQuery = new Parse.Query(Ad);
+                zeroQuantityQuery.equalTo("quantityLeft", 0);
+                zeroQuantityQuery.equalTo("active", true);
+                const zeroQtyAds = await zeroQuantityQuery.find();
+                
+                for (const ad of zeroQtyAds) {
+                    ad.set("active", false);
+                    await ad.save();
+                    console.log(`📦 Deactivated ad ${ad.id} - no stock left`);
+                }
+                
+                return { success: true, deletedCount: expiredAds.length, deactivatedCount: zeroQtyAds.length };
+            });
+        } catch (error) {
+            console.error("Cleanup expired offers error:", error);
+            return { success: false, message: error.message };
+        }
     },
 
     async updateAd(adId, updates) {
@@ -592,8 +586,15 @@ const Backend = {
                 }
                 
                 Object.keys(updates).forEach(key => {
-                    if (key === 'expiryDate') {
+                    if (key === 'offerEnds') {
                         ad.set(key, new Date(updates[key]));
+                    } else if (key === 'quantityLeft') {
+                        ad.set(key, updates[key]);
+                        if (updates[key] === 0) {
+                            ad.set("active", false);
+                        } else if (updates[key] > 0 && !ad.get("active")) {
+                            ad.set("active", true);
+                        }
                     } else {
                         ad.set(key, updates[key]);
                     }
@@ -601,8 +602,7 @@ const Backend = {
                 
                 await ad.save();
                 
-                // Clean up expired ads after update
-                setTimeout(() => this.cleanupExpiredAds(), 1000);
+                setTimeout(() => this.cleanupExpiredOffers(), 1000);
                 
                 return { success: true };
             });
@@ -665,14 +665,59 @@ const Backend = {
                 const query = new Parse.Query(Ad);
                 
                 const ad = await query.get(adId);
+                
+                const currentQuantity = ad.get("quantityLeft") || 0;
+                if (currentQuantity <= 0) {
+                    return { success: false, message: "No stock left for this offer" };
+                }
+                
                 ad.increment("claimed");
+                ad.set("quantityLeft", currentQuantity - 1);
+                
+                if (currentQuantity - 1 === 0) {
+                    ad.set("active", false);
+                }
+                
                 await ad.save();
                 return { success: true };
             });
             
         } catch (error) {
             console.error("Increment claimed error:", error);
-            return { success: false };
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getNearExpiryStats(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                query.equalTo("businessId", businessId);
+                query.greaterThan("offerEnds", new Date());
+                
+                const ads = await query.find();
+                
+                const expiringSoon = ads.filter(ad => {
+                    const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
+                    return daysLeft <= 3 && daysLeft > 0;
+                });
+                
+                const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
+                
+                const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
+                
+                return {
+                    totalActiveOffers: ads.length,
+                    expiringSoonCount: expiringSoon.length,
+                    lowStockCount: lowStock.length,
+                    totalItemsLeft: totalItems
+                };
+            });
+        } catch (error) {
+            console.error("Get near expiry stats error:", error);
+            return null;
         }
     },
 
