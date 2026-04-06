@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsavvi • my cart</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <style>
+        @font-face {
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #007aff;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .cart-count {
+            background: #ff3b30;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        
+        .content {
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        
+        .cart-items {
+            margin-bottom: 20px;
+        }
+        
+        .cart-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+        
+        .item-image {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .item-shop {
+            font-size: 12px;
+            color: #007aff;
+            margin-bottom: 4px;
+        }
+        
+        .item-price {
+            font-size: 14px;
+            color: #34c759;
+            font-weight: 600;
+        }
+        
+        .item-original {
+            font-size: 12px;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+        
+        .item-batch {
+            font-size: 10px;
+            font-family: monospace;
+            background: #e8ecf0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #007aff;
+        }
+        
+        .qty-value {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #ff3b30;
+            padding: 4px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .checkout-btn:active {
+            transform: scale(0.98);
+            background: #2db14e;
+        }
+        
+        .checkout-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-emoji {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .shop-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: #007aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="find-stores.html" class="back-link">←</a>
+            <h1>my cart</h1>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+        
+        <div class="content">
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">
+                    <div class="empty-emoji">🛒</div>
+                    <div>your cart is empty</div>
+                    <a href="find-stores.html" class="shop-btn">browse deals →</a>
+                </div>
+            </div>
+            
+            <div class="summary-card" id="summaryCard" style="display: none;">
+                <div class="summary-row">
+                    <span>subtotal</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>discount savings</span>
+                    <span id="savings" style="color: #34c759;">-$0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>total</span>
+                    <span id="total">$0.00</span>
+                </div>
+            </div>
+            
+            <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" style="display: none;">proceed to checkout</button>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="find-stores.html" class="nav-item">
+                <span class="nav-emoji">🔍</span>
+                <span>deals</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">🛒</span>
+                <span>cart</span>
+            </a>
+            <a href="fridge.html" class="nav-item">
+                <span class="nav-emoji">🧊</span>
+                <span>fridge</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
+    <script>
+        let cart = [];
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+        });
+        
+        function loadCart() {
+            const savedCart = localStorage.getItem('claimCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+            } else {
+                cart = [];
+            }
+            renderCart();
+        }
+        
+        function saveCart() {
+            localStorage.setItem('claimCart', JSON.stringify(cart));
+            updateCartCount();
+        }
+        
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+        
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const summaryCard = document.getElementById('summaryCard');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-emoji">🛒</div>
+                        <div>your cart is empty</div>
+                        <a href="find-stores.html" class="shop-btn">browse deals →</a>
+                    </div>
+                `;
+                summaryCard.style.display = 'none';
+                checkoutBtn.style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            let subtotal = 0;
+            let originalTotal = 0;
+            
+            for (let i = 0; i < cart.length; i++) {
+                const item = cart[i];
+                const discountedPrice = item.originalPrice * (1 - item.discount / 100);
+                const itemTotal = discountedPrice * item.quantity;
+                const originalItemTotal = item.originalPrice * item.quantity;
+                
+                subtotal += itemTotal;
+                originalTotal += originalItemTotal;
+                
+                html += `
+                    <div class="cart-item">
+                        <div class="item-image">${getFoodEmoji(item.category)}</div>
+                        <div class="item-details">
+                            <div class="item-name">${escapeHtml(item.foodName)}</div>
+                            <div class="item-shop">🏪 ${escapeHtml(item.shopName)}</div>
+                            <div class="item-price">
+                                $${discountedPrice.toFixed(2)}
+                                <span class="item-original">$${item.originalPrice.toFixed(2)}</span>
+                                <span class="item-batch">batch: ${escapeHtml(item.batchNumber)}</span>
+                            </div>
+                            <div class="item-quantity">
+                                <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                                <span class="qty-value">${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                            </div>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
+                    </div>
+                `;
+            }
+            
+            const savings = originalTotal - subtotal;
+            
+            container.innerHTML = html;
+            summaryCard.style.display = 'block';
+            checkoutBtn.style.display = 'block';
+            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('savings').textContent = `-$${savings.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
+        }
+        
+        function getFoodEmoji(category) {
+            const emojis = {
+                dairy: '🥛',
+                produce: '🥬',
+                meat: '🥩',
+                bakery: '🥖',
+                pantry: '📦',
+                frozen: '❄️',
+                other: '🍽️'
+            };
+            return emojis[category] || '🍽️';
+        }
+        
+        function updateQuantity(adId, change) {
+            const index = cart.findIndex(item => item.id === adId);
+            if (index === -1) return;
+            
+            const newQuantity = cart[index].quantity + change;
+            
+            if (newQuantity <= 0) {
+                removeFromCart(adId);
+            } else if (newQuantity <= cart[index].maxQuantity) {
+                cart[index].quantity = newQuantity;
+                saveCart();
+                renderCart();
+            } else {
+                showNotification(`Only ${cart[index].maxQuantity} items available`, 'error');
+            }
+        }
+        
+        function removeFromCart(adId) {
+            cart = cart.filter(item => item.id !== adId);
+            saveCart();
+            renderCart();
+            showNotification('Item removed from cart', 'info');
+        }
+        
+        async function checkout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => {
+                const price = item.originalPrice * (1 - item.discount / 100);
+                return sum + (price * item.quantity);
+            }, 0);
+            
+            const confirmMsg = `Total: $${total.toFixed(2)}\n\nConfirm purchase? The business will be notified to reserve your items.`;
+            
+            if (!confirm(confirmMsg)) return;
+            
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                // Process each item in cart
+                const results = [];
+                for (const item of cart) {
+                    const result = await Backend.processClaim(item.id, item.quantity);
+                    results.push(result);
+                }
+                
+                // Check if all succeeded
+                const allSuccess = results.every(r => r.success);
+                
+                if (allSuccess) {
+                    // Clear cart
+                    cart = [];
+                    saveCart();
+                    renderCart();
+                    
+                    // Show success
+                    showNotification('✅ Purchase complete! Business will reserve your items.', 'success');
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    const errors = results.filter(r => !r.success).map(r => r.message);
+                    showNotification(`Some items failed: ${errors.join(', ')}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showNotification('Checkout failed. Please try again.', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => {
+                notif.className = 'notification';
+            }, 3000);
+        }
+        
+        window.updateQuantity = updateQuantity;
+        window.removeFromCart = removeFromCart;
+        window.checkout = checkout;
+    </script>
+</body>
+</html>
