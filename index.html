@@ -220,6 +220,7 @@
             color: #666;
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
         
         .deal-shop {
@@ -229,6 +230,19 @@
         .deal-discount {
             color: #34c759;
             font-weight: 600;
+        }
+        
+        .deal-quantity {
+            font-size: 11px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: #666;
+        }
+        
+        .deal-quantity.low {
+            background: #ffebee;
+            color: #ff3b30;
         }
         
         /* Fridge Summary */
@@ -363,18 +377,18 @@
             border-top: 1px solid rgba(255,255,255,0.2);
         }
         
-        .stat-box {
+        .profile-stats .stat-box {
             background: rgba(255,255,255,0.1);
             padding: 10px;
             border-radius: 12px;
         }
         
-        .stat-box .number {
+        .profile-stats .number {
             font-size: 20px;
             font-weight: 600;
         }
         
-        .stat-box .label {
+        .profile-stats .label {
             font-size: 11px;
         }
         
@@ -412,6 +426,10 @@
             border-left: 4px solid #34c759;
         }
         
+        .ad-item.expiring {
+            border-left-color: #ff9500;
+        }
+        
         .ad-header {
             display: flex;
             justify-content: space-between;
@@ -430,9 +448,46 @@
         .ad-meta {
             font-size: 12px;
             color: #666;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         
-        /* Bottom Nav */
+        .ad-batch {
+            font-size: 10px;
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .ad-quantity {
+            font-size: 11px;
+            color: #34c759;
+        }
+        
+        .ad-quantity.low {
+            color: #ff3b30;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        
+        .add-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: #007aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+        }
+        
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -464,24 +519,6 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-            background: #f8f9fa;
-            border-radius: 16px;
-        }
-        
-        .add-link {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 8px 16px;
-            background: #007aff;
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
         }
     </style>
 </head>
@@ -728,7 +765,7 @@
             console.log("🟢 Loading consumer data");
             loadFridgeData();
             loadListCount();
-            loadDealsData(); // This now uses Backend like find-stores.html
+            loadDealsData();
         }
         
         // FRIDGE - WORKING
@@ -782,19 +819,17 @@
             document.getElementById('listCount').textContent = total + ' items';
         }
         
-        // DEALS - FIXED to use same Backend as find-stores.html
+        // DEALS - FIXED to use offerEnds instead of expiryDate
         async function loadDealsData() {
             console.log("🟡 Loading deals from Backend...");
             
             const container = document.getElementById('recentDeals');
             
             try {
-                // Use the SAME function as find-stores.html
                 const ads = await Backend.getActiveAds({ limit: 3 });
                 
                 console.log("📦 Deals received:", ads);
                 
-                // Update count
                 document.getElementById('dealsCount').textContent = ads.length + ' nearby';
                 
                 if (ads.length === 0) {
@@ -802,25 +837,27 @@
                     return;
                 }
                 
-                // Sort by discount (highest first)
                 const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
                 
                 let html = '';
-                for (let i = 0; i < sortedAds.length; i++) {
+                for (let i = 0; i < Math.min(sortedAds.length, 3); i++) {
                     const ad = sortedAds[i];
                     
-                    // Calculate days left (same as find-stores.html)
-                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    // FIXED: Use offerEnds instead of expiryDate
+                    const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
+                    const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     
                     html += `
                         <div class="deal-item" onclick="window.location.href='find-stores.html'">
                             <div class="deal-icon">🏷️</div>
                             <div class="deal-details">
-                                <div class="deal-name">${ad.foodName}</div>
+                                <div class="deal-name">${escapeHtml(ad.foodName)}</div>
                                 <div class="deal-meta">
-                                    <span class="deal-shop">${ad.shopName}</span>
+                                    <span class="deal-shop">${escapeHtml(ad.shopName)}</span>
                                     <span>•</span>
                                     <span>${daysUntil} days left</span>
+                                    ${ad.quantityLeft ? `<span class="deal-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft} left</span>` : ''}
+                                    ${ad.batchNumber ? `<span class="deal-quantity">📦 ${escapeHtml(ad.batchNumber)}</span>` : ''}
                                 </div>
                             </div>
                             <div class="deal-discount">-${ad.discount}%</div>
@@ -837,6 +874,16 @@
             }
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
         // ==================== ADVERTISER FUNCTIONS ====================
         function loadAdvertiserData() {
             const businessName = localStorage.getItem('businessName') || 'your shop';
@@ -846,14 +893,18 @@
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
             
-            // Load shop ads from Backend
-            loadShopAds(businessName);
+            loadShopAds();
         }
         
-        async function loadShopAds(businessName) {
+        async function loadShopAds() {
             try {
-                const allAds = await Backend.getActiveAds();
-                const shopAds = allAds.filter(ad => ad.shopName === businessName);
+                const currentUser = Backend.getCurrentUser();
+                if (!currentUser) {
+                    document.getElementById('shopAds').innerHTML = '<div class="empty-state">please login</div>';
+                    return;
+                }
+                
+                const shopAds = await Backend.getShopAds(currentUser.id);
                 
                 document.getElementById('shopAdCount').textContent = shopAds.length;
                 
@@ -870,8 +921,7 @@
                 if (shopAds.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-emoji">📢</div>
-                            <div>no active ads</div>
+                            <div>📢 no active ads</div>
                             <a href="advertise.html" class="add-link">post ad →</a>
                         </div>
                     `;
@@ -881,16 +931,22 @@
                 let html = '';
                 for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
                     const ad = shopAds[i];
-                    const daysUntil = Math.ceil((new Date(ad.expiryDate) - new Date()) / (1000*60*60*24));
+                    // FIXED: Use offerEnds instead of expiryDate
+                    const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const expiringClass = daysUntil <= 2 ? 'expiring' : '';
+                    const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     
                     html += `
                         <div class="ad-item ${expiringClass}">
                             <div class="ad-header">
-                                <span class="ad-food">${ad.foodName}</span>
+                                <span class="ad-food">${escapeHtml(ad.foodName)}</span>
                                 <span class="ad-discount">${ad.discount}% off</span>
                             </div>
-                            <div class="ad-meta">expires in ${daysUntil} days</div>
+                            <div class="ad-meta">
+                                <span>offer ends in ${daysUntil} days</span>
+                                ${ad.batchNumber ? `<span class="ad-batch">batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
+                                <span class="ad-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
+                            </div>
                         </div>
                     `;
                 }
@@ -899,11 +955,13 @@
                 
             } catch (error) {
                 console.error("Error loading shop ads:", error);
+                document.getElementById('shopAds').innerHTML = '<div class="empty-state">error loading ads</div>';
             }
         }
         
         // ==================== UTILS ====================
         function logout() {
+            Backend.logout();
             localStorage.clear();
             window.location.href = 'login.html';
         }
