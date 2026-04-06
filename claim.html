@@ -183,6 +183,187 @@
             padding: 4px;
         }
         
+        /* Payment Modal Styles */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            display: none;
+        }
+        
+        .payment-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .payment-modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .payment-method {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .payment-method.selected {
+            border-color: #34c759;
+            background: #e8f5e8;
+        }
+        
+        .payment-method-emoji {
+            font-size: 28px;
+        }
+        
+        .payment-method-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .payment-method-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .card-details {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .card-details.show {
+            display: block;
+        }
+        
+        .payment-summary {
+            background: #f0f7ff;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .payment-row.total {
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #ccc;
+        }
+        
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        
+        .pay-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .receipt-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            display: none;
+        }
+        
+        .receipt-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .receipt-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .receipt-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .receipt-id {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .receipt-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: left;
+        }
+        
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .close-receipt-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
         .summary-card {
             background: white;
             border-radius: 16px;
@@ -207,6 +388,11 @@
             border-top: 1px solid #f0f0f0;
         }
         
+        .tax-row {
+            color: #ff9500;
+            font-size: 12px;
+        }
+        
         .checkout-btn {
             width: 100%;
             padding: 16px;
@@ -218,16 +404,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-        }
-        
-        .checkout-btn:active {
-            transform: scale(0.98);
-            background: #2db14e;
-        }
-        
-        .checkout-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
         }
         
         .empty-cart {
@@ -362,9 +538,9 @@
                     <span>subtotal</span>
                     <span id="subtotal">$0.00</span>
                 </div>
-                <div class="summary-row">
-                    <span>discount savings</span>
-                    <span id="savings" style="color: #34c759;">-$0.00</span>
+                <div class="summary-row tax-row">
+                    <span>platform fee (1¢ per item)</span>
+                    <span id="taxAmount">$0.00</span>
                 </div>
                 <div class="summary-row total">
                     <span>total</span>
@@ -372,7 +548,60 @@
                 </div>
             </div>
             
-            <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" style="display: none;">proceed to checkout</button>
+            <button class="checkout-btn" id="checkoutBtn" onclick="openPaymentModal()" style="display: none;">proceed to checkout</button>
+        </div>
+        
+        <!-- Payment Modal -->
+        <div class="payment-modal" id="paymentModal">
+            <div class="payment-modal-content">
+                <div class="payment-modal-header">💳 select payment method</div>
+                
+                <div class="payment-method" data-method="card" onclick="selectPaymentMethod('card')">
+                    <div class="payment-method-emoji">💳</div>
+                    <div class="payment-method-name">Credit / Debit Card</div>
+                    <div class="payment-method-desc">Pay with card</div>
+                </div>
+                
+                <div class="payment-method" data-method="paypal" onclick="selectPaymentMethod('paypal')">
+                    <div class="payment-method-emoji">📱</div>
+                    <div class="payment-method-name">Digital Wallet</div>
+                    <div class="payment-method-desc">PayPal, Apple Pay, Google Pay</div>
+                </div>
+                
+                <div class="payment-method" data-method="cash" onclick="selectPaymentMethod('cash')">
+                    <div class="payment-method-emoji">💵</div>
+                    <div class="payment-method-name">Cash on Pickup</div>
+                    <div class="payment-method-desc">Pay when you collect</div>
+                </div>
+                
+                <div class="card-details" id="cardDetails">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <input type="text" class="form-input" id="cardNumber" placeholder="Card Number" style="width:100%; padding:12px; border:1px solid #e0e0e0; border-radius:10px;">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" class="form-input" id="cardExpiry" placeholder="MM/YY" style="flex:1; padding:12px; border:1px solid #e0e0e0; border-radius:10px;">
+                        <input type="text" class="form-input" id="cardCvv" placeholder="CVV" style="flex:1; padding:12px; border:1px solid #e0e0e0; border-radius:10px;">
+                    </div>
+                </div>
+                
+                <div class="payment-summary" id="paymentSummary">
+                    <!-- Dynamic summary will be inserted here -->
+                </div>
+                
+                <button class="pay-btn" id="payBtn" onclick="processPayment()">Pay Now</button>
+                <button class="pay-btn" onclick="closePaymentModal()" style="background:#999; margin-top:8px;">Cancel</button>
+            </div>
+        </div>
+        
+        <!-- Receipt Modal -->
+        <div class="receipt-modal" id="receiptModal">
+            <div class="receipt-content">
+                <div class="receipt-icon">🧾✅</div>
+                <div class="receipt-title">Payment Successful!</div>
+                <div class="receipt-id" id="receiptId">Order #XXXXX</div>
+                <div class="receipt-details" id="receiptDetails"></div>
+                <button class="close-receipt-btn" onclick="closeReceipt()">Continue Shopping</button>
+            </div>
         </div>
         
         <div class="bottom-nav">
@@ -388,9 +617,9 @@
                 <span class="nav-emoji">🛒</span>
                 <span>cart</span>
             </a>
-            <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji">🧊</span>
-                <span>fridge</span>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-emoji">👤</span>
+                <span>profile</span>
             </a>
         </div>
     </div>
@@ -405,6 +634,8 @@
     
     <script>
         let cart = [];
+        let selectedPaymentMethod = null;
+        let currentTransaction = null;
         
         document.addEventListener('DOMContentLoaded', () => {
             loadCart();
@@ -451,6 +682,7 @@
             let html = '';
             let subtotal = 0;
             let originalTotal = 0;
+            let totalItems = 0;
             
             for (let i = 0; i < cart.length; i++) {
                 const item = cart[i];
@@ -460,6 +692,7 @@
                 
                 subtotal += itemTotal;
                 originalTotal += originalItemTotal;
+                totalItems += item.quantity;
                 
                 html += `
                     <div class="cart-item">
@@ -484,14 +717,16 @@
             }
             
             const savings = originalTotal - subtotal;
+            const platformFee = totalItems * 0.01;
+            const grandTotal = subtotal + platformFee;
             
             container.innerHTML = html;
             summaryCard.style.display = 'block';
             checkoutBtn.style.display = 'block';
             
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('savings').textContent = `-$${savings.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `$${platformFee.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${grandTotal.toFixed(2)}`;
         }
         
         function getFoodEmoji(category) {
@@ -531,59 +766,195 @@
             showNotification('Item removed from cart', 'info');
         }
         
-        async function checkout() {
+        function openPaymentModal() {
             if (cart.length === 0) {
                 showNotification('Your cart is empty', 'error');
                 return;
             }
             
-            const total = cart.reduce((sum, item) => {
+            const subtotal = cart.reduce((sum, item) => {
                 const price = item.originalPrice * (1 - item.discount / 100);
                 return sum + (price * item.quantity);
             }, 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const platformFee = totalItems * 0.01;
+            const grandTotal = subtotal + platformFee;
             
-            const confirmMsg = `Total: $${total.toFixed(2)}\n\nConfirm purchase? The business will be notified to reserve your items.`;
+            document.getElementById('paymentSummary').innerHTML = `
+                <div class="payment-row">
+                    <span>Subtotal</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="payment-row">
+                    <span>Platform fee (1¢/item)</span>
+                    <span>$${platformFee.toFixed(2)}</span>
+                </div>
+                <div class="payment-row total">
+                    <span>Total to Pay</span>
+                    <span>$${grandTotal.toFixed(2)}</span>
+                </div>
+            `;
             
-            if (!confirm(confirmMsg)) return;
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            selectedPaymentMethod = null;
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            document.getElementById('cardDetails').classList.remove('show');
+        }
+        
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            document.querySelector(`.payment-method[data-method="${method}"]`).classList.add('selected');
             
-            // Show loading
+            if (method === 'card') {
+                document.getElementById('cardDetails').classList.add('show');
+            } else {
+                document.getElementById('cardDetails').classList.remove('show');
+            }
+        }
+        
+        async function processPayment() {
+            if (!selectedPaymentMethod) {
+                showNotification('Please select a payment method', 'error');
+                return;
+            }
+            
+            if (selectedPaymentMethod === 'card') {
+                const cardNum = document.getElementById('cardNumber').value.trim();
+                const cardExpiry = document.getElementById('cardExpiry').value.trim();
+                const cardCvv = document.getElementById('cardCvv').value.trim();
+                
+                if (!cardNum || !cardExpiry || !cardCvv) {
+                    showNotification('Please enter card details', 'error');
+                    return;
+                }
+                
+                if (cardNum.replace(/\s/g, '').length < 15) {
+                    showNotification('Invalid card number', 'error');
+                    return;
+                }
+            }
+            
+            const subtotal = cart.reduce((sum, item) => {
+                const price = item.originalPrice * (1 - item.discount / 100);
+                return sum + (price * item.quantity);
+            }, 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const platformFee = totalItems * 0.01;
+            const grandTotal = subtotal + platformFee;
+            
+            closePaymentModal();
             document.getElementById('loadingOverlay').style.display = 'flex';
             
+            // Simulate payment processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             try {
-                // Process each item in cart
                 const results = [];
                 for (const item of cart) {
                     const result = await Backend.processClaim(item.id, item.quantity);
                     results.push(result);
                 }
                 
-                // Check if all succeeded
                 const allSuccess = results.every(r => r.success);
                 
                 if (allSuccess) {
+                    const transactionId = 'TXN' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
+                    
+                    const transaction = {
+                        id: transactionId,
+                        date: new Date().toISOString(),
+                        items: cart.map(item => ({
+                            name: item.foodName,
+                            shop: item.shopName,
+                            quantity: item.quantity,
+                            price: item.originalPrice * (1 - item.discount / 100),
+                            batchNumber: item.batchNumber
+                        })),
+                        subtotal: subtotal,
+                        platformFee: platformFee,
+                        total: grandTotal,
+                        paymentMethod: selectedPaymentMethod,
+                        status: 'completed'
+                    };
+                    
+                    // Save to backend
+                    await Backend.saveTransaction(transaction);
+                    
+                    // Save to local storage
+                    const history = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+                    history.push(transaction);
+                    localStorage.setItem('transactionHistory', JSON.stringify(history));
+                    
                     // Clear cart
                     cart = [];
                     saveCart();
                     renderCart();
                     
-                    // Show success
-                    showNotification('✅ Purchase complete! Business will reserve your items.', 'success');
+                    // Show receipt
+                    showReceipt(transaction);
                     
-                    // Redirect after delay
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
                 } else {
                     const errors = results.filter(r => !r.success).map(r => r.message);
-                    showNotification(`Some items failed: ${errors.join(', ')}`, 'error');
+                    showNotification(`Payment failed: ${errors.join(', ')}`, 'error');
+                    document.getElementById('loadingOverlay').style.display = 'none';
                 }
                 
             } catch (error) {
-                console.error('Checkout error:', error);
-                showNotification('Checkout failed. Please try again.', 'error');
-            } finally {
+                console.error('Payment error:', error);
+                showNotification('Payment failed. Please try again.', 'error');
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
+        }
+        
+        function showReceipt(transaction) {
+            document.getElementById('receiptId').textContent = `Order #${transaction.id}`;
+            
+            let itemsHtml = '';
+            transaction.items.forEach(item => {
+                itemsHtml += `
+                    <div class="receipt-row">
+                        <span>${item.quantity}x ${escapeHtml(item.name)}</span>
+                        <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('receiptDetails').innerHTML = `
+                ${itemsHtml}
+                <div class="receipt-row" style="border-top:1px solid #e0e0e0; margin-top:8px; padding-top:8px;">
+                    <span>Subtotal</span>
+                    <span>$${transaction.subtotal.toFixed(2)}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Platform fee</span>
+                    <span>$${transaction.platformFee.toFixed(2)}</span>
+                </div>
+                <div class="receipt-row" style="font-weight:600;">
+                    <span>Total Paid</span>
+                    <span>$${transaction.total.toFixed(2)}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Payment Method</span>
+                    <span>${transaction.paymentMethod === 'card' ? '💳 Card' : transaction.paymentMethod === 'paypal' ? '📱 Digital Wallet' : '💵 Cash on Pickup'}</span>
+                </div>
+                <div class="receipt-row">
+                    <span>Date</span>
+                    <span>${new Date(transaction.date).toLocaleString()}</span>
+                </div>
+            `;
+            
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+        
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+            window.location.href = 'profile.html';
         }
         
         function escapeHtml(str) {
@@ -607,7 +978,11 @@
         
         window.updateQuantity = updateQuantity;
         window.removeFromCart = removeFromCart;
-        window.checkout = checkout;
+        window.openPaymentModal = openPaymentModal;
+        window.closePaymentModal = closePaymentModal;
+        window.selectPaymentMethod = selectPaymentMethod;
+        window.processPayment = processPayment;
+        window.closeReceipt = closeReceipt;
     </script>
 </body>
 </html>
