@@ -81,38 +81,6 @@
             padding-bottom: 80px;
         }
         
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 28px;
-            font-weight: 600;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-        
-        .revenue-breakdown {
-            font-size: 10px;
-            margin-top: 4px;
-            opacity: 0.8;
-        }
-        
         /* Verification Banner */
         .verification-banner {
             background: #fff3e0;
@@ -193,7 +161,64 @@
             opacity: 0.9;
         }
         
-        /* Tabs - Updated for 5 tabs */
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        /* Wallet Card */
+        .wallet-card {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .wallet-amount {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .wallet-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
@@ -260,11 +285,6 @@
             background: white;
         }
         
-        .form-input:disabled {
-            background: #f5f5f5;
-            color: #999;
-        }
-        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -282,7 +302,6 @@
             font-size: 16px;
             margin-top: 16px;
             cursor: pointer;
-            font-family: inherit;
         }
         
         .save-btn:disabled {
@@ -361,14 +380,13 @@
             border-radius: 8px;
             font-size: 11px;
             cursor: pointer;
-            font-family: inherit;
         }
         
         .confirm-btn { background: #34c759; color: white; }
         .collect-btn { background: #007aff; color: white; }
         .cancel-btn { background: #ff3b30; color: white; }
         
-        /* Add Employee Form */
+        /* Add Employee */
         .add-employee {
             background: #f8f9fa;
             padding: 16px;
@@ -594,27 +612,6 @@
         </div>
         
         <div class="content">
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="statAds">0</div>
-                    <div class="stat-label">active ads</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statOrders">0</div>
-                    <div class="stat-label">pending orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statRevenue">$0</div>
-                    <div class="stat-label">net revenue</div>
-                    <div class="revenue-breakdown" id="revenueDetail"></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statCustomers">0</div>
-                    <div class="stat-label">customers</div>
-                </div>
-            </div>
-            
             <!-- Verification Banner -->
             <div class="verification-banner" id="verificationBanner">
                 <div class="banner-icon" id="bannerIcon">⏳</div>
@@ -633,7 +630,34 @@
                 </div>
             </div>
             
-            <!-- Tabs - Now 5 tabs -->
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statAds">0</div>
+                    <div class="stat-label">active ads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statOrders">0</div>
+                    <div class="stat-label">pending orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statRevenue">$0</div>
+                    <div class="stat-label">total revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCustomers">0</div>
+                    <div class="stat-label">customers</div>
+                </div>
+            </div>
+            
+            <!-- Business Wallet -->
+            <div class="wallet-card">
+                <div class="wallet-label">🏦 Business Wallet</div>
+                <div class="wallet-amount" id="businessWalletBalance">$0.00</div>
+                <button class="wallet-btn" onclick="requestWithdraw()">💸 Withdraw (min $5)</button>
+            </div>
+            
+            <!-- Tabs -->
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('profile')">profile</button>
                 <button class="tab" onclick="switchTab('employees')">employees</button>
@@ -648,22 +672,18 @@
                     <label class="form-label">business name</label>
                     <input type="text" class="form-input" id="businessName">
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label">phone</label>
                     <input type="tel" class="form-input" id="businessPhone">
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label">email</label>
                     <input type="email" class="form-input" id="businessEmail">
                 </div>
-                
                 <div class="form-group">
                     <label class="form-label">address</label>
                     <input type="text" class="form-input" id="businessAddress">
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">latitude</label>
@@ -674,7 +694,6 @@
                         <input type="text" class="form-input" id="businessLng">
                     </div>
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">open time</label>
@@ -685,19 +704,14 @@
                         <input type="time" class="form-input" id="businessClose" value="21:00">
                     </div>
                 </div>
-                
                 <button class="save-btn" onclick="saveProfile()" id="saveProfileBtn">save changes</button>
             </div>
             
             <!-- Employees Tab -->
             <div class="tab-content" id="employeesTab">
                 <div class="employee-list" id="employeeList">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading employees...
-                    </div>
+                    <div class="loading"><div class="loading-spinner"></div>loading employees...</div>
                 </div>
-                
                 <div class="add-employee" id="addEmployeeSection">
                     <h4>invite employee</h4>
                     <div class="form-group">
@@ -715,23 +729,17 @@
                 </div>
             </div>
             
-            <!-- Orders Tab - NEW -->
+            <!-- Orders Tab -->
             <div class="tab-content" id="ordersTab">
                 <div class="claims-list" id="claimsList">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading orders...
-                    </div>
+                    <div class="loading"><div class="loading-spinner"></div>loading orders...</div>
                 </div>
             </div>
             
-            <!-- Notifications Tab - NEW -->
+            <!-- Notifications Tab -->
             <div class="tab-content" id="notificationsTab">
                 <div class="notifications-list" id="notificationsList">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading notifications...
-                    </div>
+                    <div class="loading"><div class="loading-spinner"></div>loading notifications...</div>
                 </div>
             </div>
             
@@ -741,16 +749,13 @@
                     <label class="form-label">tax ID / license</label>
                     <input type="text" class="form-input" id="taxId" placeholder="enter tax ID or license number">
                 </div>
-                
                 <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📎</div>
                     <div class="upload-text">Click to upload or drag files</div>
                     <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
                     <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
                 </div>
-                
                 <div class="file-list" id="fileList"></div>
-                
                 <button class="save-btn" onclick="submitVerification()" id="verifyBtn">submit for verification</button>
                 <p style="font-size:12px; color:#999; text-align:center; margin-top:12px;">Once verified, you can post ads</p>
             </div>
@@ -797,64 +802,41 @@
             businessRole = localStorage.getItem('businessRole') || 'owner';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
-            console.log('Business role:', businessRole);
-            console.log('Verified:', isVerified);
-            
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
             await loadEmployees();
-            await loadClaims();           // NEW
-            await loadNotifications();     // NEW
-            await loadStats();             // NEW
+            await loadClaims();
+            await loadNotifications();
+            await loadStats();
+            await loadBusinessWallet();
             
             setupDragAndDrop();
         });
         
         function setupDragAndDrop() {
             const dropArea = document.getElementById('fileUploadArea');
-            
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
+                dropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
             });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
             ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'));
             });
-            
             ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'));
             });
-            
-            function highlight() {
-                dropArea.classList.add('dragover');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('dragover');
-            }
-            
-            dropArea.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
+            dropArea.addEventListener('drop', (e) => {
                 const files = e.dataTransfer.files;
                 handleFiles(files);
-            }
+            });
         }
         
         function handleFileSelect(event) {
-            const files = event.target.files;
-            handleFiles(files);
+            handleFiles(event.target.files);
         }
         
         function handleFiles(files) {
-            files = [...files];
-            files.forEach(uploadFile);
+            [...files].forEach(uploadFile);
         }
         
         function uploadFile(file) {
@@ -862,24 +844,13 @@
                 showStatus('File too large (max 10MB)', 'error');
                 return;
             }
-            
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
             if (!validTypes.includes(file.type)) {
-                showStatus('Invalid file type. Please upload PDF, JPG, or PNG', 'error');
+                showStatus('Invalid file type', 'error');
                 return;
             }
-            
             const fileId = Date.now() + Math.random().toString(36).substr(2, 9);
-            const fileObj = {
-                id: fileId,
-                file: file,
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                progress: 0,
-                status: 'uploading'
-            };
-            
+            const fileObj = { id: fileId, file: file, name: file.name, size: file.size, progress: 0, status: 'uploading' };
             uploadedFiles.push(fileObj);
             updateFileList();
             simulateUpload(fileObj);
@@ -901,23 +872,17 @@
         
         function updateFileList() {
             const fileList = document.getElementById('fileList');
-            
             if (uploadedFiles.length === 0) {
                 fileList.innerHTML = '';
                 return;
             }
-            
             fileList.innerHTML = uploadedFiles.map(file => `
-                <div class="file-item" id="file-${file.id}">
+                <div class="file-item">
                     <div class="file-icon">${file.type.includes('pdf') ? '📄' : '🖼️'}</div>
                     <div class="file-info">
                         <div class="file-name">${escapeHtml(file.name)}</div>
                         <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
-                        ${file.status === 'uploading' ? `
-                            <div class="file-progress">
-                                <div class="file-progress-bar" style="width: ${file.progress}%"></div>
-                            </div>
-                        ` : ''}
+                        ${file.status === 'uploading' ? `<div class="file-progress"><div class="file-progress-bar" style="width: ${file.progress}%"></div></div>` : ''}
                     </div>
                     <button class="file-remove" onclick="removeFile('${file.id}')">✕</button>
                 </div>
@@ -930,33 +895,27 @@
         }
         
         function updateRoleUI() {
-            const roleIcon = document.getElementById('roleIcon');
-            const roleName = document.getElementById('roleName');
-            const rolePermissions = document.getElementById('rolePermissions');
             const addEmployeeSection = document.getElementById('addEmployeeSection');
             const saveProfileBtn = document.getElementById('saveProfileBtn');
             
-            switch(businessRole) {
-                case 'owner':
-                    roleIcon.textContent = '👑';
-                    roleName.textContent = 'Business Owner';
-                    rolePermissions.textContent = 'Full access • Can manage employees';
-                    if (addEmployeeSection) addEmployeeSection.style.display = 'block';
-                    if (saveProfileBtn) saveProfileBtn.disabled = false;
-                    break;
-                case 'manager':
-                    roleIcon.textContent = '⭐';
-                    roleName.textContent = 'Manager';
-                    rolePermissions.textContent = 'Can edit profile and post ads';
-                    if (addEmployeeSection) addEmployeeSection.style.display = 'none';
-                    if (saveProfileBtn) saveProfileBtn.disabled = false;
-                    break;
-                default:
-                    roleIcon.textContent = '👤';
-                    roleName.textContent = 'Employee';
-                    rolePermissions.textContent = 'Can only view profile';
-                    if (addEmployeeSection) addEmployeeSection.style.display = 'none';
-                    if (saveProfileBtn) saveProfileBtn.disabled = true;
+            if (businessRole === 'owner') {
+                document.getElementById('roleIcon').textContent = '👑';
+                document.getElementById('roleName').textContent = 'Business Owner';
+                document.getElementById('rolePermissions').textContent = 'Full access • Can manage employees';
+                if (addEmployeeSection) addEmployeeSection.style.display = 'block';
+                if (saveProfileBtn) saveProfileBtn.disabled = false;
+            } else if (businessRole === 'manager') {
+                document.getElementById('roleIcon').textContent = '⭐';
+                document.getElementById('roleName').textContent = 'Manager';
+                document.getElementById('rolePermissions').textContent = 'Can edit profile and post ads';
+                if (addEmployeeSection) addEmployeeSection.style.display = 'none';
+                if (saveProfileBtn) saveProfileBtn.disabled = false;
+            } else {
+                document.getElementById('roleIcon').textContent = '👤';
+                document.getElementById('roleName').textContent = 'Employee';
+                document.getElementById('rolePermissions').textContent = 'Can only view profile';
+                if (addEmployeeSection) addEmployeeSection.style.display = 'none';
+                if (saveProfileBtn) saveProfileBtn.disabled = true;
             }
         }
         
@@ -985,7 +944,6 @@
         async function loadBusinessData() {
             try {
                 const user = Backend.getCurrentUser();
-                
                 document.getElementById('businessName').value = user.get('businessName') || '';
                 document.getElementById('businessPhone').value = user.get('businessPhone') || '';
                 document.getElementById('businessEmail').value = user.get('businessEmail') || '';
@@ -995,12 +953,6 @@
                 document.getElementById('businessOpen').value = user.get('businessOpen') || '09:00';
                 document.getElementById('businessClose').value = user.get('businessClose') || '21:00';
                 document.getElementById('taxId').value = user.get('businessTaxId') || '';
-                
-                if (businessRole !== 'owner' && businessRole !== 'manager') {
-                    document.querySelectorAll('#profileTab input').forEach(input => {
-                        input.disabled = true;
-                    });
-                }
             } catch (error) {
                 showStatus('Error loading business data', 'error');
             }
@@ -1024,12 +976,8 @@
             };
             
             const result = await Backend.updateBusinessProfile(updates);
-            
             if (result.success) {
                 showStatus('Profile updated', 'success');
-                const details = JSON.parse(localStorage.getItem('businessDetails') || '{}');
-                Object.assign(details, updates);
-                localStorage.setItem('businessDetails', JSON.stringify(details));
                 localStorage.setItem('businessName', updates.businessName);
             } else {
                 showStatus(result.message, 'error');
@@ -1038,32 +986,23 @@
         
         async function loadEmployees() {
             const container = document.getElementById('employeeList');
-            
             try {
                 const employees = await Backend.getStaffList();
-                
                 if (employees.length === 0) {
                     container.innerHTML = '<div class="empty-state">No employees yet</div>';
                     return;
                 }
-                
-                container.innerHTML = employees.map(employee => `
+                container.innerHTML = employees.map(emp => `
                     <div class="employee-item">
                         <div class="employee-avatar">👤</div>
                         <div class="employee-details">
-                            <div class="employee-name">${escapeHtml(employee.username)}</div>
-                            <span class="employee-role ${employee.role}">${employee.role}</span>
-                            <span class="employee-status status-active">active</span>
+                            <div class="employee-name">${escapeHtml(emp.username)}</div>
+                            <span class="employee-role ${emp.role}">${emp.role}</span>
                         </div>
-                        <div class="employee-actions">
-                            ${businessRole === 'owner' ? `
-                                <button class="employee-btn delete-btn" onclick="removeEmployee('${employee.id}')">🗑️</button>
-                            ` : ''}
-                        </div>
+                        ${businessRole === 'owner' ? `<button class="claim-btn cancel-btn" onclick="removeEmployee('${emp.id}')">remove</button>` : ''}
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading employees:', error);
                 container.innerHTML = '<div class="empty-state">Error loading employees</div>';
             }
         }
@@ -1073,58 +1012,34 @@
                 showStatus('Only owners can invite employees', 'error');
                 return;
             }
-            
             const email = document.getElementById('employeeEmail').value.trim();
-            
             if (!email) {
                 showStatus('Enter email address', 'error');
                 return;
             }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showStatus('Enter a valid email address', 'error');
-                return;
-            }
-            
             showStatus(`Invitation sent to ${email}`, 'success');
             document.getElementById('employeeEmail').value = '';
         }
         
         async function removeEmployee(employeeId) {
-            if (businessRole !== 'owner') {
-                showStatus('Only owners can remove employees', 'error');
-                return;
-            }
-            
-            if (!confirm('Remove this employee? They will lose access to this business.')) return;
-            
-            try {
-                const result = await Backend.removeStaffMember(employeeId);
-                if (result.success) {
-                    showStatus('Employee removed', 'success');
-                    await loadEmployees();
-                } else {
-                    showStatus(result.message, 'error');
-                }
-            } catch (error) {
-                showStatus('Error removing employee', 'error');
+            if (!confirm('Remove this employee?')) return;
+            const result = await Backend.removeStaffMember(employeeId);
+            if (result.success) {
+                showStatus('Employee removed', 'success');
+                await loadEmployees();
+            } else {
+                showStatus(result.message, 'error');
             }
         }
         
-        // ========== NEW FUNCTIONS FOR ORDERS ==========
-        
         async function loadClaims() {
             const container = document.getElementById('claimsList');
-            
             try {
                 const claims = await Backend.getClaimsForBusiness(currentUser.id);
-                
                 if (claims.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
                     return;
                 }
-                
                 container.innerHTML = claims.map(claim => `
                     <div class="claim-item">
                         <div class="claim-avatar">👤</div>
@@ -1138,7 +1053,7 @@
                                 ${claim.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(claim.batchNumber)}</span>` : ''}
                             </div>
                             <div style="font-size:11px; color:#999; margin-top:4px;">
-                                📅 ordered: ${new Date(claim.claimedAt).toLocaleString()}
+                                💰 $${(claim.totalAmount || 0).toFixed(2)} • 📅 ${new Date(claim.claimedAt).toLocaleString()}
                             </div>
                             <div style="margin-top:4px;">
                                 <a href="#" onclick="viewConsumerProfile('${claim.consumerId}'); return false;" class="consumer-link">👤 view customer profile</a>
@@ -1157,7 +1072,6 @@
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading claims:', error);
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
             }
         }
@@ -1166,7 +1080,7 @@
             try {
                 const profile = await Backend.getConsumerProfile(consumerId);
                 if (profile) {
-                    alert(`Customer Profile:\n━━━━━━━━━━━━━━━━\nName: ${profile.username}\nEmail: ${profile.email}\nMember since: ${new Date(profile.createdAt).toLocaleDateString()}`);
+                    alert(`Customer Profile:\n━━━━━━━━━━━━━━━━\nName: ${profile.username}\nEmail: ${profile.email}\nWallet Balance: $${(profile.walletBalance || 0).toFixed(2)}\nMember since: ${new Date(profile.createdAt).toLocaleDateString()}`);
                 } else {
                     showStatus('Error loading customer profile', 'error');
                 }
@@ -1177,47 +1091,39 @@
         
         async function updateClaim(claimId, status) {
             const result = await Backend.updateClaimStatus(claimId, status);
-            
             if (result.success) {
                 showStatus(`Order ${status}!`, 'success');
                 await loadClaims();
                 await loadStats();
+                await loadBusinessWallet();
             } else {
                 showStatus(result.message, 'error');
             }
         }
         
-        // ========== NEW FUNCTIONS FOR NOTIFICATIONS ==========
-        
         async function loadNotifications() {
             const container = document.getElementById('notificationsList');
-            
             try {
                 const notifications = await Backend.getNotifications(currentUser.id);
-                
                 if (notifications.length === 0) {
                     container.innerHTML = '<div class="empty-state">🔔 No notifications</div>';
                     return;
                 }
-                
                 container.innerHTML = notifications.map(n => `
-                    <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="markNotificationRead('${n.id}')">
+                    <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="markRead('${n.id}')">
                         <div class="notification-message">${escapeHtml(n.message)}</div>
                         <div class="notification-time">${new Date(n.createdAt).toLocaleString()}</div>
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading notifications:', error);
                 container.innerHTML = '<div class="empty-state">Error loading notifications</div>';
             }
         }
         
-        async function markNotificationRead(notificationId) {
+        async function markRead(notificationId) {
             await Backend.markNotificationRead(notificationId);
             await loadNotifications();
         }
-        
-        // ========== STATS FUNCTION ==========
         
         async function loadStats() {
             try {
@@ -1232,13 +1138,41 @@
                 document.getElementById('statAds').textContent = activeAds;
                 document.getElementById('statOrders').textContent = pendingOrders;
                 document.getElementById('statCustomers').textContent = uniqueCustomers;
-                
-                if (revenue) {
-                    document.getElementById('statRevenue').textContent = `$${revenue.netRevenue.toFixed(2)}`;
-                    document.getElementById('revenueDetail').innerHTML = `💵 $${revenue.grossRevenue.toFixed(2)} gross<br>📦 -$${revenue.platformFee.toFixed(2)} fee`;
-                }
+                if (revenue) document.getElementById('statRevenue').textContent = `$${revenue.totalRevenue.toFixed(2)}`;
             } catch (error) {
                 console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function loadBusinessWallet() {
+            try {
+                const balance = await Backend.getBusinessWalletBalance(currentUser.id);
+                document.getElementById('businessWalletBalance').textContent = `$${balance.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+            }
+        }
+        
+        async function requestWithdraw() {
+            const balance = await Backend.getBusinessWalletBalance(currentUser.id);
+            if (balance < 5) {
+                showStatus(`Minimum withdrawal is $5. Current balance: $${balance.toFixed(2)}`, 'error');
+                return;
+            }
+            const amount = prompt(`Enter amount to withdraw (min $5, max $${balance.toFixed(2)})`, '5');
+            if (!amount) return;
+            const withdrawAmount = parseFloat(amount);
+            if (isNaN(withdrawAmount) || withdrawAmount < 5 || withdrawAmount > balance) {
+                showStatus('Invalid amount', 'error');
+                return;
+            }
+            const result = await Backend.requestWithdrawal(currentUser.id, withdrawAmount);
+            if (result.success) {
+                showStatus(`Withdrawal request submitted for $${withdrawAmount.toFixed(2)}! Will be processed within 3-5 business days.`, 'success');
+                await loadBusinessWallet();
+                await loadStats();
+            } else {
+                showStatus(result.message, 'error');
             }
         }
         
@@ -1247,30 +1181,21 @@
                 showStatus('Only owners can verify', 'error');
                 return;
             }
-            
             const taxId = document.getElementById('taxId').value.trim();
-            
             if (!taxId) {
                 showStatus('Enter tax ID', 'error');
                 return;
             }
-            
             if (uploadedFiles.length === 0) {
                 showStatus('Upload documents', 'error');
                 return;
             }
-            
             const uploading = uploadedFiles.some(f => f.status === 'uploading');
             if (uploading) {
                 showStatus('Please wait for files to finish uploading', 'error');
                 return;
             }
-            
-            const result = await Backend.submitVerification({
-                taxId,
-                documents: uploadedFiles.map(f => f.name)
-            });
-            
+            const result = await Backend.submitVerification({ taxId, documents: uploadedFiles.map(f => f.name) });
             if (result.success) {
                 showStatus('Business verified! You can now post ads.', 'success');
                 isVerified = true;
@@ -1282,22 +1207,11 @@
             }
         }
         
-        function switchTab(tab) {
+        function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            const tabButtons = document.querySelectorAll('.tab');
-            const tabContents = {
-                'profile': 'profileTab',
-                'employees': 'employeesTab',
-                'orders': 'ordersTab',
-                'notifications': 'notificationsTab',
-                'verification': 'verificationTab'
-            };
-            
-            const index = ['profile', 'employees', 'orders', 'notifications', 'verification'].indexOf(tab);
-            if (index !== -1) tabButtons[index].classList.add('active');
-            document.getElementById(tabContents[tab]).classList.add('active');
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
         }
         
         function showStatus(message, type) {
@@ -1309,12 +1223,7 @@
         
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
+            return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
         
         function logout() {
@@ -1322,17 +1231,17 @@
             window.location.href = 'index.html';
         }
         
-        // Make functions global
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
         window.removeEmployee = removeEmployee;
         window.updateClaim = updateClaim;
         window.viewConsumerProfile = viewConsumerProfile;
-        window.markNotificationRead = markNotificationRead;
+        window.markRead = markRead;
+        window.requestWithdraw = requestWithdraw;
+        window.submitVerification = submitVerification;
         window.handleFileSelect = handleFileSelect;
         window.removeFile = removeFile;
-        window.submitVerification = submitVerification;
         window.logout = logout;
     </script>
 </body>
