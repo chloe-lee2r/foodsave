@@ -2,17 +2,15 @@
 // BACK4APP CONFIGURATION
 // ===============================
 
-// Initialize Parse (without master key in init)
+// Initialize Parse
 Parse.initialize(
-    "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt", // Application ID
-    "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA"   // JavaScript Key
+    "46LC4r7Yd2qnuNWYBU5KVmws940Qh0AjE15wzoJt",
+    "GmwiSEc2ptMPGx7zusu3N9UaA8Nvn2oxKbVVIRKA"
 );
 Parse.serverURL = "https://parseapi.back4app.com";
 
-// Master key for admin operations
 const MASTER_KEY = "WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM";
 
-// Helper function for master key operations
 async function withMasterKey(fn) {
     Parse.CoreManager.set('MASTER_KEY', MASTER_KEY);
     try {
@@ -43,7 +41,6 @@ const Backend = {
             user.set("role", role);
             user.set("email", businessDetails?.email || `${username}@foodsave.com`);
             
-            // Add business details if advertiser
             if (role === "advertiser" && businessDetails) {
                 user.set("businessName", businessDetails.name);
                 user.set("businessPhone", businessDetails.phone);
@@ -383,7 +380,7 @@ const Backend = {
         }
     },
 
-    // ========== NEAR-EXPIRY ADVERTISEMENT FUNCTIONS ==========
+    // ========== ADVERTISEMENT FUNCTIONS ==========
     
     async createAd(adData) {
         try {
@@ -416,6 +413,7 @@ const Backend = {
                 ad.set("batchNumber", adData.batchNumber || "");
                 ad.set("quantityLeft", parseInt(adData.quantityLeft) || 0);
                 ad.set("initialQuantity", parseInt(adData.quantityLeft) || 0);
+                ad.set("pendingReservations", 0);
                 
                 await ad.save();
                 
@@ -658,66 +656,221 @@ const Backend = {
         }
     },
 
-    async incrementClaimed(adId) {
+    // ========== CLAIM & CART SYSTEM ==========
+    
+    async processClaim(adId, quantity) {
         try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
+            if (currentUser.get("role") !== "consumer") {
+                return { success: false, message: "Only consumers can claim deals" };
+            }
+            
             return await withMasterKey(async () => {
                 const Ad = Parse.Object.extend("Advertisement");
                 const query = new Parse.Query(Ad);
                 
                 const ad = await query.get(adId);
                 
-                const currentQuantity = ad.get("quantityLeft") || 0;
-                if (currentQuantity <= 0) {
-                    return { success: false, message: "No stock left for this offer" };
+                // Check if ad is active
+                if (!ad.get("active")) {
+                    return { success: false, message: "This deal is no longer active" };
                 }
                 
-                ad.increment("claimed");
-                ad.set("quantityLeft", currentQuantity - 1);
+                // Check offer end date
+                if (ad.get("offerEnds") < new Date()) {
+                    ad.set("active", false);
+                    await ad.save();
+                    return { success: false, message: "This offer has expired" };
+                }
                 
-                if (currentQuantity - 1 === 0) {
+                // Check stock
+                const currentQuantity = ad.get("quantityLeft") || 0;
+                if (currentQuantity < quantity) {
+                    return { success: false, message: `Only ${currentQuantity} items left` };
+                }
+                
+                // Create claim record
+                const Claim = Parse.Object.extend("Claim");
+                const claim = new Claim();
+                claim.set("adId", adId);
+                claim.set("businessId", ad.get("businessId"));
+                claim.set("businessName", ad.get("businessName"));
+                claim.set("consumerId", currentUser.id);
+                claim.set("consumerName", currentUser.get("username"));
+                claim.set("foodName", ad.get("foodName"));
+                claim.set("quantity", quantity);
+                claim.set("discount", ad.get("discount"));
+                claim.set("originalPrice", ad.get("originalPrice"));
+                claim.set("batchNumber", ad.get("batchNumber"));
+                claim.set("status", "pending"); // pending, confirmed, collected, cancelled
+                claim.set("claimedAt", new Date());
+                
+                await claim.save();
+                
+                // Update ad stock
+                ad.set("quantityLeft", currentQuantity - quantity);
+                ad.increment("claimed", quantity);
+                
+                if (currentQuantity - quantity === 0) {
                     ad.set("active", false);
                 }
                 
                 await ad.save();
-                return { success: true };
+                
+                // Send notification to business owner
+                await this.sendNotification(
+                    ad.get("businessId"),
+                    `New order! ${currentUser.get("username")} claimed ${quantity}x ${ad.get("foodName")} (Batch: ${ad.get("batchNumber")})`
+                );
+                
+                return { success: true, message: "Claim successful! Business has been notified.", claimId: claim.id };
             });
             
         } catch (error) {
-            console.error("Increment claimed error:", error);
+            console.error("Process claim error:", error);
             return { success: false, message: error.message };
         }
     },
-
-    async getNearExpiryStats(businessId) {
+    
+    async sendNotification(businessId, message) {
         try {
             return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                
-                query.equalTo("businessId", businessId);
-                query.greaterThan("offerEnds", new Date());
-                
-                const ads = await query.find();
-                
-                const expiringSoon = ads.filter(ad => {
-                    const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
-                    return daysLeft <= 3 && daysLeft > 0;
-                });
-                
-                const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
-                
-                const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
-                
-                return {
-                    totalActiveOffers: ads.length,
-                    expiringSoonCount: expiringSoon.length,
-                    lowStockCount: lowStock.length,
-                    totalItemsLeft: totalItems
-                };
+                const Notification = Parse.Object.extend("Notification");
+                const notification = new Notification();
+                notification.set("businessId", businessId);
+                notification.set("message", message);
+                notification.set("read", false);
+                notification.set("createdAt", new Date());
+                await notification.save();
+                return { success: true };
             });
         } catch (error) {
-            console.error("Get near expiry stats error:", error);
-            return null;
+            console.error("Send notification error:", error);
+            return { success: false };
+        }
+    },
+    
+    async getNotifications(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("Notification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("businessId", businessId);
+                query.descending("createdAt");
+                query.limit(50);
+                
+                const notifications = await query.find();
+                return notifications.map(n => ({
+                    id: n.id,
+                    message: n.get("message"),
+                    read: n.get("read"),
+                    createdAt: n.get("createdAt")
+                }));
+            });
+        } catch (error) {
+            console.error("Get notifications error:", error);
+            return [];
+        }
+    },
+    
+    async markNotificationRead(notificationId) {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("Notification");
+                const notification = await new Parse.Query(Notification).get(notificationId);
+                notification.set("read", true);
+                await notification.save();
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Mark notification read error:", error);
+            return { success: false };
+        }
+    },
+    
+    async getClaimsForBusiness(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Claim = Parse.Object.extend("Claim");
+                const query = new Parse.Query(Claim);
+                query.equalTo("businessId", businessId);
+                query.descending("claimedAt");
+                
+                const claims = await query.find();
+                return claims.map(c => ({
+                    id: c.id,
+                    adId: c.get("adId"),
+                    consumerName: c.get("consumerName"),
+                    consumerId: c.get("consumerId"),
+                    foodName: c.get("foodName"),
+                    quantity: c.get("quantity"),
+                    discount: c.get("discount"),
+                    batchNumber: c.get("batchNumber"),
+                    status: c.get("status"),
+                    claimedAt: c.get("claimedAt")
+                }));
+            });
+        } catch (error) {
+            console.error("Get claims error:", error);
+            return [];
+        }
+    },
+    
+    async updateClaimStatus(claimId, status) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
+            return await withMasterKey(async () => {
+                const Claim = Parse.Object.extend("Claim");
+                const claim = await new Parse.Query(Claim).get(claimId);
+                
+                // Verify business owns this claim
+                if (claim.get("businessId") !== currentUser.id) {
+                    return { success: false, message: "Unauthorized" };
+                }
+                
+                claim.set("status", status);
+                claim.set("updatedAt", new Date());
+                await claim.save();
+                
+                return { success: true, message: `Claim ${status}` };
+            });
+        } catch (error) {
+            console.error("Update claim status error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getConsumerClaims(consumerId) {
+        try {
+            return await withMasterKey(async () => {
+                const Claim = Parse.Object.extend("Claim");
+                const query = new Parse.Query(Claim);
+                query.equalTo("consumerId", consumerId);
+                query.descending("claimedAt");
+                
+                const claims = await query.find();
+                return claims.map(c => ({
+                    id: c.id,
+                    businessName: c.get("businessName"),
+                    foodName: c.get("foodName"),
+                    quantity: c.get("quantity"),
+                    discount: c.get("discount"),
+                    batchNumber: c.get("batchNumber"),
+                    status: c.get("status"),
+                    claimedAt: c.get("claimedAt")
+                }));
+            });
+        } catch (error) {
+            console.error("Get consumer claims error:", error);
+            return [];
         }
     },
 
