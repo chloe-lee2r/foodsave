@@ -656,6 +656,36 @@ const Backend = {
         }
     },
 
+    async incrementClaimed(adId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                const ad = await query.get(adId);
+                
+                const currentQuantity = ad.get("quantityLeft") || 0;
+                if (currentQuantity <= 0) {
+                    return { success: false, message: "No stock left for this offer" };
+                }
+                
+                ad.increment("claimed");
+                ad.set("quantityLeft", currentQuantity - 1);
+                
+                if (currentQuantity - 1 === 0) {
+                    ad.set("active", false);
+                }
+                
+                await ad.save();
+                return { success: true };
+            });
+            
+        } catch (error) {
+            console.error("Increment claimed error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
     // ========== CLAIM & CART SYSTEM ==========
     
     async processClaim(adId, quantity) {
@@ -675,25 +705,21 @@ const Backend = {
                 
                 const ad = await query.get(adId);
                 
-                // Check if ad is active
                 if (!ad.get("active")) {
                     return { success: false, message: "This deal is no longer active" };
                 }
                 
-                // Check offer end date
                 if (ad.get("offerEnds") < new Date()) {
                     ad.set("active", false);
                     await ad.save();
                     return { success: false, message: "This offer has expired" };
                 }
                 
-                // Check stock
                 const currentQuantity = ad.get("quantityLeft") || 0;
                 if (currentQuantity < quantity) {
                     return { success: false, message: `Only ${currentQuantity} items left` };
                 }
                 
-                // Create claim record
                 const Claim = Parse.Object.extend("Claim");
                 const claim = new Claim();
                 claim.set("adId", adId);
@@ -706,12 +732,11 @@ const Backend = {
                 claim.set("discount", ad.get("discount"));
                 claim.set("originalPrice", ad.get("originalPrice"));
                 claim.set("batchNumber", ad.get("batchNumber"));
-                claim.set("status", "pending"); // pending, confirmed, collected, cancelled
+                claim.set("status", "pending");
                 claim.set("claimedAt", new Date());
                 
                 await claim.save();
                 
-                // Update ad stock
                 ad.set("quantityLeft", currentQuantity - quantity);
                 ad.increment("claimed", quantity);
                 
@@ -721,13 +746,12 @@ const Backend = {
                 
                 await ad.save();
                 
-                // Send notification to business owner
                 await this.sendNotification(
                     ad.get("businessId"),
-                    `New order! ${currentUser.get("username")} claimed ${quantity}x ${ad.get("foodName")} (Batch: ${ad.get("batchNumber")})`
+                    `🛒 New order! ${currentUser.get("username")} ordered ${quantity}x ${ad.get("foodName")} (Batch: ${ad.get("batchNumber") || "N/A"})`
                 );
                 
-                return { success: true, message: "Claim successful! Business has been notified.", claimId: claim.id };
+                return { success: true, message: "Order placed! Business notified.", claimId: claim.id };
             });
             
         } catch (error) {
@@ -809,6 +833,7 @@ const Backend = {
                     foodName: c.get("foodName"),
                     quantity: c.get("quantity"),
                     discount: c.get("discount"),
+                    originalPrice: c.get("originalPrice"),
                     batchNumber: c.get("batchNumber"),
                     status: c.get("status"),
                     claimedAt: c.get("claimedAt")
@@ -831,7 +856,6 @@ const Backend = {
                 const Claim = Parse.Object.extend("Claim");
                 const claim = await new Parse.Query(Claim).get(claimId);
                 
-                // Verify business owns this claim
                 if (claim.get("businessId") !== currentUser.id) {
                     return { success: false, message: "Unauthorized" };
                 }
@@ -840,7 +864,7 @@ const Backend = {
                 claim.set("updatedAt", new Date());
                 await claim.save();
                 
-                return { success: true, message: `Claim ${status}` };
+                return { success: true, message: `Order ${status}` };
             });
         } catch (error) {
             console.error("Update claim status error:", error);
@@ -871,6 +895,127 @@ const Backend = {
         } catch (error) {
             console.error("Get consumer claims error:", error);
             return [];
+        }
+    },
+
+    // ========== CONSUMER PROFILE ==========
+    
+    async getConsumerProfile(consumerId) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(consumerId);
+                return {
+                    id: user.id,
+                    username: user.get("username"),
+                    email: user.get("email"),
+                    role: user.get("role"),
+                    createdAt: user.get("createdAt")
+                };
+            });
+        } catch (error) {
+            console.error("Get consumer profile error:", error);
+            return null;
+        }
+    },
+    
+    async getConsumerTransactionHistory(consumerId) {
+        try {
+            return await withMasterKey(async () => {
+                const Claim = Parse.Object.extend("Claim");
+                const query = new Parse.Query(Claim);
+                query.equalTo("consumerId", consumerId);
+                query.descending("claimedAt");
+                
+                const claims = await query.find();
+                return claims.map(c => ({
+                    id: c.id,
+                    businessName: c.get("businessName"),
+                    foodName: c.get("foodName"),
+                    quantity: c.get("quantity"),
+                    discount: c.get("discount"),
+                    batchNumber: c.get("batchNumber"),
+                    status: c.get("status"),
+                    amount: (c.get("originalPrice") || 0) * (1 - (c.get("discount") || 0) / 100) * c.get("quantity"),
+                    claimedAt: c.get("claimedAt")
+                }));
+            });
+        } catch (error) {
+            console.error("Get transaction history error:", error);
+            return [];
+        }
+    },
+
+    // ========== REVENUE TRACKING ==========
+    
+    async getBusinessRevenue(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Claim = Parse.Object.extend("Claim");
+                const query = new Parse.Query(Claim);
+                query.equalTo("businessId", businessId);
+                query.equalTo("status", "collected");
+                
+                const claims = await query.find();
+                
+                let grossRevenue = 0;
+                let totalItems = 0;
+                
+                for (const claim of claims) {
+                    const quantity = claim.get("quantity") || 0;
+                    const originalPrice = claim.get("originalPrice") || 0;
+                    const discount = claim.get("discount") || 0;
+                    const itemRevenue = originalPrice * (1 - discount / 100) * quantity;
+                    grossRevenue += itemRevenue;
+                    totalItems += quantity;
+                }
+                
+                const platformFee = totalItems * 0.01;
+                const netRevenue = grossRevenue - platformFee;
+                
+                return {
+                    grossRevenue: grossRevenue,
+                    platformFee: platformFee,
+                    netRevenue: netRevenue,
+                    totalItemsSold: totalItems,
+                    totalOrders: claims.length
+                };
+            });
+        } catch (error) {
+            console.error("Get business revenue error:", error);
+            return null;
+        }
+    },
+
+    async getNearExpiryStats(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                
+                query.equalTo("businessId", businessId);
+                query.greaterThan("offerEnds", new Date());
+                
+                const ads = await query.find();
+                
+                const expiringSoon = ads.filter(ad => {
+                    const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
+                    return daysLeft <= 3 && daysLeft > 0;
+                });
+                
+                const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
+                
+                const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
+                
+                return {
+                    totalActiveOffers: ads.length,
+                    expiringSoonCount: expiringSoon.length,
+                    lowStockCount: lowStock.length,
+                    totalItemsLeft: totalItems
+                };
+            });
+        } catch (error) {
+            console.error("Get near expiry stats error:", error);
+            return null;
         }
     },
 
