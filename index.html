@@ -37,7 +37,6 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
         }
         
-        /* Header */
         .header {
             padding: 30px 20px;
             background: linear-gradient(135deg, #34c759, #007aff);
@@ -112,7 +111,6 @@
             cursor: pointer;
         }
         
-        /* Content */
         .content {
             padding: 20px;
             padding-bottom: 80px;
@@ -197,6 +195,11 @@
             color: #1a1a1a;
             border: 1px solid #f0f0f0;
             cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .action-card:active {
+            transform: scale(0.98);
         }
         
         .card-emoji {
@@ -218,7 +221,7 @@
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
             color: white;
-            padding: 20px;
+            padding: 16px;
             border-radius: 16px;
             margin-bottom: 20px;
         }
@@ -226,18 +229,18 @@
         .wallet-label {
             font-size: 12px;
             opacity: 0.9;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .wallet-amount {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 600;
-            margin-bottom: 12px;
         }
         
         .wallet-actions {
             display: flex;
             gap: 12px;
+            margin-top: 12px;
         }
         
         .wallet-btn {
@@ -332,35 +335,6 @@
             color: #999;
         }
         
-        /* Payment Methods */
-        .payment-method-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .payment-icon {
-            font-size: 28px;
-        }
-        
-        .payment-info {
-            flex: 1;
-        }
-        
-        .payment-card-type {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .payment-card-number {
-            font-size: 12px;
-            color: #666;
-        }
-        
         /* Addresses */
         .address-item {
             background: #f8f9fa;
@@ -374,75 +348,6 @@
         
         .address-text {
             font-size: 14px;
-        }
-        
-        .address-default {
-            font-size: 10px;
-            color: #34c759;
-            margin-top: 4px;
-        }
-        
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 340px;
-            padding: 24px;
-        }
-        
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            font-family: inherit;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        
-        .modal-btn.confirm {
-            background: #34c759;
-            color: white;
-        }
-        
-        .modal-btn.cancel {
-            background: #999;
-            color: white;
         }
         
         /* Hot Deals Section */
@@ -460,6 +365,7 @@
             gap: 12px;
             border: 1px solid #f0f0f0;
             cursor: pointer;
+            transition: 0.2s;
         }
         
         .deal-item:active {
@@ -678,6 +584,11 @@
             color: #1a1a1a;
             border: 1px solid #f0f0f0;
             border-radius: 16px;
+            transition: 0.2s;
+        }
+        
+        .shop-action:active {
+            transform: scale(0.98);
         }
         
         .action-icon {
@@ -793,6 +704,70 @@
             display: block;
         }
         
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .modal-btn.confirm {
+            background: #34c759;
+            color: white;
+        }
+        
+        .modal-btn.cancel {
+            background: #999;
+            color: white;
+        }
+        
         .notification {
             position: fixed;
             bottom: 80px;
@@ -820,14 +795,17 @@
         .notification.error {
             background: #ff3b30;
         }
+        
+        .notification.info {
+            background: #007aff;
+        }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Header -->
         <div class="header">
             <div class="greeting">
-                <div class="user-avatar" id="userAvatar" onclick="goToProfile()">👤</div>
+                <div class="user-avatar" id="userAvatar">👤</div>
                 <div class="user-info">
                     <div class="user-name" id="userName">loading...</div>
                     <div class="user-badge" id="userBadge">consumer</div>
@@ -838,16 +816,22 @@
             <button class="logout-btn" onclick="logout()">logout</button>
         </div>
         
-        <!-- Content -->
         <div class="content">
             <!-- CONSUMER VIEW -->
             <div class="consumer-only">
-                <!-- Tabs -->
+                <div class="wallet-card">
+                    <div class="wallet-label">💰 My Wallet</div>
+                    <div class="wallet-amount" id="walletBalance">$0.00</div>
+                    <div class="wallet-actions">
+                        <button class="wallet-btn" onclick="openTopUpModal()">+ Add Funds</button>
+                        <button class="wallet-btn" onclick="switchConsumerTab('orders')">📦 Orders</button>
+                    </div>
+                </div>
+                
                 <div class="tabs">
-                    <button class="tab active" onclick="switchConsumerTab('home')">🏠 home</button>
-                    <button class="tab" onclick="switchConsumerTab('profile')">👤 profile</button>
-                    <button class="tab" onclick="switchConsumerTab('orders')">📦 orders</button>
-                    <button class="tab" onclick="switchConsumerTab('wallet')">💰 wallet</button>
+                    <button class="tab active" onclick="switchConsumerTab('home')">🏠 Home</button>
+                    <button class="tab" onclick="switchConsumerTab('profile')">👤 Profile</button>
+                    <button class="tab" onclick="switchConsumerTab('orders')">📦 Orders</button>
                 </div>
                 
                 <!-- Home Tab -->
@@ -875,7 +859,6 @@
                         </div>
                     </div>
                     
-                    <!-- Hot Deals Section -->
                     <div class="section-title">
                         🔥 hot deals near you
                         <a href="find-stores.html" class="view-all">view all →</a>
@@ -884,7 +867,6 @@
                         <div class="empty-state">🔍 loading deals...</div>
                     </div>
                     
-                    <!-- Fridge Summary -->
                     <div class="section-title">
                         🧊 your fridge
                         <a href="fridge.html" class="view-all">manage →</a>
@@ -914,7 +896,6 @@
                 
                 <!-- Profile Tab -->
                 <div class="tab-content" id="profileTab">
-                    <!-- Profile Info -->
                     <div class="profile-info-card">
                         <div class="info-row">
                             <div class="info-label">Name</div>
@@ -937,19 +918,11 @@
                         </div>
                     </div>
                     
-                    <!-- Saved Addresses -->
                     <div class="section-title">
                         📍 saved addresses
                         <span class="view-all" onclick="addAddress()">+ add</span>
                     </div>
                     <div id="addressesList"></div>
-                    
-                    <!-- Saved Payment Methods -->
-                    <div class="section-title">
-                        💳 payment methods
-                        <span class="view-all" onclick="addPaymentMethod()">+ add</span>
-                    </div>
-                    <div id="paymentMethodsList"></div>
                 </div>
                 
                 <!-- Orders Tab -->
@@ -958,29 +931,11 @@
                         <div class="empty-state">📦 loading orders...</div>
                     </div>
                 </div>
-                
-                <!-- Wallet Tab -->
-                <div class="tab-content" id="walletTab">
-                    <div class="wallet-card">
-                        <div class="wallet-label">Available Balance</div>
-                        <div class="wallet-amount" id="walletBalance">$0.00</div>
-                        <div class="wallet-actions">
-                            <button class="wallet-btn" onclick="addToWallet()">+ Add Funds</button>
-                            <button class="wallet-btn" onclick="viewWalletTransactions()">History</button>
-                        </div>
-                    </div>
-                    
-                    <div class="section-title">
-                        💰 recent transactions
-                    </div>
-                    <div id="walletTransactionsList"></div>
-                </div>
             </div>
             
             <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
-                <!-- Shop Profile -->
-                <div class="profile-card" id="shopProfile" onclick="goToBusinessProfile()">
+                <div class="profile-card" onclick="window.location.href='business-profile.html'">
                     <div class="profile-header">
                         <div class="profile-avatar">🏪</div>
                         <div class="profile-name">
@@ -1014,11 +969,11 @@
                         <div class="action-icon">⚙️</div>
                         <div>settings</div>
                     </a>
-                    <a href="business-claims.html" class="shop-action">
+                    <a href="business-profile.html?tab=orders" class="shop-action">
                         <div class="action-icon">📦</div>
                         <div>orders</div>
                     </a>
-                    <a href="business-profile.html?tab=staff" class="shop-action">
+                    <a href="business-profile.html?tab=employees" class="shop-action">
                         <div class="action-icon">👥</div>
                         <div>staff</div>
                     </a>
@@ -1034,7 +989,6 @@
             </div>
         </div>
         
-        <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <div class="nav-item active" onclick="goToHome()">
                 <span class="nav-emoji">🏠</span>
@@ -1051,40 +1005,40 @@
         </div>
     </div>
     
+    <!-- Top Up Modal -->
+    <div class="modal" id="topUpModal">
+        <div class="modal-content">
+            <div class="modal-title">💳 Add Funds</div>
+            <input type="number" class="modal-input" id="topUpAmount" placeholder="Enter amount ($)" min="1" step="1">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeTopUpModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="processTopUp()">Add Funds</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Edit Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Edit</div>
             <input type="text" class="modal-input" id="modalInput" placeholder="Enter value">
             <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn cancel" onclick="closeEditModal()">Cancel</button>
                 <button class="modal-btn confirm" onclick="saveProfileEdit()">Save</button>
             </div>
         </div>
     </div>
     
-    <!-- Add Address Modal -->
+    <!-- Address Modal -->
     <div class="modal" id="addressModal">
         <div class="modal-content">
             <div class="modal-title">Add Address</div>
-            <input type="text" class="modal-input" id="addressLine1" placeholder="Street address">
+            <input type="text" class="modal-input" id="addressLine" placeholder="Street address">
             <input type="text" class="modal-input" id="addressCity" placeholder="City">
             <input type="text" class="modal-input" id="addressPostal" placeholder="Postal code">
             <div class="modal-buttons">
                 <button class="modal-btn cancel" onclick="closeAddressModal()">Cancel</button>
                 <button class="modal-btn confirm" onclick="saveAddress()">Save</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Add Funds Modal -->
-    <div class="modal" id="fundsModal">
-        <div class="modal-content">
-            <div class="modal-title">Add Funds to Wallet</div>
-            <input type="number" class="modal-input" id="fundsAmount" placeholder="Amount ($)" step="1" min="1">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeFundsModal()">Cancel</button>
-                <button class="modal-btn confirm" onclick="confirmAddFunds()">Add</button>
             </div>
         </div>
     </div>
@@ -1095,20 +1049,14 @@
     <script src="backend.js"></script>
     
     <script>
-        // ==================== STATE ====================
         let currentRole = 'consumer';
         let businessRole = 'staff';
         let isVerified = false;
         let currentUser = null;
-        let editField = '';
-        let userProfile = {};
-        let userAddresses = [];
-        let userPaymentMethods = [];
-        let userOrders = [];
         let walletBalance = 0;
+        let editField = '';
         
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -1137,22 +1085,29 @@
             updateNavigation();
             
             if (role === 'consumer') {
-                await loadConsumerProfile();
-                await loadOrders();
                 await loadWalletBalance();
+                await loadProfile();
+                await loadOrders();
                 await loadAddresses();
-                await loadPaymentMethods();
                 loadConsumerData();
             } else {
                 loadAdvertiserData();
             }
         });
         
-        async function loadConsumerProfile() {
+        async function loadWalletBalance() {
+            try {
+                walletBalance = await Backend.getWalletBalance(currentUser.id);
+                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+            }
+        }
+        
+        async function loadProfile() {
             try {
                 const profile = await Backend.getConsumerProfile(currentUser.id);
                 if (profile) {
-                    userProfile = profile;
                     document.getElementById('profileName').textContent = profile.username || currentUser.get('username');
                     document.getElementById('profileEmail').textContent = profile.email || currentUser.get('email') || 'Not set';
                     document.getElementById('profilePhone').textContent = currentUser.get('phone') || 'Not set';
@@ -1167,13 +1122,10 @@
             const container = document.getElementById('ordersList');
             try {
                 const transactions = await Backend.getUserTransactions(currentUser.id);
-                userOrders = transactions;
-                
                 if (transactions.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
                     return;
                 }
-                
                 container.innerHTML = transactions.map(t => `
                     <div class="order-item">
                         <div class="order-header">
@@ -1192,32 +1144,17 @@
             }
         }
         
-        async function loadWalletBalance() {
-            try {
-                walletBalance = await Backend.getWalletBalance(currentUser.id);
-                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-            } catch (error) {
-                console.error('Error loading wallet:', error);
-            }
-        }
-        
         async function loadAddresses() {
             const container = document.getElementById('addressesList');
             try {
-                userAddresses = await Backend.getSavedAddresses(currentUser.id);
-                
-                if (userAddresses.length === 0) {
+                const addresses = await Backend.getSavedAddresses(currentUser.id);
+                if (addresses.length === 0) {
                     container.innerHTML = '<div class="empty-state">📍 No saved addresses</div>';
                     return;
                 }
-                
-                container.innerHTML = userAddresses.map(addr => `
+                container.innerHTML = addresses.map(addr => `
                     <div class="address-item">
-                        <div>
-                            <div class="address-text">${addr.street}, ${addr.city} ${addr.postalCode}</div>
-                            ${addr.isDefault ? '<div class="address-default">✓ Default</div>' : ''}
-                        </div>
-                        <button class="edit-btn" onclick="setDefaultAddress(${addr.id})">Set Default</button>
+                        <div class="address-text">${addr.street}, ${addr.city} ${addr.postalCode}</div>
                     </div>
                 `).join('');
             } catch (error) {
@@ -1225,51 +1162,31 @@
             }
         }
         
-        async function loadPaymentMethods() {
-            const container = document.getElementById('paymentMethodsList');
-            try {
-                userPaymentMethods = await Backend.getSavedPaymentMethods(currentUser.id);
-                
-                if (userPaymentMethods.length === 0) {
-                    container.innerHTML = '<div class="empty-state">💳 No saved payment methods</div>';
-                    return;
-                }
-                
-                container.innerHTML = userPaymentMethods.map(pm => `
-                    <div class="payment-method-item">
-                        <div class="payment-icon">${pm.cardType === 'visa' ? '💳' : '🏦'}</div>
-                        <div class="payment-info">
-                            <div class="payment-card-type">${pm.cardType.toUpperCase()}</div>
-                            <div class="payment-card-number">•••• ${pm.last4}</div>
-                        </div>
-                        ${pm.isDefault ? '<span style="font-size:11px; color:#34c759;">Default</span>' : ''}
-                    </div>
-                `).join('');
-            } catch (error) {
-                container.innerHTML = '<div class="empty-state">Error loading payment methods</div>';
-            }
+        function openTopUpModal() {
+            document.getElementById('topUpModal').style.display = 'flex';
         }
         
-        async function addToWallet() {
-            document.getElementById('fundsModal').style.display = 'flex';
+        function closeTopUpModal() {
+            document.getElementById('topUpModal').style.display = 'none';
+            document.getElementById('topUpAmount').value = '';
         }
         
-        async function confirmAddFunds() {
-            const amount = parseFloat(document.getElementById('fundsAmount').value);
-            if (isNaN(amount) || amount <= 0) {
-                showNotification('Enter valid amount', 'error');
+        async function processTopUp() {
+            const amount = parseFloat(document.getElementById('topUpAmount').value);
+            if (isNaN(amount) || amount < 1) {
+                showNotification('Please enter a valid amount (minimum $1)', 'error');
                 return;
             }
             
-            closeFundsModal();
-            showNotification(`Processing $${amount} deposit...`, 'info');
+            closeTopUpModal();
+            showNotification(`Processing $${amount.toFixed(2)} deposit...`, 'info');
             
             setTimeout(async () => {
                 const result = await Backend.addToWallet(currentUser.id, amount);
                 if (result.success) {
                     walletBalance = result.newBalance;
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    showNotification(`$${amount} added to wallet!`, 'success');
+                    showNotification(`$${amount.toFixed(2)} added to wallet!`, 'success');
                 } else {
                     showNotification('Failed to add funds', 'error');
                 }
@@ -1290,7 +1207,6 @@
                 showNotification('Enter a value', 'error');
                 return;
             }
-            
             const updates = {};
             if (editField === 'name') updates.fullName = newValue;
             if (editField === 'email') updates.email = newValue;
@@ -1299,8 +1215,8 @@
             const result = await Backend.updateConsumerProfile(currentUser.id, updates);
             if (result.success) {
                 showNotification('Profile updated', 'success');
-                await loadConsumerProfile();
-                closeModal();
+                await loadProfile();
+                closeEditModal();
             } else {
                 showNotification('Update failed', 'error');
             }
@@ -1312,23 +1228,20 @@
         
         async function saveAddress() {
             const address = {
-                street: document.getElementById('addressLine1').value,
+                street: document.getElementById('addressLine').value,
                 city: document.getElementById('addressCity').value,
-                postalCode: document.getElementById('addressPostal').value,
-                isDefault: userAddresses.length === 0
+                postalCode: document.getElementById('addressPostal').value
             };
-            
             if (!address.street || !address.city) {
                 showNotification('Please fill required fields', 'error');
                 return;
             }
-            
             const result = await Backend.saveAddress(currentUser.id, address);
             if (result.success) {
                 showNotification('Address saved', 'success');
                 await loadAddresses();
                 closeAddressModal();
-                document.getElementById('addressLine1').value = '';
+                document.getElementById('addressLine').value = '';
                 document.getElementById('addressCity').value = '';
                 document.getElementById('addressPostal').value = '';
             } else {
@@ -1336,26 +1249,7 @@
             }
         }
         
-        function addPaymentMethod() {
-            const cardNum = prompt('Enter card number (last 4 digits will be saved):');
-            if (cardNum && cardNum.length >= 4) {
-                const last4 = cardNum.slice(-4);
-                const cardType = cardNum.startsWith('4') ? 'visa' : 'mastercard';
-                Backend.savePaymentMethod(currentUser.id, { last4, cardType, expiry: '12/25' });
-                showNotification('Payment method saved', 'success');
-                loadPaymentMethods();
-            }
-        }
-        
-        function viewWalletTransactions() {
-            showNotification('Transaction history feature coming soon', 'info');
-        }
-        
-        function setDefaultAddress(addressId) {
-            showNotification('Default address updated', 'success');
-        }
-        
-        function closeModal() {
+        function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
         
@@ -1363,25 +1257,16 @@
             document.getElementById('addressModal').style.display = 'none';
         }
         
-        function closeFundsModal() {
-            document.getElementById('fundsModal').style.display = 'none';
-        }
-        
         function switchConsumerTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            const tabButtons = document.querySelectorAll('.tab');
-            const tabMap = { home: 0, profile: 1, orders: 2, wallet: 3 };
-            if (tabButtons[tabMap[tab]]) tabButtons[tabMap[tab]].classList.add('active');
+            const tabMap = { home: 0, profile: 1, orders: 2 };
+            document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
             document.getElementById(`${tab}Tab`).classList.add('active');
         }
         
-        // ==================== NAVIGATION ====================
         function goToHome() {
-            if (currentRole === 'consumer') {
-                switchConsumerTab('home');
-            }
+            if (currentRole === 'consumer') switchConsumerTab('home');
         }
         
         function goToProfile() {
@@ -1390,10 +1275,6 @@
             } else {
                 switchConsumerTab('profile');
             }
-        }
-        
-        function goToBusinessProfile() {
-            window.location.href = 'business-profile.html';
         }
         
         function navigateToRolePage() {
@@ -1407,7 +1288,6 @@
         function updateNavigation() {
             const navIcon = document.getElementById('navIcon');
             const navLabel = document.getElementById('navLabel');
-            
             if (currentRole === 'consumer') {
                 navIcon.textContent = '🛒';
                 navLabel.textContent = 'lists';
@@ -1417,7 +1297,6 @@
             }
         }
         
-        // ==================== CONSUMER DATA FUNCTIONS ====================
         function loadConsumerData() {
             loadFridgeData();
             loadListCount();
@@ -1427,12 +1306,9 @@
         function loadFridgeData() {
             const items = JSON.parse(localStorage.getItem('foodItems')) || [];
             document.getElementById('fridgeCount').textContent = items.length + ' items';
-            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
             let good = 0, expiring = 0, expired = 0;
-            
             items.forEach(item => {
                 const expiryDate = new Date(item.expiry);
                 expiryDate.setHours(0, 0, 0, 0);
@@ -1441,11 +1317,9 @@
                 else if (diffDays <= 3) expiring++;
                 else good++;
             });
-            
             document.getElementById('goodCount').textContent = good;
             document.getElementById('expiringCount').textContent = expiring;
             document.getElementById('expiredCount').textContent = expired;
-            
             const footer = document.getElementById('fridgeFooter');
             footer.innerHTML = items.length === 0 ? '<a href="fridge.html">add items to fridge →</a>' : '';
         }
@@ -1464,19 +1338,16 @@
             try {
                 const ads = await Backend.getActiveAds({ limit: 3 });
                 document.getElementById('dealsCount').textContent = ads.length + ' nearby';
-                
                 if (ads.length === 0) {
                     container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
                     return;
                 }
-                
                 const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
                 let html = '';
                 for (let i = 0; i < Math.min(sortedAds.length, 3); i++) {
                     const ad = sortedAds[i];
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                    
                     html += `
                         <div class="deal-item" onclick="window.location.href='find-stores.html'">
                             <div class="deal-icon">🏷️</div>
@@ -1487,7 +1358,6 @@
                                     <span>•</span>
                                     <span>${daysUntil} days left</span>
                                     ${ad.quantityLeft ? `<span class="deal-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft} left</span>` : ''}
-                                    ${ad.batchNumber ? `<span class="deal-quantity">📦 ${escapeHtml(ad.batchNumber)}</span>` : ''}
                                 </div>
                             </div>
                             <div class="deal-discount">-${ad.discount}%</div>
@@ -1500,11 +1370,9 @@
             }
         }
         
-        // ==================== ADVERTISER FUNCTIONS ====================
         function loadAdvertiserData() {
             const businessName = localStorage.getItem('businessName') || 'your shop';
             const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
-            
             document.getElementById('shopName').textContent = businessName;
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
@@ -1515,25 +1383,21 @@
             try {
                 const shopAds = await Backend.getShopAds(currentUser.id);
                 document.getElementById('shopAdCount').textContent = shopAds.length;
-                
                 let views = 0, claimed = 0;
                 shopAds.forEach(ad => { views += ad.views || 0; claimed += ad.claimed || 0; });
                 document.getElementById('shopViews').textContent = views;
                 document.getElementById('shopClaimed').textContent = claimed;
-                
                 const container = document.getElementById('shopAds');
                 if (shopAds.length === 0) {
                     container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html" class="add-link">post ad →</a></div>`;
                     return;
                 }
-                
                 let html = '';
                 for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
                     const ad = shopAds[i];
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const expiringClass = daysUntil <= 2 ? 'expiring' : '';
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                    
                     html += `
                         <div class="ad-item ${expiringClass}">
                             <div class="ad-header">
@@ -1554,7 +1418,6 @@
             }
         }
         
-        // ==================== UTILS ====================
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
@@ -1572,24 +1435,19 @@
             window.location.href = 'login.html';
         }
         
-        // Make functions global
         window.goToHome = goToHome;
         window.goToProfile = goToProfile;
-        window.goToBusinessProfile = goToBusinessProfile;
         window.navigateToRolePage = navigateToRolePage;
         window.switchConsumerTab = switchConsumerTab;
+        window.openTopUpModal = openTopUpModal;
+        window.closeTopUpModal = closeTopUpModal;
+        window.processTopUp = processTopUp;
         window.editProfileField = editProfileField;
         window.saveProfileEdit = saveProfileEdit;
-        window.closeModal = closeModal;
+        window.closeEditModal = closeEditModal;
         window.addAddress = addAddress;
         window.saveAddress = saveAddress;
         window.closeAddressModal = closeAddressModal;
-        window.addToWallet = addToWallet;
-        window.confirmAddFunds = confirmAddFunds;
-        window.closeFundsModal = closeFundsModal;
-        window.setDefaultAddress = setDefaultAddress;
-        window.addPaymentMethod = addPaymentMethod;
-        window.viewWalletTransactions = viewWalletTransactions;
         window.logout = logout;
     </script>
 </body>
