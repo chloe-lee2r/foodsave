@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -79,6 +79,38 @@
         .content {
             padding: 16px;
             padding-bottom: 80px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .revenue-breakdown {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.8;
         }
         
         /* Verification Banner */
@@ -161,22 +193,29 @@
             opacity: 0.9;
         }
         
-        /* Tabs */
+        /* Tabs - Updated for 5 tabs */
         .tabs {
             display: flex;
             gap: 8px;
             margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
         }
         
         .tab {
-            flex: 1;
-            padding: 12px;
+            padding: 12px 16px;
             background: #f5f7fa;
             border: none;
             border-radius: 10px;
             font-weight: 500;
             color: #666;
             cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
         }
         
         .tab.active {
@@ -212,6 +251,7 @@
             border-radius: 12px;
             font-size: 16px;
             background: #fafafa;
+            font-family: inherit;
         }
         
         .form-input:focus, .form-select:focus {
@@ -225,6 +265,12 @@
             color: #999;
         }
         
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
         .save-btn {
             width: 100%;
             padding: 16px;
@@ -236,10 +282,7 @@
             font-size: 16px;
             margin-top: 16px;
             cursor: pointer;
-        }
-        
-        .save-btn:active {
-            background: #2db14e;
+            font-family: inherit;
         }
         
         .save-btn:disabled {
@@ -247,9 +290,114 @@
             cursor: not-allowed;
         }
         
-        .secondary-btn {
-            background: #667eea;
-            margin-top: 8px;
+        /* Employee List */
+        .employee-list, .claims-list, .notifications-list {
+            margin-top: 16px;
+        }
+        
+        .employee-item, .claim-item, .notification-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .employee-avatar, .claim-avatar {
+            width: 40px;
+            height: 40px;
+            background: #e8eaf6;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .employee-details, .claim-details {
+            flex: 1;
+        }
+        
+        .employee-name, .claim-customer {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .employee-role {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .employee-role.owner { background: #fff3e0; color: #e65100; }
+        .employee-role.manager { background: #e3f2fd; color: #007aff; }
+        .employee-role.staff { background: #e0e0e0; color: #666; }
+        
+        .claim-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .claim-status.pending { background: #fff3e0; color: #ff9500; }
+        .claim-status.confirmed { background: #e8f5e8; color: #34c759; }
+        .claim-status.collected { background: #e3f2fd; color: #007aff; }
+        .claim-status.cancelled { background: #ffebee; color: #ff3b30; }
+        
+        .claim-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .claim-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .confirm-btn { background: #34c759; color: white; }
+        .collect-btn { background: #007aff; color: white; }
+        .cancel-btn { background: #ff3b30; color: white; }
+        
+        /* Add Employee Form */
+        .add-employee {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+        
+        .add-employee h4 {
+            margin-bottom: 12px;
+        }
+        
+        /* Notifications */
+        .notification-item {
+            cursor: pointer;
+        }
+        
+        .notification-item.unread {
+            background: #e3f2fd;
+            border-left: 3px solid #007aff;
+        }
+        
+        .notification-message {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        
+        .notification-time {
+            font-size: 10px;
+            color: #999;
         }
         
         /* File Upload */
@@ -262,11 +410,6 @@
             margin-bottom: 16px;
             cursor: pointer;
             transition: 0.2s;
-        }
-        
-        .file-upload-area:hover {
-            background: #e8eeff;
-            border-color: #5a67d8;
         }
         
         .file-upload-area.dragover {
@@ -353,212 +496,6 @@
             transition: width 0.3s;
         }
         
-        /* Employee List */
-        .employee-list {
-            margin-top: 16px;
-        }
-        
-        .employee-item {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid #f0f0f0;
-        }
-        
-        .employee-avatar {
-            width: 40px;
-            height: 40px;
-            background: #e8eaf6;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        
-        .employee-details {
-            flex: 1;
-        }
-        
-        .employee-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .employee-role {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        
-        .employee-role.owner {
-            background: #fff3e0;
-            color: #e65100;
-        }
-        
-        .employee-role.manager {
-            background: #e3f2fd;
-            color: #007aff;
-        }
-        
-        .employee-role.staff {
-            background: #e0e0e0;
-            color: #666;
-        }
-        
-        .employee-status {
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 10px;
-        }
-        
-        .status-active {
-            background: #e8f5e8;
-            color: #34c759;
-        }
-        
-        .status-pending {
-            background: #fff3e0;
-            color: #ff9500;
-        }
-        
-        .employee-actions {
-            display: flex;
-            gap: 4px;
-        }
-        
-        .employee-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: white;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .edit-btn {
-            color: #667eea;
-        }
-        
-        .delete-btn {
-            color: #ff3b30;
-        }
-        
-        /* Add Employee Form */
-        .add-employee {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-        
-        .add-employee h4 {
-            margin-bottom: 12px;
-        }
-        
-        /* Pending Invitations */
-        .invitations-section {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .invitations-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #666;
-        }
-        
-        .invitation-item {
-            background: #fff3e0;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .invitation-details {
-            flex: 1;
-        }
-        
-        .invitation-business {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .invitation-role {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .invitation-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .accept-btn {
-            background: #34c759;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        
-        .decline-btn {
-            background: #ff3b30;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        
-        /* Status Message */
-        .status-message {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .status-message.show {
-            display: block;
-        }
-        
-        .status-message.success {
-            background: #34c759;
-            color: white;
-        }
-        
-        .status-message.error {
-            background: #ff3b30;
-            color: white;
-        }
-        
-        .status-message.info {
-            background: #667eea;
-            color: white;
-        }
-        
         /* Bottom Nav */
         .bottom-nav {
             position: fixed;
@@ -611,6 +548,41 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        .status-message {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        
+        .status-message.show {
+            display: block;
+        }
+        
+        .status-message.success { background: #34c759; color: white; }
+        .status-message.error { background: #ff3b30; color: white; }
+        .status-message.info { background: #667eea; color: white; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .consumer-link {
+            color: #007aff;
+            text-decoration: none;
+            font-size: 11px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -622,6 +594,27 @@
         </div>
         
         <div class="content">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statAds">0</div>
+                    <div class="stat-label">active ads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statOrders">0</div>
+                    <div class="stat-label">pending orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statRevenue">$0</div>
+                    <div class="stat-label">net revenue</div>
+                    <div class="revenue-breakdown" id="revenueDetail"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCustomers">0</div>
+                    <div class="stat-label">customers</div>
+                </div>
+            </div>
+            
             <!-- Verification Banner -->
             <div class="verification-banner" id="verificationBanner">
                 <div class="banner-icon" id="bannerIcon">⏳</div>
@@ -640,10 +633,12 @@
                 </div>
             </div>
             
-            <!-- Tabs -->
+            <!-- Tabs - Now 5 tabs -->
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('profile')">profile</button>
                 <button class="tab" onclick="switchTab('employees')">employees</button>
+                <button class="tab" onclick="switchTab('orders')">orders</button>
+                <button class="tab" onclick="switchTab('notifications')">alerts</button>
                 <button class="tab" onclick="switchTab('verification')">verify</button>
             </div>
             
@@ -669,7 +664,7 @@
                     <input type="text" class="form-input" id="businessAddress">
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">latitude</label>
                         <input type="text" class="form-input" id="businessLat">
@@ -680,7 +675,7 @@
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">open time</label>
                         <input type="time" class="form-input" id="businessOpen" value="09:00">
@@ -696,7 +691,6 @@
             
             <!-- Employees Tab -->
             <div class="tab-content" id="employeesTab">
-                <!-- Employee List -->
                 <div class="employee-list" id="employeeList">
                     <div class="loading">
                         <div class="loading-spinner"></div>
@@ -704,7 +698,6 @@
                     </div>
                 </div>
                 
-                <!-- Add Employee Form (owners only) -->
                 <div class="add-employee" id="addEmployeeSection">
                     <h4>invite employee</h4>
                     <div class="form-group">
@@ -722,6 +715,26 @@
                 </div>
             </div>
             
+            <!-- Orders Tab - NEW -->
+            <div class="tab-content" id="ordersTab">
+                <div class="claims-list" id="claimsList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading orders...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications Tab - NEW -->
+            <div class="tab-content" id="notificationsTab">
+                <div class="notifications-list" id="notificationsList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        loading notifications...
+                    </div>
+                </div>
+            </div>
+            
             <!-- Verification Tab -->
             <div class="tab-content" id="verificationTab">
                 <div class="form-group">
@@ -729,7 +742,6 @@
                     <input type="text" class="form-input" id="taxId" placeholder="enter tax ID or license number">
                 </div>
                 
-                <!-- Real File Uploader -->
                 <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📎</div>
                     <div class="upload-text">Click to upload or drag files</div>
@@ -737,7 +749,6 @@
                     <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
                 </div>
                 
-                <!-- File List -->
                 <div class="file-list" id="fileList"></div>
                 
                 <button class="save-btn" onclick="submitVerification()" id="verifyBtn">submit for verification</button>
@@ -762,7 +773,6 @@
         </div>
     </div>
     
-    <!-- Status Message -->
     <div class="status-message" id="statusMessage"></div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
@@ -773,11 +783,8 @@
         let isVerified = false;
         let uploadedFiles = [];
         let currentUser = null;
-        let employees = [];
-        let pendingInvitations = [];
         
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check login
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -797,9 +804,10 @@
             updateVerificationUI();
             await loadBusinessData();
             await loadEmployees();
-            await loadPendingInvitations();
+            await loadClaims();           // NEW
+            await loadNotifications();     // NEW
+            await loadStats();             // NEW
             
-            // Setup drag and drop
             setupDragAndDrop();
         });
         
@@ -834,8 +842,7 @@
             dropArea.addEventListener('drop', handleDrop, false);
             
             function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+                const files = e.dataTransfer.files;
                 handleFiles(files);
             }
         }
@@ -851,13 +858,11 @@
         }
         
         function uploadFile(file) {
-            // Check file size (10MB limit)
             if (file.size > 10 * 1024 * 1024) {
                 showStatus('File too large (max 10MB)', 'error');
                 return;
             }
             
-            // Check file type
             const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
             if (!validTypes.includes(file.type)) {
                 showStatus('Invalid file type. Please upload PDF, JPG, or PNG', 'error');
@@ -877,8 +882,6 @@
             
             uploadedFiles.push(fileObj);
             updateFileList();
-            
-            // Simulate upload progress
             simulateUpload(fileObj);
         }
         
@@ -908,7 +911,7 @@
                 <div class="file-item" id="file-${file.id}">
                     <div class="file-icon">${file.type.includes('pdf') ? '📄' : '🖼️'}</div>
                     <div class="file-info">
-                        <div class="file-name">${file.name}</div>
+                        <div class="file-name">${escapeHtml(file.name)}</div>
                         <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
                         ${file.status === 'uploading' ? `
                             <div class="file-progress">
@@ -981,7 +984,6 @@
         
         async function loadBusinessData() {
             try {
-                // Get user data from Parse
                 const user = Backend.getCurrentUser();
                 
                 document.getElementById('businessName').value = user.get('businessName') || '';
@@ -994,13 +996,11 @@
                 document.getElementById('businessClose').value = user.get('businessClose') || '21:00';
                 document.getElementById('taxId').value = user.get('businessTaxId') || '';
                 
-                // Disable if not owner/manager
                 if (businessRole !== 'owner' && businessRole !== 'manager') {
                     document.querySelectorAll('#profileTab input').forEach(input => {
                         input.disabled = true;
                     });
                 }
-                
             } catch (error) {
                 showStatus('Error loading business data', 'error');
             }
@@ -1027,7 +1027,6 @@
             
             if (result.success) {
                 showStatus('Profile updated', 'success');
-                // Update localStorage
                 const details = JSON.parse(localStorage.getItem('businessDetails') || '{}');
                 Object.assign(details, updates);
                 localStorage.setItem('businessDetails', JSON.stringify(details));
@@ -1041,11 +1040,10 @@
             const container = document.getElementById('employeeList');
             
             try {
-                // Get real employees from Backend
                 const employees = await Backend.getStaffList();
                 
                 if (employees.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No employees yet</div>';
+                    container.innerHTML = '<div class="empty-state">No employees yet</div>';
                     return;
                 }
                 
@@ -1053,22 +1051,20 @@
                     <div class="employee-item">
                         <div class="employee-avatar">👤</div>
                         <div class="employee-details">
-                            <div class="employee-name">${employee.username}</div>
+                            <div class="employee-name">${escapeHtml(employee.username)}</div>
                             <span class="employee-role ${employee.role}">${employee.role}</span>
                             <span class="employee-status status-active">active</span>
                         </div>
                         <div class="employee-actions">
                             ${businessRole === 'owner' ? `
-                                <button class="employee-btn edit-btn" onclick="editEmployee('${employee.id}')">✏️</button>
                                 <button class="employee-btn delete-btn" onclick="removeEmployee('${employee.id}')">🗑️</button>
                             ` : ''}
                         </div>
                     </div>
                 `).join('');
-                
             } catch (error) {
                 console.error('Error loading employees:', error);
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Error loading employees</div>';
+                container.innerHTML = '<div class="empty-state">Error loading employees</div>';
             }
         }
         
@@ -1079,101 +1075,20 @@
             }
             
             const email = document.getElementById('employeeEmail').value.trim();
-            const role = document.getElementById('employeeRole').value;
             
             if (!email) {
                 showStatus('Enter email address', 'error');
                 return;
             }
             
-            // Validate email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showStatus('Enter a valid email address', 'error');
                 return;
             }
             
-            // In a real app, this would:
-            // 1. Check if user exists with that email
-            // 2. Create an invitation record
-            // 3. Send email notification
-            
             showStatus(`Invitation sent to ${email}`, 'success');
-            
-            // Clear form
             document.getElementById('employeeEmail').value = '';
-        }
-        
-        async function loadPendingInvitations() {
-            // For employees, show pending invitations
-            if (businessRole === 'staff' || businessRole === 'manager') {
-                const container = document.getElementById('pendingInvitations');
-                if (!container) return;
-                
-                container.style.display = 'block';
-                
-                try {
-                    // Get real pending invitations from Backend
-                    // This would need a backend function
-                    const invitations = []; // await Backend.getPendingInvitations();
-                    
-                    if (invitations.length === 0) {
-                        container.innerHTML = '';
-                        return;
-                    }
-                    
-                    container.innerHTML = `
-                        <div class="invitations-section">
-                            <div class="invitations-title">pending invitations</div>
-                            ${invitations.map(inv => `
-                                <div class="invitation-item">
-                                    <div class="invitation-details">
-                                        <div class="invitation-business">${inv.businessName}</div>
-                                        <div class="invitation-role">Role: ${inv.role}</div>
-                                    </div>
-                                    <div class="invitation-actions">
-                                        <button class="accept-btn" onclick="acceptInvitation('${inv.id}')">accept</button>
-                                        <button class="decline-btn" onclick="declineInvitation('${inv.id}')">decline</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                } catch (error) {
-                    console.error('Error loading invitations:', error);
-                }
-            }
-        }
-        
-        async function acceptInvitation(invitationId) {
-            try {
-                // Call backend to accept invitation
-                // const result = await Backend.acceptInvitation(invitationId);
-                
-                showStatus('Invitation accepted! You are now an employee', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } catch (error) {
-                showStatus('Error accepting invitation', 'error');
-            }
-        }
-        
-        async function declineInvitation(invitationId) {
-            try {
-                // Call backend to decline invitation
-                // const result = await Backend.declineInvitation(invitationId);
-                
-                showStatus('Invitation declined', 'info');
-                await loadPendingInvitations();
-            } catch (error) {
-                showStatus('Error declining invitation', 'error');
-            }
-        }
-        
-        function editEmployee(employeeId) {
-            // Implement edit employee functionality
-            showStatus('Edit employee coming soon', 'info');
         }
         
         async function removeEmployee(employeeId) {
@@ -1186,7 +1101,6 @@
             
             try {
                 const result = await Backend.removeStaffMember(employeeId);
-                
                 if (result.success) {
                     showStatus('Employee removed', 'success');
                     await loadEmployees();
@@ -1195,6 +1109,136 @@
                 }
             } catch (error) {
                 showStatus('Error removing employee', 'error');
+            }
+        }
+        
+        // ========== NEW FUNCTIONS FOR ORDERS ==========
+        
+        async function loadClaims() {
+            const container = document.getElementById('claimsList');
+            
+            try {
+                const claims = await Backend.getClaimsForBusiness(currentUser.id);
+                
+                if (claims.length === 0) {
+                    container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
+                    return;
+                }
+                
+                container.innerHTML = claims.map(claim => `
+                    <div class="claim-item">
+                        <div class="claim-avatar">👤</div>
+                        <div class="claim-details">
+                            <div class="claim-customer">
+                                ${escapeHtml(claim.consumerName)}
+                                <span class="claim-status ${claim.status}">${claim.status}</span>
+                            </div>
+                            <div style="font-size:13px; margin-top:4px;">
+                                🍽️ ${escapeHtml(claim.foodName)} × ${claim.quantity}
+                                ${claim.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(claim.batchNumber)}</span>` : ''}
+                            </div>
+                            <div style="font-size:11px; color:#999; margin-top:4px;">
+                                📅 ordered: ${new Date(claim.claimedAt).toLocaleString()}
+                            </div>
+                            <div style="margin-top:4px;">
+                                <a href="#" onclick="viewConsumerProfile('${claim.consumerId}'); return false;" class="consumer-link">👤 view customer profile</a>
+                            </div>
+                        </div>
+                        ${claim.status === 'pending' ? `
+                            <div class="claim-actions">
+                                <button class="claim-btn confirm-btn" onclick="updateClaim('${claim.id}', 'confirmed')">✓ confirm</button>
+                                <button class="claim-btn cancel-btn" onclick="updateClaim('${claim.id}', 'cancelled')">✗ cancel</button>
+                            </div>
+                        ` : claim.status === 'confirmed' ? `
+                            <div class="claim-actions">
+                                <button class="claim-btn collect-btn" onclick="updateClaim('${claim.id}', 'collected')">📦 collected</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                container.innerHTML = '<div class="empty-state">Error loading orders</div>';
+            }
+        }
+        
+        async function viewConsumerProfile(consumerId) {
+            try {
+                const profile = await Backend.getConsumerProfile(consumerId);
+                if (profile) {
+                    alert(`Customer Profile:\n━━━━━━━━━━━━━━━━\nName: ${profile.username}\nEmail: ${profile.email}\nMember since: ${new Date(profile.createdAt).toLocaleDateString()}`);
+                } else {
+                    showStatus('Error loading customer profile', 'error');
+                }
+            } catch (error) {
+                showStatus('Error loading customer profile', 'error');
+            }
+        }
+        
+        async function updateClaim(claimId, status) {
+            const result = await Backend.updateClaimStatus(claimId, status);
+            
+            if (result.success) {
+                showStatus(`Order ${status}!`, 'success');
+                await loadClaims();
+                await loadStats();
+            } else {
+                showStatus(result.message, 'error');
+            }
+        }
+        
+        // ========== NEW FUNCTIONS FOR NOTIFICATIONS ==========
+        
+        async function loadNotifications() {
+            const container = document.getElementById('notificationsList');
+            
+            try {
+                const notifications = await Backend.getNotifications(currentUser.id);
+                
+                if (notifications.length === 0) {
+                    container.innerHTML = '<div class="empty-state">🔔 No notifications</div>';
+                    return;
+                }
+                
+                container.innerHTML = notifications.map(n => `
+                    <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="markNotificationRead('${n.id}')">
+                        <div class="notification-message">${escapeHtml(n.message)}</div>
+                        <div class="notification-time">${new Date(n.createdAt).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                container.innerHTML = '<div class="empty-state">Error loading notifications</div>';
+            }
+        }
+        
+        async function markNotificationRead(notificationId) {
+            await Backend.markNotificationRead(notificationId);
+            await loadNotifications();
+        }
+        
+        // ========== STATS FUNCTION ==========
+        
+        async function loadStats() {
+            try {
+                const ads = await Backend.getShopAds(currentUser.id);
+                const claims = await Backend.getClaimsForBusiness(currentUser.id);
+                const revenue = await Backend.getBusinessRevenue(currentUser.id);
+                
+                const activeAds = ads.filter(a => a.active && new Date(a.offerEnds) > new Date() && (a.quantityLeft || 0) > 0).length;
+                const pendingOrders = claims.filter(c => c.status === 'pending').length;
+                const uniqueCustomers = [...new Set(claims.map(c => c.consumerId))].length;
+                
+                document.getElementById('statAds').textContent = activeAds;
+                document.getElementById('statOrders').textContent = pendingOrders;
+                document.getElementById('statCustomers').textContent = uniqueCustomers;
+                
+                if (revenue) {
+                    document.getElementById('statRevenue').textContent = `$${revenue.netRevenue.toFixed(2)}`;
+                    document.getElementById('revenueDetail').innerHTML = `💵 $${revenue.grossRevenue.toFixed(2)} gross<br>📦 -$${revenue.platformFee.toFixed(2)} fee`;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
             }
         }
         
@@ -1216,7 +1260,6 @@
                 return;
             }
             
-            // Check if all files are uploaded
             const uploading = uploadedFiles.some(f => f.status === 'uploading');
             if (uploading) {
                 showStatus('Please wait for files to finish uploading', 'error');
@@ -1230,17 +1273,9 @@
             
             if (result.success) {
                 showStatus('Business verified! You can now post ads.', 'success');
-                // Update UI
                 isVerified = true;
                 updateVerificationUI();
-                
-                // Update localStorage
                 localStorage.setItem('businessVerified', 'true');
-                const details = JSON.parse(localStorage.getItem('businessDetails') || '{}');
-                details.verified = true;
-                localStorage.setItem('businessDetails', JSON.stringify(details));
-                
-                // Disable verify button
                 document.getElementById('verifyBtn').disabled = true;
             } else {
                 showStatus(result.message, 'error');
@@ -1251,16 +1286,18 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            if (tab === 'profile') {
-                document.querySelectorAll('.tab')[0].classList.add('active');
-                document.getElementById('profileTab').classList.add('active');
-            } else if (tab === 'employees') {
-                document.querySelectorAll('.tab')[1].classList.add('active');
-                document.getElementById('employeesTab').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab')[2].classList.add('active');
-                document.getElementById('verificationTab').classList.add('active');
-            }
+            const tabButtons = document.querySelectorAll('.tab');
+            const tabContents = {
+                'profile': 'profileTab',
+                'employees': 'employeesTab',
+                'orders': 'ordersTab',
+                'notifications': 'notificationsTab',
+                'verification': 'verificationTab'
+            };
+            
+            const index = ['profile', 'employees', 'orders', 'notifications', 'verification'].indexOf(tab);
+            if (index !== -1) tabButtons[index].classList.add('active');
+            document.getElementById(tabContents[tab]).classList.add('active');
         }
         
         function showStatus(message, type) {
@@ -1270,7 +1307,18 @@
             setTimeout(() => status.classList.remove('show'), 3000);
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
         function logout() {
+            Backend.logout();
             window.location.href = 'index.html';
         }
         
@@ -1278,10 +1326,10 @@
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
-        window.acceptInvitation = acceptInvitation;
-        window.declineInvitation = declineInvitation;
-        window.editEmployee = editEmployee;
         window.removeEmployee = removeEmployee;
+        window.updateClaim = updateClaim;
+        window.viewConsumerProfile = viewConsumerProfile;
+        window.markNotificationRead = markNotificationRead;
         window.handleFileSelect = handleFileSelect;
         window.removeFile = removeFile;
         window.submitVerification = submitVerification;
