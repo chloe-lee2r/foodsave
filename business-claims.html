@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsavvi • incoming orders</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <style>
+        @font-face {
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #007aff;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            background: #ff3b30;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #f5f7fa;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .tab.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        
+        .claims-list {
+            margin-bottom: 20px;
+        }
+        
+        .claim-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ff9500;
+        }
+        
+        .claim-card.confirmed {
+            border-left-color: #34c759;
+        }
+        
+        .claim-card.collected {
+            border-left-color: #007aff;
+            opacity: 0.7;
+        }
+        
+        .claim-card.cancelled {
+            border-left-color: #ff3b30;
+            opacity: 0.5;
+        }
+        
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .customer-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .claim-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3e0;
+            color: #ff9500;
+        }
+        
+        .status-confirmed {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
+        .status-collected {
+            background: #e3f2fd;
+            color: #007aff;
+        }
+        
+        .status-cancelled {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .claim-details {
+            margin-bottom: 12px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .detail-label {
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .batch-info {
+            font-family: monospace;
+            background: #e8ecf0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        .claim-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .confirm-btn {
+            background: #34c759;
+            color: white;
+        }
+        
+        .collect-btn {
+            background: #007aff;
+            color: white;
+        }
+        
+        .cancel-btn {
+            background: #ff3b30;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-emoji {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>incoming orders</h1>
+            <span class="badge" id="pendingCount">0</span>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('pending')">pending</button>
+            <button class="tab" onclick="switchTab('confirmed')">confirmed</button>
+            <button class="tab" onclick="switchTab('completed')">completed</button>
+        </div>
+        
+        <div class="content">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-number" id="statPending">0</div>
+                    <div class="stat-label">pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statConfirmed">0</div>
+                    <div class="stat-label">confirmed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCollected">0</div>
+                    <div class="stat-label">collected</div>
+                </div>
+            </div>
+            
+            <div class="claims-list" id="claimsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    loading orders...
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="advertise.html" class="nav-item">
+                <span class="nav-emoji">📢</span>
+                <span>post ad</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">📦</span>
+                <span>orders</span>
+            </a>
+            <a href="business-profile.html" class="nav-item">
+                <span class="nav-emoji">👤</span>
+                <span>profile</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
+    <script>
+        let currentTab = 'pending';
+        let allClaims = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'advertiser') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            await loadClaims();
+        });
+        
+        async function loadClaims() {
+            const container = document.getElementById('claimsContainer');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div>loading orders...</div>';
+            
+            try {
+                const currentUser = Backend.getCurrentUser();
+                allClaims = await Backend.getClaimsForBusiness(currentUser.id);
+                
+                updateStats();
+                renderClaims();
+                
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                container.innerHTML = '<div class="empty-state"><div class="empty-emoji">⚠️</div><div>failed to load orders</div></div>';
+            }
+        }
+        
+        function updateStats() {
+            const pending = allClaims.filter(c => c.status === 'pending').length;
+            const confirmed = allClaims.filter(c => c.status === 'confirmed').length;
+            const collected = allClaims.filter(c => c.status === 'collected').length;
+            
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statConfirmed').textContent = confirmed;
+            document.getElementById('statCollected').textContent = collected;
+            document.getElementById('pendingCount').textContent = pending;
+        }
+        
+        function renderClaims() {
+            const container = document.getElementById('claimsContainer');
+            
+            let filteredClaims = allClaims;
+            if (currentTab === 'pending') {
+                filteredClaims = allClaims.filter(c => c.status === 'pending');
+            } else if (currentTab === 'confirmed') {
+                filteredClaims = allClaims.filter(c => c.status === 'confirmed');
+            } else {
+                filteredClaims = allClaims.filter(c => c.status === 'collected' || c.status === 'cancelled');
+            }
+            
+            if (filteredClaims.length === 0) {
+                const messages = {
+                    pending: 'no pending orders',
+                    confirmed: 'no confirmed orders',
+                    completed: 'no completed orders'
+                };
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-emoji">📭</div>
+                        <div>${messages[currentTab]}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredClaims.map(claim => {
+                const discountedPrice = claim.originalPrice ? 
+                    (claim.originalPrice * (1 - claim.discount / 100)).toFixed(2) : null;
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(claim.status) {
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'pending';
+                        break;
+                    case 'confirmed':
+                        statusClass = 'status-confirmed';
+                        statusText = 'confirmed ✓';
+                        break;
+                    case 'collected':
+                        statusClass = 'status-collected';
+                        statusText = 'collected ✓✓';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        statusText = 'cancelled ✗';
+                        break;
+                }
+                
+                let cardClass = '';
+                if (claim.status === 'confirmed') cardClass = 'confirmed';
+                if (claim.status === 'collected') cardClass = 'collected';
+                if (claim.status === 'cancelled') cardClass = 'cancelled';
+                
+                return `
+                    <div class="claim-card ${cardClass}">
+                        <div class="claim-header">
+                            <span class="customer-name">👤 ${escapeHtml(claim.consumerName)}</span>
+                            <span class="claim-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="claim-details">
+                            <div class="detail-row">
+                                <span class="detail-label">item:</span>
+                                <span class="detail-value">${escapeHtml(claim.foodName)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">quantity:</span>
+                                <span class="detail-value">${claim.quantity} x ${claim.discount}% off</span>
+                            </div>
+                            ${claim.batchNumber ? `
+                            <div class="detail-row">
+                                <span class="detail-label">batch:</span>
+                                <span class="detail-value batch-info">${escapeHtml(claim.batchNumber)}</span>
+                            </div>
+                            ` : ''}
+                            ${discountedPrice ? `
+                            <div class="detail-row">
+                                <span class="detail-label">price:</span>
+                                <span class="detail-value">$${discountedPrice} each</span>
+                            </div>
+                            ` : ''}
+                            <div class="detail-row">
+                                <span class="detail-label">ordered:</span>
+                                <span class="detail-value">${new Date(claim.claimedAt).toLocaleString()}</span>
+                            </div>
+                        </div>
+                        ${claim.status === 'pending' ? `
+                            <div class="claim-actions">
+                                <button class="action-btn confirm-btn" onclick="updateStatus('${claim.id}', 'confirmed')">✓ confirm order</button>
+                                <button class="action-btn cancel-btn" onclick="updateStatus('${claim.id}', 'cancelled')">✗ cancel</button>
+                            </div>
+                        ` : ''}
+                        ${claim.status === 'confirmed' ? `
+                            <div class="claim-actions">
+                                <button class="action-btn collect-btn" onclick="updateStatus('${claim.id}', 'collected')">📦 mark as collected</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function updateStatus(claimId, newStatus) {
+            const actionText = {
+                'confirmed': 'confirm this order',
+                'collected': 'mark as collected',
+                'cancelled': 'cancel this order'
+            };
+            
+            if (!confirm(`Are you sure you want to ${actionText[newStatus]}?`)) return;
+            
+            const result = await Backend.updateClaimStatus(claimId, newStatus);
+            
+            if (result.success) {
+                showNotification(`Order ${newStatus}!`, 'success');
+                await loadClaims();
+            } else {
+                showNotification(result.message, 'error');
+            }
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderClaims();
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => {
+                notif.className = 'notification';
+            }, 2000);
+        }
+        
+        window.switchTab = switchTab;
+        window.updateStatus = updateStatus;
+    </script>
+</body>
+</html>
