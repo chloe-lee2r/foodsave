@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -21,7 +21,7 @@
         }
         
         body {
-        font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
             min-height: 100vh;
             display: flex;
@@ -132,6 +132,45 @@
             color: #007aff;
             font-size: 14px;
             text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #f5f7fa;
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        
+        .tab.active {
+            background: #007aff;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         /* CONSUMER SECTION */
@@ -157,6 +196,7 @@
             text-decoration: none;
             color: #1a1a1a;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
         }
         
         .card-emoji {
@@ -172,6 +212,237 @@
         .card-desc {
             font-size: 12px;
             color: #666;
+        }
+        
+        /* Wallet Card */
+        .wallet-card {
+            background: linear-gradient(135deg, #f5b042, #ff9500);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .wallet-amount {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .wallet-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .wallet-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        /* Profile Info Card */
+        .profile-info-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-label {
+            width: 80px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #007aff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        /* Order History */
+        .order-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #34c759;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .order-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .status-completed { background: #e8f5e8; color: #34c759; }
+        .status-pending { background: #fff3e0; color: #ff9500; }
+        
+        .order-details {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .order-total {
+            font-size: 14px;
+            font-weight: 600;
+            color: #34c759;
+        }
+        
+        .order-date {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        /* Payment Methods */
+        .payment-method-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .payment-icon {
+            font-size: 28px;
+        }
+        
+        .payment-info {
+            flex: 1;
+        }
+        
+        .payment-card-type {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .payment-card-number {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Addresses */
+        .address-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .address-text {
+            font-size: 14px;
+        }
+        
+        .address-default {
+            font-size: 10px;
+            color: #34c759;
+            margin-top: 4px;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .modal-btn.confirm {
+            background: #34c759;
+            color: white;
+        }
+        
+        .modal-btn.cancel {
+            background: #999;
+            color: white;
         }
         
         /* Hot Deals Section */
@@ -509,6 +780,7 @@
             text-align: center;
             flex: 1;
             padding: 4px 0;
+            cursor: pointer;
         }
         
         .nav-item.active {
@@ -519,6 +791,34 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1100;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
         }
     </style>
 </head>
@@ -542,70 +842,145 @@
         <div class="content">
             <!-- CONSUMER VIEW -->
             <div class="consumer-only">
-                <div class="quick-actions">
-                    <a href="shoplist.html" class="action-card">
-                        <div class="card-emoji">🛒</div>
-                        <div class="card-title">my lists</div>
-                        <div class="card-desc" id="listCount">0 items</div>
-                    </a>
-                    <a href="find-stores.html" class="action-card">
-                        <div class="card-emoji">🔍</div>
-                        <div class="card-title">find deals</div>
-                        <div class="card-desc" id="dealsCount">0 nearby</div>
-                    </a>
-                    <a href="fridge.html" class="action-card">
-                        <div class="card-emoji">🧊</div>
-                        <div class="card-title">my fridge</div>
-                        <div class="card-desc" id="fridgeCount">0 items</div>
-                    </a>
-                    <a href="#" class="action-card" onclick="comingSoon('recipes')">
-                        <div class="card-emoji">🍳</div>
-                        <div class="card-title">recipes</div>
-                        <div class="card-desc">coming soon</div>
-                    </a>
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchConsumerTab('home')">🏠 home</button>
+                    <button class="tab" onclick="switchConsumerTab('profile')">👤 profile</button>
+                    <button class="tab" onclick="switchConsumerTab('orders')">📦 orders</button>
+                    <button class="tab" onclick="switchConsumerTab('wallet')">💰 wallet</button>
                 </div>
                 
-                <!-- Hot Deals Section -->
-                <div class="section-title">
-                    🔥 hot deals near you
-                    <a href="find-stores.html" class="view-all">view all →</a>
-                </div>
-                <div class="deals-list" id="recentDeals">
-                    <div class="empty-state">🔍 loading deals...</div>
+                <!-- Home Tab -->
+                <div class="tab-content active" id="homeTab">
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="window.location.href='shoplist.html'">
+                            <div class="card-emoji">🛒</div>
+                            <div class="card-title">my lists</div>
+                            <div class="card-desc" id="listCount">0 items</div>
+                        </div>
+                        <div class="action-card" onclick="window.location.href='find-stores.html'">
+                            <div class="card-emoji">🔍</div>
+                            <div class="card-title">find deals</div>
+                            <div class="card-desc" id="dealsCount">0 nearby</div>
+                        </div>
+                        <div class="action-card" onclick="window.location.href='fridge.html'">
+                            <div class="card-emoji">🧊</div>
+                            <div class="card-title">my fridge</div>
+                            <div class="card-desc" id="fridgeCount">0 items</div>
+                        </div>
+                        <div class="action-card" onclick="switchConsumerTab('profile')">
+                            <div class="card-emoji">👤</div>
+                            <div class="card-title">my profile</div>
+                            <div class="card-desc">view account</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hot Deals Section -->
+                    <div class="section-title">
+                        🔥 hot deals near you
+                        <a href="find-stores.html" class="view-all">view all →</a>
+                    </div>
+                    <div class="deals-list" id="recentDeals">
+                        <div class="empty-state">🔍 loading deals...</div>
+                    </div>
+                    
+                    <!-- Fridge Summary -->
+                    <div class="section-title">
+                        🧊 your fridge
+                        <a href="fridge.html" class="view-all">manage →</a>
+                    </div>
+                    <div class="fridge-summary" id="fridgeSummary">
+                        <div class="fridge-header">
+                            <h3>fridge status</h3>
+                            <a href="fridge.html" class="fridge-link">view all →</a>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <div class="stat-number good-number" id="goodCount">0</div>
+                                <div class="stat-label">good</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number expiring-number" id="expiringCount">0</div>
+                                <div class="stat-label">expiring</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-number expired-number" id="expiredCount">0</div>
+                                <div class="stat-label">expired</div>
+                            </div>
+                        </div>
+                        <div class="fridge-footer" id="fridgeFooter"></div>
+                    </div>
                 </div>
                 
-                <!-- Fridge Summary -->
-                <div class="section-title">
-                    🧊 your fridge
-                    <a href="fridge.html" class="view-all">manage →</a>
+                <!-- Profile Tab -->
+                <div class="tab-content" id="profileTab">
+                    <!-- Profile Info -->
+                    <div class="profile-info-card">
+                        <div class="info-row">
+                            <div class="info-label">Name</div>
+                            <div class="info-value" id="profileName">-</div>
+                            <button class="edit-btn" onclick="editProfileField('name')">edit</button>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Email</div>
+                            <div class="info-value" id="profileEmail">-</div>
+                            <button class="edit-btn" onclick="editProfileField('email')">edit</button>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value" id="profilePhone">-</div>
+                            <button class="edit-btn" onclick="editProfileField('phone')">edit</button>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Member since</div>
+                            <div class="info-value" id="memberSince">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Saved Addresses -->
+                    <div class="section-title">
+                        📍 saved addresses
+                        <span class="view-all" onclick="addAddress()">+ add</span>
+                    </div>
+                    <div id="addressesList"></div>
+                    
+                    <!-- Saved Payment Methods -->
+                    <div class="section-title">
+                        💳 payment methods
+                        <span class="view-all" onclick="addPaymentMethod()">+ add</span>
+                    </div>
+                    <div id="paymentMethodsList"></div>
                 </div>
-                <div class="fridge-summary" id="fridgeSummary">
-                    <div class="fridge-header">
-                        <h3>fridge status</h3>
-                        <a href="fridge.html" class="fridge-link">view all →</a>
+                
+                <!-- Orders Tab -->
+                <div class="tab-content" id="ordersTab">
+                    <div id="ordersList">
+                        <div class="empty-state">📦 loading orders...</div>
                     </div>
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div class="stat-number good-number" id="goodCount">0</div>
-                            <div class="stat-label">good</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number expiring-number" id="expiringCount">0</div>
-                            <div class="stat-label">expiring</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number expired-number" id="expiredCount">0</div>
-                            <div class="stat-label">expired</div>
+                </div>
+                
+                <!-- Wallet Tab -->
+                <div class="tab-content" id="walletTab">
+                    <div class="wallet-card">
+                        <div class="wallet-label">Available Balance</div>
+                        <div class="wallet-amount" id="walletBalance">$0.00</div>
+                        <div class="wallet-actions">
+                            <button class="wallet-btn" onclick="addToWallet()">+ Add Funds</button>
+                            <button class="wallet-btn" onclick="viewWalletTransactions()">History</button>
                         </div>
                     </div>
-                    <div class="fridge-footer" id="fridgeFooter"></div>
+                    
+                    <div class="section-title">
+                        💰 recent transactions
+                    </div>
+                    <div id="walletTransactionsList"></div>
                 </div>
             </div>
             
             <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
                 <!-- Shop Profile -->
-                <div class="profile-card" id="shopProfile" onclick="goToProfile()">
+                <div class="profile-card" id="shopProfile" onclick="goToBusinessProfile()">
                     <div class="profile-header">
                         <div class="profile-avatar">🏪</div>
                         <div class="profile-name">
@@ -639,9 +1014,9 @@
                         <div class="action-icon">⚙️</div>
                         <div>settings</div>
                     </a>
-                    <a href="#" class="shop-action" onclick="comingSoon('analytics')">
-                        <div class="action-icon">📊</div>
-                        <div>analytics</div>
+                    <a href="business-claims.html" class="shop-action">
+                        <div class="action-icon">📦</div>
+                        <div>orders</div>
                     </a>
                     <a href="business-profile.html?tab=staff" class="shop-action">
                         <div class="action-icon">👥</div>
@@ -661,20 +1036,60 @@
         
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
-            <a href="#" class="nav-item active">
+            <div class="nav-item active" onclick="goToHome()">
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
-            </a>
-            <a href="#" class="nav-item" onclick="navigateToRolePage()">
+            </div>
+            <div class="nav-item" onclick="navigateToRolePage()">
                 <span class="nav-emoji" id="navIcon">🛒</span>
                 <span id="navLabel">lists</span>
-            </a>
-            <a href="#" class="nav-item" onclick="goToProfile()">
+            </div>
+            <div class="nav-item" onclick="goToProfile()">
                 <span class="nav-emoji">👤</span>
                 <span>profile</span>
-            </a>
+            </div>
         </div>
     </div>
+    
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Edit</div>
+            <input type="text" class="modal-input" id="modalInput" placeholder="Enter value">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="saveProfileEdit()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Address Modal -->
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-title">Add Address</div>
+            <input type="text" class="modal-input" id="addressLine1" placeholder="Street address">
+            <input type="text" class="modal-input" id="addressCity" placeholder="City">
+            <input type="text" class="modal-input" id="addressPostal" placeholder="Postal code">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeAddressModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="saveAddress()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Funds Modal -->
+    <div class="modal" id="fundsModal">
+        <div class="modal-content">
+            <div class="modal-title">Add Funds to Wallet</div>
+            <input type="number" class="modal-input" id="fundsAmount" placeholder="Amount ($)" step="1" min="1">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeFundsModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmAddFunds()">Add</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
@@ -684,13 +1099,17 @@
         let currentRole = 'consumer';
         let businessRole = 'staff';
         let isVerified = false;
+        let currentUser = null;
+        let editField = '';
+        let userProfile = {};
+        let userAddresses = [];
+        let userPaymentMethods = [];
+        let userOrders = [];
+        let walletBalance = 0;
         
         // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("🔵 Page loaded");
-            
-            // Check login
-            const user = localStorage.getItem('loggedInUser');
+        document.addEventListener('DOMContentLoaded', async function() {
+            const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
             if (!user || !role) {
@@ -698,45 +1117,283 @@
                 return;
             }
             
+            currentUser = user;
             currentRole = role;
             businessRole = localStorage.getItem('businessRole') || 'staff';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
-            // Set body class for role-based views
             document.body.className = role;
-            
-            // Set user info
-            document.getElementById('userName').textContent = user;
+            document.getElementById('userName').textContent = user.get('username');
             document.getElementById('userBadge').textContent = role === 'consumer' ? 'consumer' : businessRole;
             
-            // Show verified badge if applicable
             if (role === 'advertiser' && isVerified) {
                 document.getElementById('verifiedBadge').style.display = 'inline-block';
             }
             
-            // Set date
             const date = new Date();
             document.getElementById('currentDate').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
-            // Update navigation
             updateNavigation();
             
-            // Load data based on role
             if (role === 'consumer') {
+                await loadConsumerProfile();
+                await loadOrders();
+                await loadWalletBalance();
+                await loadAddresses();
+                await loadPaymentMethods();
                 loadConsumerData();
             } else {
                 loadAdvertiserData();
             }
         });
         
+        async function loadConsumerProfile() {
+            try {
+                const profile = await Backend.getConsumerProfile(currentUser.id);
+                if (profile) {
+                    userProfile = profile;
+                    document.getElementById('profileName').textContent = profile.username || currentUser.get('username');
+                    document.getElementById('profileEmail').textContent = profile.email || currentUser.get('email') || 'Not set';
+                    document.getElementById('profilePhone').textContent = currentUser.get('phone') || 'Not set';
+                    document.getElementById('memberSince').textContent = new Date(profile.createdAt).toLocaleDateString();
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+        
+        async function loadOrders() {
+            const container = document.getElementById('ordersList');
+            try {
+                const transactions = await Backend.getUserTransactions(currentUser.id);
+                userOrders = transactions;
+                
+                if (transactions.length === 0) {
+                    container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
+                    return;
+                }
+                
+                container.innerHTML = transactions.map(t => `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span class="order-id">#${t.transactionId}</span>
+                            <span class="order-status status-${t.status}">${t.status}</span>
+                        </div>
+                        <div class="order-details">
+                            ${t.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}
+                        </div>
+                        <div class="order-total">$${t.total.toFixed(2)}</div>
+                        <div class="order-date">${new Date(t.date).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading orders</div>';
+            }
+        }
+        
+        async function loadWalletBalance() {
+            try {
+                walletBalance = await Backend.getWalletBalance(currentUser.id);
+                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+            }
+        }
+        
+        async function loadAddresses() {
+            const container = document.getElementById('addressesList');
+            try {
+                userAddresses = await Backend.getSavedAddresses(currentUser.id);
+                
+                if (userAddresses.length === 0) {
+                    container.innerHTML = '<div class="empty-state">📍 No saved addresses</div>';
+                    return;
+                }
+                
+                container.innerHTML = userAddresses.map(addr => `
+                    <div class="address-item">
+                        <div>
+                            <div class="address-text">${addr.street}, ${addr.city} ${addr.postalCode}</div>
+                            ${addr.isDefault ? '<div class="address-default">✓ Default</div>' : ''}
+                        </div>
+                        <button class="edit-btn" onclick="setDefaultAddress(${addr.id})">Set Default</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading addresses</div>';
+            }
+        }
+        
+        async function loadPaymentMethods() {
+            const container = document.getElementById('paymentMethodsList');
+            try {
+                userPaymentMethods = await Backend.getSavedPaymentMethods(currentUser.id);
+                
+                if (userPaymentMethods.length === 0) {
+                    container.innerHTML = '<div class="empty-state">💳 No saved payment methods</div>';
+                    return;
+                }
+                
+                container.innerHTML = userPaymentMethods.map(pm => `
+                    <div class="payment-method-item">
+                        <div class="payment-icon">${pm.cardType === 'visa' ? '💳' : '🏦'}</div>
+                        <div class="payment-info">
+                            <div class="payment-card-type">${pm.cardType.toUpperCase()}</div>
+                            <div class="payment-card-number">•••• ${pm.last4}</div>
+                        </div>
+                        ${pm.isDefault ? '<span style="font-size:11px; color:#34c759;">Default</span>' : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading payment methods</div>';
+            }
+        }
+        
+        async function addToWallet() {
+            document.getElementById('fundsModal').style.display = 'flex';
+        }
+        
+        async function confirmAddFunds() {
+            const amount = parseFloat(document.getElementById('fundsAmount').value);
+            if (isNaN(amount) || amount <= 0) {
+                showNotification('Enter valid amount', 'error');
+                return;
+            }
+            
+            closeFundsModal();
+            showNotification(`Processing $${amount} deposit...`, 'info');
+            
+            setTimeout(async () => {
+                const result = await Backend.addToWallet(currentUser.id, amount);
+                if (result.success) {
+                    walletBalance = result.newBalance;
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    showNotification(`$${amount} added to wallet!`, 'success');
+                } else {
+                    showNotification('Failed to add funds', 'error');
+                }
+            }, 1500);
+        }
+        
+        function editProfileField(field) {
+            editField = field;
+            const titles = { name: 'Edit Name', email: 'Edit Email', phone: 'Edit Phone' };
+            document.getElementById('modalTitle').textContent = titles[field];
+            document.getElementById('modalInput').value = '';
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        async function saveProfileEdit() {
+            const newValue = document.getElementById('modalInput').value.trim();
+            if (!newValue) {
+                showNotification('Enter a value', 'error');
+                return;
+            }
+            
+            const updates = {};
+            if (editField === 'name') updates.fullName = newValue;
+            if (editField === 'email') updates.email = newValue;
+            if (editField === 'phone') updates.phone = newValue;
+            
+            const result = await Backend.updateConsumerProfile(currentUser.id, updates);
+            if (result.success) {
+                showNotification('Profile updated', 'success');
+                await loadConsumerProfile();
+                closeModal();
+            } else {
+                showNotification('Update failed', 'error');
+            }
+        }
+        
+        function addAddress() {
+            document.getElementById('addressModal').style.display = 'flex';
+        }
+        
+        async function saveAddress() {
+            const address = {
+                street: document.getElementById('addressLine1').value,
+                city: document.getElementById('addressCity').value,
+                postalCode: document.getElementById('addressPostal').value,
+                isDefault: userAddresses.length === 0
+            };
+            
+            if (!address.street || !address.city) {
+                showNotification('Please fill required fields', 'error');
+                return;
+            }
+            
+            const result = await Backend.saveAddress(currentUser.id, address);
+            if (result.success) {
+                showNotification('Address saved', 'success');
+                await loadAddresses();
+                closeAddressModal();
+                document.getElementById('addressLine1').value = '';
+                document.getElementById('addressCity').value = '';
+                document.getElementById('addressPostal').value = '';
+            } else {
+                showNotification('Failed to save address', 'error');
+            }
+        }
+        
+        function addPaymentMethod() {
+            const cardNum = prompt('Enter card number (last 4 digits will be saved):');
+            if (cardNum && cardNum.length >= 4) {
+                const last4 = cardNum.slice(-4);
+                const cardType = cardNum.startsWith('4') ? 'visa' : 'mastercard';
+                Backend.savePaymentMethod(currentUser.id, { last4, cardType, expiry: '12/25' });
+                showNotification('Payment method saved', 'success');
+                loadPaymentMethods();
+            }
+        }
+        
+        function viewWalletTransactions() {
+            showNotification('Transaction history feature coming soon', 'info');
+        }
+        
+        function setDefaultAddress(addressId) {
+            showNotification('Default address updated', 'success');
+        }
+        
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        function closeAddressModal() {
+            document.getElementById('addressModal').style.display = 'none';
+        }
+        
+        function closeFundsModal() {
+            document.getElementById('fundsModal').style.display = 'none';
+        }
+        
+        function switchConsumerTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            const tabButtons = document.querySelectorAll('.tab');
+            const tabMap = { home: 0, profile: 1, orders: 2, wallet: 3 };
+            if (tabButtons[tabMap[tab]]) tabButtons[tabMap[tab]].classList.add('active');
+            document.getElementById(`${tab}Tab`).classList.add('active');
+        }
+        
         // ==================== NAVIGATION ====================
+        function goToHome() {
+            if (currentRole === 'consumer') {
+                switchConsumerTab('home');
+            }
+        }
+        
         function goToProfile() {
             if (currentRole === 'advertiser') {
                 window.location.href = 'business-profile.html';
             } else {
-                comingSoon('consumer profile');
+                switchConsumerTab('profile');
             }
+        }
+        
+        function goToBusinessProfile() {
+            window.location.href = 'business-profile.html';
         }
         
         function navigateToRolePage() {
@@ -760,40 +1417,29 @@
             }
         }
         
-        // ==================== CONSUMER FUNCTIONS ====================
+        // ==================== CONSUMER DATA FUNCTIONS ====================
         function loadConsumerData() {
-            console.log("🟢 Loading consumer data");
             loadFridgeData();
             loadListCount();
             loadDealsData();
         }
         
-        // FRIDGE - WORKING
         function loadFridgeData() {
             const items = JSON.parse(localStorage.getItem('foodItems')) || [];
-            
             document.getElementById('fridgeCount').textContent = items.length + ' items';
             
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            let good = 0;
-            let expiring = 0;
-            let expired = 0;
+            let good = 0, expiring = 0, expired = 0;
             
             items.forEach(item => {
                 const expiryDate = new Date(item.expiry);
                 expiryDate.setHours(0, 0, 0, 0);
-                
                 const diffDays = Math.round((expiryDate - today) / (1000 * 60 * 60 * 24));
-                
-                if (diffDays < 0) {
-                    expired++;
-                } else if (diffDays <= 3) {
-                    expiring++;
-                } else {
-                    good++;
-                }
+                if (diffDays < 0) expired++;
+                else if (diffDays <= 3) expiring++;
+                else good++;
             });
             
             document.getElementById('goodCount').textContent = good;
@@ -801,35 +1447,22 @@
             document.getElementById('expiredCount').textContent = expired;
             
             const footer = document.getElementById('fridgeFooter');
-            if (items.length === 0) {
-                footer.innerHTML = '<a href="fridge.html">add items to fridge →</a>';
-            } else {
-                footer.innerHTML = '';
-            }
+            footer.innerHTML = items.length === 0 ? '<a href="fridge.html">add items to fridge →</a>' : '';
         }
         
         function loadListCount() {
             const lists = JSON.parse(localStorage.getItem('shoplists')) || {};
             let total = 0;
             for (let key in lists) {
-                if (lists[key].items) {
-                    total += lists[key].items.length;
-                }
+                if (lists[key].items) total += lists[key].items.length;
             }
             document.getElementById('listCount').textContent = total + ' items';
         }
         
-        // DEALS - FIXED to use offerEnds instead of expiryDate
         async function loadDealsData() {
-            console.log("🟡 Loading deals from Backend...");
-            
             const container = document.getElementById('recentDeals');
-            
             try {
                 const ads = await Backend.getActiveAds({ limit: 3 });
-                
-                console.log("📦 Deals received:", ads);
-                
                 document.getElementById('dealsCount').textContent = ads.length + ' nearby';
                 
                 if (ads.length === 0) {
@@ -838,12 +1471,9 @@
                 }
                 
                 const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
-                
                 let html = '';
                 for (let i = 0; i < Math.min(sortedAds.length, 3); i++) {
                     const ad = sortedAds[i];
-                    
-                    // FIXED: Use offerEnds instead of expiryDate
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     
@@ -864,24 +1494,10 @@
                         </div>
                     `;
                 }
-                
                 container.innerHTML = html;
-                console.log("✅ Deals displayed");
-                
             } catch (error) {
-                console.error("❌ Error loading deals:", error);
                 container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>';
             }
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
         
         // ==================== ADVERTISER FUNCTIONS ====================
@@ -892,46 +1508,28 @@
             document.getElementById('shopName').textContent = businessName;
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
-            
             loadShopAds();
         }
         
         async function loadShopAds() {
             try {
-                const currentUser = Backend.getCurrentUser();
-                if (!currentUser) {
-                    document.getElementById('shopAds').innerHTML = '<div class="empty-state">please login</div>';
-                    return;
-                }
-                
                 const shopAds = await Backend.getShopAds(currentUser.id);
-                
                 document.getElementById('shopAdCount').textContent = shopAds.length;
                 
                 let views = 0, claimed = 0;
-                shopAds.forEach(ad => {
-                    views += ad.views || 0;
-                    claimed += ad.claimed || 0;
-                });
+                shopAds.forEach(ad => { views += ad.views || 0; claimed += ad.claimed || 0; });
                 document.getElementById('shopViews').textContent = views;
                 document.getElementById('shopClaimed').textContent = claimed;
                 
                 const container = document.getElementById('shopAds');
-                
                 if (shopAds.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div>📢 no active ads</div>
-                            <a href="advertise.html" class="add-link">post ad →</a>
-                        </div>
-                    `;
+                    container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html" class="add-link">post ad →</a></div>`;
                     return;
                 }
                 
                 let html = '';
                 for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
                     const ad = shopAds[i];
-                    // FIXED: Use offerEnds instead of expiryDate
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const expiringClass = daysUntil <= 2 ? 'expiring' : '';
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
@@ -950,31 +1548,49 @@
                         </div>
                     `;
                 }
-                
                 container.innerHTML = html;
-                
             } catch (error) {
-                console.error("Error loading shop ads:", error);
                 document.getElementById('shopAds').innerHTML = '<div class="empty-state">error loading ads</div>';
             }
         }
         
         // ==================== UTILS ====================
-        function logout() {
-            Backend.logout();
-            localStorage.clear();
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        }
+        
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        
+        async function logout() {
+            await Backend.logout();
             window.location.href = 'login.html';
         }
         
-        function comingSoon(feature) {
-            alert('✨ ' + feature + ' coming soon!');
-        }
-        
         // Make functions global
-        window.logout = logout;
+        window.goToHome = goToHome;
         window.goToProfile = goToProfile;
+        window.goToBusinessProfile = goToBusinessProfile;
         window.navigateToRolePage = navigateToRolePage;
-        window.comingSoon = comingSoon;
+        window.switchConsumerTab = switchConsumerTab;
+        window.editProfileField = editProfileField;
+        window.saveProfileEdit = saveProfileEdit;
+        window.closeModal = closeModal;
+        window.addAddress = addAddress;
+        window.saveAddress = saveAddress;
+        window.closeAddressModal = closeAddressModal;
+        window.addToWallet = addToWallet;
+        window.confirmAddFunds = confirmAddFunds;
+        window.closeFundsModal = closeFundsModal;
+        window.setDefaultAddress = setDefaultAddress;
+        window.addPaymentMethod = addPaymentMethod;
+        window.viewWalletTransactions = viewWalletTransactions;
+        window.logout = logout;
     </script>
 </body>
 </html>
