@@ -55,6 +55,11 @@ const Backend = {
                 user.set("businessVerified", false);
                 user.set("businessRole", "owner");
                 user.set("businessStaff", []);
+                user.set("walletBalance", 0);
+            } else if (role === "consumer") {
+                user.set("walletBalance", 0);
+                user.set("savedAddresses", []);
+                user.set("savedPaymentMethods", []);
             }
             
             await user.signUp();
@@ -130,6 +135,9 @@ const Backend = {
                 
             } else {
                 localStorage.setItem("loggedInConsumer", username);
+                // Load wallet balance for consumer
+                const walletBalance = user.get("walletBalance") || 0;
+                localStorage.setItem("walletBalance", walletBalance);
             }
             
             return { success: true, role };
@@ -909,6 +917,8 @@ const Backend = {
                     username: user.get("username"),
                     email: user.get("email"),
                     role: user.get("role"),
+                    walletBalance: user.get("walletBalance") || 0,
+                    savedAddresses: user.get("savedAddresses") || [],
                     createdAt: user.get("createdAt")
                 };
             });
@@ -942,6 +952,205 @@ const Backend = {
         } catch (error) {
             console.error("Get transaction history error:", error);
             return [];
+        }
+    },
+
+    // ========== PAYMENT & TRANSACTION METHODS ==========
+    
+    async saveTransaction(transaction) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
+            return await withMasterKey(async () => {
+                const Transaction = Parse.Object.extend("Transaction");
+                const newTransaction = new Transaction();
+                
+                newTransaction.set("transactionId", transaction.id);
+                newTransaction.set("userId", currentUser.id);
+                newTransaction.set("userName", currentUser.get("username"));
+                newTransaction.set("items", transaction.items);
+                newTransaction.set("subtotal", transaction.subtotal);
+                newTransaction.set("platformFee", transaction.platformFee);
+                newTransaction.set("total", transaction.total);
+                newTransaction.set("paymentMethod", transaction.paymentMethod);
+                newTransaction.set("status", transaction.status);
+                newTransaction.set("date", new Date(transaction.date));
+                
+                await newTransaction.save();
+                
+                // Update wallet balance if using wallet
+                if (transaction.paymentMethod === 'wallet') {
+                    const currentBalance = currentUser.get("walletBalance") || 0;
+                    currentUser.set("walletBalance", currentBalance - transaction.total);
+                    await currentUser.save();
+                    localStorage.setItem("walletBalance", currentBalance - transaction.total);
+                }
+                
+                return { success: true, transactionId: transaction.id };
+            });
+        } catch (error) {
+            console.error("Save transaction error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getUserTransactions(userId) {
+        try {
+            return await withMasterKey(async () => {
+                const Transaction = Parse.Object.extend("Transaction");
+                const query = new Parse.Query(Transaction);
+                query.equalTo("userId", userId);
+                query.descending("date");
+                
+                const transactions = await query.find();
+                return transactions.map(t => ({
+                    id: t.id,
+                    transactionId: t.get("transactionId"),
+                    items: t.get("items"),
+                    subtotal: t.get("subtotal"),
+                    platformFee: t.get("platformFee"),
+                    total: t.get("total"),
+                    paymentMethod: t.get("paymentMethod"),
+                    status: t.get("status"),
+                    date: t.get("date")
+                }));
+            });
+        } catch (error) {
+            console.error("Get user transactions error:", error);
+            return [];
+        }
+    },
+    
+    async getWalletBalance(userId) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                return user.get("walletBalance") || 0;
+            });
+        } catch (error) {
+            console.error("Get wallet balance error:", error);
+            return 0;
+        }
+    },
+    
+    async addToWallet(userId, amount) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                const currentBalance = user.get("walletBalance") || 0;
+                user.set("walletBalance", currentBalance + amount);
+                await user.save();
+                
+                if (userId === Parse.User.current()?.id) {
+                    localStorage.setItem("walletBalance", currentBalance + amount);
+                }
+                
+                return { success: true, newBalance: currentBalance + amount };
+            });
+        } catch (error) {
+            console.error("Add to wallet error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async savePaymentMethod(userId, paymentMethod) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                const savedMethods = user.get("savedPaymentMethods") || [];
+                
+                // Don't duplicate
+                const exists = savedMethods.some(m => m.last4 === paymentMethod.last4);
+                if (!exists) {
+                    savedMethods.push({
+                        id: Date.now(),
+                        last4: paymentMethod.last4,
+                        cardType: paymentMethod.cardType,
+                        expiry: paymentMethod.expiry,
+                        isDefault: savedMethods.length === 0
+                    });
+                    user.set("savedPaymentMethods", savedMethods);
+                    await user.save();
+                }
+                
+                return { success: true, methods: savedMethods };
+            });
+        } catch (error) {
+            console.error("Save payment method error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getSavedPaymentMethods(userId) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                return user.get("savedPaymentMethods") || [];
+            });
+        } catch (error) {
+            console.error("Get payment methods error:", error);
+            return [];
+        }
+    },
+    
+    async saveAddress(userId, address) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                const addresses = user.get("savedAddresses") || [];
+                
+                addresses.push({
+                    id: Date.now(),
+                    ...address,
+                    isDefault: addresses.length === 0
+                });
+                
+                user.set("savedAddresses", addresses);
+                await user.save();
+                
+                return { success: true, addresses };
+            });
+        } catch (error) {
+            console.error("Save address error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getSavedAddresses(userId) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                return user.get("savedAddresses") || [];
+            });
+        } catch (error) {
+            console.error("Get addresses error:", error);
+            return [];
+        }
+    },
+    
+    async updateConsumerProfile(userId, updates) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser || currentUser.id !== userId) {
+                return { success: false, message: "Unauthorized" };
+            }
+            
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                
+                if (updates.email) user.set("email", updates.email);
+                if (updates.phone) user.set("phone", updates.phone);
+                if (updates.fullName) user.set("fullName", updates.fullName);
+                
+                await user.save();
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Update consumer profile error:", error);
+            return { success: false, message: error.message };
         }
     },
 
