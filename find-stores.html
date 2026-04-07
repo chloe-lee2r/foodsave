@@ -406,6 +406,18 @@
         ];
         
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in as consumer
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'consumer') {
+                showNotification('Please login as consumer', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+            
             renderCategories();
             loadDeals();
             updateCartCount();
@@ -439,6 +451,8 @@
                     search: currentSearch
                 });
                 
+                console.log('Loaded ads:', ads);
+                
                 if (ads.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -450,13 +464,17 @@
                     return;
                 }
                 
+                // Get current cart to show quantities
+                const savedCart = localStorage.getItem('claimCart');
+                const currentCart = savedCart ? JSON.parse(savedCart) : [];
+                
                 container.innerHTML = ads.map(ad => {
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     const discountedPrice = ad.originalPrice ? (ad.originalPrice * (1 - ad.discount / 100)).toFixed(2) : null;
                     
                     // Get current quantity in cart
-                    const cartItem = cart.find(item => item.id === ad.id);
+                    const cartItem = currentCart.find(item => item.id === ad.id);
                     const currentQty = cartItem ? cartItem.quantity : 0;
                     const remainingStock = ad.quantityLeft - currentQty;
                     
@@ -475,7 +493,7 @@
                             <div class="result-expiry">
                                 <span>offer ends in ${daysUntil} days • ${ad.views || 0} views</span>
                                 <div class="quantity-selector">
-                                    <button class="qty-btn" onclick="changeQuantity('${ad.id}', -1, ${ad.quantityLeft})" ${remainingStock <= 0 ? 'disabled' : ''}>-</button>
+                                    <button class="qty-btn" onclick="changeQuantity('${ad.id}', -1, ${ad.quantityLeft})" ${remainingStock <= 0 || currentQty <= 0 ? 'disabled' : ''}>-</button>
                                     <span class="qty-value" id="qty-${ad.id}">${currentQty}</span>
                                     <button class="qty-btn" onclick="changeQuantity('${ad.id}', 1, ${ad.quantityLeft})" ${remainingStock <= 0 ? 'disabled' : ''}>+</button>
                                 </div>
@@ -489,23 +507,21 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div>failed to load deals</div>
+                        <div style="font-size:13px; margin-top:8px;">${error.message}</div>
                     </div>
                 `;
             }
         }
         
-        function changeQuantity(adId, delta, maxStock) {
-            // Find the ad from current deals
-            loadDealsAndUpdateCart(adId, delta, maxStock);
-        }
-        
-        async function loadDealsAndUpdateCart(adId, delta, maxStock) {
+        async function changeQuantity(adId, delta, maxStock) {
             try {
+                // First, get the ad details to ensure it exists
                 const ads = await Backend.getActiveAds();
                 const ad = ads.find(a => a.id === adId);
                 
                 if (!ad) {
-                    showNotification('Deal not found', 'error');
+                    showNotification('Deal not found or expired', 'error');
+                    await loadDeals(); // Refresh the page
                     return;
                 }
                 
@@ -563,6 +579,7 @@
                 
             } catch (error) {
                 console.error('Error updating cart:', error);
+                showNotification('Error adding to cart', 'error');
             }
         }
         
