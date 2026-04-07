@@ -62,19 +62,12 @@
             text-decoration: none;
             color: #007aff;
             font-size: 20px;
-            transition: 0.2s;
-        }
-        
-        .back-link:active {
-            background: #e8ecf0;
-            transform: scale(0.95);
         }
         
         .header h1 {
             flex: 1;
             font-size: 20px;
             font-weight: 600;
-            color: #000;
         }
         
         .sync-btn {
@@ -183,6 +176,10 @@
             display: block;
         }
         
+        .form-label .required {
+            color: #ff3b30;
+        }
+        
         .form-input, .form-select {
             width: 100%;
             padding: 14px;
@@ -191,6 +188,7 @@
             font-size: 16px;
             background: #fafafa;
             transition: 0.2s;
+            font-family: inherit;
         }
         
         .form-input:focus, .form-select:focus {
@@ -203,6 +201,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+        }
+        
+        .info-note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            display: block;
         }
         
         .post-btn {
@@ -269,10 +274,6 @@
         
         .ad-item.expiring-soon {
             border-left-color: #ff9500;
-        }
-        
-        .ad-item.low-quantity {
-            border-left-color: #ff3b30;
         }
         
         .ad-item.inactive {
@@ -463,7 +464,6 @@
             padding: 8px 20px;
             display: flex;
             justify-content: space-around;
-            z-index: 100;
         }
         
         .nav-item {
@@ -471,8 +471,6 @@
             color: #999;
             font-size: 12px;
             text-align: center;
-            transition: 0.2s;
-            padding: 4px 0;
             flex: 1;
         }
         
@@ -483,28 +481,6 @@
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
-            display: block;
-        }
-        
-        /* Additional styles for new fields */
-        .info-note {
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
-            display: block;
-        }
-        
-        .batch-preview {
-            background: #f0f4ff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #667eea;
-            margin-top: 8px;
-            display: none;
-        }
-        
-        .batch-preview.show {
             display: block;
         }
     </style>
@@ -538,48 +514,49 @@
                 </div>
             </div>
             
-            <!-- Post New Ad Form - EXTENDED with Batch Number and Quantity -->
             <div class="form-section">
                 <div class="section-title">post new deal</div>
                 
                 <div class="form-group">
-                    <label class="form-label">food item</label>
+                    <label class="form-label">food item <span class="required">*</span></label>
                     <input type="text" class="form-input" id="foodName" placeholder="e.g., organic milk">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">discount %</label>
+                        <label class="form-label">discount % <span class="required">*</span></label>
                         <input type="number" class="form-input" id="discount" placeholder="20" min="1" max="100">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">original price</label>
+                        <label class="form-label">original price <span class="required">*</span></label>
                         <input type="number" class="form-input" id="price" placeholder="4.99" step="0.01" min="0">
                     </div>
                 </div>
                 
-                <!-- NEW: Batch Number Field -->
-                <div class="form-group">
-                    <label class="form-label">batch number</label>
-                    <input type="text" class="form-input" id="batchNumber" placeholder="e.g., BATCH-2401-001">
-                    <span class="info-note">Unique batch/lot number for tracking this production batch</span>
-                    <div class="batch-preview" id="batchPreview">
-                        📦 Batch ID will be: <span id="batchPreviewText"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">quantity left <span class="required">*</span></label>
+                        <input type="number" class="form-input" id="quantityLeft" placeholder="e.g., 24" min="1" step="1">
+                        <span class="info-note">Number of items available for this offer</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">batch number (optional)</label>
+                        <input type="text" class="form-input" id="batchNumber" placeholder="e.g., BATCH-2401-001">
+                        <span class="info-note">Optional: For tracking specific production batches</span>
                     </div>
                 </div>
                 
-                <!-- NEW: Quantity Left Field -->
-                <div class="form-group">
-                    <label class="form-label">quantity left</label>
-                    <input type="number" class="form-input" id="quantityLeft" placeholder="e.g., 24" min="1" step="1">
-                    <span class="info-note">Number of items available for this offer</span>
-                </div>
-                
-                <!-- CHANGED: "Expiry Date" to "Offer Ends" -->
-                <div class="form-group">
-                    <label class="form-label">offer ends</label>
-                    <input type="date" class="form-input" id="offerEnds">
-                    <span class="info-note">This offer will expire on this date (near-expiry promotion)</span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">offer ends <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="offerEnds">
+                        <span class="info-note">This offer will expire on this date</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">batch expiry date <span class="required">*</span></label>
+                        <input type="date" class="form-input" id="batchExpiryDate">
+                        <span class="info-note">Actual expiry date of the batch (must be same or after offer ends)</span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -597,14 +574,13 @@
                 
                 <div class="form-group">
                     <label class="form-label">description (optional)</label>
-                    <input type="text" class="form-input" id="description" placeholder="e.g., near expiry - best before this week">
+                    <input type="text" class="form-input" id="description" placeholder="e.g., organic, local">
                 </div>
                 
                 <button class="post-btn" onclick="postAd()" id="postBtn">post deal</button>
                 <p id="verifyWarning" style="color: #ff3b30; font-size: 13px; text-align: center; margin-top: 8px; display: none;">⚠️ verification required to post ads</p>
             </div>
             
-            <!-- Active Ads -->
             <div class="ads-section">
                 <div class="ads-header">
                     <div class="ads-title">your active deals</div>
@@ -688,24 +664,14 @@
                 postBtn.disabled = true;
             }
             
-            // Set default offer ends to 3 days from now (near-expiry)
-            const defaultDate = new Date();
-            defaultDate.setDate(defaultDate.getDate() + 3);
-            document.getElementById('offerEnds').value = defaultDate.toISOString().split('T')[0];
+            // Set default dates
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('offerEnds').value = tomorrow.toISOString().split('T')[0];
             
-            // Batch number preview
-            const batchInput = document.getElementById('batchNumber');
-            const batchPreview = document.getElementById('batchPreview');
-            const batchPreviewText = document.getElementById('batchPreviewText');
-            
-            batchInput.addEventListener('input', () => {
-                if (batchInput.value.trim()) {
-                    batchPreviewText.textContent = batchInput.value.trim();
-                    batchPreview.classList.add('show');
-                } else {
-                    batchPreview.classList.remove('show');
-                }
-            });
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            document.getElementById('batchExpiryDate').value = nextWeek.toISOString().split('T')[0];
             
             await loadShopAds();
         });
@@ -719,12 +685,14 @@
             const foodName = document.getElementById('foodName').value.trim();
             const discount = document.getElementById('discount').value;
             const price = document.getElementById('price').value;
+            const quantityLeft = document.getElementById('quantityLeft').value;
             const offerEnds = document.getElementById('offerEnds').value;
+            const batchExpiryDate = document.getElementById('batchExpiryDate').value;
+            const batchNumber = document.getElementById('batchNumber').value.trim();
             const category = document.getElementById('category').value;
             const description = document.getElementById('description').value.trim();
-            const batchNumber = document.getElementById('batchNumber').value.trim();
-            const quantityLeft = document.getElementById('quantityLeft').value;
             
+            // Validate required fields
             if (!foodName) {
                 showNotification('Enter food name', 'error');
                 return;
@@ -735,13 +703,8 @@
                 return;
             }
             
-            if (!offerEnds) {
-                showNotification('Select offer end date', 'error');
-                return;
-            }
-            
-            if (!batchNumber) {
-                showNotification('Enter batch number for tracking', 'error');
+            if (!price || price < 0) {
+                showNotification('Enter valid price', 'error');
                 return;
             }
             
@@ -750,12 +713,28 @@
                 return;
             }
             
+            if (!offerEnds) {
+                showNotification('Select offer end date', 'error');
+                return;
+            }
+            
+            if (!batchExpiryDate) {
+                showNotification('Select batch expiry date', 'error');
+                return;
+            }
+            
             const today = new Date();
             today.setHours(0,0,0,0);
-            const endDate = new Date(offerEnds);
+            const offerEnd = new Date(offerEnds);
+            const batchExpiry = new Date(batchExpiryDate);
             
-            if (endDate < today) {
+            if (offerEnd < today) {
                 showNotification('Offer end date must be in the future', 'error');
+                return;
+            }
+            
+            if (batchExpiry < offerEnd) {
+                showNotification('Batch expiry date must be on or after offer end date', 'error');
                 return;
             }
             
@@ -766,13 +745,14 @@
             const result = await Backend.createAd({
                 foodName,
                 discount,
-                originalPrice: price || 0,
-                offerEnds: offerEnds,  // Changed from expiryDate
+                originalPrice: price,
+                quantityLeft: parseInt(quantityLeft),
+                offerEnds: offerEnds,
+                batchExpiryDate: batchExpiryDate,
+                batchNumber: batchNumber || '',
                 category,
                 description,
-                shopName: currentShop.name,
-                batchNumber: batchNumber,  // NEW
-                quantityLeft: parseInt(quantityLeft)  // NEW
+                shopName: currentShop.name
             });
             
             if (result.success) {
@@ -781,15 +761,17 @@
                 document.getElementById('foodName').value = '';
                 document.getElementById('discount').value = '';
                 document.getElementById('price').value = '';
-                document.getElementById('batchNumber').value = '';
                 document.getElementById('quantityLeft').value = '';
+                document.getElementById('batchNumber').value = '';
                 document.getElementById('description').value = '';
-                document.getElementById('batchPreview').classList.remove('show');
                 
-                // Reset offer ends to 3 days from now
-                const newDefault = new Date();
-                newDefault.setDate(newDefault.getDate() + 3);
-                document.getElementById('offerEnds').value = newDefault.toISOString().split('T')[0];
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('offerEnds').value = tomorrow.toISOString().split('T')[0];
+                
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                document.getElementById('batchExpiryDate').value = nextWeek.toISOString().split('T')[0];
                 
                 await loadShopAds();
             } else {
@@ -804,22 +786,30 @@
             const container = document.getElementById('adsContainer');
             
             try {
-                shopAds = await Backend.getShopAds(currentShop.id);
+                const currentUser = Backend.getCurrentUser();
+                if (!currentUser) {
+                    container.innerHTML = '<div class="empty-state">please login</div>';
+                    return;
+                }
+                
+                shopAds = await Backend.getShopAds(currentUser.id);
                 
                 document.getElementById('totalAds').textContent = shopAds.length;
                 
-                const totalViews = shopAds.reduce((sum, ad) => sum + (ad.views || 0), 0);
-                const totalClaimed = shopAds.reduce((sum, ad) => sum + (ad.claimed || 0), 0);
-                
-                document.getElementById('totalViews').textContent = totalViews;
-                document.getElementById('totalClaimed').textContent = totalClaimed;
+                let views = 0, claimed = 0;
+                shopAds.forEach(ad => {
+                    views += ad.views || 0;
+                    claimed += ad.claimed || 0;
+                });
+                document.getElementById('totalViews').textContent = views;
+                document.getElementById('totalClaimed').textContent = claimed;
                 
                 if (shopAds.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-emoji">📢</div>
                             <div>no active deals</div>
-                            <div style="font-size:13px; margin-top:8px;">post your first near-expiry deal above</div>
+                            <div style="font-size:13px; margin-top:8px;">post your first deal above</div>
                         </div>
                     `;
                     return;
@@ -832,31 +822,25 @@
                     const isExpiringSoon = daysUntilEnd <= 3;
                     const isLowQuantity = ad.quantityLeft && ad.quantityLeft <= 5;
                     
-                    let quantityClass = '';
-                    if (isLowQuantity) quantityClass = 'low';
-                    
                     return `
-                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''} ${isLowQuantity ? 'low-quantity' : ''} ${!ad.active ? 'inactive' : ''}">
+                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''} ${!ad.active ? 'inactive' : ''}">
                             <div class="ad-header">
                                 <span class="ad-food">${escapeHtml(ad.foodName)}</span>
                                 <span class="ad-discount">${ad.discount}% off</span>
                             </div>
-                            
                             <div class="ad-details">
                                 ${ad.originalPrice ? `<span>was $${ad.originalPrice}</span>` : ''}
-                                <span class="ad-batch-info">📦 batch: ${escapeHtml(ad.batchNumber || 'N/A')}</span>
-                                <span class="ad-quantity ${quantityClass}">📊 ${ad.quantityLeft || 0} left</span>
+                                ${ad.batchNumber ? `<span class="ad-batch-info">📦 batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
+                                <span class="ad-quantity ${isLowQuantity ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
                                 <span>offer ends: ${new Date(ad.offerEnds).toLocaleDateString()}</span>
+                                ${ad.batchExpiryDate ? `<span>batch expiry: ${new Date(ad.batchExpiryDate).toLocaleDateString()}</span>` : ''}
                                 ${isExpiringSoon ? '<span style="color:#ff9500;">⚠️ ends soon</span>' : ''}
-                                ${isLowQuantity ? '<span style="color:#ff3b30;">🔥 low stock</span>' : ''}
                             </div>
-                            
                             <div class="ad-stats">
                                 <span>👁️ ${ad.views || 0} views</span>
                                 <span>✅ ${ad.claimed || 0} claimed</span>
                                 <span>📅 ${new Date(ad.createdAt).toLocaleDateString()}</span>
                             </div>
-                            
                             ${businessRole === 'owner' || businessRole === 'manager' ? `
                                 <div class="ad-actions">
                                     <button class="ad-btn update-qty-btn" onclick="updateQuantity('${ad.id}', ${ad.quantityLeft || 0})">📦 update stock</button>
@@ -870,18 +854,12 @@
                 
             } catch (error) {
                 console.error('Error loading ads:', error);
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-emoji">❌</div>
-                        <div>failed to load ads</div>
-                    </div>
-                `;
+                container.innerHTML = '<div class="empty-state">error loading ads</div>';
             }
         }
         
         async function updateQuantity(adId, currentQuantity) {
             const newQuantity = prompt(`Current quantity left: ${currentQuantity}\nEnter new quantity left:`, currentQuantity);
-            
             if (newQuantity === null) return;
             
             const qty = parseInt(newQuantity);
@@ -891,7 +869,6 @@
             }
             
             const result = await Backend.updateAd(adId, { quantityLeft: qty });
-            
             if (result.success) {
                 showNotification(`Quantity updated to ${qty}`, 'success');
                 await loadShopAds();
@@ -902,9 +879,7 @@
         
         async function deleteAd(adId) {
             if (!confirm('Delete this ad permanently?')) return;
-            
             const result = await Backend.deleteAd(adId);
-            
             if (result.success) {
                 showNotification('Ad deleted', 'success');
                 await loadShopAds();
@@ -915,7 +890,6 @@
         
         async function deactivateAd(adId) {
             const result = await Backend.updateAd(adId, { active: false });
-            
             if (result.success) {
                 showNotification('Ad deactivated', 'success');
                 await loadShopAds();
@@ -934,7 +908,7 @@
             });
         }
         
-        function showNotification(msg, type = 'info') {
+        function showNotification(msg, type) {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
