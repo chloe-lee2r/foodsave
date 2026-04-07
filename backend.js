@@ -55,7 +55,7 @@ const Backend = {
                 user.set("businessVerified", false);
                 user.set("businessRole", "owner");
                 user.set("businessStaff", []);
-                user.set("businessWalletBalance", 0);  // ADDED
+                user.set("businessWalletBalance", 0);
             } else if (role === "consumer") {
                 user.set("walletBalance", 0);
                 user.set("savedAddresses", []);
@@ -694,7 +694,7 @@ const Backend = {
         }
     },
 
-    // ========== CLAIM & CART SYSTEM (UPDATED WITH WALLET) ==========
+    // ========== CLAIM & CART SYSTEM (FIXED WITH WALLET) ==========
     
     async processClaim(adId, quantity) {
         try {
@@ -738,17 +738,7 @@ const Backend = {
                     return { success: false, message: `Insufficient wallet balance. Need $${totalAmount.toFixed(2)}` };
                 }
                 
-                // Deduct from consumer wallet
-                currentUser.set("walletBalance", consumerWallet - totalAmount);
-                await currentUser.save();
-                
-                // Add to business wallet
-                const businessUser = await new Parse.Query(Parse.User).get(ad.get("businessId"));
-                const businessWallet = businessUser.get("businessWalletBalance") || 0;
-                businessUser.set("businessWalletBalance", businessWallet + totalAmount);
-                await businessUser.save();
-                
-                // Create claim record with total amount
+                // Create claim record FIRST
                 const Claim = Parse.Object.extend("Claim");
                 const claim = new Claim();
                 claim.set("adId", adId);
@@ -764,8 +754,17 @@ const Backend = {
                 claim.set("totalAmount", totalAmount);
                 claim.set("status", "pending");
                 claim.set("claimedAt", new Date());
-                
                 await claim.save();
+                
+                // Deduct from consumer wallet
+                currentUser.set("walletBalance", consumerWallet - totalAmount);
+                await currentUser.save();
+                
+                // Add to business wallet
+                const businessUser = await new Parse.Query(Parse.User).get(ad.get("businessId"));
+                const businessWallet = businessUser.get("businessWalletBalance") || 0;
+                businessUser.set("businessWalletBalance", businessWallet + totalAmount);
+                await businessUser.save();
                 
                 // Update ad stock
                 ad.set("quantityLeft", currentQuantity - quantity);
@@ -774,7 +773,6 @@ const Backend = {
                 if (currentQuantity - quantity === 0) {
                     ad.set("active", false);
                 }
-                
                 await ad.save();
                 
                 // Send notification to business
@@ -1041,7 +1039,7 @@ const Backend = {
         }
     },
 
-    // ========== BUSINESS WALLET METHODS (NEW) ==========
+    // ========== BUSINESS WALLET METHODS ==========
     
     async getBusinessWalletBalance(businessId) {
         try {
@@ -1285,7 +1283,7 @@ const Backend = {
         }
     },
 
-    // ========== REVENUE TRACKING (NO FEES) ==========
+    // ========== REVENUE TRACKING ==========
     
     async getBusinessRevenue(businessId) {
         try {
