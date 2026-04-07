@@ -55,7 +55,7 @@ const Backend = {
                 user.set("businessVerified", false);
                 user.set("businessRole", "owner");
                 user.set("businessStaff", []);
-                user.set("walletBalance", 0);
+                user.set("businessWalletBalance", 0);  // ADDED
             } else if (role === "consumer") {
                 user.set("walletBalance", 0);
                 user.set("savedAddresses", []);
@@ -135,7 +135,6 @@ const Backend = {
                 
             } else {
                 localStorage.setItem("loggedInConsumer", username);
-                // Load wallet balance for consumer
                 const walletBalance = user.get("walletBalance") || 0;
                 localStorage.setItem("walletBalance", walletBalance);
             }
@@ -191,6 +190,7 @@ const Backend = {
                     businessVerified: currentUser.get("businessVerified"),
                     businessRole: currentUser.get("businessRole"),
                     businessStaff: currentUser.get("businessStaff") || [],
+                    businessWalletBalance: currentUser.get("businessWalletBalance") || 0,
                     createdAt: currentUser.get("createdAt")
                 };
             });
@@ -694,7 +694,7 @@ const Backend = {
         }
     },
 
-    // ========== CLAIM & CART SYSTEM ==========
+    // ========== CLAIM & CART SYSTEM (UPDATED WITH WALLET) ==========
     
     async processClaim(adId, quantity) {
         try {
@@ -728,6 +728,27 @@ const Backend = {
                     return { success: false, message: `Only ${currentQuantity} items left` };
                 }
                 
+                // Calculate total amount
+                const discountedPrice = ad.get("originalPrice") * (1 - ad.get("discount") / 100);
+                const totalAmount = discountedPrice * quantity;
+                
+                // Check consumer wallet balance
+                const consumerWallet = currentUser.get("walletBalance") || 0;
+                if (consumerWallet < totalAmount) {
+                    return { success: false, message: `Insufficient wallet balance. Need $${totalAmount.toFixed(2)}` };
+                }
+                
+                // Deduct from consumer wallet
+                currentUser.set("walletBalance", consumerWallet - totalAmount);
+                await currentUser.save();
+                
+                // Add to business wallet
+                const businessUser = await new Parse.Query(Parse.User).get(ad.get("businessId"));
+                const businessWallet = businessUser.get("businessWalletBalance") || 0;
+                businessUser.set("businessWalletBalance", businessWallet + totalAmount);
+                await businessUser.save();
+                
+                // Create claim record with total amount
                 const Claim = Parse.Object.extend("Claim");
                 const claim = new Claim();
                 claim.set("adId", adId);
@@ -740,11 +761,13 @@ const Backend = {
                 claim.set("discount", ad.get("discount"));
                 claim.set("originalPrice", ad.get("originalPrice"));
                 claim.set("batchNumber", ad.get("batchNumber"));
+                claim.set("totalAmount", totalAmount);
                 claim.set("status", "pending");
                 claim.set("claimedAt", new Date());
                 
                 await claim.save();
                 
+                // Update ad stock
                 ad.set("quantityLeft", currentQuantity - quantity);
                 ad.increment("claimed", quantity);
                 
@@ -754,12 +777,16 @@ const Backend = {
                 
                 await ad.save();
                 
+                // Send notification to business
                 await this.sendNotification(
                     ad.get("businessId"),
-                    `🛒 New order! ${currentUser.get("username")} ordered ${quantity}x ${ad.get("foodName")} (Batch: ${ad.get("batchNumber") || "N/A"})`
+                    `🛒 New order! ${currentUser.get("username")} ordered ${quantity}x ${ad.get("foodName")} - $${totalAmount.toFixed(2)}`
                 );
                 
-                return { success: true, message: "Order placed! Business notified.", claimId: claim.id };
+                // Update localStorage
+                localStorage.setItem("walletBalance", consumerWallet - totalAmount);
+                
+                return { success: true, message: `Order placed! $${totalAmount.toFixed(2)} deducted from wallet.`, claimId: claim.id };
             });
             
         } catch (error) {
@@ -843,6 +870,7 @@ const Backend = {
                     discount: c.get("discount"),
                     originalPrice: c.get("originalPrice"),
                     batchNumber: c.get("batchNumber"),
+                    totalAmount: c.get("totalAmount") || 0,
                     status: c.get("status"),
                     claimedAt: c.get("claimedAt")
                 }));
@@ -896,6 +924,7 @@ const Backend = {
                     quantity: c.get("quantity"),
                     discount: c.get("discount"),
                     batchNumber: c.get("batchNumber"),
+                    totalAmount: c.get("totalAmount") || 0,
                     status: c.get("status"),
                     claimedAt: c.get("claimedAt")
                 }));
@@ -945,7 +974,7 @@ const Backend = {
                     discount: c.get("discount"),
                     batchNumber: c.get("batchNumber"),
                     status: c.get("status"),
-                    amount: (c.get("originalPrice") || 0) * (1 - (c.get("discount") || 0) / 100) * c.get("quantity"),
+                    amount: c.get("totalAmount") || 0,
                     claimedAt: c.get("claimedAt")
                 }));
             });
@@ -955,74 +984,7 @@ const Backend = {
         }
     },
 
-    // ========== PAYMENT & TRANSACTION METHODS ==========
-    
-    async saveTransaction(transaction) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) {
-                return { success: false, message: "Please login first" };
-            }
-            
-            return await withMasterKey(async () => {
-                const Transaction = Parse.Object.extend("Transaction");
-                const newTransaction = new Transaction();
-                
-                newTransaction.set("transactionId", transaction.id);
-                newTransaction.set("userId", currentUser.id);
-                newTransaction.set("userName", currentUser.get("username"));
-                newTransaction.set("items", transaction.items);
-                newTransaction.set("subtotal", transaction.subtotal);
-                newTransaction.set("platformFee", transaction.platformFee);
-                newTransaction.set("total", transaction.total);
-                newTransaction.set("paymentMethod", transaction.paymentMethod);
-                newTransaction.set("status", transaction.status);
-                newTransaction.set("date", new Date(transaction.date));
-                
-                await newTransaction.save();
-                
-                // Update wallet balance if using wallet
-                if (transaction.paymentMethod === 'wallet') {
-                    const currentBalance = currentUser.get("walletBalance") || 0;
-                    currentUser.set("walletBalance", currentBalance - transaction.total);
-                    await currentUser.save();
-                    localStorage.setItem("walletBalance", currentBalance - transaction.total);
-                }
-                
-                return { success: true, transactionId: transaction.id };
-            });
-        } catch (error) {
-            console.error("Save transaction error:", error);
-            return { success: false, message: error.message };
-        }
-    },
-    
-    async getUserTransactions(userId) {
-        try {
-            return await withMasterKey(async () => {
-                const Transaction = Parse.Object.extend("Transaction");
-                const query = new Parse.Query(Transaction);
-                query.equalTo("userId", userId);
-                query.descending("date");
-                
-                const transactions = await query.find();
-                return transactions.map(t => ({
-                    id: t.id,
-                    transactionId: t.get("transactionId"),
-                    items: t.get("items"),
-                    subtotal: t.get("subtotal"),
-                    platformFee: t.get("platformFee"),
-                    total: t.get("total"),
-                    paymentMethod: t.get("paymentMethod"),
-                    status: t.get("status"),
-                    date: t.get("date")
-                }));
-            });
-        } catch (error) {
-            console.error("Get user transactions error:", error);
-            return [];
-        }
-    },
+    // ========== WALLET METHODS (CONSUMER) ==========
     
     async getWalletBalance(userId) {
         try {
@@ -1056,13 +1018,182 @@ const Backend = {
         }
     },
     
+    async deductFromWallet(userId, amount) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId);
+                const currentBalance = user.get("walletBalance") || 0;
+                if (currentBalance < amount) {
+                    return { success: false, message: "Insufficient balance" };
+                }
+                user.set("walletBalance", currentBalance - amount);
+                await user.save();
+                
+                if (userId === Parse.User.current()?.id) {
+                    localStorage.setItem("walletBalance", currentBalance - amount);
+                }
+                
+                return { success: true, newBalance: currentBalance - amount };
+            });
+        } catch (error) {
+            console.error("Deduct from wallet error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    // ========== BUSINESS WALLET METHODS (NEW) ==========
+    
+    async getBusinessWalletBalance(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(businessId);
+                return user.get("businessWalletBalance") || 0;
+            });
+        } catch (error) {
+            console.error("Get business wallet error:", error);
+            return 0;
+        }
+    },
+    
+    async addToBusinessWallet(businessId, amount) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(businessId);
+                const currentBalance = user.get("businessWalletBalance") || 0;
+                user.set("businessWalletBalance", currentBalance + amount);
+                await user.save();
+                return { success: true, newBalance: currentBalance + amount };
+            });
+        } catch (error) {
+            console.error("Add to business wallet error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async requestWithdrawal(businessId, amount) {
+        try {
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(businessId);
+                const currentBalance = user.get("businessWalletBalance") || 0;
+                
+                if (amount < 5) {
+                    return { success: false, message: "Minimum withdrawal amount is $5" };
+                }
+                
+                if (currentBalance < amount) {
+                    return { success: false, message: `Insufficient balance. Available: $${currentBalance.toFixed(2)}` };
+                }
+                
+                // Create withdrawal request record
+                const Withdrawal = Parse.Object.extend("Withdrawal");
+                const withdrawal = new Withdrawal();
+                withdrawal.set("businessId", businessId);
+                withdrawal.set("businessName", user.get("businessName"));
+                withdrawal.set("amount", amount);
+                withdrawal.set("status", "pending");
+                withdrawal.set("requestedAt", new Date());
+                await withdrawal.save();
+                
+                // Deduct from business wallet
+                user.set("businessWalletBalance", currentBalance - amount);
+                await user.save();
+                
+                return { success: true, message: `Withdrawal request submitted for $${amount.toFixed(2)}` };
+            });
+        } catch (error) {
+            console.error("Request withdrawal error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getWithdrawalRequests(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Withdrawal = Parse.Object.extend("Withdrawal");
+                const query = new Parse.Query(Withdrawal);
+                query.equalTo("businessId", businessId);
+                query.descending("requestedAt");
+                
+                const withdrawals = await query.find();
+                return withdrawals.map(w => ({
+                    id: w.id,
+                    amount: w.get("amount"),
+                    status: w.get("status"),
+                    requestedAt: w.get("requestedAt"),
+                    processedAt: w.get("processedAt")
+                }));
+            });
+        } catch (error) {
+            console.error("Get withdrawal requests error:", error);
+            return [];
+        }
+    },
+
+    // ========== PAYMENT & TRANSACTION METHODS ==========
+    
+    async saveTransaction(transaction) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
+            return await withMasterKey(async () => {
+                const Transaction = Parse.Object.extend("Transaction");
+                const newTransaction = new Transaction();
+                
+                newTransaction.set("transactionId", transaction.id);
+                newTransaction.set("userId", currentUser.id);
+                newTransaction.set("userName", currentUser.get("username"));
+                newTransaction.set("items", transaction.items);
+                newTransaction.set("subtotal", transaction.subtotal);
+                newTransaction.set("total", transaction.total);
+                newTransaction.set("paymentMethod", transaction.paymentMethod);
+                newTransaction.set("status", transaction.status);
+                newTransaction.set("date", new Date(transaction.date));
+                
+                await newTransaction.save();
+                
+                return { success: true, transactionId: transaction.id };
+            });
+        } catch (error) {
+            console.error("Save transaction error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+    
+    async getUserTransactions(userId) {
+        try {
+            return await withMasterKey(async () => {
+                const Transaction = Parse.Object.extend("Transaction");
+                const query = new Parse.Query(Transaction);
+                query.equalTo("userId", userId);
+                query.descending("date");
+                
+                const transactions = await query.find();
+                return transactions.map(t => ({
+                    id: t.id,
+                    transactionId: t.get("transactionId"),
+                    items: t.get("items"),
+                    subtotal: t.get("subtotal"),
+                    total: t.get("total"),
+                    paymentMethod: t.get("paymentMethod"),
+                    status: t.get("status"),
+                    date: t.get("date")
+                }));
+            });
+        } catch (error) {
+            console.error("Get user transactions error:", error);
+            return [];
+        }
+    },
+    
     async savePaymentMethod(userId, paymentMethod) {
         try {
             return await withMasterKey(async () => {
                 const user = await new Parse.Query(Parse.User).get(userId);
                 const savedMethods = user.get("savedPaymentMethods") || [];
                 
-                // Don't duplicate
                 const exists = savedMethods.some(m => m.last4 === paymentMethod.last4);
                 if (!exists) {
                     savedMethods.push({
@@ -1154,7 +1285,7 @@ const Backend = {
         }
     },
 
-    // ========== REVENUE TRACKING ==========
+    // ========== REVENUE TRACKING (NO FEES) ==========
     
     async getBusinessRevenue(businessId) {
         try {
@@ -1166,27 +1297,16 @@ const Backend = {
                 
                 const claims = await query.find();
                 
-                let grossRevenue = 0;
-                let totalItems = 0;
-                
+                let totalRevenue = 0;
                 for (const claim of claims) {
-                    const quantity = claim.get("quantity") || 0;
-                    const originalPrice = claim.get("originalPrice") || 0;
-                    const discount = claim.get("discount") || 0;
-                    const itemRevenue = originalPrice * (1 - discount / 100) * quantity;
-                    grossRevenue += itemRevenue;
-                    totalItems += quantity;
+                    totalRevenue += claim.get("totalAmount") || 0;
                 }
                 
-                const platformFee = totalItems * 0.01;
-                const netRevenue = grossRevenue - platformFee;
-                
                 return {
-                    grossRevenue: grossRevenue,
-                    platformFee: platformFee,
-                    netRevenue: netRevenue,
-                    totalItemsSold: totalItems,
-                    totalOrders: claims.length
+                    totalRevenue: totalRevenue,
+                    totalOrders: claims.length,
+                    platformFee: 0,
+                    netRevenue: totalRevenue
                 };
             });
         } catch (error) {
