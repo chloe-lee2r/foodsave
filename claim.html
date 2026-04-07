@@ -379,7 +379,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Top Up Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -454,7 +453,6 @@
         </div>
         
         <div class="content">
-            <!-- Wallet Balance -->
             <div class="wallet-card">
                 <div class="wallet-label">💰 Wallet Balance</div>
                 <div class="wallet-amount" id="walletBalance">$0.00</div>
@@ -509,7 +507,6 @@
         </div>
     </div>
     
-    <!-- Top Up Modal -->
     <div class="modal" id="topUpModal">
         <div class="modal-content">
             <div class="modal-title">💳 Add Funds to Wallet</div>
@@ -547,6 +544,7 @@
                 }
             } catch (error) {
                 console.error('Error loading wallet:', error);
+                walletBalance = 0;
             }
         }
         
@@ -696,9 +694,8 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             // Simulate card payment processing
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
             
-            // Fake card details modal (simulate real payment flow)
             const cardConfirmed = confirm(`💳 Payment Simulation\n\nAmount: $${amount.toFixed(2)}\nCard: **** **** **** 4242\n\nClick OK to complete the transaction`);
             
             if (cardConfirmed) {
@@ -707,7 +704,7 @@
                     walletBalance = result.newBalance;
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     showNotification(`$${amount.toFixed(2)} added to wallet!`, 'success');
-                    renderCart(); // Re-render to update checkout button
+                    renderCart();
                 } else {
                     showNotification('Failed to add funds', 'error');
                 }
@@ -730,59 +727,39 @@
             }, 0);
             
             if (walletBalance < total) {
-                showNotification('Insufficient balance! Please top up.', 'error');
+                showNotification(`Insufficient balance! Need $${total.toFixed(2)}`, 'error');
                 return;
             }
             
-            const confirmMsg = `Order Summary:
-━━━━━━━━━━━━━━━━━━
-Total: $${total.toFixed(2)}
-Wallet Balance: $${walletBalance.toFixed(2)}
-━━━━━━━━━━━━━━━━━━
-
-Confirm purchase? Amount will be deducted from your wallet.`;
+            const confirmMsg = `Order Summary:\n━━━━━━━━━━━━━━━━━━\nTotal: $${total.toFixed(2)}\nWallet Balance: $${walletBalance.toFixed(2)}\n━━━━━━━━━━━━━━━━━━\n\nConfirm purchase? Amount will be deducted from your wallet.`;
             
             if (!confirm(confirmMsg)) return;
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             try {
+                let allSuccess = true;
+                let errors = [];
+                
                 // Process each item in cart
-                const results = [];
                 for (const item of cart) {
                     const result = await Backend.processClaim(item.id, item.quantity);
-                    results.push(result);
+                    if (!result.success) {
+                        allSuccess = false;
+                        errors.push(`${item.foodName}: ${result.message}`);
+                    }
                 }
                 
-                const allSuccess = results.every(r => r.success);
-                
                 if (allSuccess) {
-                    // Deduct from wallet
-                    const newBalance = walletBalance - total;
-                    await Backend.deductFromWallet(Backend.getCurrentUser().id, total);
-                    walletBalance = newBalance;
+                    // Reload wallet balance
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
                     // Clear cart
                     cart = [];
                     saveCart();
                     renderCart();
-                    
-                    // Save transaction
-                    const transaction = {
-                        id: 'TXN' + Date.now(),
-                        date: new Date().toISOString(),
-                        items: cart.map(item => ({
-                            name: item.foodName,
-                            shop: item.shopName,
-                            quantity: item.quantity,
-                            price: item.originalPrice * (1 - item.discount / 100)
-                        })),
-                        total: total,
-                        paymentMethod: 'wallet',
-                        status: 'completed'
-                    };
-                    await Backend.saveTransaction(transaction);
                     
                     showNotification('✅ Purchase complete! Amount deducted from wallet.', 'success');
                     
@@ -791,13 +768,17 @@ Confirm purchase? Amount will be deducted from your wallet.`;
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
-                    const errors = results.filter(r => !r.success).map(r => r.message);
-                    showNotification(`Some items failed: ${errors.join(', ')}`, 'error');
+                    showNotification(`Checkout failed: ${errors.join(', ')}`, 'error');
+                    // Reload wallet balance to refresh
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    renderCart();
                 }
                 
             } catch (error) {
                 console.error('Checkout error:', error);
-                showNotification('Checkout failed. Please try again.', 'error');
+                showNotification('Checkout failed: ' + error.message, 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -820,7 +801,6 @@ Confirm purchase? Amount will be deducted from your wallet.`;
             setTimeout(() => notif.classList.remove('show'), 3000);
         }
         
-        // Make functions global
         window.updateQuantity = updateQuantity;
         window.removeFromCart = removeFromCart;
         window.checkoutWithWallet = checkoutWithWallet;
