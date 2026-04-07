@@ -531,6 +531,18 @@
         let walletBalance = 0;
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is logged in
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'consumer') {
+                showNotification('Please login as consumer', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+            
             await loadWalletBalance();
             loadCart();
         });
@@ -606,7 +618,7 @@
                             <div class="item-price">
                                 $${discountedPrice.toFixed(2)}
                                 <span class="item-original">$${item.originalPrice.toFixed(2)}</span>
-                                <span class="item-batch">batch: ${escapeHtml(item.batchNumber)}</span>
+                                ${item.batchNumber ? `<span class="item-batch">batch: ${escapeHtml(item.batchNumber)}</span>` : ''}
                             </div>
                             <div class="item-quantity">
                                 <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
@@ -699,7 +711,8 @@
             const cardConfirmed = confirm(`💳 Payment Simulation\n\nAmount: $${amount.toFixed(2)}\nCard: **** **** **** 4242\n\nClick OK to complete the transaction`);
             
             if (cardConfirmed) {
-                const result = await Backend.addToWallet(Backend.getCurrentUser().id, amount);
+                const currentUser = Backend.getCurrentUser();
+                const result = await Backend.addToWallet(currentUser.id, amount);
                 if (result.success) {
                     walletBalance = result.newBalance;
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
@@ -743,7 +756,9 @@
                 
                 // Process each item in cart
                 for (const item of cart) {
+                    console.log('Processing claim for adId:', item.id, 'quantity:', item.quantity);
                     const result = await Backend.processClaim(item.id, item.quantity);
+                    console.log('Result:', result);
                     if (!result.success) {
                         allSuccess = false;
                         errors.push(`${item.foodName}: ${result.message}`);
