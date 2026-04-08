@@ -741,9 +741,12 @@
                 const result = await Backend.createOrder(orderItems, total);
                 
                 if (result.success) {
-                    walletBalance = await Backend.getWalletBalance(Backend.getCurrentUser().id);
+                    // Reload wallet balance
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
+                    // Clear cart
                     cart = [];
                     saveCart();
                     renderCart();
@@ -755,13 +758,20 @@
                     }, 2000);
                 } else {
                     showNotification(result.message, 'error');
-                    await loadWalletBalance();
+                    // Refresh wallet balance in case of partial deduction
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     renderCart();
                 }
                 
             } catch (error) {
                 console.error('Checkout error:', error);
                 showNotification('Checkout failed: ' + error.message, 'error');
+                // Refresh wallet balance
+                const currentUser = Backend.getCurrentUser();
+                walletBalance = await Backend.getWalletBalance(currentUser.id);
+                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
