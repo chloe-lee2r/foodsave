@@ -72,6 +72,15 @@
             font-size: 12px;
         }
         
+        .refresh-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        
         .content {
             padding: 16px;
             padding-bottom: 80px;
@@ -430,6 +439,7 @@
         <div class="header">
             <a href="find-stores.html" class="back-link">←</a>
             <h1>my cart</h1>
+            <button class="refresh-btn" onclick="refreshCart()">↻</button>
             <span class="cart-count" id="cartCount">0</span>
         </div>
         
@@ -526,6 +536,12 @@
             await loadWalletBalance();
             loadCart();
         });
+        
+        async function refreshCart() {
+            await loadWalletBalance();
+            loadCart();
+            showNotification('Cart refreshed', 'success');
+        }
         
         async function loadWalletBalance() {
             try {
@@ -728,6 +744,9 @@
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
+            // Save cart before attempting checkout (in case we need to restore)
+            const originalCart = [...cart];
+            
             try {
                 // Prepare order items
                 const orderItems = cart.map(item => ({
@@ -741,24 +760,26 @@
                 const result = await Backend.createOrder(orderItems, total);
                 
                 if (result.success) {
+                    // Clear cart immediately on success
+                    cart = [];
+                    saveCart();
+                    renderCart();
+                    
                     // Reload wallet balance
                     const currentUser = Backend.getCurrentUser();
                     walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
-                    // Clear cart
-                    cart = [];
-                    saveCart();
-                    renderCart();
-                    
                     showNotification('✅ Purchase complete!', 'success');
                     
+                    // Redirect to home page after delay
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
+                    // Show error but don't clear cart
                     showNotification(result.message, 'error');
-                    // Refresh wallet balance in case of partial deduction
+                    // Refresh wallet balance
                     const currentUser = Backend.getCurrentUser();
                     walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
@@ -767,11 +788,33 @@
                 
             } catch (error) {
                 console.error('Checkout error:', error);
-                showNotification('Checkout failed: ' + error.message, 'error');
-                // Refresh wallet balance
-                const currentUser = Backend.getCurrentUser();
-                walletBalance = await Backend.getWalletBalance(currentUser.id);
-                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                
+                // If the error is a 101 (object not found) but the cart is now empty, 
+                // the order might have actually gone through
+                if (cart.length === 0) {
+                    showNotification('✅ Purchase complete!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    // Check if wallet balance decreased - if yes, order went through
+                    const currentUser = Backend.getCurrentUser();
+                    const newBalance = await Backend.getWalletBalance(currentUser.id);
+                    if (newBalance < walletBalance) {
+                        // Money was deducted, order succeeded despite error
+                        cart = [];
+                        saveCart();
+                        renderCart();
+                        walletBalance = newBalance;
+                        document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                        showNotification('✅ Purchase complete!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        showNotification('Checkout failed. Please try again.', 'error');
+                    }
+                }
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -800,6 +843,7 @@
         window.openTopUpModal = openTopUpModal;
         window.closeTopUpModal = closeTopUpModal;
         window.processTopUp = processTopUp;
+        window.refreshCart = refreshCart;
     </script>
 </body>
 </html>
