@@ -18,7 +18,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -35,8 +34,6 @@
             max-width: 400px;
             background: white;
             min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            position: relative;
         }
         
         .header {
@@ -46,9 +43,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .back-link {
@@ -80,11 +74,26 @@
         
         .content {
             padding: 16px;
-            padding-bottom: 100px;
+            padding-bottom: 80px;
         }
         
-        .cart-items {
+        .wallet-card {
+            background: linear-gradient(135deg, #f5b042, #ff9500);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
             margin-bottom: 20px;
+        }
+        
+        .wallet-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .wallet-amount {
+            font-size: 28px;
+            font-weight: 600;
         }
         
         .cart-item {
@@ -180,26 +189,6 @@
             font-size: 18px;
             cursor: pointer;
             color: #ff3b30;
-            padding: 4px;
-        }
-        
-        .wallet-card {
-            background: linear-gradient(135deg, #f5b042, #ff9500);
-            color: white;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-        }
-        
-        .wallet-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 4px;
-        }
-        
-        .wallet-amount {
-            font-size: 28px;
-            font-weight: 600;
         }
         
         .summary-card {
@@ -207,7 +196,6 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid #f0f0f0;
         }
         
@@ -226,27 +214,6 @@
             border-top: 1px solid #f0f0f0;
         }
         
-        .insufficient-warning {
-            background: #ffebee;
-            color: #ff3b30;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .topup-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 12px;
-        }
-        
         .checkout-btn {
             width: 100%;
             padding: 16px;
@@ -257,12 +224,6 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .checkout-btn:active {
-            transform: scale(0.98);
-            background: #2db14e;
         }
         
         .checkout-btn:disabled {
@@ -290,6 +251,26 @@
             color: white;
             text-decoration: none;
             border-radius: 25px;
+        }
+        
+        .insufficient-warning {
+            background: #ffebee;
+            color: #ff3b30;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .topup-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 12px;
         }
         
         .bottom-nav {
@@ -484,7 +465,7 @@
                 </div>
             </div>
             
-            <button class="checkout-btn" id="checkoutBtn" onclick="checkoutWithWallet()" style="display: none;">Pay with Wallet</button>
+            <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" style="display: none;">Pay with Wallet</button>
         </div>
         
         <div class="bottom-nav">
@@ -531,7 +512,6 @@
         let walletBalance = 0;
         
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user is logged in
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -637,7 +617,6 @@
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
             document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
             
-            // Check if wallet has sufficient balance
             if (walletBalance >= subtotal) {
                 checkoutBtn.style.display = 'block';
                 insufficientWarning.style.display = 'none';
@@ -705,7 +684,6 @@
             closeTopUpModal();
             document.getElementById('loadingOverlay').style.display = 'flex';
             
-            // Simulate card payment processing
             await new Promise(resolve => setTimeout(resolve, 1500));
             
             const cardConfirmed = confirm(`💳 Payment Simulation\n\nAmount: $${amount.toFixed(2)}\nCard: **** **** **** 4242\n\nClick OK to complete the transaction`);
@@ -728,7 +706,7 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
         
-        async function checkoutWithWallet() {
+        async function checkout() {
             if (cart.length === 0) {
                 showNotification('Your cart is empty', 'error');
                 return;
@@ -744,50 +722,40 @@
                 return;
             }
             
-            const confirmMsg = `Order Summary:\n━━━━━━━━━━━━━━━━━━\nTotal: $${total.toFixed(2)}\nWallet Balance: $${walletBalance.toFixed(2)}\n━━━━━━━━━━━━━━━━━━\n\nConfirm purchase? Amount will be deducted from your wallet.`;
+            const confirmMsg = `Order Summary:\n━━━━━━━━━━━━━━━━━━\nTotal: $${total.toFixed(2)}\nWallet Balance: $${walletBalance.toFixed(2)}\n━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
             
             if (!confirm(confirmMsg)) return;
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             try {
-                let allSuccess = true;
-                let errors = [];
+                // Prepare order items
+                const orderItems = cart.map(item => ({
+                    id: item.id,
+                    foodName: item.foodName,
+                    quantity: item.quantity,
+                    originalPrice: item.originalPrice,
+                    discount: item.discount
+                }));
                 
-                // Process each item in cart
-                for (const item of cart) {
-                    console.log('Processing claim for adId:', item.id, 'quantity:', item.quantity);
-                    const result = await Backend.processClaim(item.id, item.quantity);
-                    console.log('Result:', result);
-                    if (!result.success) {
-                        allSuccess = false;
-                        errors.push(`${item.foodName}: ${result.message}`);
-                    }
-                }
+                const result = await Backend.createOrder(orderItems, total);
                 
-                if (allSuccess) {
-                    // Reload wallet balance
-                    const currentUser = Backend.getCurrentUser();
-                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                if (result.success) {
+                    walletBalance = await Backend.getWalletBalance(Backend.getCurrentUser().id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
-                    // Clear cart
                     cart = [];
                     saveCart();
                     renderCart();
                     
-                    showNotification('✅ Purchase complete! Amount deducted from wallet.', 'success');
+                    showNotification('✅ Purchase complete!', 'success');
                     
-                    // Redirect to home page
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
-                    showNotification(`Checkout failed: ${errors.join(', ')}`, 'error');
-                    // Reload wallet balance to refresh
-                    const currentUser = Backend.getCurrentUser();
-                    walletBalance = await Backend.getWalletBalance(currentUser.id);
-                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    showNotification(result.message, 'error');
+                    await loadWalletBalance();
                     renderCart();
                 }
                 
@@ -818,7 +786,7 @@
         
         window.updateQuantity = updateQuantity;
         window.removeFromCart = removeFromCart;
-        window.checkoutWithWallet = checkoutWithWallet;
+        window.checkout = checkout;
         window.openTopUpModal = openTopUpModal;
         window.closeTopUpModal = closeTopUpModal;
         window.processTopUp = processTopUp;
