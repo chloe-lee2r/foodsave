@@ -204,7 +204,7 @@
         }
         
         .wallet-small {
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.8;
             margin-top: 4px;
         }
@@ -488,6 +488,15 @@
             padding: 40px 20px;
             color: #999;
         }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
@@ -541,13 +550,13 @@
             <div class="wallet-card">
                 <div class="wallet-label">🏦 Business Wallet</div>
                 <div class="wallet-amount" id="availableBalance">$0.00</div>
-                <div class="wallet-small" id="pendingBalance">Pending: $0.00</div>
+                <div class="wallet-small" id="pendingBalance">Pending (waiting pickup): $0.00</div>
                 <button class="wallet-btn" onclick="requestWithdraw()">💸 Withdraw (min $5)</button>
             </div>
             
             <!-- Tabs -->
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('profile')">profile</button>
+                <button class="tab" onclick="switchTab('profile')">profile</button>
                 <button class="tab" onclick="switchTab('employees')">employees</button>
                 <button class="tab" onclick="switchTab('orders')">orders</button>
                 <button class="tab" onclick="switchTab('notifications')">alerts</button>
@@ -555,7 +564,7 @@
             </div>
             
             <!-- Profile Tab -->
-            <div class="tab-content active" id="profileTab">
+            <div class="tab-content" id="profileTab">
                 <div class="form-group">
                     <label class="form-label">business name</label>
                     <input type="text" class="form-input" id="businessName">
@@ -609,6 +618,10 @@
             
             <!-- Orders Tab -->
             <div class="tab-content" id="ordersTab">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <span>📦 incoming orders</span>
+                    <button class="refresh-btn" onclick="loadOrders()">↻</button>
+                </div>
                 <div class="claims-list" id="ordersList">
                     <div class="loading"><div class="loading-spinner"></div>loading orders...</div>
                 </div>
@@ -616,6 +629,10 @@
             
             <!-- Notifications Tab -->
             <div class="tab-content" id="notificationsTab">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <span>🔔 notifications</span>
+                    <button class="refresh-btn" onclick="loadNotifications()">↻</button>
+                </div>
                 <div class="notifications-list" id="notificationsList">
                     <div class="loading"><div class="loading-spinner"></div>loading notifications...</div>
                 </div>
@@ -658,6 +675,7 @@
         let businessRole = 'staff';
         let isVerified = false;
         let currentUser = null;
+        let activeTab = 'profile';
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
@@ -672,6 +690,13 @@
             businessRole = localStorage.getItem('businessRole') || 'owner';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
+            // Check URL for tab parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam && ['profile', 'employees', 'orders', 'notifications', 'verification'].includes(tabParam)) {
+                activeTab = tabParam;
+            }
+            
             updateRoleUI();
             updateVerificationUI();
             await loadBusinessData();
@@ -680,6 +705,9 @@
             await loadNotifications();
             await loadStats();
             await loadWalletBalance();
+            
+            // Switch to the active tab
+            switchTab(activeTab);
         });
         
         function updateRoleUI() {
@@ -894,6 +922,7 @@
                 showStatus('Order confirmed! Customer notified.', 'success');
                 await loadOrders();
                 await loadStats();
+                await loadWalletBalance();
             } else {
                 showStatus(result.message, 'error');
             }
@@ -947,9 +976,11 @@
             try {
                 const balance = await Backend.getBusinessWalletBalance(currentUser.id);
                 document.getElementById('availableBalance').textContent = `$${balance.available.toFixed(2)}`;
-                document.getElementById('pendingBalance').textContent = `Pending: $${balance.pending.toFixed(2)}`;
+                document.getElementById('pendingBalance').textContent = `Pending (waiting pickup): $${balance.pending.toFixed(2)}`;
             } catch (error) {
                 console.error('Error loading wallet:', error);
+                document.getElementById('availableBalance').textContent = '$0.00';
+                document.getElementById('pendingBalance').textContent = 'Pending: $0.00';
             }
         }
         
@@ -998,9 +1029,13 @@
         }
         
         function switchTab(tabName) {
+            activeTab = tabName;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
+            
+            const tabs = document.querySelectorAll('.tab');
+            const tabMap = { profile: 0, employees: 1, orders: 2, notifications: 3, verification: 4 };
+            if (tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
             document.getElementById(`${tabName}Tab`).classList.add('active');
         }
         
@@ -1029,6 +1064,8 @@
         window.requestWithdraw = requestWithdraw;
         window.markRead = markRead;
         window.submitVerification = submitVerification;
+        window.loadOrders = loadOrders;
+        window.loadNotifications = loadNotifications;
         window.logout = logout;
     </script>
 </body>
