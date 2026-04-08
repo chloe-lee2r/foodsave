@@ -297,6 +297,14 @@
             border-left: 4px solid #34c759;
         }
         
+        .order-item.pending {
+            border-left-color: #ff9500;
+        }
+        
+        .order-item.ready {
+            border-left-color: #007aff;
+        }
+        
         .order-header {
             display: flex;
             justify-content: space-between;
@@ -315,8 +323,9 @@
             border-radius: 10px;
         }
         
-        .status-completed { background: #e8f5e8; color: #34c759; }
         .status-pending { background: #fff3e0; color: #ff9500; }
+        .status-ready { background: #e3f2fd; color: #007aff; }
+        .status-completed { background: #e8f5e8; color: #34c759; }
         
         .order-details {
             font-size: 13px;
@@ -333,6 +342,18 @@
         .order-date {
             font-size: 10px;
             color: #999;
+        }
+        
+        .pickup-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
         }
         
         /* Addresses */
@@ -1121,26 +1142,72 @@
         async function loadOrders() {
             const container = document.getElementById('ordersList');
             try {
-                const transactions = await Backend.getUserTransactions(currentUser.id);
-                if (transactions.length === 0) {
+                const orders = await Backend.getConsumerOrders(currentUser.id);
+                if (orders.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
                     return;
                 }
-                container.innerHTML = transactions.map(t => `
-                    <div class="order-item">
-                        <div class="order-header">
-                            <span class="order-id">#${t.transactionId}</span>
-                            <span class="order-status status-${t.status}">${t.status}</span>
+                container.innerHTML = orders.map(order => {
+                    let statusClass = '';
+                    let statusText = '';
+                    let actions = '';
+                    
+                    switch(order.status) {
+                        case 'pending':
+                            statusClass = 'status-pending';
+                            statusText = 'pending confirmation';
+                            actions = `<div style="font-size:11px; color:#999; margin-top:8px;">⏳ Waiting for business to confirm...</div>`;
+                            break;
+                        case 'confirmed_by_business':
+                            statusClass = 'status-ready';
+                            statusText = 'ready for pickup';
+                            actions = `<button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button>`;
+                            break;
+                        case 'collected_by_customer':
+                            statusClass = 'status-completed';
+                            statusText = 'completed';
+                            actions = `<div style="font-size:11px; color:#34c759; margin-top:8px;">✅ Order completed. Thank you!</div>`;
+                            break;
+                        default:
+                            statusClass = 'status-pending';
+                            statusText = order.status;
+                    }
+                    
+                    let itemClass = '';
+                    if (order.status === 'pending') itemClass = 'pending';
+                    if (order.status === 'confirmed_by_business') itemClass = 'ready';
+                    
+                    return `
+                        <div class="order-item ${itemClass}">
+                            <div class="order-header">
+                                <span class="order-id">#${order.id.slice(-8)}</span>
+                                <span class="order-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="order-details">
+                                🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}
+                            </div>
+                            <div class="order-total">$${(order.totalAmount || 0).toFixed(2)}</div>
+                            <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
+                            ${actions}
                         </div>
-                        <div class="order-details">
-                            ${t.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}
-                        </div>
-                        <div class="order-total">$${t.total.toFixed(2)}</div>
-                        <div class="order-date">${new Date(t.date).toLocaleString()}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (error) {
+                console.error('Error loading orders:', error);
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
+            }
+        }
+        
+        async function confirmPickup(orderId) {
+            if (!confirm('Confirm that you have picked up your order? The business will receive payment.')) return;
+            
+            const result = await Backend.confirmCollectedByCustomer(orderId);
+            if (result.success) {
+                showNotification('Pickup confirmed! Thank you for shopping with us.', 'success');
+                await loadOrders();
+                await loadWalletBalance();
+            } else {
+                showNotification(result.message, 'error');
             }
         }
         
@@ -1154,7 +1221,7 @@
                 }
                 container.innerHTML = addresses.map(addr => `
                     <div class="address-item">
-                        <div class="address-text">${addr.street}, ${addr.city} ${addr.postalCode}</div>
+                        <div class="address-text">${escapeHtml(addr.street)}, ${escapeHtml(addr.city)} ${escapeHtml(addr.postalCode)}</div>
                     </div>
                 `).join('');
             } catch (error) {
@@ -1448,6 +1515,7 @@
         window.addAddress = addAddress;
         window.saveAddress = saveAddress;
         window.closeAddressModal = closeAddressModal;
+        window.confirmPickup = confirmPickup;
         window.logout = logout;
     </script>
 </body>
