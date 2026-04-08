@@ -744,8 +744,9 @@
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
-            // Save cart before attempting checkout (in case we need to restore)
-            const originalCart = [...cart];
+            // Store current wallet balance before checkout
+            const balanceBeforeCheckout = walletBalance;
+            localStorage.setItem('walletBalanceBeforeCheckout', balanceBeforeCheckout);
             
             try {
                 // Prepare order items
@@ -759,64 +760,57 @@
                 
                 const result = await Backend.createOrder(orderItems, total);
                 
-                if (result.success) {
-                    // Clear cart immediately on success
+                // Always clear cart regardless of error (since the backend might have succeeded)
+                // But only if wallet balance decreased
+                const currentUser = Backend.getCurrentUser();
+                const newBalance = await Backend.getWalletBalance(currentUser.id);
+                
+                if (newBalance < balanceBeforeCheckout || result.success) {
+                    // Money was deducted - order succeeded
                     cart = [];
                     saveCart();
                     renderCart();
                     
-                    // Reload wallet balance
-                    const currentUser = Backend.getCurrentUser();
-                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    walletBalance = newBalance;
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
                     showNotification('✅ Purchase complete!', 'success');
                     
-                    // Redirect to home page after delay
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
-                    // Show error but don't clear cart
-                    showNotification(result.message, 'error');
+                    // No money deducted - order failed
+                    showNotification(result.message || 'Checkout failed. Please try again.', 'error');
                     // Refresh wallet balance
-                    const currentUser = Backend.getCurrentUser();
-                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    walletBalance = newBalance;
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    renderCart();
                 }
                 
             } catch (error) {
                 console.error('Checkout error:', error);
                 
-                // If the error is a 101 (object not found) but the cart is now empty, 
-                // the order might have actually gone through
-                if (cart.length === 0) {
+                // Check if wallet balance decreased despite error
+                const currentUser = Backend.getCurrentUser();
+                const newBalance = await Backend.getWalletBalance(currentUser.id);
+                
+                if (newBalance < balanceBeforeCheckout) {
+                    // Money was deducted - order succeeded despite error
+                    cart = [];
+                    saveCart();
+                    renderCart();
+                    walletBalance = newBalance;
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     showNotification('✅ Purchase complete!', 'success');
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
-                    // Check if wallet balance decreased - if yes, order went through
-                    const currentUser = Backend.getCurrentUser();
-                    const newBalance = await Backend.getWalletBalance(currentUser.id);
-                    if (newBalance < walletBalance) {
-                        // Money was deducted, order succeeded despite error
-                        cart = [];
-                        saveCart();
-                        renderCart();
-                        walletBalance = newBalance;
-                        document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                        showNotification('✅ Purchase complete!', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 2000);
-                    } else {
-                        showNotification('Checkout failed. Please try again.', 'error');
-                    }
+                    showNotification('Checkout failed. Please try again.', 'error');
                 }
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
+                localStorage.removeItem('walletBalanceBeforeCheckout');
             }
         }
         
