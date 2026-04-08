@@ -81,7 +81,6 @@
             padding-bottom: 80px;
         }
         
-        /* Verification Banner */
         .verification-banner {
             background: #fff3e0;
             padding: 16px;
@@ -123,7 +122,6 @@
             color: #666;
         }
         
-        /* Role Banner */
         .role-banner {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -161,7 +159,6 @@
             opacity: 0.9;
         }
         
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -187,7 +184,6 @@
             opacity: 0.9;
         }
         
-        /* Wallet Card */
         .wallet-card {
             background: linear-gradient(135deg, #34c759, #28a745);
             color: white;
@@ -203,8 +199,14 @@
         }
         
         .wallet-amount {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 600;
+        }
+        
+        .wallet-small {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 4px;
         }
         
         .wallet-btn {
@@ -218,7 +220,6 @@
             margin-top: 12px;
         }
         
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
@@ -248,7 +249,6 @@
             color: white;
         }
         
-        /* Tab Content */
         .tab-content {
             display: none;
         }
@@ -257,7 +257,6 @@
             display: block;
         }
         
-        /* Form */
         .form-group {
             margin-bottom: 16px;
         }
@@ -309,7 +308,6 @@
             cursor: not-allowed;
         }
         
-        /* Employee List */
         .employee-list, .claims-list, .notifications-list {
             margin-top: 16px;
         }
@@ -365,9 +363,8 @@
         }
         
         .claim-status.pending { background: #fff3e0; color: #ff9500; }
-        .claim-status.confirmed { background: #e8f5e8; color: #34c759; }
-        .claim-status.collected { background: #e3f2fd; color: #007aff; }
-        .claim-status.cancelled { background: #ffebee; color: #ff3b30; }
+        .claim-status.confirmed { background: #e3f2fd; color: #007aff; }
+        .claim-status.collected { background: #e8f5e8; color: #34c759; }
         
         .claim-actions {
             display: flex;
@@ -380,13 +377,12 @@
             border-radius: 8px;
             font-size: 11px;
             cursor: pointer;
+            font-family: inherit;
         }
         
         .confirm-btn { background: #34c759; color: white; }
-        .collect-btn { background: #007aff; color: white; }
         .cancel-btn { background: #ff3b30; color: white; }
         
-        /* Add Employee */
         .add-employee {
             background: #f8f9fa;
             padding: 16px;
@@ -396,11 +392,6 @@
         
         .add-employee h4 {
             margin-bottom: 12px;
-        }
-        
-        /* Notifications */
-        .notification-item {
-            cursor: pointer;
         }
         
         .notification-item.unread {
@@ -418,103 +409,6 @@
             color: #999;
         }
         
-        /* File Upload */
-        .file-upload-area {
-            border: 2px dashed #667eea;
-            background: #f0f4ff;
-            padding: 30px 20px;
-            text-align: center;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .file-upload-area.dragover {
-            background: #dbe4ff;
-            border-color: #434190;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            color: #667eea;
-        }
-        
-        .upload-text {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .upload-hint {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .file-list {
-            margin-top: 16px;
-        }
-        
-        .file-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .file-icon {
-            font-size: 24px;
-        }
-        
-        .file-info {
-            flex: 1;
-        }
-        
-        .file-name {
-            font-weight: 500;
-            margin-bottom: 2px;
-            word-break: break-all;
-        }
-        
-        .file-size {
-            font-size: 11px;
-            color: #999;
-        }
-        
-        .file-remove {
-            color: #ff3b30;
-            background: none;
-            border: none;
-            font-size: 20px;
-            padding: 8px;
-            cursor: pointer;
-        }
-        
-        .file-progress {
-            height: 4px;
-            background: #f0f0f0;
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        
-        .file-progress-bar {
-            height: 100%;
-            background: #34c759;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -594,13 +488,6 @@
             padding: 40px 20px;
             color: #999;
         }
-        
-        .consumer-link {
-            color: #007aff;
-            text-decoration: none;
-            font-size: 11px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -653,7 +540,8 @@
             <!-- Business Wallet -->
             <div class="wallet-card">
                 <div class="wallet-label">🏦 Business Wallet</div>
-                <div class="wallet-amount" id="businessWalletBalance">$0.00</div>
+                <div class="wallet-amount" id="availableBalance">$0.00</div>
+                <div class="wallet-small" id="pendingBalance">Pending: $0.00</div>
                 <button class="wallet-btn" onclick="requestWithdraw()">💸 Withdraw (min $5)</button>
             </div>
             
@@ -683,16 +571,6 @@
                 <div class="form-group">
                     <label class="form-label">address</label>
                     <input type="text" class="form-input" id="businessAddress">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">latitude</label>
-                        <input type="text" class="form-input" id="businessLat">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">longitude</label>
-                        <input type="text" class="form-input" id="businessLng">
-                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -731,7 +609,7 @@
             
             <!-- Orders Tab -->
             <div class="tab-content" id="ordersTab">
-                <div class="claims-list" id="claimsList">
+                <div class="claims-list" id="ordersList">
                     <div class="loading"><div class="loading-spinner"></div>loading orders...</div>
                 </div>
             </div>
@@ -749,13 +627,6 @@
                     <label class="form-label">tax ID / license</label>
                     <input type="text" class="form-input" id="taxId" placeholder="enter tax ID or license number">
                 </div>
-                <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">📎</div>
-                    <div class="upload-text">Click to upload or drag files</div>
-                    <div class="upload-hint">PDF, JPG, PNG up to 10MB</div>
-                    <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
-                </div>
-                <div class="file-list" id="fileList"></div>
                 <button class="save-btn" onclick="submitVerification()" id="verifyBtn">submit for verification</button>
                 <p style="font-size:12px; color:#999; text-align:center; margin-top:12px;">Once verified, you can post ads</p>
             </div>
@@ -786,7 +657,6 @@
     <script>
         let businessRole = 'staff';
         let isVerified = false;
-        let uploadedFiles = [];
         let currentUser = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -806,93 +676,11 @@
             updateVerificationUI();
             await loadBusinessData();
             await loadEmployees();
-            await loadClaims();
+            await loadOrders();
             await loadNotifications();
             await loadStats();
-            await loadBusinessWallet();
-            
-            setupDragAndDrop();
+            await loadWalletBalance();
         });
-        
-        function setupDragAndDrop() {
-            const dropArea = document.getElementById('fileUploadArea');
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
-            });
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'));
-            });
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'));
-            });
-            dropArea.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
-                handleFiles(files);
-            });
-        }
-        
-        function handleFileSelect(event) {
-            handleFiles(event.target.files);
-        }
-        
-        function handleFiles(files) {
-            [...files].forEach(uploadFile);
-        }
-        
-        function uploadFile(file) {
-            if (file.size > 10 * 1024 * 1024) {
-                showStatus('File too large (max 10MB)', 'error');
-                return;
-            }
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                showStatus('Invalid file type', 'error');
-                return;
-            }
-            const fileId = Date.now() + Math.random().toString(36).substr(2, 9);
-            const fileObj = { id: fileId, file: file, name: file.name, size: file.size, progress: 0, status: 'uploading' };
-            uploadedFiles.push(fileObj);
-            updateFileList();
-            simulateUpload(fileObj);
-        }
-        
-        function simulateUpload(fileObj) {
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 30;
-                if (progress >= 100) {
-                    progress = 100;
-                    fileObj.status = 'uploaded';
-                    clearInterval(interval);
-                }
-                fileObj.progress = progress;
-                updateFileList();
-            }, 200);
-        }
-        
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            if (uploadedFiles.length === 0) {
-                fileList.innerHTML = '';
-                return;
-            }
-            fileList.innerHTML = uploadedFiles.map(file => `
-                <div class="file-item">
-                    <div class="file-icon">${file.type.includes('pdf') ? '📄' : '🖼️'}</div>
-                    <div class="file-info">
-                        <div class="file-name">${escapeHtml(file.name)}</div>
-                        <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
-                        ${file.status === 'uploading' ? `<div class="file-progress"><div class="file-progress-bar" style="width: ${file.progress}%"></div></div>` : ''}
-                    </div>
-                    <button class="file-remove" onclick="removeFile('${file.id}')">✕</button>
-                </div>
-            `).join('');
-        }
-        
-        function removeFile(fileId) {
-            uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
-            updateFileList();
-        }
         
         function updateRoleUI() {
             const addEmployeeSection = document.getElementById('addEmployeeSection');
@@ -921,23 +709,18 @@
         
         function updateVerificationUI() {
             const banner = document.getElementById('verificationBanner');
-            const icon = document.getElementById('bannerIcon');
-            const title = document.getElementById('bannerTitle');
-            const text = document.getElementById('bannerText');
-            const verifyBtn = document.getElementById('verifyBtn');
-            
             if (isVerified) {
                 banner.className = 'verification-banner banner-verified';
-                icon.textContent = '✅';
-                title.textContent = 'Verified Business';
-                text.textContent = 'You can post ads';
-                if (verifyBtn) verifyBtn.disabled = true;
+                document.getElementById('bannerIcon').textContent = '✅';
+                document.getElementById('bannerTitle').textContent = 'Verified Business';
+                document.getElementById('bannerText').textContent = 'You can post ads';
+                document.getElementById('verifyBtn').disabled = true;
             } else {
                 banner.className = 'verification-banner';
-                icon.textContent = '⏳';
-                title.textContent = 'Verification Pending';
-                text.textContent = 'Complete verification to post ads';
-                if (verifyBtn) verifyBtn.disabled = false;
+                document.getElementById('bannerIcon').textContent = '⏳';
+                document.getElementById('bannerTitle').textContent = 'Verification Pending';
+                document.getElementById('bannerText').textContent = 'Complete verification to post ads';
+                document.getElementById('verifyBtn').disabled = false;
             }
         }
         
@@ -948,8 +731,6 @@
                 document.getElementById('businessPhone').value = user.get('businessPhone') || '';
                 document.getElementById('businessEmail').value = user.get('businessEmail') || '';
                 document.getElementById('businessAddress').value = user.get('businessAddress') || '';
-                document.getElementById('businessLat').value = user.get('businessLat') || '';
-                document.getElementById('businessLng').value = user.get('businessLng') || '';
                 document.getElementById('businessOpen').value = user.get('businessOpen') || '09:00';
                 document.getElementById('businessClose').value = user.get('businessClose') || '21:00';
                 document.getElementById('taxId').value = user.get('businessTaxId') || '';
@@ -969,8 +750,6 @@
                 businessPhone: document.getElementById('businessPhone').value,
                 businessEmail: document.getElementById('businessEmail').value,
                 businessAddress: document.getElementById('businessAddress').value,
-                businessLat: document.getElementById('businessLat').value,
-                businessLng: document.getElementById('businessLng').value,
                 businessOpen: document.getElementById('businessOpen').value,
                 businessClose: document.getElementById('businessClose').value
             };
@@ -1032,70 +811,89 @@
             }
         }
         
-        async function loadClaims() {
-            const container = document.getElementById('claimsList');
+        async function loadOrders() {
+            const container = document.getElementById('ordersList');
             try {
-                const claims = await Backend.getClaimsForBusiness(currentUser.id);
-                if (claims.length === 0) {
+                const orders = await Backend.getOrdersForBusiness(currentUser.id);
+                
+                if (orders.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
                     return;
                 }
-                container.innerHTML = claims.map(claim => `
-                    <div class="claim-item">
-                        <div class="claim-avatar">👤</div>
-                        <div class="claim-details">
-                            <div class="claim-customer">
-                                ${escapeHtml(claim.consumerName)}
-                                <span class="claim-status ${claim.status}">${claim.status}</span>
+                
+                container.innerHTML = orders.map(order => {
+                    let statusText = '';
+                    let statusClass = '';
+                    let actions = '';
+                    
+                    switch(order.status) {
+                        case 'pending':
+                            statusText = 'pending confirmation';
+                            statusClass = 'pending';
+                            actions = `
+                                <div class="claim-actions">
+                                    <button class="claim-btn confirm-btn" onclick="confirmOrder('${order.id}')">✓ Confirm Order</button>
+                                </div>
+                            `;
+                            break;
+                        case 'confirmed_by_business':
+                            statusText = 'ready for pickup';
+                            statusClass = 'confirmed';
+                            actions = `
+                                <div class="claim-actions">
+                                    <span style="font-size:11px; color:#34c759;">⏳ Waiting for customer...</span>
+                                </div>
+                            `;
+                            break;
+                        case 'collected_by_customer':
+                            statusText = 'completed';
+                            statusClass = 'collected';
+                            actions = `
+                                <div class="claim-actions">
+                                    <span style="font-size:11px; color:#007aff;">✅ Payment released</span>
+                                </div>
+                            `;
+                            break;
+                        default:
+                            statusText = order.status;
+                            statusClass = 'pending';
+                    }
+                    
+                    return `
+                        <div class="claim-item">
+                            <div class="claim-avatar">👤</div>
+                            <div class="claim-details">
+                                <div class="claim-customer">
+                                    ${escapeHtml(order.consumerName)}
+                                    <span class="claim-status ${statusClass}">${statusText}</span>
+                                </div>
+                                <div style="font-size:13px; margin-top:4px;">
+                                    🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}
+                                    ${order.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(order.batchNumber)}</span>` : ''}
+                                </div>
+                                <div style="font-size:11px; color:#999; margin-top:4px;">
+                                    💰 $${(order.totalAmount || 0).toFixed(2)} • 📅 ${new Date(order.createdAt).toLocaleString()}
+                                </div>
                             </div>
-                            <div style="font-size:13px; margin-top:4px;">
-                                🍽️ ${escapeHtml(claim.foodName)} × ${claim.quantity}
-                                ${claim.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(claim.batchNumber)}</span>` : ''}
-                            </div>
-                            <div style="font-size:11px; color:#999; margin-top:4px;">
-                                💰 $${(claim.totalAmount || 0).toFixed(2)} • 📅 ${new Date(claim.claimedAt).toLocaleString()}
-                            </div>
-                            <div style="margin-top:4px;">
-                                <a href="#" onclick="viewConsumerProfile('${claim.consumerId}'); return false;" class="consumer-link">👤 view customer profile</a>
-                            </div>
+                            ${actions}
                         </div>
-                        ${claim.status === 'pending' ? `
-                            <div class="claim-actions">
-                                <button class="claim-btn confirm-btn" onclick="updateClaim('${claim.id}', 'confirmed')">✓ confirm</button>
-                                <button class="claim-btn cancel-btn" onclick="updateClaim('${claim.id}', 'cancelled')">✗ cancel</button>
-                            </div>
-                        ` : claim.status === 'confirmed' ? `
-                            <div class="claim-actions">
-                                <button class="claim-btn collect-btn" onclick="updateClaim('${claim.id}', 'collected')">📦 collected</button>
-                            </div>
-                        ` : ''}
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                
             } catch (error) {
+                console.error('Error loading orders:', error);
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
             }
         }
         
-        async function viewConsumerProfile(consumerId) {
-            try {
-                const profile = await Backend.getConsumerProfile(consumerId);
-                if (profile) {
-                    alert(`Customer Profile:\n━━━━━━━━━━━━━━━━\nName: ${profile.username}\nEmail: ${profile.email}\nWallet Balance: $${(profile.walletBalance || 0).toFixed(2)}\nMember since: ${new Date(profile.createdAt).toLocaleDateString()}`);
-                } else {
-                    showStatus('Error loading customer profile', 'error');
-                }
-            } catch (error) {
-                showStatus('Error loading customer profile', 'error');
-            }
-        }
-        
-        async function updateClaim(claimId, status) {
-            const result = await Backend.updateClaimStatus(claimId, status);
+        async function confirmOrder(orderId) {
+            if (!confirm('Confirm this order? The customer will be notified that their order is ready for pickup.')) return;
+            
+            const result = await Backend.confirmOrderByBusiness(orderId);
             if (result.success) {
-                showStatus(`Order ${status}!`, 'success');
-                await loadClaims();
+                showStatus('Order confirmed! Customer notified.', 'success');
+                await loadOrders();
                 await loadStats();
-                await loadBusinessWallet();
             } else {
                 showStatus(result.message, 'error');
             }
@@ -1128,26 +926,28 @@
         async function loadStats() {
             try {
                 const ads = await Backend.getShopAds(currentUser.id);
-                const claims = await Backend.getClaimsForBusiness(currentUser.id);
-                const revenue = await Backend.getBusinessRevenue(currentUser.id);
+                const orders = await Backend.getOrdersForBusiness(currentUser.id);
                 
-                const activeAds = ads.filter(a => a.active && new Date(a.offerEnds) > new Date() && (a.quantityLeft || 0) > 0).length;
-                const pendingOrders = claims.filter(c => c.status === 'pending').length;
-                const uniqueCustomers = [...new Set(claims.map(c => c.consumerId))].length;
+                const activeAds = ads.filter(a => a.active).length;
+                const pendingOrders = orders.filter(o => o.status === 'pending').length;
+                const uniqueCustomers = [...new Set(orders.map(o => o.consumerId))].length;
+                const completedOrders = orders.filter(o => o.status === 'collected_by_customer');
+                const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
                 
                 document.getElementById('statAds').textContent = activeAds;
                 document.getElementById('statOrders').textContent = pendingOrders;
                 document.getElementById('statCustomers').textContent = uniqueCustomers;
-                if (revenue) document.getElementById('statRevenue').textContent = `$${revenue.totalRevenue.toFixed(2)}`;
+                document.getElementById('statRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
         
-        async function loadBusinessWallet() {
+        async function loadWalletBalance() {
             try {
                 const balance = await Backend.getBusinessWalletBalance(currentUser.id);
-                document.getElementById('businessWalletBalance').textContent = `$${balance.toFixed(2)}`;
+                document.getElementById('availableBalance').textContent = `$${balance.available.toFixed(2)}`;
+                document.getElementById('pendingBalance').textContent = `Pending: $${balance.pending.toFixed(2)}`;
             } catch (error) {
                 console.error('Error loading wallet:', error);
             }
@@ -1155,21 +955,21 @@
         
         async function requestWithdraw() {
             const balance = await Backend.getBusinessWalletBalance(currentUser.id);
-            if (balance < 5) {
-                showStatus(`Minimum withdrawal is $5. Current balance: $${balance.toFixed(2)}`, 'error');
+            if (balance.available < 5) {
+                showStatus(`Minimum withdrawal is $5. Available: $${balance.available.toFixed(2)}`, 'error');
                 return;
             }
-            const amount = prompt(`Enter amount to withdraw (min $5, max $${balance.toFixed(2)})`, '5');
+            const amount = prompt(`Enter amount to withdraw (min $5, max $${balance.available.toFixed(2)})`, '5');
             if (!amount) return;
             const withdrawAmount = parseFloat(amount);
-            if (isNaN(withdrawAmount) || withdrawAmount < 5 || withdrawAmount > balance) {
+            if (isNaN(withdrawAmount) || withdrawAmount < 5 || withdrawAmount > balance.available) {
                 showStatus('Invalid amount', 'error');
                 return;
             }
             const result = await Backend.requestWithdrawal(currentUser.id, withdrawAmount);
             if (result.success) {
-                showStatus(`Withdrawal request submitted for $${withdrawAmount.toFixed(2)}! Will be processed within 3-5 business days.`, 'success');
-                await loadBusinessWallet();
+                showStatus(result.message, 'success');
+                await loadWalletBalance();
                 await loadStats();
             } else {
                 showStatus(result.message, 'error');
@@ -1186,22 +986,12 @@
                 showStatus('Enter tax ID', 'error');
                 return;
             }
-            if (uploadedFiles.length === 0) {
-                showStatus('Upload documents', 'error');
-                return;
-            }
-            const uploading = uploadedFiles.some(f => f.status === 'uploading');
-            if (uploading) {
-                showStatus('Please wait for files to finish uploading', 'error');
-                return;
-            }
-            const result = await Backend.submitVerification({ taxId, documents: uploadedFiles.map(f => f.name) });
+            const result = await Backend.submitVerification();
             if (result.success) {
-                showStatus('Business verified! You can now post ads.', 'success');
+                showStatus('Business verified!', 'success');
                 isVerified = true;
                 updateVerificationUI();
                 localStorage.setItem('businessVerified', 'true');
-                document.getElementById('verifyBtn').disabled = true;
             } else {
                 showStatus(result.message, 'error');
             }
@@ -1235,13 +1025,10 @@
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
         window.removeEmployee = removeEmployee;
-        window.updateClaim = updateClaim;
-        window.viewConsumerProfile = viewConsumerProfile;
-        window.markRead = markRead;
+        window.confirmOrder = confirmOrder;
         window.requestWithdraw = requestWithdraw;
+        window.markRead = markRead;
         window.submitVerification = submitVerification;
-        window.handleFileSelect = handleFileSelect;
-        window.removeFile = removeFile;
         window.logout = logout;
     </script>
 </body>
