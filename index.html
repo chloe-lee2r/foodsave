@@ -98,6 +98,19 @@
             margin-top: 8px;
         }
         
+        .refresh-header {
+            position: absolute;
+            top: 30px;
+            right: 100px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
         .logout-btn {
             position: absolute;
             top: 30px;
@@ -131,6 +144,15 @@
             font-size: 14px;
             text-decoration: none;
             cursor: pointer;
+        }
+        
+        .refresh-icon {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
         }
         
         /* Tabs */
@@ -834,6 +856,7 @@
                 </div>
             </div>
             <div class="date" id="currentDate"></div>
+            <button class="refresh-header" onclick="refreshAll()">↻</button>
             <button class="logout-btn" onclick="logout()">logout</button>
         </div>
         
@@ -882,6 +905,7 @@
                     
                     <div class="section-title">
                         🔥 hot deals near you
+                        <button class="refresh-icon" onclick="loadDealsData()">↻</button>
                         <a href="find-stores.html" class="view-all">view all →</a>
                     </div>
                     <div class="deals-list" id="recentDeals">
@@ -890,6 +914,7 @@
                     
                     <div class="section-title">
                         🧊 your fridge
+                        <button class="refresh-icon" onclick="loadFridgeData()">↻</button>
                         <a href="fridge.html" class="view-all">manage →</a>
                     </div>
                     <div class="fridge-summary" id="fridgeSummary">
@@ -948,6 +973,10 @@
                 
                 <!-- Orders Tab -->
                 <div class="tab-content" id="ordersTab">
+                    <div class="section-title">
+                        📦 my orders
+                        <button class="refresh-icon" onclick="loadOrders()">↻</button>
+                    </div>
                     <div id="ordersList">
                         <div class="empty-state">📦 loading orders...</div>
                     </div>
@@ -1106,15 +1135,22 @@
             updateNavigation();
             
             if (role === 'consumer') {
-                await loadWalletBalance();
-                await loadProfile();
-                await loadOrders();
-                await loadAddresses();
-                loadConsumerData();
+                await refreshAll();
             } else {
                 loadAdvertiserData();
             }
         });
+        
+        async function refreshAll() {
+            await loadWalletBalance();
+            await loadProfile();
+            await loadOrders();
+            await loadAddresses();
+            await loadFridgeData();
+            await loadListCount();
+            await loadDealsData();
+            showNotification('All data refreshed!', 'success');
+        }
         
         async function loadWalletBalance() {
             try {
@@ -1330,6 +1366,11 @@
             const tabMap = { home: 0, profile: 1, orders: 2 };
             document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
             document.getElementById(`${tab}Tab`).classList.add('active');
+            
+            // Refresh data when switching to orders tab
+            if (tab === 'orders') {
+                loadOrders();
+            }
         }
         
         function goToHome() {
@@ -1362,12 +1403,6 @@
                 navIcon.textContent = '📢';
                 navLabel.textContent = 'post ad';
             }
-        }
-        
-        function loadConsumerData() {
-            loadFridgeData();
-            loadListCount();
-            loadDealsData();
         }
         
         function loadFridgeData() {
@@ -1403,16 +1438,20 @@
         async function loadDealsData() {
             const container = document.getElementById('recentDeals');
             try {
-                const ads = await Backend.getActiveAds({ limit: 3 });
+                const ads = await Backend.getActiveAds({ limit: 100 });
+                // Update the deals count with TOTAL number of deals, not just displayed
                 document.getElementById('dealsCount').textContent = ads.length + ' nearby';
+                
                 if (ads.length === 0) {
                     container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
                     return;
                 }
+                // Show only top 3 on home page
                 const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
+                const topAds = sortedAds.slice(0, 3);
                 let html = '';
-                for (let i = 0; i < Math.min(sortedAds.length, 3); i++) {
-                    const ad = sortedAds[i];
+                for (let i = 0; i < topAds.length; i++) {
+                    const ad = topAds[i];
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     html += `
@@ -1433,6 +1472,7 @@
                 }
                 container.innerHTML = html;
             } catch (error) {
+                console.error('Error loading deals:', error);
                 container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>';
             }
         }
@@ -1516,6 +1556,10 @@
         window.saveAddress = saveAddress;
         window.closeAddressModal = closeAddressModal;
         window.confirmPickup = confirmPickup;
+        window.refreshAll = refreshAll;
+        window.loadDealsData = loadDealsData;
+        window.loadFridgeData = loadFridgeData;
+        window.loadOrders = loadOrders;
         window.logout = logout;
     </script>
 </body>
