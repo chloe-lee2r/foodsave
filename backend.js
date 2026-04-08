@@ -495,7 +495,7 @@ const Backend = {
         }
     },
 
-    // ========== ORDER SYSTEM (FIXED - NO 101 ERROR) ==========
+    // ========== ORDER SYSTEM ==========
 
     async createOrder(items, totalAmount) {
         try {
@@ -504,13 +504,11 @@ const Backend = {
                 return { success: false, message: "Please login as consumer" };
             }
 
-            // Check wallet balance FIRST
             const walletBalance = currentUser.get("walletBalance") || 0;
             if (walletBalance < totalAmount) {
                 return { success: false, message: `Insufficient balance. Need $${totalAmount.toFixed(2)}` };
             }
 
-            // Verify all items exist and have enough stock BEFORE any changes
             const adChecks = [];
             for (const item of items) {
                 try {
@@ -532,7 +530,6 @@ const Backend = {
                     
                     adChecks.push({ ad, item });
                 } catch (err) {
-                    console.error("Error finding ad:", item.id, err);
                     return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
                 }
             }
@@ -541,24 +538,19 @@ const Backend = {
                 return { success: false, message: "No valid items in cart" };
             }
 
-            // All checks passed - now process the order
             return await withMasterKey(async () => {
-                // Deduct from consumer wallet
                 currentUser.set("walletBalance", walletBalance - totalAmount);
                 await currentUser.save();
                 localStorage.setItem("walletBalance", walletBalance - totalAmount);
 
                 const orders = [];
                 
-                // Process each item and create orders
                 for (const check of adChecks) {
                     const { ad, item } = check;
                     
-                    // Calculate amount for this item
                     const discountedPrice = ad.get("originalPrice") * (1 - ad.get("discount") / 100);
                     const itemTotal = discountedPrice * item.quantity;
                     
-                    // Update stock
                     ad.set("quantityLeft", ad.get("quantityLeft") - item.quantity);
                     ad.increment("claimed", item.quantity);
                     if (ad.get("quantityLeft") === 0) {
@@ -566,7 +558,6 @@ const Backend = {
                     }
                     await ad.save();
                     
-                    // Create order record
                     const Order = Parse.Object.extend("Order");
                     const order = new Order();
                     order.set("adId", item.id);
@@ -586,18 +577,15 @@ const Backend = {
                     
                     orders.push(order);
                     
-                    // Add to business PENDING wallet
                     const businessUser = await new Parse.Query(Parse.User).get(ad.get("businessId"));
                     const currentPending = businessUser.get("pendingWalletBalance") || 0;
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
                     await businessUser.save();
                     
-                    // Send notification to business
                     await this.sendNotification(ad.get("businessId"), 
                         `🛒 New order! ${currentUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
                 }
                 
-                // Clear cart from localStorage
                 localStorage.removeItem('claimCart');
                 
                 return { success: true, message: "Order placed successfully!", orders: orders };
@@ -605,13 +593,11 @@ const Backend = {
             
         } catch (error) {
             console.error("Create order error:", error);
-            // Don't return error if order actually went through - check if wallet balance changed
             const currentUser = Parse.User.current();
             if (currentUser) {
                 const newBalance = currentUser.get("walletBalance") || 0;
                 const originalBalance = parseFloat(localStorage.getItem('walletBalanceBeforeCheckout') || '0');
                 if (newBalance < originalBalance) {
-                    // Money was deducted, order succeeded
                     localStorage.removeItem('claimCart');
                     return { success: true, message: "Order placed successfully!" };
                 }
@@ -699,7 +685,6 @@ const Backend = {
                 }));
             });
         } catch (error) {
-            console.error("Get orders error:", error);
             return [];
         }
     },
@@ -747,7 +732,6 @@ const Backend = {
                 order.set("status", "confirmed_by_business");
                 await order.save();
                 
-                // Send notification to customer
                 await this.sendNotificationToConsumer(order.get("consumerId"),
                     `✅ Your order "${order.get("foodName")}" is ready for pickup!`);
                 
@@ -777,26 +761,25 @@ const Backend = {
                     return { success: false, message: "Order must be confirmed by business first" };
                 }
                 
-                order.set("status", "collected_by_customer");
-                await order.save();
-                
-                // Move money from pending to available wallet
                 const businessUser = await new Parse.Query(Parse.User).get(order.get("businessId"));
                 const pendingBalance = businessUser.get("pendingWalletBalance") || 0;
                 const currentBalance = businessUser.get("businessWalletBalance") || 0;
                 const orderAmount = order.get("totalAmount") || 0;
                 
+                order.set("status", "collected_by_customer");
+                await order.save();
+                
                 businessUser.set("pendingWalletBalance", pendingBalance - orderAmount);
                 businessUser.set("businessWalletBalance", currentBalance + orderAmount);
                 await businessUser.save();
                 
-                // Notify business
                 await this.sendNotification(order.get("businessId"),
                     `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
                 
-                return { success: true, message: "Pickup confirmed! Thank you." };
+                return { success: true, message: "Pickup confirmed! Payment released to business." };
             });
         } catch (error) {
+            console.error("Confirm collected error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -1004,6 +987,32 @@ const Backend = {
         }
     },
 
+    async getNearExpiryStats(businessId) {
+        try {
+            return await withMasterKey(async () => {
+                const Ad = Parse.Object.extend("Advertisement");
+                const query = new Parse.Query(Ad);
+                query.equalTo("businessId", businessId);
+                query.greaterThan("offerEnds", new Date());
+                const ads = await query.find();
+                const expiringSoon = ads.filter(ad => {
+                    const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
+                    return daysLeft <= 3 && daysLeft > 0;
+                });
+                const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
+                const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
+                return {
+                    totalActiveOffers: ads.length,
+                    expiringSoonCount: expiringSoon.length,
+                    lowStockCount: lowStock.length,
+                    totalItemsLeft: totalItems
+                };
+            });
+        } catch (error) {
+            return null;
+        }
+    },
+
     // ========== FRIDGE FUNCTIONS ==========
     
     async saveFridgeItems(items) {
@@ -1092,26 +1101,40 @@ const Backend = {
         }
     },
 
+    // ========== SYNC FUNCTIONS ==========
+    
+    async syncAll() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false };
+            const localLists = localStorage.getItem("shoplists");
+            if (localLists) await this.saveShoppingLists(JSON.parse(localLists));
+            const localFridge = localStorage.getItem("foodItems");
+            if (localFridge) await this.saveFridgeItems(JSON.parse(localFridge));
+            return { success: true };
+        } catch (error) {
+            return { success: false };
+        }
+    },
+
+    async loadAll() {
+        try {
+            const cloudLists = await this.loadShoppingLists();
+            if (cloudLists) localStorage.setItem("shoplists", JSON.stringify(cloudLists));
+            const cloudFridge = await this.loadFridgeItems();
+            if (cloudFridge.length > 0) localStorage.setItem("foodItems", JSON.stringify(cloudFridge));
+            return { success: true };
+        } catch (error) {
+            return { success: false };
+        }
+    },
+
     // ========== UTILITY ==========
     
-    isAuthenticated() {
-        return Parse.User.current() !== null;
-    },
-
-    getUserRole() {
-        const user = Parse.User.current();
-        return user ? user.get("role") : null;
-    },
-
-    getBusinessRole() {
-        const user = Parse.User.current();
-        return user ? user.get("businessRole") : null;
-    },
-
-    isVerified() {
-        const user = Parse.User.current();
-        return user ? user.get("businessVerified") : false;
-    },
+    isAuthenticated() { return Parse.User.current() !== null; },
+    getUserRole() { const user = Parse.User.current(); return user ? user.get("role") : null; },
+    getBusinessRole() { const user = Parse.User.current(); return user ? user.get("businessRole") : null; },
+    isVerified() { const user = Parse.User.current(); return user ? user.get("businessVerified") : false; },
 
     async testConnection() {
         try {
@@ -1120,7 +1143,7 @@ const Backend = {
                 const testObj = new TestObject();
                 testObj.set("test", "Hello at " + new Date().toISOString());
                 await testObj.save();
-                console.log("✅ foodsave cloud connected");
+                console.log("✅ foodsavii cloud connected");
                 return { success: true };
             });
         } catch (error) {
