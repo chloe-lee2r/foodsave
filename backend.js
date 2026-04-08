@@ -719,7 +719,12 @@ const Backend = {
             
             return await withMasterKey(async () => {
                 const Order = Parse.Object.extend("Order");
-                const order = await new Parse.Query(Order).get(orderId);
+                const query = new Parse.Query(Order);
+                const order = await query.get(orderId);
+                
+                if (!order) {
+                    return { success: false, message: "Order not found" };
+                }
                 
                 if (order.get("businessId") !== currentUser.id) {
                     return { success: false, message: "Unauthorized" };
@@ -750,8 +755,14 @@ const Backend = {
             }
             
             return await withMasterKey(async () => {
+                // Get the order with master key
                 const Order = Parse.Object.extend("Order");
-                const order = await new Parse.Query(Order).get(orderId);
+                const orderQuery = new Parse.Query(Order);
+                const order = await orderQuery.get(orderId);
+                
+                if (!order) {
+                    return { success: false, message: "Order not found" };
+                }
                 
                 if (order.get("consumerId") !== currentUser.id) {
                     return { success: false, message: "Unauthorized" };
@@ -761,18 +772,28 @@ const Backend = {
                     return { success: false, message: "Order must be confirmed by business first" };
                 }
                 
-                const businessUser = await new Parse.Query(Parse.User).get(order.get("businessId"));
+                // Get the business user with master key
+                const businessUserQuery = new Parse.Query(Parse.User);
+                const businessUser = await businessUserQuery.get(order.get("businessId"));
+                
+                if (!businessUser) {
+                    return { success: false, message: "Business not found" };
+                }
+                
                 const pendingBalance = businessUser.get("pendingWalletBalance") || 0;
                 const currentBalance = businessUser.get("businessWalletBalance") || 0;
                 const orderAmount = order.get("totalAmount") || 0;
                 
+                // Update order status
                 order.set("status", "collected_by_customer");
-                await order.save();
+                await order.save(null, { useMasterKey: true });
                 
+                // Move money from pending to available
                 businessUser.set("pendingWalletBalance", pendingBalance - orderAmount);
                 businessUser.set("businessWalletBalance", currentBalance + orderAmount);
-                await businessUser.save();
+                await businessUser.save(null, { useMasterKey: true });
                 
+                // Notify business
                 await this.sendNotification(order.get("businessId"),
                     `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
                 
@@ -1147,7 +1168,7 @@ const Backend = {
                 return { success: true };
             });
         } catch (error) {
-            console.error("❌ foodsave cloud error:", error);
+            console.error("❌ foodsavii cloud error:", error);
             return { success: false, error };
         }
     }
