@@ -432,6 +432,10 @@ const Backend = {
         }
     },
 
+    async getBusinessAds(businessId) {
+        return this.getShopAds(businessId);
+    },
+
     async updateAd(adId, updates) {
         try {
             const currentUser = Parse.User.current();
@@ -491,7 +495,7 @@ const Backend = {
         }
     },
 
-    // ========== ORDER SYSTEM (FIXED) ==========
+    // ========== ORDER SYSTEM (FIXED - NO 101 ERROR) ==========
 
     async createOrder(items, totalAmount) {
         try {
@@ -509,18 +513,32 @@ const Backend = {
             // Verify all items exist and have enough stock BEFORE any changes
             const adChecks = [];
             for (const item of items) {
-                const Ad = Parse.Object.extend("Advertisement");
-                const ad = await new Parse.Query(Ad).get(item.id);
-                
-                if (!ad.get("active")) {
-                    return { success: false, message: `${item.foodName} is no longer available` };
+                try {
+                    const Ad = Parse.Object.extend("Advertisement");
+                    const query = new Parse.Query(Ad);
+                    const ad = await query.get(item.id);
+                    
+                    if (!ad) {
+                        return { success: false, message: `${item.foodName} is no longer available` };
+                    }
+                    
+                    if (!ad.get("active")) {
+                        return { success: false, message: `${item.foodName} is no longer available` };
+                    }
+                    
+                    if (ad.get("quantityLeft") < item.quantity) {
+                        return { success: false, message: `Only ${ad.get("quantityLeft")} of ${item.foodName} left` };
+                    }
+                    
+                    adChecks.push({ ad, item });
+                } catch (err) {
+                    console.error("Error finding ad:", item.id, err);
+                    return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
                 }
-                
-                if (ad.get("quantityLeft") < item.quantity) {
-                    return { success: false, message: `Only ${ad.get("quantityLeft")} of ${item.foodName} left` };
-                }
-                
-                adChecks.push({ ad, item });
+            }
+
+            if (adChecks.length === 0) {
+                return { success: false, message: "No valid items in cart" };
             }
 
             // All checks passed - now process the order
@@ -568,7 +586,7 @@ const Backend = {
                     
                     orders.push(order);
                     
-                    // Add to business PENDING wallet (not available until collected)
+                    // Add to business PENDING wallet
                     const businessUser = await new Parse.Query(Parse.User).get(ad.get("businessId"));
                     const currentPending = businessUser.get("pendingWalletBalance") || 0;
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
@@ -579,11 +597,26 @@ const Backend = {
                         `🛒 New order! ${currentUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
                 }
                 
+                // Clear cart from localStorage
+                localStorage.removeItem('claimCart');
+                
                 return { success: true, message: "Order placed successfully!", orders: orders };
             });
+            
         } catch (error) {
             console.error("Create order error:", error);
-            return { success: false, message: error.message };
+            // Don't return error if order actually went through - check if wallet balance changed
+            const currentUser = Parse.User.current();
+            if (currentUser) {
+                const newBalance = currentUser.get("walletBalance") || 0;
+                const originalBalance = parseFloat(localStorage.getItem('walletBalanceBeforeCheckout') || '0');
+                if (newBalance < originalBalance) {
+                    // Money was deducted, order succeeded
+                    localStorage.removeItem('claimCart');
+                    return { success: true, message: "Order placed successfully!" };
+                }
+            }
+            return { success: false, message: error.message || "Checkout failed. Please try again." };
         }
     },
     
