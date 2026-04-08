@@ -985,7 +985,7 @@
             
             <!-- ADVERTISER VIEW -->
             <div class="advertiser-only">
-                <div class="profile-card" onclick="window.location.href='business-profile.html'">
+                <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                     <div class="profile-header">
                         <div class="profile-avatar">🏪</div>
                         <div class="profile-name">
@@ -1015,7 +1015,7 @@
                         <div class="action-icon">📢</div>
                         <div>post ad</div>
                     </a>
-                    <a href="business-profile.html" class="shop-action">
+                    <a href="business-profile.html?tab=profile" class="shop-action">
                         <div class="action-icon">⚙️</div>
                         <div>settings</div>
                     </a>
@@ -1367,7 +1367,6 @@
             document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
             document.getElementById(`${tab}Tab`).classList.add('active');
             
-            // Refresh data when switching to orders tab
             if (tab === 'orders') {
                 loadOrders();
             }
@@ -1379,7 +1378,7 @@
         
         function goToProfile() {
             if (currentRole === 'advertiser') {
-                window.location.href = 'business-profile.html';
+                window.location.href = 'business-profile.html?tab=profile';
             } else {
                 switchConsumerTab('profile');
             }
@@ -1439,14 +1438,12 @@
             const container = document.getElementById('recentDeals');
             try {
                 const ads = await Backend.getActiveAds({ limit: 100 });
-                // Update the deals count with TOTAL number of deals, not just displayed
                 document.getElementById('dealsCount').textContent = ads.length + ' nearby';
                 
                 if (ads.length === 0) {
                     container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>';
                     return;
                 }
-                // Show only top 3 on home page
                 const sortedAds = [...ads].sort((a, b) => (b.discount || 0) - (a.discount || 0));
                 const topAds = sortedAds.slice(0, 3);
                 let html = '';
