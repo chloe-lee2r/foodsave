@@ -9,12 +9,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -67,7 +67,6 @@
             animation: bounce 0.5s ease;
         }
         
-        /* Replace emoji with actual image */
         .logo img {
             width: 48px;
             height: 48px;
@@ -191,6 +190,7 @@
             font-size: 16px;
             background: #fafafa;
             transition: all 0.2s;
+            font-family: inherit;
         }
         
         .input-field:focus {
@@ -374,6 +374,30 @@
             background: #34c759;
         }
         
+        /* Role Badge */
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: 8px;
+        }
+        
+        .role-badge.owner {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .role-badge.manager {
+            background: #e3f2fd;
+            color: #007aff;
+        }
+        
+        .role-badge.staff {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
         /* Responsive */
         @media (max-width: 380px) {
             .shop-grid {
@@ -402,7 +426,7 @@
                     👤 consumer
                 </button>
                 <button class="role-btn shop" onclick="setRole('advertiser')">
-                    🏪 shop owner
+                    🏪 business
                 </button>
             </div>
             
@@ -430,16 +454,16 @@
                 </button>
             </div>
             
-            <!-- SHOP OWNER FORM -->
+            <!-- BUSINESS FORM -->
             <div id="shopForm" class="form-section hidden">
                 <!-- Login Section -->
                 <div class="section-title">
-                    <span>🔐</span> login to existing shop
+                    <span>🔐</span> login to your business
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">username</label>
-                    <input type="text" class="input-field" id="shopLoginUsername" placeholder="your shop username">
+                    <input type="text" class="input-field" id="shopLoginUsername" placeholder="your username">
                 </div>
                 
                 <div class="input-group">
@@ -448,18 +472,18 @@
                 </div>
                 
                 <button class="action-btn login-btn" onclick="handleShopLogin()" id="shopLoginBtn">
-                    log in as shop
+                    log in to business
                 </button>
                 
                 <div class="divider">
                     <span class="divider-line"></span>
-                    <span>new shop?</span>
+                    <span>new business?</span>
                     <span class="divider-line"></span>
                 </div>
                 
                 <!-- Registration Section -->
                 <div class="section-title">
-                    <span>🏪</span> register new shop
+                    <span>🏪</span> register new business
                 </div>
                 
                 <div class="input-group">
@@ -522,7 +546,7 @@
                 </div>
                 
                 <button class="action-btn register-btn" onclick="handleShopRegister()" id="shopRegisterBtn">
-                    register new shop
+                    register new business
                 </button>
             </div>
             
@@ -532,7 +556,7 @@
                 <span class="divider-line"></span>
             </div>
             
-            <a href="home.html" class="back-link">← back to home</a>
+            <a href="index.html" class="back-link">← back to home</a>
         </div>
     </div>
     
@@ -671,7 +695,7 @@
             }
         }
         
-        // ==================== SHOP OWNER ACTIONS ====================
+        // ==================== BUSINESS ACTIONS ====================
         async function handleShopLogin() {
             const username = document.getElementById('shopLoginUsername').value.trim();
             const password = document.getElementById('shopLoginPassword').value;
@@ -687,7 +711,13 @@
             const result = await Backend.login(username, password, 'advertiser');
             
             if (result.success) {
-                showStatus('login successful!', 'success');
+                const businessRole = localStorage.getItem('businessRole');
+                let roleMessage = '';
+                if (businessRole === 'owner') roleMessage = ' (Owner)';
+                else if (businessRole === 'manager') roleMessage = ' (Manager)';
+                else if (businessRole === 'staff') roleMessage = ' (Staff)';
+                
+                showStatus(`login successful!${roleMessage}`, 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1000);
@@ -726,13 +756,13 @@
             };
             
             setButtonsDisabled(true, 'shop');
-            showStatus('creating shop account...', 'info');
+            showStatus('creating business account...', 'info');
             
             // Register with business details
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
             
             if (result.success) {
-                showStatus('shop registered! logging in...', 'success');
+                showStatus('business registered! logging in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'advertiser');
                     if (loginResult.success) {
@@ -760,6 +790,16 @@
             const statusEl = document.getElementById('statusMessage');
             statusEl.textContent = message;
             statusEl.className = `status-message ${type}`;
+            
+            // Auto hide after 3 seconds for success/error
+            if (type !== 'info') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                    setTimeout(() => {
+                        statusEl.className = 'status-message';
+                    }, 300);
+                }, 3000);
+            }
         }
         
         // Enter key handlers
