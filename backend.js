@@ -760,6 +760,7 @@ const Backend = {
                 return { success: false, message: "Only consumers can confirm pickup" };
             }
             
+            // Use master key for all operations
             return await withMasterKey(async () => {
                 // Get the order
                 const Order = Parse.Object.extend("Order");
@@ -786,9 +787,9 @@ const Backend = {
                     return { success: false, message: "Order must be confirmed by business first" };
                 }
                 
-                // Get the business user
+                // Get the business user with master key
                 const businessUserQuery = new Parse.Query(Parse.User);
-                const businessUser = await businessUserQuery.get(order.get("businessId"));
+                const businessUser = await businessUserQuery.get(order.get("businessId"), { useMasterKey: true });
                 
                 if (!businessUser) {
                     return { success: false, message: "Business not found" };
