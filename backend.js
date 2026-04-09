@@ -749,30 +749,44 @@ const Backend = {
     
     async confirmCollectedByCustomer(orderId) {
         try {
+            console.log("confirmCollectedByCustomer called with orderId:", orderId);
+            
             const currentUser = Parse.User.current();
-            if (!currentUser || currentUser.get("role") !== "consumer") {
-                return { success: false, message: "Please login as consumer" };
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            
+            if (currentUser.get("role") !== "consumer") {
+                return { success: false, message: "Only consumers can confirm pickup" };
             }
             
             return await withMasterKey(async () => {
-                // Get the order with master key
+                // Get the order
                 const Order = Parse.Object.extend("Order");
                 const orderQuery = new Parse.Query(Order);
                 const order = await orderQuery.get(orderId);
                 
                 if (!order) {
+                    console.error("Order not found:", orderId);
                     return { success: false, message: "Order not found" };
                 }
                 
+                console.log("Order found:", {
+                    id: order.id,
+                    consumerId: order.get("consumerId"),
+                    currentUserId: currentUser.id,
+                    status: order.get("status")
+                });
+                
                 if (order.get("consumerId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
+                    return { success: false, message: "Unauthorized - This is not your order" };
                 }
                 
                 if (order.get("status") !== "confirmed_by_business") {
                     return { success: false, message: "Order must be confirmed by business first" };
                 }
                 
-                // Get the business user with master key
+                // Get the business user
                 const businessUserQuery = new Parse.Query(Parse.User);
                 const businessUser = await businessUserQuery.get(order.get("businessId"));
                 
@@ -784,6 +798,12 @@ const Backend = {
                 const currentBalance = businessUser.get("businessWalletBalance") || 0;
                 const orderAmount = order.get("totalAmount") || 0;
                 
+                console.log("Before update:", {
+                    pending: pendingBalance,
+                    available: currentBalance,
+                    orderAmount: orderAmount
+                });
+                
                 // Update order status
                 order.set("status", "collected_by_customer");
                 await order.save(null, { useMasterKey: true });
@@ -793,6 +813,11 @@ const Backend = {
                 businessUser.set("businessWalletBalance", currentBalance + orderAmount);
                 await businessUser.save(null, { useMasterKey: true });
                 
+                console.log("After update:", {
+                    newPending: businessUser.get("pendingWalletBalance"),
+                    newAvailable: businessUser.get("businessWalletBalance")
+                });
+                
                 // Notify business
                 await this.sendNotification(order.get("businessId"),
                     `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
@@ -801,7 +826,7 @@ const Backend = {
             });
         } catch (error) {
             console.error("Confirm collected error:", error);
-            return { success: false, message: error.message };
+            return { success: false, message: error.message || "Failed to confirm pickup" };
         }
     },
     
@@ -1164,11 +1189,11 @@ const Backend = {
                 const testObj = new TestObject();
                 testObj.set("test", "Hello at " + new Date().toISOString());
                 await testObj.save();
-                console.log("✅ foodsavii cloud connected");
+                console.log("✅ foodsave cloud connected");
                 return { success: true };
             });
         } catch (error) {
-            console.error("❌ foodsavii cloud error:", error);
+            console.error("❌ foodsave cloud error:", error);
             return { success: false, error };
         }
     }
