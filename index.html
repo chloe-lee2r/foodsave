@@ -842,6 +842,33 @@
         .notification.info {
             background: #007aff;
         }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -1093,6 +1120,10 @@
         </div>
     </div>
     
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <div class="notification" id="notification"></div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
@@ -1235,15 +1266,33 @@
         }
         
         async function confirmPickup(orderId) {
+            console.log('Confirming pickup for order:', orderId);
+            
+            if (!orderId) {
+                showNotification('Invalid order ID', 'error');
+                return;
+            }
+            
             if (!confirm('Confirm that you have picked up your order? The business will receive payment.')) return;
             
-            const result = await Backend.confirmCollectedByCustomer(orderId);
-            if (result.success) {
-                showNotification('Pickup confirmed! Thank you for shopping with us.', 'success');
-                await loadOrders();
-                await loadWalletBalance();
-            } else {
-                showNotification(result.message, 'error');
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const result = await Backend.confirmCollectedByCustomer(orderId);
+                console.log('Confirm result:', result);
+                
+                if (result.success) {
+                    showNotification('Pickup confirmed! Thank you for shopping with us.', 'success');
+                    await loadOrders();
+                    await loadWalletBalance();
+                } else {
+                    showNotification(result.message || 'Failed to confirm pickup', 'error');
+                }
+            } catch (error) {
+                console.error('Confirm pickup error:', error);
+                showNotification('Error confirming pickup. Please try again.', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
             }
         }
         
