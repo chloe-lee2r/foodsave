@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>foodsavvi • login</title>
-    <!-- Set website icon to assets/icon.png (salad image) -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
@@ -53,7 +52,6 @@
             }
         }
         
-        /* Header */
         .header {
             background: #f8f9fa;
             padding: 30px 24px;
@@ -96,12 +94,12 @@
             margin-top: 8px;
         }
         
-        /* Form Container */
         .form-container {
             padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
         }
         
-        /* Role Selector */
         .role-selector {
             display: flex;
             gap: 12px;
@@ -139,7 +137,6 @@
             color: #007aff;
         }
         
-        /* Form Sections */
         .form-section {
             transition: all 0.3s ease;
         }
@@ -204,7 +201,11 @@
             border-color: #34c759;
         }
         
-        /* Shop Details Grid */
+        .input-field.error {
+            border-color: #ff3b30;
+            background: #ffebee;
+        }
+        
         .shop-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -212,7 +213,6 @@
             margin-bottom: 16px;
         }
         
-        /* Action Buttons */
         .action-btn {
             width: 100%;
             padding: 16px;
@@ -255,7 +255,85 @@
             transform: none;
         }
         
-        /* Divider */
+        /* Terms and Conditions */
+        .terms-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .terms-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        
+        .terms-header h4 {
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        
+        .terms-arrow {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+        
+        .terms-arrow.open {
+            transform: rotate(180deg);
+        }
+        
+        .terms-content {
+            max-height: 0;
+            overflow-y: auto;
+            transition: max-height 0.3s ease;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .terms-content.open {
+            max-height: 300px;
+        }
+        
+        .terms-content p {
+            margin-bottom: 8px;
+        }
+        
+        .terms-content h5 {
+            font-size: 12px;
+            color: #1a1a1a;
+            margin: 12px 0 6px 0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label a {
+            color: #007aff;
+            text-decoration: none;
+        }
+        
         .divider {
             display: flex;
             align-items: center;
@@ -271,7 +349,6 @@
             background: linear-gradient(90deg, transparent, #f0f0f0, transparent);
         }
         
-        /* Back Link */
         .back-link {
             display: block;
             text-align: center;
@@ -286,7 +363,6 @@
             color: #007aff;
         }
         
-        /* Status Messages */
         .status-message {
             padding: 14px;
             border-radius: 16px;
@@ -328,7 +404,6 @@
             border: 1px solid #bbdefb;
         }
         
-        /* Loading Spinner */
         .loading {
             display: inline-block;
             width: 20px;
@@ -344,7 +419,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Password Strength */
         .password-strength {
             margin-top: 8px;
             height: 4px;
@@ -374,35 +448,20 @@
             background: #34c759;
         }
         
-        /* Role Badge */
-        .role-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            margin-left: 8px;
+        /* Validation hint */
+        .validation-hint {
+            font-size: 11px;
+            margin-top: 4px;
+            color: #ff3b30;
+            display: none;
         }
         
-        .role-badge.owner {
-            background: #fff3e0;
-            color: #e65100;
+        .validation-hint.show {
+            display: block;
         }
         
-        .role-badge.manager {
-            background: #e3f2fd;
-            color: #007aff;
-        }
-        
-        .role-badge.staff {
-            background: #e0e0e0;
-            color: #666;
-        }
-        
-        /* Responsive */
-        @media (max-width: 380px) {
-            .shop-grid {
-                grid-template-columns: 1fr;
-            }
+        .username-hint {
+            color: #ff9500;
         }
     </style>
 </head>
@@ -417,10 +476,8 @@
         </div>
         
         <div class="form-container">
-            <!-- Status Messages -->
             <div id="statusMessage" class="status-message"></div>
             
-            <!-- Role Selector -->
             <div class="role-selector" id="roleSelector">
                 <button class="role-btn consumer active" onclick="setRole('consumer')">
                     👤 consumer
@@ -434,14 +491,65 @@
             <div id="consumerForm" class="form-section">
                 <div class="input-group">
                     <label class="input-label">username</label>
-                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off">
+                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off" onblur="checkUsernameExists('consumerUsername')">
+                    <div id="consumerUsernameHint" class="validation-hint"></div>
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">password</label>
-                    <input type="password" class="input-field consumer" id="consumerPassword" placeholder="••••••••">
+                    <input type="password" class="input-field consumer" id="consumerPassword" placeholder="••••••••" onkeyup="checkPasswordStrength(this.value, 'consumer')">
                     <div class="password-strength" id="consumerStrength">
                         <div class="strength-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- Terms and Conditions for Consumer -->
+                <div class="terms-section">
+                    <div class="terms-header" onclick="toggleTerms()">
+                        <span class="terms-arrow" id="termsArrow">▼</span>
+                        <h4>📜 Terms and Conditions</h4>
+                    </div>
+                    <div class="terms-content" id="termsContent">
+                        <p><strong>Terms and Conditions for Foodsavvi</strong><br>
+                        <em>Last updated: 1/4/2026</em></p>
+                        
+                        <h5>1. Agreement to Terms</h5>
+                        <p>By accessing or using Foodsavvi, you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.</p>
+                        
+                        <h5>2. Use of the Website</h5>
+                        <p>You agree to use Foodsavvi only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.</p>
+                        <p>You must NOT: Attempt to crash, overload, or disrupt the website, Interfere with the proper working of the application, Use automated scripts, bots, or exploits to abuse the system, Attempt unauthorized access to any part of the website.</p>
+                        
+                        <h5>3. No Hacking or Abuse</h5>
+                        <p>Any attempt to: Hack, reverse-engineer, or exploit the website, Bypass security measures, Manipulate data or functionality is strictly prohibited and may result in blocked access and potential legal action.</p>
+                        
+                        <h5>4. Intellectual Property & Code Usage</h5>
+                        <p>All content, design, and source code on FoodSavvi are protected. You are NOT allowed to: Copy, reuse, or redistribute the code without permission, Republish or modify the code for your own projects, Claim any part of the website as your own. You may: View the website and its code for personal, non-commercial reference only.</p>
+                        
+                        <h5>5. Cookies and Data Usage</h5>
+                        <p>Foodsavvi uses cookies and/or local storage to: Remember your saved items, Improve user experience. We do NOT: Sell your personal data, Share your information with third-party companies for marketing.</p>
+                        
+                        <h5>6. User Data Responsibility</h5>
+                        <p>You are responsible for how you use the website. While we aim to store data (like saved items), we do not guarantee permanent storage or accuracy.</p>
+                        
+                        <h5>7. Disclaimer</h5>
+                        <p>Foodsavvi is provided "as is" without warranties of any kind. We do not guarantee: The website will always be available, The data will always be accurate or saved, The site will be free from bugs or interruptions.</p>
+                        
+                        <h5>8. Limitation of Liability</h5>
+                        <p>Foodsavvi will not be held responsible for: Loss of data (including saved items), Any damages caused by using the website, Service interruptions or technical issues.</p>
+                        
+                        <h5>9. Changes to Terms</h5>
+                        <p>We may update these Terms at any time. Continued use of the website means you accept any changes.</p>
+                        
+                        <h5>10. Governing Law</h5>
+                        <p>These Terms are governed by the laws of Singapore.</p>
+                        
+                        <h5>11. Contact</h5>
+                        <p>If you have any questions, contact: reubenyee2012@gmail.com</p>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="consumerTermsCheckbox">
+                        <label for="consumerTermsCheckbox">I have read and agree to the <a href="#" onclick="toggleTerms(); return false;">Terms and Conditions</a></label>
                     </div>
                 </div>
                 
@@ -456,7 +564,6 @@
             
             <!-- BUSINESS FORM -->
             <div id="shopForm" class="form-section hidden">
-                <!-- Login Section -->
                 <div class="section-title">
                     <span>🔐</span> login to your business
                 </div>
@@ -481,14 +588,14 @@
                     <span class="divider-line"></span>
                 </div>
                 
-                <!-- Registration Section -->
                 <div class="section-title">
                     <span>🏪</span> register new business
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">business name</label>
-                    <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market">
+                    <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market" onblur="checkBusinessNameExists()">
+                    <div id="businessNameHint" class="validation-hint"></div>
                 </div>
                 
                 <div class="shop-grid">
@@ -522,7 +629,8 @@
                 
                 <div class="input-group">
                     <label class="input-label">username for login</label>
-                    <input type="text" class="input-field" id="shopUsername" placeholder="choose a username">
+                    <input type="text" class="input-field" id="shopUsername" placeholder="choose a username" onblur="checkUsernameExists('shopUsername')">
+                    <div id="shopUsernameHint" class="validation-hint"></div>
                 </div>
                 
                 <div class="input-group">
@@ -545,6 +653,56 @@
                     </div>
                 </div>
                 
+                <!-- Terms and Conditions for Business -->
+                <div class="terms-section">
+                    <div class="terms-header" onclick="toggleTermsBusiness()">
+                        <span class="terms-arrow" id="termsArrowBusiness">▼</span>
+                        <h4>📜 Terms and Conditions</h4>
+                    </div>
+                    <div class="terms-content" id="termsContentBusiness">
+                        <p><strong>Terms and Conditions for Foodsavvi</strong><br>
+                        <em>Last updated: 1/4/2026</em></p>
+                        
+                        <h5>1. Agreement to Terms</h5>
+                        <p>By accessing or using Foodsavvi, you agree to be bound by these Terms and Conditions. If you do not agree, please do not use this website.</p>
+                        
+                        <h5>2. Use of the Website</h5>
+                        <p>You agree to use Foodsavvi only for lawful purposes and in a way that does not harm, disrupt, or misuse the platform.</p>
+                        <p>You must NOT: Attempt to crash, overload, or disrupt the website, Interfere with the proper working of the application, Use automated scripts, bots, or exploits to abuse the system, Attempt unauthorized access to any part of the website.</p>
+                        
+                        <h5>3. No Hacking or Abuse</h5>
+                        <p>Any attempt to: Hack, reverse-engineer, or exploit the website, Bypass security measures, Manipulate data or functionality is strictly prohibited and may result in blocked access and potential legal action.</p>
+                        
+                        <h5>4. Intellectual Property & Code Usage</h5>
+                        <p>All content, design, and source code on FoodSavvi are protected. You are NOT allowed to: Copy, reuse, or redistribute the code without permission, Republish or modify the code for your own projects, Claim any part of the website as your own. You may: View the website and its code for personal, non-commercial reference only.</p>
+                        
+                        <h5>5. Cookies and Data Usage</h5>
+                        <p>Foodsavvi uses cookies and/or local storage to: Remember your saved items, Improve user experience. We do NOT: Sell your personal data, Share your information with third-party companies for marketing.</p>
+                        
+                        <h5>6. User Data Responsibility</h5>
+                        <p>You are responsible for how you use the website. While we aim to store data (like saved items), we do not guarantee permanent storage or accuracy.</p>
+                        
+                        <h5>7. Disclaimer</h5>
+                        <p>Foodsavvi is provided "as is" without warranties of any kind. We do not guarantee: The website will always be available, The data will always be accurate or saved, The site will be free from bugs or interruptions.</p>
+                        
+                        <h5>8. Limitation of Liability</h5>
+                        <p>Foodsavvi will not be held responsible for: Loss of data (including saved items), Any damages caused by using the website, Service interruptions or technical issues.</p>
+                        
+                        <h5>9. Changes to Terms</h5>
+                        <p>We may update these Terms at any time. Continued use of the website means you accept any changes.</p>
+                        
+                        <h5>10. Governing Law</h5>
+                        <p>These Terms are governed by the laws of Singapore.</p>
+                        
+                        <h5>11. Contact</h5>
+                        <p>If you have any questions, contact: reubenyee2012@gmail.com</p>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="businessTermsCheckbox">
+                        <label for="businessTermsCheckbox">I have read and agree to the <a href="#" onclick="toggleTermsBusiness(); return false;">Terms and Conditions</a></label>
+                    </div>
+                </div>
+                
                 <button class="action-btn register-btn" onclick="handleShopRegister()" id="shopRegisterBtn">
                     register new business
                 </button>
@@ -564,12 +722,11 @@
     <script src="backend.js"></script>
     
     <script>
-        // ==================== STATE ====================
         let currentRole = 'consumer';
+        let checkingUsername = false;
+        let checkingBusinessName = false;
         
-        // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if already logged in
             const user = Backend.getCurrentUser();
             if (user) {
                 const role = localStorage.getItem('userRole');
@@ -577,26 +734,11 @@
                     window.location.href = 'index.html';
                 }
             }
-            
-            // Set default dates
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            // Pre-fill with demo data for testing
-            document.getElementById('shopName').value = "Demo Market";
-            document.getElementById('shopPhone').value = "555-0123";
-            document.getElementById('shopEmail').value = "demo@market.com";
-            document.getElementById('shopAddress').value = "123 Main St";
-            document.getElementById('shopLat').value = "40.7128";
-            document.getElementById('shopLng').value = "-74.0060";
-            document.getElementById('shopUsername').value = "demo_shop";
         });
         
-        // ==================== ROLE HANDLING ====================
         function setRole(role) {
             currentRole = role;
             
-            // Update UI
             document.querySelectorAll('.role-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -612,7 +754,80 @@
             }
         }
         
-        // ==================== PASSWORD STRENGTH ====================
+        // Check if username already exists in database
+        async function checkUsernameExists(fieldId) {
+            const username = document.getElementById(fieldId).value.trim();
+            const hintDiv = document.getElementById(`${fieldId}Hint`);
+            
+            if (!username || username.length < 3) {
+                if (hintDiv) {
+                    hintDiv.classList.remove('show');
+                }
+                return false;
+            }
+            
+            try {
+                const result = await Backend.checkUsernameExists(username);
+                if (result.exists) {
+                    hintDiv.textContent = `❌ Username "${username}" is already taken. Please choose another.`;
+                    hintDiv.classList.add('show');
+                    document.getElementById(fieldId).classList.add('error');
+                    return false;
+                } else {
+                    hintDiv.textContent = `✓ Username "${username}" is available`;
+                    hintDiv.style.color = '#34c759';
+                    hintDiv.classList.add('show');
+                    document.getElementById(fieldId).classList.remove('error');
+                    setTimeout(() => {
+                        if (hintDiv.textContent.includes('available')) {
+                            hintDiv.classList.remove('show');
+                        }
+                    }, 2000);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+                return true;
+            }
+        }
+        
+        // Check if business name already exists
+        async function checkBusinessNameExists() {
+            const businessName = document.getElementById('shopName').value.trim();
+            const hintDiv = document.getElementById('businessNameHint');
+            
+            if (!businessName || businessName.length < 2) {
+                if (hintDiv) {
+                    hintDiv.classList.remove('show');
+                }
+                return false;
+            }
+            
+            try {
+                const result = await Backend.checkBusinessNameExists(businessName);
+                if (result.exists) {
+                    hintDiv.textContent = `❌ Business name "${businessName}" is already taken. Please choose another.`;
+                    hintDiv.classList.add('show');
+                    document.getElementById('shopName').classList.add('error');
+                    return false;
+                } else {
+                    hintDiv.textContent = `✓ "${businessName}" is available`;
+                    hintDiv.style.color = '#34c759';
+                    hintDiv.classList.add('show');
+                    document.getElementById('shopName').classList.remove('error');
+                    setTimeout(() => {
+                        if (hintDiv.textContent.includes('available')) {
+                            hintDiv.classList.remove('show');
+                        }
+                    }, 2000);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error checking business name:', error);
+                return true;
+            }
+        }
+        
         function checkPasswordStrength(password, type) {
             const strengthBar = document.querySelector(`#${type}Strength .strength-bar`);
             let strength = 0;
@@ -636,7 +851,20 @@
             }
         }
         
-        // ==================== CONSUMER ACTIONS ====================
+        function toggleTerms() {
+            const content = document.getElementById('termsContent');
+            const arrow = document.getElementById('termsArrow');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+        
+        function toggleTermsBusiness() {
+            const content = document.getElementById('termsContentBusiness');
+            const arrow = document.getElementById('termsArrowBusiness');
+            content.classList.toggle('open');
+            arrow.classList.toggle('open');
+        }
+        
         async function handleConsumerLogin() {
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
@@ -665,6 +893,7 @@
         async function handleConsumerRegister() {
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
+            const termsChecked = document.getElementById('consumerTermsCheckbox').checked;
             
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
@@ -673,6 +902,18 @@
             
             if (password.length < 6) {
                 showStatus('password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            if (!termsChecked) {
+                showStatus('Please read and agree to the Terms and Conditions', 'error');
+                return;
+            }
+            
+            // Check if username exists
+            const isUsernameAvailable = await checkUsernameExists('consumerUsername');
+            if (!isUsernameAvailable) {
+                showStatus('Username already taken. Please choose another.', 'error');
                 return;
             }
             
@@ -695,7 +936,6 @@
             }
         }
         
-        // ==================== BUSINESS ACTIONS ====================
         async function handleShopLogin() {
             const username = document.getElementById('shopLoginUsername').value.trim();
             const password = document.getElementById('shopLoginPassword').value;
@@ -730,10 +970,16 @@
         async function handleShopRegister() {
             const username = document.getElementById('shopUsername').value.trim();
             const password = document.getElementById('shopPassword').value;
+            const businessName = document.getElementById('shopName').value.trim();
+            const termsChecked = document.getElementById('businessTermsCheckbox').checked;
             
-            // Validate required fields
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
+                return;
+            }
+            
+            if (!businessName) {
+                showStatus('please enter business name', 'error');
                 return;
             }
             
@@ -742,9 +988,27 @@
                 return;
             }
             
-            // Collect shop details
+            if (!termsChecked) {
+                showStatus('Please read and agree to the Terms and Conditions', 'error');
+                return;
+            }
+            
+            // Check if username exists
+            const isUsernameAvailable = await checkUsernameExists('shopUsername');
+            if (!isUsernameAvailable) {
+                showStatus('Username already taken. Please choose another.', 'error');
+                return;
+            }
+            
+            // Check if business name exists
+            const isBusinessNameAvailable = await checkBusinessNameExists();
+            if (!isBusinessNameAvailable) {
+                showStatus('Business name already taken. Please choose another.', 'error');
+                return;
+            }
+            
             const businessDetails = {
-                name: document.getElementById('shopName').value.trim() || username,
+                name: businessName,
                 phone: document.getElementById('shopPhone').value.trim(),
                 email: document.getElementById('shopEmail').value.trim(),
                 address: document.getElementById('shopAddress').value.trim(),
@@ -758,7 +1022,6 @@
             setButtonsDisabled(true, 'shop');
             showStatus('creating business account...', 'info');
             
-            // Register with business details
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
             
             if (result.success) {
@@ -775,7 +1038,6 @@
             }
         }
         
-        // ==================== UTILITY FUNCTIONS ====================
         function setButtonsDisabled(disabled, type) {
             if (type === 'consumer') {
                 document.getElementById('consumerLoginBtn').disabled = disabled;
@@ -791,7 +1053,6 @@
             statusEl.textContent = message;
             statusEl.className = `status-message ${type}`;
             
-            // Auto hide after 3 seconds for success/error
             if (type !== 'info') {
                 setTimeout(() => {
                     statusEl.style.display = 'none';
@@ -802,7 +1063,6 @@
             }
         }
         
-        // Enter key handlers
         document.getElementById('consumerPassword').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleConsumerLogin();
         });
@@ -815,13 +1075,16 @@
             if (e.key === 'Enter') handleShopRegister();
         });
         
-        // Make functions global
         window.setRole = setRole;
         window.handleConsumerLogin = handleConsumerLogin;
         window.handleConsumerRegister = handleConsumerRegister;
         window.handleShopLogin = handleShopLogin;
         window.handleShopRegister = handleShopRegister;
         window.checkPasswordStrength = checkPasswordStrength;
+        window.checkUsernameExists = checkUsernameExists;
+        window.checkBusinessNameExists = checkBusinessNameExists;
+        window.toggleTerms = toggleTerms;
+        window.toggleTermsBusiness = toggleTermsBusiness;
     </script>
 </body>
 </html>
