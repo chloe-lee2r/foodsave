@@ -177,7 +177,6 @@
             border-radius: 20px;
         }
         
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
@@ -215,7 +214,6 @@
             display: block;
         }
         
-        /* CONSUMER SECTION */
         .consumer-only {
             display: none;
         }
@@ -261,7 +259,6 @@
             color: #666;
         }
         
-        /* Wallet Card */
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
             color: white;
@@ -297,7 +294,6 @@
             cursor: pointer;
         }
         
-        /* Profile Info Card */
         .profile-info-card {
             background: #f8f9fa;
             border-radius: 16px;
@@ -340,7 +336,8 @@
             margin-bottom: 20px;
         }
         
-        .store-dropdown {
+        /* Dropdown for ALL stores from database */
+        .all-stores-dropdown {
             width: 100%;
             padding: 14px;
             border: 1px solid #e0e0e0;
@@ -352,34 +349,27 @@
             cursor: pointer;
         }
         
-        .store-dropdown:focus {
+        .all-stores-dropdown:focus {
             outline: none;
             border-color: #007aff;
         }
         
-        .add-store-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        
-        .add-store-section input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        
-        .add-store-btn {
-            background: #007aff;
+        .add-favorite-btn {
+            width: 100%;
+            background: #34c759;
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 12px;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .add-favorite-btn:active {
+            background: #2db14e;
+            transform: scale(0.98);
         }
         
         .favorite-stores-list {
@@ -395,6 +385,11 @@
             border-radius: 12px;
             margin-bottom: 8px;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .favorite-store-item:active {
+            background: #f9f9f9;
         }
         
         .store-info {
@@ -478,6 +473,15 @@
             color: #999;
         }
         
+        .selected-store-header {
+            background: #007aff;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
         /* Order History */
         .order-item {
             background: #f8f9fa;
@@ -546,7 +550,6 @@
             width: 100%;
         }
         
-        /* Hot Deals Section */
         .deals-list {
             margin-bottom: 24px;
         }
@@ -618,7 +621,6 @@
             color: #ff3b30;
         }
         
-        /* Fridge Summary */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -686,7 +688,6 @@
             text-decoration: underline;
         }
         
-        /* ADVERTISER SECTION */
         .advertiser-only {
             display: none;
         }
@@ -900,7 +901,6 @@
             display: block;
         }
         
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -1032,7 +1032,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Store location badge */
         .store-location-badge {
             background: #e8ecf0;
             padding: 4px 8px;
@@ -1139,7 +1138,7 @@
                     </div>
                 </div>
                 
-                <!-- Profile Tab - Favorite Stores (replaced addresses) -->
+                <!-- Profile Tab - Favorite Stores -->
                 <div class="tab-content" id="profileTab">
                     <div class="profile-info-card">
                         <div class="info-row">
@@ -1167,19 +1166,23 @@
                     <div class="favorite-stores-card">
                         <div class="section-title">
                             ⭐ favorite stores
-                            <span class="view-all" onclick="showAddStoreModal()">+ add store</span>
                         </div>
                         
-                        <!-- Store Dropdown -->
-                        <select class="store-dropdown" id="storeDropdown" onchange="loadStorePromos()">
-                            <option value="">-- Select a favorite store --</option>
+                        <!-- Dropdown with ALL stores from database -->
+                        <select class="all-stores-dropdown" id="allStoresDropdown">
+                            <option value="">-- Select a store to favorite --</option>
                         </select>
                         
-                        <!-- Store Promos Display -->
-                        <div class="store-promos" id="storePromosContainer">
-                            <h4>📦 promotions from selected store</h4>
+                        <button class="add-favorite-btn" onclick="addSelectedStoreToFavorites()">
+                            + Add Selected Store to Favorites
+                        </button>
+                        
+                        <!-- Selected Favorite Store Promos -->
+                        <div class="store-promos" id="storePromosContainer" style="display: none;">
+                            <div id="selectedStoreHeader" class="selected-store-header"></div>
+                            <h4>📦 promotions from this store</h4>
                             <div id="storePromosList">
-                                <div class="empty-promos">select a store to see their deals</div>
+                                <div class="empty-promos">select a favorite store to see their deals</div>
                             </div>
                         </div>
                         
@@ -1277,19 +1280,6 @@
         </div>
     </div>
     
-    <!-- Add Store Modal -->
-    <div class="modal" id="addStoreModal">
-        <div class="modal-content">
-            <div class="modal-title">🏪 Add Favorite Store</div>
-            <input type="text" class="modal-input" id="newStoreName" placeholder="Store name">
-            <input type="text" class="modal-input" id="newStoreLocation" placeholder="Store location (address)">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeAddStoreModal()">Cancel</button>
-                <button class="modal-btn confirm" onclick="addFavoriteStore()">Add Store</button>
-            </div>
-        </div>
-    </div>
-    
     <!-- Top Up Modal -->
     <div class="modal" id="topUpModal">
         <div class="modal-content">
@@ -1332,6 +1322,7 @@
         let editField = '';
         let notificationTimeout = null;
         let favoriteStores = [];
+        let allStores = [];
         let allAds = [];
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1367,20 +1358,75 @@
             
             if (role === 'consumer') {
                 await refreshAll();
-                await loadAllAdsForStores();
+                await loadAllStoresAndAds();
             } else {
                 loadAdvertiserData();
             }
         });
         
-        // Load all ads for store promos
-        async function loadAllAdsForStores() {
+        // Load all unique stores from ads and load all ads
+        async function loadAllStoresAndAds() {
             try {
-                allAds = await Backend.getActiveAds({ limit: 200 });
+                allAds = await Backend.getActiveAds({ limit: 500 });
+                
+                // Extract unique store names from ads
+                const storeMap = new Map();
+                allAds.forEach(ad => {
+                    if (ad.shopName && !storeMap.has(ad.shopName)) {
+                        storeMap.set(ad.shopName, {
+                            name: ad.shopName,
+                            location: ad.businessAddress || 'Address not specified'
+                        });
+                    }
+                });
+                
+                allStores = Array.from(storeMap.values());
+                updateAllStoresDropdown();
             } catch (error) {
-                console.error('Error loading ads:', error);
-                allAds = [];
+                console.error('Error loading stores:', error);
+                allStores = [];
             }
+        }
+        
+        // Update the dropdown with all stores from database
+        function updateAllStoresDropdown() {
+            const dropdown = document.getElementById('allStoresDropdown');
+            if (allStores.length === 0) {
+                dropdown.innerHTML = '<option value="">-- No stores available --</option>';
+                return;
+            }
+            
+            dropdown.innerHTML = '<option value="">-- Select a store to favorite --</option>' + 
+                allStores.map((store, index) => `<option value="${index}">🏪 ${escapeHtml(store.name)}</option>`).join('');
+        }
+        
+        // Add selected store to favorites
+        function addSelectedStoreToFavorites() {
+            const dropdown = document.getElementById('allStoresDropdown');
+            const selectedIndex = dropdown.value;
+            
+            if (selectedIndex === "" || !allStores[selectedIndex]) {
+                showNotification('Please select a store first', 'error');
+                return;
+            }
+            
+            const selectedStore = allStores[selectedIndex];
+            
+            // Check if already in favorites
+            if (favoriteStores.some(store => store.name === selectedStore.name)) {
+                showNotification(`${selectedStore.name} is already in your favorites`, 'error');
+                return;
+            }
+            
+            favoriteStores.push({
+                id: Date.now(),
+                name: selectedStore.name,
+                location: selectedStore.location
+            });
+            
+            saveFavoriteStores();
+            showNotification(`Added ${selectedStore.name} to favorites!`, 'success');
+            dropdown.value = "";
         }
         
         // Load favorite stores from localStorage
@@ -1392,72 +1438,72 @@
                 favoriteStores = [];
             }
             renderFavoriteStores();
-            updateStoreDropdown();
         }
         
         // Save favorite stores to localStorage
         function saveFavoriteStores() {
             localStorage.setItem('favoriteStores', JSON.stringify(favoriteStores));
             renderFavoriteStores();
-            updateStoreDropdown();
         }
         
         // Render favorite stores list
         function renderFavoriteStores() {
             const container = document.getElementById('favoriteStoresList');
             if (favoriteStores.length === 0) {
-                container.innerHTML = '<div class="empty-state" style="padding: 20px;">⭐ No favorite stores yet. Add your first!</div>';
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">⭐ No favorite stores yet. Add your first from the dropdown above!</div>';
+                document.getElementById('storePromosContainer').style.display = 'none';
                 return;
             }
             
             container.innerHTML = favoriteStores.map((store, index) => `
-                <div class="favorite-store-item">
+                <div class="favorite-store-item" onclick="selectFavoriteStore(${index})">
                     <div class="store-info">
                         <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
-                        <div class="store-location">📍 ${escapeHtml(store.location || 'No address provided')}</div>
+                        <div class="store-location">📍 ${escapeHtml(store.location)}</div>
                     </div>
-                    <button class="remove-store-btn" onclick="removeFavoriteStore(${index})">🗑️</button>
+                    <button class="remove-store-btn" onclick="event.stopPropagation(); removeFavoriteStore(${index})">🗑️</button>
                 </div>
             `).join('');
         }
         
-        // Update store dropdown
-        function updateStoreDropdown() {
-            const dropdown = document.getElementById('storeDropdown');
-            dropdown.innerHTML = '<option value="">-- Select a favorite store --</option>' + 
-                favoriteStores.map((store, index) => `<option value="${index}">🏪 ${escapeHtml(store.name)}</option>`).join('');
-        }
-        
-        // Show add store modal
-        function showAddStoreModal() {
-            document.getElementById('addStoreModal').style.display = 'flex';
-            document.getElementById('newStoreName').value = '';
-            document.getElementById('newStoreLocation').value = '';
-        }
-        
-        function closeAddStoreModal() {
-            document.getElementById('addStoreModal').style.display = 'none';
-        }
-        
-        // Add favorite store
-        function addFavoriteStore() {
-            const name = document.getElementById('newStoreName').value.trim();
-            const location = document.getElementById('newStoreLocation').value.trim();
+        // Select a favorite store and show its promos
+        async function selectFavoriteStore(index) {
+            const selectedStore = favoriteStores[index];
+            if (!selectedStore) return;
             
-            if (!name) {
-                showNotification('Please enter a store name', 'error');
+            // Filter ads that match the store name
+            const storeAds = allAds.filter(ad => 
+                ad.shopName && ad.shopName.toLowerCase() === selectedStore.name.toLowerCase()
+            );
+            
+            const promosContainer = document.getElementById('storePromosContainer');
+            const headerDiv = document.getElementById('selectedStoreHeader');
+            const promosList = document.getElementById('storePromosList');
+            
+            promosContainer.style.display = 'block';
+            headerDiv.innerHTML = `🏪 Currently viewing: <strong>${escapeHtml(selectedStore.name)}</strong><br>📍 ${escapeHtml(selectedStore.location)}`;
+            
+            if (storeAds.length === 0) {
+                promosList.innerHTML = `
+                    <div class="empty-promos">
+                        📭 No active promotions from ${escapeHtml(selectedStore.name)} at the moment
+                    </div>`;
                 return;
             }
             
-            favoriteStores.push({
-                id: Date.now(),
-                name: name,
-                location: location || 'Address not provided'
-            });
-            
-            saveFavoriteStores();
-            closeAddStoreModal();
-            showNotification(`Added ${name} to favorites!`, 'success');
+            promosList.innerHTML = storeAds.map(ad => {
+                const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
+                const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
+                return `
+                    <div class="promo-item" onclick="window.location.href='find-stores.html'">
+                        <div class="promo-info">
+                            <div class="promo-name">${escapeHtml(ad.foodName)}</div>
+                            <div class="promo-expiry">⏰ ${daysUntil} days left ${isLowStock ? '• ⚠️ Low stock!' : ''}</div>
+                        </div>
+                        <div class="promo-discount">-${ad.discount}%</div>
+                    </div>
+                `;
+            }).join('');
         }
         
         // Remove favorite store
@@ -1466,60 +1512,13 @@
             if (confirm(`Remove "${storeName}" from favorites?`)) {
                 favoriteStores.splice(index, 1);
                 saveFavoriteStores();
-                // Clear promo display if the removed store was selected
-                const dropdown = document.getElementById('storeDropdown');
-                if (dropdown.value === index.toString()) {
-                    document.getElementById('storePromosList').innerHTML = '<div class="empty-promos">select a store to see their deals</div>';
+                
+                // Hide promos container if no favorites left
+                if (favoriteStores.length === 0) {
+                    document.getElementById('storePromosContainer').style.display = 'none';
                 }
                 showNotification(`Removed ${storeName}`, 'info');
             }
-        }
-        
-        // Load store promos based on selected store
-        async function loadStorePromos() {
-            const dropdown = document.getElementById('storeDropdown');
-            const selectedIndex = dropdown.value;
-            
-            if (selectedIndex === "" || !favoriteStores[selectedIndex]) {
-                document.getElementById('storePromosList').innerHTML = '<div class="empty-promos">select a store to see their deals</div>';
-                return;
-            }
-            
-            const selectedStore = favoriteStores[selectedIndex];
-            const storeName = selectedStore.name;
-            const storeLocation = selectedStore.location;
-            
-            // Filter ads that match the store name
-            const storeAds = allAds.filter(ad => 
-                ad.shopName && ad.shopName.toLowerCase().includes(storeName.toLowerCase())
-            );
-            
-            const promosContainer = document.getElementById('storePromosList');
-            
-            if (storeAds.length === 0) {
-                promosContainer.innerHTML = `
-                    <div class="empty-promos">
-                        📭 No active promotions from ${escapeHtml(storeName)}<br>
-                        <small>📍 Location: ${escapeHtml(storeLocation)}</small>
-                    </div>`;
-                return;
-            }
-            
-            promosContainer.innerHTML = `
-                <div class="store-location-badge" style="margin-bottom: 12px;">📍 ${escapeHtml(storeLocation)}</div>
-                ${storeAds.map(ad => {
-                    const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
-                    return `
-                        <div class="promo-item" onclick="window.location.href='find-stores.html'">
-                            <div class="promo-info">
-                                <div class="promo-name">${escapeHtml(ad.foodName)}</div>
-                                <div class="promo-expiry">⏰ ${daysUntil} days left</div>
-                            </div>
-                            <div class="promo-discount">-${ad.discount}%</div>
-                        </div>
-                    `;
-                }).join('')}
-            `;
         }
         
         function showNotification(msg, type) {
@@ -1574,10 +1573,8 @@
         });
         window.addEventListener('mouseup', () => { mouseDown = false; });
         
-        // FIXED: confirmPickup with actual expiry date from the ad
+        // confirmPickup with actual expiry date
         async function confirmPickup(orderId) {
-            console.log('Confirming pickup for order:', orderId);
-            
             if (!orderId) {
                 showNotification('Invalid order ID', 'error');
                 return;
@@ -1588,56 +1585,33 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             try {
-                // First, get the order details to find the food name
                 const orders = await Backend.getConsumerOrders(currentUser.id);
                 const completedOrder = orders.find(o => o.id === orderId);
-                
-                // Get the actual expiry date from the advertisement
-                let actualExpiryDate = null;
                 let foodItemName = completedOrder?.foodName || 'Food item';
+                let actualExpiryDate = null;
                 
                 if (completedOrder && completedOrder.foodName) {
-                    // Search for the ad to get the batch expiry date
-                    const ads = await Backend.getActiveAds({ limit: 200 });
-                    const matchingAd = ads.find(ad => 
+                    const matchingAd = allAds.find(ad => 
                         ad.foodName && ad.foodName.toLowerCase() === completedOrder.foodName.toLowerCase()
                     );
                     
                     if (matchingAd && matchingAd.batchExpiryDate) {
                         actualExpiryDate = new Date(matchingAd.batchExpiryDate).toISOString().split('T')[0];
-                        console.log('Found actual expiry date from ad:', actualExpiryDate);
+                    } else if (matchingAd && matchingAd.offerEnds) {
+                        actualExpiryDate = new Date(matchingAd.offerEnds).toISOString().split('T')[0];
                     }
                 }
                 
                 const result = await Backend.confirmCollectedByCustomer(orderId);
-                console.log('Confirm result:', result);
                 
                 if (result.success) {
-                    // Add to fridge with the ACTUAL expiry date from the ad
                     let fridgeItems = await Backend.loadFridgeItems();
                     if (!fridgeItems || fridgeItems.length === 0) {
                         fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
                     }
                     
-                    // If no actual expiry date found, use the ad's offer end date or default to 7 days
                     let expiryToUse = actualExpiryDate;
-                    if (!expiryToUse && completedOrder) {
-                        // Try to find the ad again with more details
-                        const ads = await Backend.getActiveAds({ limit: 200 });
-                        const matchingAd = ads.find(ad => 
-                            ad.foodName && ad.foodName.toLowerCase() === completedOrder.foodName.toLowerCase()
-                        );
-                        if (matchingAd && matchingAd.batchExpiryDate) {
-                            expiryToUse = new Date(matchingAd.batchExpiryDate).toISOString().split('T')[0];
-                        } else if (matchingAd && matchingAd.offerEnds) {
-                            expiryToUse = new Date(matchingAd.offerEnds).toISOString().split('T')[0];
-                        } else {
-                            const today = new Date();
-                            const defaultExpiry = new Date();
-                            defaultExpiry.setDate(today.getDate() + 7);
-                            expiryToUse = defaultExpiry.toISOString().split('T')[0];
-                        }
-                    } else if (!expiryToUse) {
+                    if (!expiryToUse) {
                         const today = new Date();
                         const defaultExpiry = new Date();
                         defaultExpiry.setDate(today.getDate() + 7);
@@ -1679,7 +1653,7 @@
             await loadFridgeData();
             await loadListCount();
             await loadDealsData();
-            await loadAllAdsForStores();
+            await loadAllStoresAndAds();
             showNotification('All data refreshed!', 'success');
         }
         
@@ -1839,8 +1813,7 @@
             if (tab === 'orders') {
                 loadOrders();
             } else if (tab === 'profile') {
-                loadFavoriteStores();
-                loadAllAdsForStores();
+                loadAllStoresAndAds();
             }
         }
         
@@ -2020,11 +1993,9 @@
         window.loadFridgeData = loadFridgeData;
         window.loadOrders = loadOrders;
         window.logout = logout;
-        window.showAddStoreModal = showAddStoreModal;
-        window.closeAddStoreModal = closeAddStoreModal;
-        window.addFavoriteStore = addFavoriteStore;
+        window.addSelectedStoreToFavorites = addSelectedStoreToFavorites;
+        window.selectFavoriteStore = selectFavoriteStore;
         window.removeFavoriteStore = removeFavoriteStore;
-        window.loadStorePromos = loadStorePromos;
     </script>
 </body>
 </html>
