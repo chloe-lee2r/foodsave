@@ -255,7 +255,6 @@
             transform: none;
         }
         
-        /* Terms and Conditions */
         .terms-section {
             background: #f8f9fa;
             border-radius: 16px;
@@ -448,20 +447,20 @@
             background: #34c759;
         }
         
-        /* Validation hint */
         .validation-hint {
             font-size: 11px;
             margin-top: 4px;
-            color: #ff3b30;
             display: none;
         }
         
-        .validation-hint.show {
+        .validation-hint.error {
             display: block;
+            color: #ff3b30;
         }
         
-        .username-hint {
-            color: #ff9500;
+        .validation-hint.success {
+            display: block;
+            color: #34c759;
         }
     </style>
 </head>
@@ -491,8 +490,7 @@
             <div id="consumerForm" class="form-section">
                 <div class="input-group">
                     <label class="input-label">username</label>
-                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off" onblur="checkUsernameExists('consumerUsername')">
-                    <div id="consumerUsernameHint" class="validation-hint"></div>
+                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off">
                 </div>
                 
                 <div class="input-group">
@@ -594,8 +592,7 @@
                 
                 <div class="input-group">
                     <label class="input-label">business name</label>
-                    <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market" onblur="checkBusinessNameExists()">
-                    <div id="businessNameHint" class="validation-hint"></div>
+                    <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market">
                 </div>
                 
                 <div class="shop-grid">
@@ -629,8 +626,7 @@
                 
                 <div class="input-group">
                     <label class="input-label">username for login</label>
-                    <input type="text" class="input-field" id="shopUsername" placeholder="choose a username" onblur="checkUsernameExists('shopUsername')">
-                    <div id="shopUsernameHint" class="validation-hint"></div>
+                    <input type="text" class="input-field" id="shopUsername" placeholder="choose a username">
                 </div>
                 
                 <div class="input-group">
@@ -723,8 +719,6 @@
     
     <script>
         let currentRole = 'consumer';
-        let checkingUsername = false;
-        let checkingBusinessName = false;
         
         document.addEventListener('DOMContentLoaded', () => {
             const user = Backend.getCurrentUser();
@@ -751,80 +745,6 @@
                 document.querySelector('.role-btn.shop').classList.add('active');
                 document.getElementById('shopForm').classList.remove('hidden');
                 document.getElementById('consumerForm').classList.add('hidden');
-            }
-        }
-        
-        // Check if username already exists in database
-        async function checkUsernameExists(fieldId) {
-            const username = document.getElementById(fieldId).value.trim();
-            const hintDiv = document.getElementById(`${fieldId}Hint`);
-            
-            if (!username || username.length < 3) {
-                if (hintDiv) {
-                    hintDiv.classList.remove('show');
-                }
-                return false;
-            }
-            
-            try {
-                const result = await Backend.checkUsernameExists(username);
-                if (result.exists) {
-                    hintDiv.textContent = `❌ Username "${username}" is already taken. Please choose another.`;
-                    hintDiv.classList.add('show');
-                    document.getElementById(fieldId).classList.add('error');
-                    return false;
-                } else {
-                    hintDiv.textContent = `✓ Username "${username}" is available`;
-                    hintDiv.style.color = '#34c759';
-                    hintDiv.classList.add('show');
-                    document.getElementById(fieldId).classList.remove('error');
-                    setTimeout(() => {
-                        if (hintDiv.textContent.includes('available')) {
-                            hintDiv.classList.remove('show');
-                        }
-                    }, 2000);
-                    return true;
-                }
-            } catch (error) {
-                console.error('Error checking username:', error);
-                return true;
-            }
-        }
-        
-        // Check if business name already exists
-        async function checkBusinessNameExists() {
-            const businessName = document.getElementById('shopName').value.trim();
-            const hintDiv = document.getElementById('businessNameHint');
-            
-            if (!businessName || businessName.length < 2) {
-                if (hintDiv) {
-                    hintDiv.classList.remove('show');
-                }
-                return false;
-            }
-            
-            try {
-                const result = await Backend.checkBusinessNameExists(businessName);
-                if (result.exists) {
-                    hintDiv.textContent = `❌ Business name "${businessName}" is already taken. Please choose another.`;
-                    hintDiv.classList.add('show');
-                    document.getElementById('shopName').classList.add('error');
-                    return false;
-                } else {
-                    hintDiv.textContent = `✓ "${businessName}" is available`;
-                    hintDiv.style.color = '#34c759';
-                    hintDiv.classList.add('show');
-                    document.getElementById('shopName').classList.remove('error');
-                    setTimeout(() => {
-                        if (hintDiv.textContent.includes('available')) {
-                            hintDiv.classList.remove('show');
-                        }
-                    }, 2000);
-                    return true;
-                }
-            } catch (error) {
-                console.error('Error checking business name:', error);
-                return true;
             }
         }
         
@@ -910,14 +830,17 @@
                 return;
             }
             
-            // Check if username exists
-            const isUsernameAvailable = await checkUsernameExists('consumerUsername');
-            if (!isUsernameAvailable) {
-                showStatus('Username already taken. Please choose another.', 'error');
+            setButtonsDisabled(true, 'consumer');
+            showStatus('checking username availability...', 'info');
+            
+            // Check if username exists ONLY during registration
+            const usernameCheck = await Backend.checkUsernameExists(username);
+            if (usernameCheck.exists) {
+                showStatus(`Username "${username}" is already taken. Please choose another.`, 'error');
+                setButtonsDisabled(false, 'consumer');
                 return;
             }
             
-            setButtonsDisabled(true, 'consumer');
             showStatus('creating account...', 'info');
             
             const result = await Backend.register(username, password, 'consumer');
@@ -993,17 +916,22 @@
                 return;
             }
             
-            // Check if username exists
-            const isUsernameAvailable = await checkUsernameExists('shopUsername');
-            if (!isUsernameAvailable) {
-                showStatus('Username already taken. Please choose another.', 'error');
+            setButtonsDisabled(true, 'shop');
+            showStatus('checking availability...', 'info');
+            
+            // Check if username exists ONLY during registration
+            const usernameCheck = await Backend.checkUsernameExists(username);
+            if (usernameCheck.exists) {
+                showStatus(`Username "${username}" is already taken. Please choose another.`, 'error');
+                setButtonsDisabled(false, 'shop');
                 return;
             }
             
-            // Check if business name exists
-            const isBusinessNameAvailable = await checkBusinessNameExists();
-            if (!isBusinessNameAvailable) {
-                showStatus('Business name already taken. Please choose another.', 'error');
+            // Check if business name exists ONLY during registration
+            const businessNameCheck = await Backend.checkBusinessNameExists(businessName);
+            if (businessNameCheck.exists) {
+                showStatus(`Business name "${businessName}" is already taken. Please choose another.`, 'error');
+                setButtonsDisabled(false, 'shop');
                 return;
             }
             
@@ -1019,7 +947,6 @@
                 type: 'grocery'
             };
             
-            setButtonsDisabled(true, 'shop');
             showStatus('creating business account...', 'info');
             
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
@@ -1063,6 +990,7 @@
             }
         }
         
+        // Enter key handlers
         document.getElementById('consumerPassword').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleConsumerLogin();
         });
@@ -1081,8 +1009,6 @@
         window.handleShopLogin = handleShopLogin;
         window.handleShopRegister = handleShopRegister;
         window.checkPasswordStrength = checkPasswordStrength;
-        window.checkUsernameExists = checkUsernameExists;
-        window.checkBusinessNameExists = checkBusinessNameExists;
         window.toggleTerms = toggleTerms;
         window.toggleTermsBusiness = toggleTermsBusiness;
     </script>
