@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -191,7 +191,7 @@
             color: #666;
         }
         
-        /* Add Item */
+        /* Add Item - SMALLER QUANTITY BOX */
         .add-section {
             background: #f5f7fa;
             border-radius: 16px;
@@ -206,7 +206,6 @@
         }
         
         .add-row input {
-            flex: 1;
             padding: 12px;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
@@ -214,9 +213,48 @@
             background: white;
         }
         
-        .add-row input:focus {
-            outline: none;
-            border-color: #007aff;
+        .add-row input:first-child {
+            flex: 2;
+        }
+        
+        /* SMALLER QUANTITY INPUT */
+        .add-row input[name="price"] {
+            flex: 1;
+        }
+        
+        .add-row input[name="qty"] {
+            flex: 0.6;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        /* Expiry Date Input */
+        .expiry-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .expiry-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .expiry-row label {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .expiry-checkbox {
+            width: auto !important;
+            margin-right: 4px;
         }
         
         .add-btn {
@@ -328,6 +366,7 @@
             gap: 8px;
             font-size: 12px;
             color: #666;
+            flex-wrap: wrap;
         }
         
         .item-cat {
@@ -339,6 +378,19 @@
         .item-price {
             color: #007aff;
             font-weight: 500;
+        }
+        
+        .item-expiry {
+            color: #ff9500;
+            font-size: 10px;
+            background: #fff3e0;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        
+        .item-expiry.urgent {
+            background: #ffebee;
+            color: #ff3b30;
         }
         
         .item-actions {
@@ -560,14 +612,20 @@
             <!-- List Selector -->
             <div class="list-selector" id="listSelector"></div>
             
-            <!-- Add Item Form -->
+            <!-- Add Item Form with Expiry -->
             <div class="add-section">
                 <div class="add-row">
                     <input type="text" id="itemName" placeholder="item name">
                 </div>
                 <div class="add-row">
-                    <input type="number" id="itemPrice" placeholder="price" step="0.01" min="0">
-                    <input type="number" id="itemQty" placeholder="qty" min="1" value="1">
+                    <input type="number" id="itemPrice" name="price" placeholder="$ price" step="0.01" min="0">
+                    <input type="number" id="itemQty" name="qty" placeholder="qty" min="1" value="1">
+                </div>
+                <div class="expiry-row">
+                    <label>
+                        <input type="checkbox" id="addExpiryCheckbox"> 📅 add expiry date
+                    </label>
+                    <input type="date" id="itemExpiry" style="display: none;">
                 </div>
                 <button class="add-btn" onclick="addItem()">+ add to list</button>
             </div>
@@ -615,6 +673,9 @@
                 <option value="frozen">❄️ Frozen</option>
                 <option value="other">📌 Other</option>
             </select>
+            <div class="modal-row">
+                <input type="date" id="editItemExpiry" placeholder="expiry date">
+            </div>
             <div class="modal-buttons">
                 <button class="primary" onclick="saveEditItem()">save</button>
                 <button class="secondary" onclick="closeEditModal()">cancel</button>
@@ -646,6 +707,20 @@
         let currentListId = 'default';
         let currentCategory = 'all';
         let editingItemIndex = -1;
+        
+        // Expiry checkbox toggle
+        document.getElementById('addExpiryCheckbox')?.addEventListener('change', function(e) {
+            const expiryInput = document.getElementById('itemExpiry');
+            if (e.target.checked) {
+                expiryInput.style.display = 'block';
+                const today = new Date();
+                today.setDate(today.getDate() + 7);
+                expiryInput.value = today.toISOString().split('T')[0];
+            } else {
+                expiryInput.style.display = 'none';
+                expiryInput.value = '';
+            }
+        });
         
         const categories = [
             { id: 'all', label: 'all', icon: '📋' },
@@ -778,8 +853,22 @@
             const active = items.filter(i => !i.completed);
             const completed = items.filter(i => i.completed);
             
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             container.innerHTML = [...active, ...completed].map((item, index) => {
                 const originalIndex = currentList.items.findIndex(i => i.id === item.id);
+                
+                let expiryHtml = '';
+                let expiryClass = '';
+                if (item.expiryDate) {
+                    const expiryDate = new Date(item.expiryDate);
+                    expiryDate.setHours(0, 0, 0, 0);
+                    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    expiryClass = daysLeft <= 3 ? 'urgent' : '';
+                    expiryHtml = `<span class="item-expiry ${expiryClass}">📅 expires: ${item.expiryDate}</span>`;
+                }
+                
                 return `
                     <div class="item ${item.completed ? 'completed' : ''}">
                         <input type="checkbox" ${item.completed ? 'checked' : ''} 
@@ -789,6 +878,7 @@
                             <div class="item-meta">
                                 <span class="item-cat">${item.category || 'other'}</span>
                                 ${item.price ? `<span class="item-price">$${item.price.toFixed(2)} × ${item.qty}</span>` : ''}
+                                ${expiryHtml}
                             </div>
                         </div>
                         <div class="item-actions">
@@ -823,6 +913,7 @@
             document.getElementById('editItemPrice').value = item.price || '';
             document.getElementById('editItemQty').value = item.qty || 1;
             document.getElementById('editItemCategory').value = item.category || 'other';
+            document.getElementById('editItemExpiry').value = item.expiryDate || '';
             
             document.getElementById('editModal').classList.add('show');
         }
@@ -834,6 +925,7 @@
             const newPrice = parseFloat(document.getElementById('editItemPrice').value) || 0;
             const newQty = parseInt(document.getElementById('editItemQty').value) || 1;
             const newCategory = document.getElementById('editItemCategory').value;
+            const newExpiry = document.getElementById('editItemExpiry').value;
             
             if (!newName) {
                 showNotification('Item name cannot be empty', 'error');
@@ -847,7 +939,8 @@
                 name: newName,
                 price: newPrice,
                 qty: newQty,
-                category: newCategory
+                category: newCategory,
+                expiryDate: newExpiry || null
             };
             
             await saveListsToCloud();
@@ -901,6 +994,8 @@
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value) || 0;
             const qty = parseInt(document.getElementById('itemQty').value) || 1;
+            const addExpiry = document.getElementById('addExpiryCheckbox').checked;
+            const expiryDate = addExpiry ? document.getElementById('itemExpiry').value : null;
             
             if (!name) {
                 showNotification('enter item name', 'error');
@@ -916,7 +1011,8 @@
                 qty: qty,
                 category: category,
                 completed: false,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                expiryDate: expiryDate
             };
             
             lists[currentListId].items.push(item);
@@ -925,6 +1021,9 @@
             document.getElementById('itemName').value = '';
             document.getElementById('itemPrice').value = '';
             document.getElementById('itemQty').value = '1';
+            document.getElementById('addExpiryCheckbox').checked = false;
+            document.getElementById('itemExpiry').style.display = 'none';
+            document.getElementById('itemExpiry').value = '';
             
             render();
             showNotification(`added ${name}`, 'success');
@@ -979,7 +1078,8 @@
                 qty: 1,
                 category: category,
                 completed: false,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                expiryDate: null
             };
             
             lists[currentListId].items.push(item);
@@ -988,7 +1088,7 @@
             showNotification(`added ${name}`, 'success');
         }
         
-        // ==================== MOVE CHECKED TO FRIDGE ====================
+        // ==================== MOVE CHECKED TO FRIDGE WITH EXPIRY ====================
         async function moveCheckedToFridge() {
             const currentList = lists[currentListId];
             if (!currentList) return;
@@ -1008,19 +1108,26 @@
                     fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
                 }
                 
-                const today = new Date();
                 const newFridgeItems = [...fridgeItems];
                 
                 checkedItems.forEach(item => {
-                    const expiryDate = new Date();
-                    expiryDate.setDate(today.getDate() + 7);
-                    const expiryDateStr = expiryDate.toISOString().split('T')[0];
+                    let expiryDate;
+                    if (item.expiryDate) {
+                        expiryDate = item.expiryDate;
+                    } else {
+                        const today = new Date();
+                        expiryDate = new Date();
+                        expiryDate.setDate(today.getDate() + 7);
+                        expiryDate = expiryDate.toISOString().split('T')[0];
+                    }
                     
                     newFridgeItems.push({
                         name: item.name,
-                        expiry: expiryDateStr,
+                        expiry: expiryDate,
                         category: item.category || 'other',
-                        addedDate: new Date().toISOString()
+                        addedDate: new Date().toISOString(),
+                        price: item.price || 0,
+                        qty: item.qty || 1
                     });
                 });
                 
