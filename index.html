@@ -6,23 +6,27 @@
     <title>foodsavvi • home</title>
     
     <!-- ========== APPLE DEVICE ICONS ========== -->
-    <!-- Standard iPhone / iOS Home Screen Icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icon.png">
-    <!-- For older iPhones / iPod Touch -->
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/icon.png">
     <link rel="apple-touch-icon" sizes="152x152" href="assets/icon.png">
     <link rel="apple-touch-icon" sizes="120x120" href="assets/icon.png">
     <link rel="apple-touch-icon" sizes="76x76" href="assets/icon.png">
-    <!-- iPad Pro / iPad -->
-    <link rel="apple-touch-icon" sizes="167x167" href="assets/icon.png">
-    <!-- Fallback for other iOS devices -->
     <link rel="apple-touch-icon" href="assets/icon.png">
-    <!-- iOS Safari Web App status bar style (black-translucent / default / black) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="foodsavvi">
-    <!-- Favicon for standard browsers (already present) -->
-    <link rel="icon" type="image/png" href="assets/icon.png">
+    
+    <!-- ========== STANDARD BROWSER FAVICONS (Chrome, Safari, Firefox, Edge) ========== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    
+    <!-- ========== ANDROID CHROME & OTHER DEVICES ========== -->
+    <link rel="manifest" href="assets/site.webmanifest">
+    <meta name="msapplication-TileImage" content="assets/icon.png">
+    <meta name="msapplication-TileColor" content="#34c759">
+    <meta name="theme-color" content="#34c759">
     
     <style>
         @font-face {
@@ -829,6 +833,7 @@
             color: white;
         }
         
+        /* UPDATED NOTIFICATION: 1 second auto-dismiss + swipe to dismiss */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -839,14 +844,23 @@
             padding: 12px 24px;
             border-radius: 30px;
             font-size: 14px;
-            transition: 0.3s;
+            transition: transform 0.25s ease-out, opacity 0.2s ease-out;
             z-index: 1100;
             text-align: center;
             max-width: 90%;
+            cursor: grab;
+            touch-action: pan-x pan-y;
+            opacity: 1;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.dismissing {
+            transform: translateX(-50%) translateY(30px);
+            opacity: 0;
+            transition: transform 0.2s ease-in, opacity 0.15s ease-in;
         }
         
         .notification.success {
@@ -1154,6 +1168,7 @@
         let currentUser = null;
         let walletBalance = 0;
         let editField = '';
+        let notificationTimeout = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
@@ -1189,6 +1204,69 @@
                 loadAdvertiserData();
             }
         });
+        
+        // UPDATED: showNotification with 1 second auto-dismiss + swipe to dismiss
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            
+            // Clear any existing timeout
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+            }
+            
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            notif.style.transform = '';
+            notif.style.opacity = '';
+            
+            // Auto-dismiss after 1 second (1000ms)
+            notificationTimeout = setTimeout(() => {
+                if (notif.classList.contains('show')) {
+                    notif.classList.add('dismissing');
+                    setTimeout(() => {
+                        notif.classList.remove('show', 'dismissing');
+                    }, 200);
+                }
+            }, 1000);
+        }
+        
+        // Swipe to dismiss functionality
+        const notificationEl = document.getElementById('notification');
+        let touchStartX = 0, touchStartY = 0;
+        
+        notificationEl.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        
+        notificationEl.addEventListener('touchmove', (e) => {
+            if (!notificationEl.classList.contains('show')) return;
+            const deltaX = e.changedTouches[0].screenX - touchStartX;
+            const deltaY = e.changedTouches[0].screenY - touchStartY;
+            if (Math.abs(deltaY) > 20 || Math.abs(deltaX) > 15) {
+                e.preventDefault();
+                notificationEl.classList.add('dismissing');
+                if (notificationTimeout) clearTimeout(notificationTimeout);
+                setTimeout(() => {
+                    notificationEl.classList.remove('show', 'dismissing');
+                }, 200);
+            }
+        });
+        
+        // Mouse swipe for desktop testing
+        let mouseDown = false;
+        notificationEl.addEventListener('mousedown', (e) => { mouseDown = true; touchStartX = e.screenX; });
+        window.addEventListener('mousemove', (e) => {
+            if (!mouseDown || !notificationEl.classList.contains('show')) return;
+            const deltaX = e.screenX - touchStartX;
+            if (Math.abs(deltaX) > 20) {
+                notificationEl.classList.add('dismissing');
+                if (notificationTimeout) clearTimeout(notificationTimeout);
+                setTimeout(() => { notificationEl.classList.remove('show', 'dismissing'); }, 200);
+                mouseDown = false;
+            }
+        });
+        window.addEventListener('mouseup', () => { mouseDown = false; });
         
         async function refreshAll() {
             await loadWalletBalance();
@@ -1592,13 +1670,6 @@
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-        }
-        
-        function showNotification(msg, type) {
-            const notif = document.getElementById('notification');
-            notif.textContent = msg;
-            notif.className = `notification show ${type}`;
-            setTimeout(() => notif.classList.remove('show'), 3000);
         }
         
         async function logout() {
