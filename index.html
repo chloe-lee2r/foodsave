@@ -16,7 +16,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="foodsavvi">
     
-    <!-- ========== STANDARD BROWSER FAVICONS (Chrome, Safari, Firefox, Edge) ========== -->
+    <!-- ========== STANDARD BROWSER FAVICONS ========== -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
@@ -833,7 +833,7 @@
             color: white;
         }
         
-        /* UPDATED NOTIFICATION: 1 second auto-dismiss + swipe to dismiss */
+        /* UPDATED NOTIFICATION - 1 SECOND AUTO DISMISS + SWIPE TO DISMISS */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -851,6 +851,7 @@
             cursor: grab;
             touch-action: pan-x pan-y;
             opacity: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
         .notification.show {
@@ -860,7 +861,6 @@
         .notification.dismissing {
             transform: translateX(-50%) translateY(30px);
             opacity: 0;
-            transition: transform 0.2s ease-in, opacity 0.15s ease-in;
         }
         
         .notification.success {
@@ -1205,7 +1205,7 @@
             }
         });
         
-        // UPDATED: showNotification with 1 second auto-dismiss + swipe to dismiss
+        // FIXED: showNotification with 1 SECOND auto-dismiss (not 3 seconds)
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
             
@@ -1214,12 +1214,13 @@
                 clearTimeout(notificationTimeout);
             }
             
+            // Remove any existing dismissing class
+            notif.classList.remove('dismissing');
+            
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            notif.style.transform = '';
-            notif.style.opacity = '';
             
-            // Auto-dismiss after 1 second (1000ms)
+            // Auto-dismiss after 1 SECOND (1000ms)
             notificationTimeout = setTimeout(() => {
                 if (notif.classList.contains('show')) {
                     notif.classList.add('dismissing');
@@ -1230,43 +1231,67 @@
             }, 1000);
         }
         
-        // Swipe to dismiss functionality
+        // FIXED: Working swipe to dismiss for both touch and mouse
         const notificationEl = document.getElementById('notification');
-        let touchStartX = 0, touchStartY = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isDragging = false;
         
+        // Touch events for mobile
         notificationEl.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
+            isDragging = true;
         });
         
         notificationEl.addEventListener('touchmove', (e) => {
-            if (!notificationEl.classList.contains('show')) return;
-            const deltaX = e.changedTouches[0].screenX - touchStartX;
-            const deltaY = e.changedTouches[0].screenY - touchStartY;
-            if (Math.abs(deltaY) > 20 || Math.abs(deltaX) > 15) {
+            if (!isDragging || !notificationEl.classList.contains('show')) return;
+            
+            const deltaX = Math.abs(e.changedTouches[0].screenX - touchStartX);
+            const deltaY = Math.abs(e.changedTouches[0].screenY - touchStartY);
+            
+            // If swipe distance is more than 15px in any direction
+            if (deltaX > 15 || deltaY > 15) {
                 e.preventDefault();
                 notificationEl.classList.add('dismissing');
                 if (notificationTimeout) clearTimeout(notificationTimeout);
                 setTimeout(() => {
                     notificationEl.classList.remove('show', 'dismissing');
                 }, 200);
+                isDragging = false;
             }
         });
         
-        // Mouse swipe for desktop testing
+        notificationEl.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // Mouse events for desktop testing
         let mouseDown = false;
-        notificationEl.addEventListener('mousedown', (e) => { mouseDown = true; touchStartX = e.screenX; });
+        let mouseStartX = 0;
+        
+        notificationEl.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            mouseStartX = e.screenX;
+        });
+        
         window.addEventListener('mousemove', (e) => {
             if (!mouseDown || !notificationEl.classList.contains('show')) return;
-            const deltaX = e.screenX - touchStartX;
-            if (Math.abs(deltaX) > 20) {
+            
+            const deltaX = Math.abs(e.screenX - mouseStartX);
+            if (deltaX > 20) {
                 notificationEl.classList.add('dismissing');
                 if (notificationTimeout) clearTimeout(notificationTimeout);
-                setTimeout(() => { notificationEl.classList.remove('show', 'dismissing'); }, 200);
+                setTimeout(() => {
+                    notificationEl.classList.remove('show', 'dismissing');
+                }, 200);
                 mouseDown = false;
             }
         });
-        window.addEventListener('mouseup', () => { mouseDown = false; });
+        
+        window.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
         
         async function refreshAll() {
             await loadWalletBalance();
