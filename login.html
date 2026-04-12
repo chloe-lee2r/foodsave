@@ -790,22 +790,22 @@
             const password = document.getElementById('consumerPassword').value;
             
             if (!username || !password) {
-                showStatus('please enter username and password', 'error');
+                showStatus('❌ Please enter username and password', 'error');
                 return;
             }
             
             setButtonsDisabled(true, 'consumer');
-            showStatus('logging in...', 'info');
+            showStatus('🔐 Logging in...', 'info');
             
             const result = await Backend.login(username, password, 'consumer');
             
             if (result.success) {
-                showStatus('login successful!', 'success');
+                showStatus('✅ Login successful! Redirecting...', 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1000);
             } else {
-                showStatus(result.message || 'login failed', 'error');
+                showStatus('❌ ' + (result.message || 'Login failed. Please check your credentials.'), 'error');
                 setButtonsDisabled(false, 'consumer');
             }
         }
@@ -815,46 +815,55 @@
             const password = document.getElementById('consumerPassword').value;
             const termsChecked = document.getElementById('consumerTermsCheckbox').checked;
             
+            // Validation
             if (!username || !password) {
-                showStatus('please enter username and password', 'error');
+                showStatus('❌ Please enter username and password', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showStatus('❌ Username must be at least 3 characters', 'error');
                 return;
             }
             
             if (password.length < 6) {
-                showStatus('password must be at least 6 characters', 'error');
+                showStatus('❌ Password must be at least 6 characters', 'error');
                 return;
             }
             
             if (!termsChecked) {
-                showStatus('Please read and agree to the Terms and Conditions', 'error');
+                showStatus('❌ Please read and agree to the Terms and Conditions', 'error');
                 return;
             }
             
             setButtonsDisabled(true, 'consumer');
-            showStatus('checking username availability...', 'info');
+            showStatus('📝 Checking username availability...', 'info');
             
-            // Check if username exists ONLY during registration
+            // Check if username exists
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
-                showStatus(`Username "${username}" is already taken. Please choose another.`, 'error');
+                showStatus(`❌ Username "${username}" is already taken. Please choose another username.`, 'error');
                 setButtonsDisabled(false, 'consumer');
                 return;
             }
             
-            showStatus('creating account...', 'info');
+            showStatus('🔄 Creating your account...', 'info');
             
             const result = await Backend.register(username, password, 'consumer');
             
             if (result.success) {
-                showStatus('account created! logging in...', 'success');
+                showStatus('✅ Account created successfully! Logging you in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'consumer');
                     if (loginResult.success) {
                         window.location.href = 'index.html';
+                    } else {
+                        showStatus('❌ Account created but auto-login failed. Please login manually.', 'error');
+                        setButtonsDisabled(false, 'consumer');
                     }
-                }, 1000);
+                }, 1500);
             } else {
-                showStatus(result.message || 'registration failed', 'error');
+                showStatus('❌ ' + (result.message || 'Registration failed. Please try again.'), 'error');
                 setButtonsDisabled(false, 'consumer');
             }
         }
@@ -864,12 +873,12 @@
             const password = document.getElementById('shopLoginPassword').value;
             
             if (!username || !password) {
-                showStatus('please enter username and password', 'error');
+                showStatus('❌ Please enter username and password', 'error');
                 return;
             }
             
             setButtonsDisabled(true, 'shop');
-            showStatus('logging in...', 'info');
+            showStatus('🔐 Logging in...', 'info');
             
             const result = await Backend.login(username, password, 'advertiser');
             
@@ -880,12 +889,12 @@
                 else if (businessRole === 'manager') roleMessage = ' (Manager)';
                 else if (businessRole === 'staff') roleMessage = ' (Staff)';
                 
-                showStatus(`login successful!${roleMessage}`, 'success');
+                showStatus(`✅ Login successful!${roleMessage} Redirecting...`, 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1000);
             } else {
-                showStatus(result.message || 'login failed', 'error');
+                showStatus('❌ ' + (result.message || 'Login failed. Please check your credentials.'), 'error');
                 setButtonsDisabled(false, 'shop');
             }
         }
@@ -896,41 +905,47 @@
             const businessName = document.getElementById('shopName').value.trim();
             const termsChecked = document.getElementById('businessTermsCheckbox').checked;
             
+            // Validation
             if (!username || !password) {
-                showStatus('please enter username and password', 'error');
+                showStatus('❌ Please enter username and password', 'error');
                 return;
             }
             
             if (!businessName) {
-                showStatus('please enter business name', 'error');
+                showStatus('❌ Please enter your business name', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showStatus('❌ Username must be at least 3 characters', 'error');
                 return;
             }
             
             if (password.length < 6) {
-                showStatus('password must be at least 6 characters', 'error');
+                showStatus('❌ Password must be at least 6 characters', 'error');
                 return;
             }
             
             if (!termsChecked) {
-                showStatus('Please read and agree to the Terms and Conditions', 'error');
+                showStatus('❌ Please read and agree to the Terms and Conditions', 'error');
                 return;
             }
             
             setButtonsDisabled(true, 'shop');
-            showStatus('checking availability...', 'info');
+            showStatus('📝 Checking availability...', 'info');
             
-            // Check if username exists ONLY during registration
+            // Check if username exists
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
-                showStatus(`Username "${username}" is already taken. Please choose another.`, 'error');
+                showStatus(`❌ Username "${username}" is already taken. Please choose another username.`, 'error');
                 setButtonsDisabled(false, 'shop');
                 return;
             }
             
-            // Check if business name exists ONLY during registration
+            // Check if business name exists
             const businessNameCheck = await Backend.checkBusinessNameExists(businessName);
             if (businessNameCheck.exists) {
-                showStatus(`Business name "${businessName}" is already taken. Please choose another.`, 'error');
+                showStatus(`❌ Business name "${businessName}" is already registered. Please choose another business name.`, 'error');
                 setButtonsDisabled(false, 'shop');
                 return;
             }
@@ -947,20 +962,23 @@
                 type: 'grocery'
             };
             
-            showStatus('creating business account...', 'info');
+            showStatus('🔄 Creating your business account...', 'info');
             
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
             
             if (result.success) {
-                showStatus('business registered! logging in...', 'success');
+                showStatus('✅ Business registered successfully! Logging you in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'advertiser');
                     if (loginResult.success) {
                         window.location.href = 'index.html';
+                    } else {
+                        showStatus('❌ Account created but auto-login failed. Please login manually.', 'error');
+                        setButtonsDisabled(false, 'shop');
                     }
-                }, 1000);
+                }, 1500);
             } else {
-                showStatus(result.message || 'registration failed', 'error');
+                showStatus('❌ ' + (result.message || 'Registration failed. Please try again.'), 'error');
                 setButtonsDisabled(false, 'shop');
             }
         }
@@ -980,13 +998,16 @@
             statusEl.textContent = message;
             statusEl.className = `status-message ${type}`;
             
+            // Auto-hide after 4 seconds for success/error, keep info messages longer
             if (type !== 'info') {
                 setTimeout(() => {
-                    statusEl.style.display = 'none';
-                    setTimeout(() => {
-                        statusEl.className = 'status-message';
-                    }, 300);
-                }, 3000);
+                    if (statusEl.style.display !== 'none') {
+                        statusEl.style.display = 'none';
+                        setTimeout(() => {
+                            statusEl.className = 'status-message';
+                        }, 300);
+                    }
+                }, 4000);
             }
         }
         
