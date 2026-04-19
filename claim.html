@@ -155,6 +155,12 @@
             margin-left: 8px;
         }
         
+        .item-saved {
+            font-size: 11px;
+            color: #ff9500;
+            margin-left: 8px;
+        }
+        
         .item-batch {
             font-size: 10px;
             font-family: monospace;
@@ -223,6 +229,10 @@
             border-top: 1px solid #f0f0f0;
         }
         
+        .summary-row.saved {
+            color: #34c759;
+        }
+        
         .checkout-btn {
             width: 100%;
             padding: 16px;
@@ -280,6 +290,127 @@
             font-size: 12px;
             cursor: pointer;
             margin-left: 12px;
+        }
+        
+        /* Receipt Modal */
+        .receipt-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+            padding: 20px;
+        }
+        
+        .receipt-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px dashed #e0e0e0;
+        }
+        
+        .receipt-header h2 {
+            font-size: 20px;
+            color: #34c759;
+            margin-bottom: 4px;
+        }
+        
+        .receipt-date {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .receipt-items {
+            margin-bottom: 20px;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .receipt-item-details {
+            flex: 1;
+        }
+        
+        .receipt-item-name {
+            font-weight: 500;
+        }
+        
+        .receipt-item-meta {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .receipt-item-price {
+            text-align: right;
+        }
+        
+        .receipt-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 12px 0;
+        }
+        
+        .receipt-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .receipt-total-row.bold {
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .receipt-total-row.saved {
+            color: #34c759;
+        }
+        
+        .receipt-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px dashed #e0e0e0;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .close-receipt-btn {
+            width: 100%;
+            padding: 14px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
         }
         
         .bottom-nav {
@@ -459,11 +590,15 @@
             
             <div class="summary-card" id="summaryCard" style="display: none;">
                 <div class="summary-row">
-                    <span>subtotal</span>
-                    <span id="subtotal">$0.00</span>
+                    <span>subtotal (original)</span>
+                    <span id="subtotalOriginal">$0.00</span>
+                </div>
+                <div class="summary-row saved">
+                    <span>💰 you save</span>
+                    <span id="totalSaved">$0.00</span>
                 </div>
                 <div class="summary-row total">
-                    <span>total</span>
+                    <span>total to pay</span>
                     <span id="total">$0.00</span>
                 </div>
             </div>
@@ -498,6 +633,24 @@
         </div>
     </div>
     
+    <!-- Receipt Modal -->
+    <div class="receipt-modal" id="receiptModal">
+        <div class="receipt-content">
+            <div class="receipt-header">
+                <h2>🧾 FOODSAVVI RECEIPT</h2>
+                <div class="receipt-date" id="receiptDate"></div>
+            </div>
+            <div class="receipt-items" id="receiptItems"></div>
+            <div class="receipt-divider"></div>
+            <div id="receiptSummary"></div>
+            <div class="receipt-footer">
+                <p>Thank you for saving food with us!</p>
+                <p style="font-size: 10px;">You helped reduce food waste today 🌱</p>
+            </div>
+            <button class="close-receipt-btn" onclick="closeReceipt()">Close</button>
+        </div>
+    </div>
+    
     <div class="modal" id="topUpModal">
         <div class="modal-content">
             <div class="modal-title">💳 Add Funds to Wallet</div>
@@ -520,6 +673,7 @@
     <script>
         let cart = [];
         let walletBalance = 0;
+        let lastReceiptData = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
@@ -597,13 +751,18 @@
             }
             
             let html = '';
-            let subtotal = 0;
+            let subtotalOriginal = 0;
+            let subtotalDiscounted = 0;
             
             for (let i = 0; i < cart.length; i++) {
                 const item = cart[i];
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
-                const itemTotal = discountedPrice * item.quantity;
-                subtotal += itemTotal;
+                const itemOriginalTotal = item.originalPrice * item.quantity;
+                const itemDiscountedTotal = discountedPrice * item.quantity;
+                const itemSaved = itemOriginalTotal - itemDiscountedTotal;
+                
+                subtotalOriginal += itemOriginalTotal;
+                subtotalDiscounted += itemDiscountedTotal;
                 
                 html += `
                     <div class="cart-item">
@@ -612,8 +771,9 @@
                             <div class="item-name">${escapeHtml(item.foodName)}</div>
                             <div class="item-shop">🏪 ${escapeHtml(item.shopName)}</div>
                             <div class="item-price">
-                                $${discountedPrice.toFixed(2)}
+                                $${discountedPrice.toFixed(2)} each
                                 <span class="item-original">$${item.originalPrice.toFixed(2)}</span>
+                                <span class="item-saved">save $${(item.originalPrice - discountedPrice).toFixed(2)}</span>
                                 ${item.batchNumber ? `<span class="item-batch">batch: ${escapeHtml(item.batchNumber)}</span>` : ''}
                             </div>
                             <div class="item-quantity">
@@ -630,10 +790,13 @@
             container.innerHTML = html;
             summaryCard.style.display = 'block';
             
-            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
+            const totalSaved = subtotalOriginal - subtotalDiscounted;
             
-            if (walletBalance >= subtotal) {
+            document.getElementById('subtotalOriginal').textContent = `$${subtotalOriginal.toFixed(2)}`;
+            document.getElementById('totalSaved').textContent = `$${totalSaved.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${subtotalDiscounted.toFixed(2)}`;
+            
+            if (walletBalance >= subtotalDiscounted) {
                 checkoutBtn.style.display = 'block';
                 insufficientWarning.style.display = 'none';
                 checkoutBtn.disabled = false;
@@ -722,95 +885,175 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
         
+        function showReceipt(orderResult, originalWalletBalance) {
+            const receiptModal = document.getElementById('receiptModal');
+            const receiptDate = document.getElementById('receiptDate');
+            const receiptItems = document.getElementById('receiptItems');
+            const receiptSummary = document.getElementById('receiptSummary');
+            
+            const now = new Date();
+            receiptDate.textContent = now.toLocaleString();
+            
+            // Build items list
+            let itemsHtml = '';
+            let subtotalOriginal = 0;
+            let subtotalPaid = 0;
+            
+            for (const item of cart) {
+                const discountedPrice = item.originalPrice * (1 - item.discount / 100);
+                const originalTotal = item.originalPrice * item.quantity;
+                const paidTotal = discountedPrice * item.quantity;
+                const saved = originalTotal - paidTotal;
+                
+                subtotalOriginal += originalTotal;
+                subtotalPaid += paidTotal;
+                
+                itemsHtml += `
+                    <div class="receipt-item">
+                        <div class="receipt-item-details">
+                            <div class="receipt-item-name">${escapeHtml(item.foodName)}</div>
+                            <div class="receipt-item-meta">${item.quantity} × $${discountedPrice.toFixed(2)} (${item.discount}% off)</div>
+                        </div>
+                        <div class="receipt-item-price">
+                            $${paidTotal.toFixed(2)}<br>
+                            <span style="font-size: 10px; color: #999; text-decoration: line-through;">$${originalTotal.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            receiptItems.innerHTML = itemsHtml;
+            
+            const totalSaved = subtotalOriginal - subtotalPaid;
+            const newBalance = originalWalletBalance - subtotalPaid;
+            
+            receiptSummary.innerHTML = `
+                <div class="receipt-total-row">
+                    <span>Subtotal (original)</span>
+                    <span>$${subtotalOriginal.toFixed(2)}</span>
+                </div>
+                <div class="receipt-total-row saved">
+                    <span>💰 Total savings</span>
+                    <span>-$${totalSaved.toFixed(2)}</span>
+                </div>
+                <div class="receipt-total-row bold">
+                    <span>Total paid</span>
+                    <span>$${subtotalPaid.toFixed(2)}</span>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-total-row">
+                    <span>Previous wallet balance</span>
+                    <span>$${originalWalletBalance.toFixed(2)}</span>
+                </div>
+                <div class="receipt-total-row">
+                    <span>Amount deducted</span>
+                    <span>-$${subtotalPaid.toFixed(2)}</span>
+                </div>
+                <div class="receipt-total-row bold">
+                    <span>New wallet balance</span>
+                    <span>$${newBalance.toFixed(2)}</span>
+                </div>
+            `;
+            
+            receiptModal.style.display = 'flex';
+        }
+        
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+            window.location.href = 'index.html';
+        }
+        
         async function checkout() {
             if (cart.length === 0) {
                 showNotification('Your cart is empty', 'error');
                 return;
             }
             
-            const total = cart.reduce((sum, item) => {
-                const price = item.originalPrice * (1 - item.discount / 100);
-                return sum + (price * item.quantity);
-            }, 0);
+            // Calculate totals
+            let subtotalOriginal = 0;
+            let subtotalDiscounted = 0;
+            const orderItems = [];
+            
+            for (const item of cart) {
+                const discountedPrice = item.originalPrice * (1 - item.discount / 100);
+                const itemOriginalTotal = item.originalPrice * item.quantity;
+                const itemDiscountedTotal = discountedPrice * item.quantity;
+                
+                subtotalOriginal += itemOriginalTotal;
+                subtotalDiscounted += itemDiscountedTotal;
+                
+                orderItems.push({
+                    id: item.id,
+                    foodName: item.foodName,
+                    shopName: item.shopName,
+                    quantity: item.quantity,
+                    originalPrice: item.originalPrice,
+                    discountedPrice: discountedPrice,
+                    discount: item.discount,
+                    batchNumber: item.batchNumber || null,
+                    category: item.category || 'other'
+                });
+            }
+            
+            const total = subtotalDiscounted;
+            const totalSaved = subtotalOriginal - subtotalDiscounted;
             
             if (walletBalance < total) {
                 showNotification(`Insufficient balance! Need $${total.toFixed(2)}`, 'error');
                 return;
             }
             
-            const confirmMsg = `Order Summary:\n━━━━━━━━━━━━━━━━━━\nTotal: $${total.toFixed(2)}\nWallet Balance: $${walletBalance.toFixed(2)}\n━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
+            const originalWalletBalance = walletBalance;
+            
+            const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${totalSaved.toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
             
             if (!confirm(confirmMsg)) return;
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
-            // Store current wallet balance before checkout
-            const balanceBeforeCheckout = walletBalance;
-            localStorage.setItem('walletBalanceBeforeCheckout', balanceBeforeCheckout);
-            
             try {
-                // Prepare order items
-                const orderItems = cart.map(item => ({
-                    id: item.id,
-                    foodName: item.foodName,
-                    quantity: item.quantity,
-                    originalPrice: item.originalPrice,
-                    discount: item.discount
-                }));
+                console.log('Sending order items:', orderItems);
+                console.log('Total items count:', orderItems.length);
                 
                 const result = await Backend.createOrder(orderItems, total);
+                console.log('Backend response:', result);
                 
-                // Always clear cart regardless of error (since the backend might have succeeded)
-                // But only if wallet balance decreased
-                const currentUser = Backend.getCurrentUser();
-                const newBalance = await Backend.getWalletBalance(currentUser.id);
-                
-                if (newBalance < balanceBeforeCheckout || result.success) {
-                    // Money was deducted - order succeeded
+                if (result.success) {
+                    // Store receipt data
+                    lastReceiptData = {
+                        items: [...cart],
+                        originalWalletBalance: originalWalletBalance,
+                        totalPaid: total,
+                        totalSaved: totalSaved,
+                        newBalance: originalWalletBalance - total,
+                        date: new Date()
+                    };
+                    
+                    // Clear cart
                     cart = [];
                     saveCart();
-                    renderCart();
                     
-                    walletBalance = newBalance;
-                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    
-                    showNotification('✅ Purchase complete!', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                } else {
-                    // No money deducted - order failed
-                    showNotification(result.message || 'Checkout failed. Please try again.', 'error');
                     // Refresh wallet balance
-                    walletBalance = newBalance;
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    
+                    // Show receipt
+                    showReceipt(result, originalWalletBalance);
+                    
+                } else {
+                    showNotification(result.message || 'Checkout failed. Please try again.', 'error');
+                    await loadWalletBalance();
+                    renderCart();
                 }
                 
             } catch (error) {
                 console.error('Checkout error:', error);
-                
-                // Check if wallet balance decreased despite error
-                const currentUser = Backend.getCurrentUser();
-                const newBalance = await Backend.getWalletBalance(currentUser.id);
-                
-                if (newBalance < balanceBeforeCheckout) {
-                    // Money was deducted - order succeeded despite error
-                    cart = [];
-                    saveCart();
-                    renderCart();
-                    walletBalance = newBalance;
-                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    showNotification('✅ Purchase complete!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                } else {
-                    showNotification('Checkout failed. Please try again.', 'error');
-                }
+                showNotification('Checkout failed. Please try again.', 'error');
+                await loadWalletBalance();
+                renderCart();
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
-                localStorage.removeItem('walletBalanceBeforeCheckout');
             }
         }
         
@@ -838,6 +1081,7 @@
         window.closeTopUpModal = closeTopUpModal;
         window.processTopUp = processTopUp;
         window.refreshCart = refreshCart;
+        window.closeReceipt = closeReceipt;
     </script>
 </body>
 </html>
