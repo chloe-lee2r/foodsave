@@ -33,13 +33,11 @@ const Backend = {
                 return { success: false, message: "Password must be at least 6 characters" };
             }
 
-            // Check if username already exists
             const usernameCheck = await this.checkUsernameExists(username);
             if (usernameCheck.exists) {
                 return { success: false, message: "Username already taken. Please choose another." };
             }
 
-            // For business, check if business name already exists
             if (role === "advertiser" && businessDetails && businessDetails.name) {
                 const businessNameCheck = await this.checkBusinessNameExists(businessDetails.name);
                 if (businessNameCheck.exists) {
@@ -176,7 +174,6 @@ const Backend = {
                 return { exists: !!user };
             });
         } catch (error) {
-            console.error('Error checking username:', error);
             return { exists: false };
         }
     },
@@ -190,7 +187,6 @@ const Backend = {
                 return { exists: !!user };
             });
         } catch (error) {
-            console.error('Error checking business name:', error);
             return { exists: false };
         }
     },
@@ -539,7 +535,7 @@ const Backend = {
         }
     },
 
-    // ========== ORDER SYSTEM - FIXED WITH PROPER MASTER KEY ==========
+    // ========== ORDER SYSTEM - FIXED WITH FALLBACK ==========
     
     async createOrder(items, totalAmount) {
         try {
@@ -548,7 +544,6 @@ const Backend = {
                 return { success: false, message: "Please login as consumer" };
             }
 
-            // Validate items array - handle both array and single item
             let orderItems = [];
             if (Array.isArray(items)) {
                 orderItems = items;
@@ -561,39 +556,47 @@ const Backend = {
             }
 
             console.log("Creating order with", orderItems.length, "items");
-            
-            // Log each item for debugging
             for (let i = 0; i < orderItems.length; i++) {
                 console.log(`Item ${i + 1}:`, orderItems[i].foodName, "ID:", orderItems[i].id);
             }
 
-            // Get fresh user data with master key to ensure accurate balance
+            // Get fresh user with master key
             let freshUser = await withMasterKey(async () => {
                 const userQuery = new Parse.Query(Parse.User);
                 return await userQuery.get(currentUser.id, { useMasterKey: true });
             });
             
             const walletBalance = freshUser.get("walletBalance") || 0;
-            console.log("Current wallet balance:", walletBalance);
-            console.log("Total amount to pay:", totalAmount);
-            
             if (walletBalance < totalAmount) {
                 return { success: false, message: `Insufficient balance. Need $${totalAmount.toFixed(2)}` };
             }
 
-            // Verify ALL items are available using MASTER KEY
             const verifiedItems = [];
             
             for (const item of orderItems) {
                 try {
                     console.log(`Verifying item: ${item.foodName} (ID: ${item.id})`);
-                    
                     const Ad = Parse.Object.extend("Advertisement");
                     const query = new Parse.Query(Ad);
-                    const ad = await query.get(item.id, { useMasterKey: true });
+                    let ad;
+                    try {
+                        ad = await query.get(item.id, { useMasterKey: true });
+                    } catch (err) {
+                        console.log(`Could not find by ID, trying by foodName: ${item.foodName}`);
+                        // Fallback: search by foodName and businessName
+                        const fallbackQuery = new Parse.Query(Ad);
+                        fallbackQuery.equalTo("foodName", item.foodName);
+                        fallbackQuery.equalTo("businessName", item.shopName);
+                        fallbackQuery.equalTo("active", true);
+                        fallbackQuery.greaterThan("quantityLeft", 0);
+                        ad = await fallbackQuery.first({ useMasterKey: true });
+                        if (ad) {
+                            console.log(`Found fallback ad with ID: ${ad.id}`);
+                        }
+                    }
                     
                     if (!ad) {
-                        return { success: false, message: `${item.foodName} is no longer available` };
+                        return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
                     }
                     
                     if (!ad.get("active")) {
@@ -610,17 +613,15 @@ const Backend = {
                     const discountedPrice = originalPrice * (1 - discount / 100);
                     const itemTotal = discountedPrice * item.quantity;
                     
-                    console.log(`Item verified: ${item.foodName}, price: $${discountedPrice.toFixed(2)} x ${item.quantity} = $${itemTotal.toFixed(2)}`);
-                    
                     verifiedItems.push({ 
                         ad, 
                         item,
-                        discountedPrice: discountedPrice,
+                        discountedPrice,
                         businessId: ad.get("businessId"),
                         businessName: ad.get("businessName"),
-                        originalPrice: originalPrice,
-                        discount: discount,
-                        itemTotal: itemTotal
+                        originalPrice,
+                        discount,
+                        itemTotal
                     });
                 } catch (err) {
                     console.error("Error verifying item:", item.id, err);
@@ -632,30 +633,19 @@ const Backend = {
                 return { success: false, message: "No valid items in cart" };
             }
 
-            // Process the order with master key
             return await withMasterKey(async () => {
-                // Deduct total amount from consumer wallet
                 const newBalance = walletBalance - totalAmount;
                 freshUser.set("walletBalance", newBalance);
                 await freshUser.save(null, { useMasterKey: true });
-                
-                // Update current user object
                 if (Parse.User.current()) {
                     Parse.User.current().set("walletBalance", newBalance);
                 }
                 localStorage.setItem("walletBalance", newBalance);
-                
-                console.log(`Deducted $${totalAmount.toFixed(2)} from wallet. New balance: $${newBalance.toFixed(2)}`);
 
                 const createdOrders = [];
-                
-                // Create order for EACH item
                 for (const verified of verifiedItems) {
                     const { ad, item, discountedPrice, businessId, businessName, originalPrice, discount, itemTotal } = verified;
                     
-                    console.log(`Processing order for: ${item.foodName}, quantity: ${item.quantity}`);
-                    
-                    // Update ad quantity
                     const newQuantityLeft = ad.get("quantityLeft") - item.quantity;
                     ad.set("quantityLeft", newQuantityLeft);
                     ad.increment("claimed", item.quantity);
@@ -664,12 +654,9 @@ const Backend = {
                     }
                     await ad.save(null, { useMasterKey: true });
                     
-                    console.log(`Updated ad quantity. Remaining: ${newQuantityLeft}`);
-                    
-                    // Create order record
                     const Order = Parse.Object.extend("Order");
                     const order = new Order();
-                    order.set("adId", item.id);
+                    order.set("adId", ad.id);
                     order.set("businessId", businessId);
                     order.set("businessName", businessName);
                     order.set("consumerId", freshUser.id);
@@ -683,29 +670,19 @@ const Backend = {
                     order.set("status", "pending");
                     order.set("createdAt", new Date());
                     await order.save(null, { useMasterKey: true });
-                    
                     createdOrders.push(order);
                     
-                    console.log(`Order created for ${item.foodName}, total: $${itemTotal.toFixed(2)}`);
-                    
-                    // Add to business pending balance
                     const businessUser = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
                     const currentPending = businessUser.get("pendingWalletBalance") || 0;
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
                     await businessUser.save(null, { useMasterKey: true });
                     
-                    console.log(`Added $${itemTotal.toFixed(2)} to business pending balance`);
-                    
-                    // Send notification to business
                     await this.sendNotification(businessId, 
                         `🛒 New order! ${freshUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
                 }
                 
-                // Clear cart from localStorage
                 localStorage.removeItem('claimCart');
-                
                 console.log(`Successfully created ${createdOrders.length} orders`);
-                
                 return { 
                     success: true, 
                     message: `Order placed successfully! ${createdOrders.length} item(s) purchased.`,
@@ -714,7 +691,6 @@ const Backend = {
                     totalPaid: totalAmount
                 };
             });
-            
         } catch (error) {
             console.error("Create order error:", error);
             return { success: false, message: error.message || "Checkout failed. Please try again." };
@@ -734,7 +710,6 @@ const Backend = {
                 return { success: true };
             });
         } catch (error) {
-            console.error("Send notification error:", error);
             return { success: false };
         }
     },
@@ -886,13 +861,6 @@ const Backend = {
                     return { success: false, message: "Order not found" };
                 }
                 
-                console.log("Order found:", {
-                    id: order.id,
-                    consumerId: order.get("consumerId"),
-                    currentUserId: currentUser.id,
-                    status: order.get("status")
-                });
-                
                 if (order.get("consumerId") !== currentUser.id) {
                     return { success: false, message: "Unauthorized - This is not your order" };
                 }
@@ -912,23 +880,12 @@ const Backend = {
                 const currentBalance = businessUser.get("businessWalletBalance") || 0;
                 const orderAmount = order.get("totalAmount") || 0;
                 
-                console.log("Before update:", {
-                    pending: pendingBalance,
-                    available: currentBalance,
-                    orderAmount: orderAmount
-                });
-                
                 order.set("status", "collected_by_customer");
                 await order.save(null, { useMasterKey: true });
                 
                 businessUser.set("pendingWalletBalance", pendingBalance - orderAmount);
                 businessUser.set("businessWalletBalance", currentBalance + orderAmount);
                 await businessUser.save(null, { useMasterKey: true });
-                
-                console.log("After update:", {
-                    newPending: businessUser.get("pendingWalletBalance"),
-                    newAvailable: businessUser.get("businessWalletBalance")
-                });
                 
                 await this.sendNotification(order.get("businessId"),
                     `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
@@ -1001,7 +958,6 @@ const Backend = {
                 return user.get("walletBalance") || 0;
             });
         } catch (error) {
-            console.error("Error getting wallet balance:", error);
             return 0;
         }
     },
@@ -1013,8 +969,6 @@ const Backend = {
                 const currentBalance = user.get("walletBalance") || 0;
                 user.set("walletBalance", currentBalance + amount);
                 await user.save(null, { useMasterKey: true });
-                
-                // Update local user if it's the current user
                 if (userId === Parse.User.current()?.id) {
                     Parse.User.current().set("walletBalance", currentBalance + amount);
                     localStorage.setItem("walletBalance", currentBalance + amount);
@@ -1022,7 +976,6 @@ const Backend = {
                 return { success: true, newBalance: currentBalance + amount };
             });
         } catch (error) {
-            console.error("Add to wallet error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -1053,7 +1006,6 @@ const Backend = {
                 if (availableBalance < amount) {
                     return { success: false, message: `Insufficient balance. Available: $${availableBalance.toFixed(2)}` };
                 }
-                
                 user.set("businessWalletBalance", availableBalance - amount);
                 await user.save(null, { useMasterKey: true });
                 return { success: true, message: `Withdrawal request submitted for $${amount.toFixed(2)}` };
