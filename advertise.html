@@ -152,13 +152,68 @@
             width: 100%;
         }
         
-        .scanned-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            display: inline-block;
+        /* Image Upload Section */
+        .image-upload-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .image-preview {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 12px;
+            border-radius: 16px;
+            background: #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-preview .placeholder {
+            text-align: center;
+            color: #999;
+            font-size: 40px;
+        }
+        
+        .upload-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .upload-btn:active {
+            background: #005bbf;
+            transform: scale(0.98);
+        }
+        
+        .remove-image-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
             margin-top: 8px;
+            display: inline-block;
         }
         
         .form-card {
@@ -335,6 +390,28 @@
             margin-bottom: 2px;
             display: block;
         }
+        
+        /* Progress bar for image upload */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .progress-bar.active {
+            display: block;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #34c759;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -361,6 +438,23 @@
                 <button class="manual-entry-btn" onclick="hideScanner()">
                     ✏️ Enter Manually Instead
                 </button>
+            </div>
+            
+            <!-- Image Upload Section -->
+            <div class="image-upload-section">
+                <div class="image-preview" id="imagePreview">
+                    <div class="placeholder">📷</div>
+                </div>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <button class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+                    📸 Upload Product Image
+                </button>
+                <button class="remove-image-btn" onclick="removeImage()" style="display: none;" id="removeImageBtn">
+                    🗑️ Remove Image
+                </button>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
             </div>
             
             <!-- Form Card -->
@@ -458,10 +552,10 @@
     <script>
         let html5QrCode = null;
         let isScanning = false;
+        let uploadedImageBase64 = null;
         
-        // Product database for barcode lookup (mock - in real app, would connect to OpenFoodFacts or similar API)
+        // Product database for barcode lookup
         const productDatabase = {
-            // Common product barcodes for demo
             "8901234567890": { name: "Amul Milk", price: 45, category: "dairy" },
             "8901234567891": { name: "Britannia Bread", price: 35, category: "bakery" },
             "8901234567892": { name: "Nestle Maggi", price: 12, category: "pantry" },
@@ -472,7 +566,6 @@
             "8901234567897": { name: "Coca Cola", price: 40, category: "other" },
             "8901234567898": { name: "Lays Chips", price: 20, category: "other" },
             "8901234567899": { name: "Kissan Jam", price: 95, category: "pantry" },
-            // Add more mock products
             "123456789012": { name: "Organic Milk", price: 60, category: "dairy" },
             "123456789013": { name: "Free Range Eggs", price: 90, category: "dairy" },
             "123456789014": { name: "Sourdough Bread", price: 45, category: "bakery" },
@@ -496,6 +589,44 @@
             document.getElementById('quantity').value = 50;
         });
         
+        // Image upload handling
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Image too large. Max 5MB.', 'error');
+                return;
+            }
+            
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select an image file.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageBase64 = e.target.result;
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `<img src="${uploadedImageBase64}" alt="Product preview">`;
+                document.getElementById('removeImageBtn').style.display = 'inline-block';
+                showNotification('Image uploaded successfully!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removeImage() {
+            uploadedImageBase64 = null;
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '<div class="placeholder">📷</div>';
+            document.getElementById('removeImageBtn').style.display = 'none';
+            document.getElementById('imageUpload').value = '';
+            showNotification('Image removed', 'info');
+        }
+        
+        // Barcode scanner functions
         async function startScanner() {
             const scannerContainer = document.getElementById('scannerContainer');
             scannerContainer.classList.add('active');
@@ -550,44 +681,32 @@
             console.log(`Scanned barcode: ${decodedText}`);
             stopScanner();
             
-            // Look up product in database
             const product = productDatabase[decodedText];
             
             if (product) {
-                // Auto-fill form fields
-                const foodNameInput = document.getElementById('foodName');
-                const originalPriceInput = document.getElementById('originalPrice');
-                const categorySelect = document.getElementById('category');
-                
-                foodNameInput.value = product.name;
-                originalPriceInput.value = product.price;
-                categorySelect.value = product.category;
+                document.getElementById('foodName').value = product.name;
+                document.getElementById('originalPrice').value = product.price;
+                document.getElementById('category').value = product.category;
                 
                 // Add visual feedback
-                foodNameInput.classList.add('filled-by-scanner');
-                originalPriceInput.classList.add('filled-by-scanner');
+                document.getElementById('foodName').classList.add('filled-by-scanner');
+                document.getElementById('originalPrice').classList.add('filled-by-scanner');
                 
                 setTimeout(() => {
-                    foodNameInput.classList.remove('filled-by-scanner');
-                    originalPriceInput.classList.remove('filled-by-scanner');
+                    document.getElementById('foodName').classList.remove('filled-by-scanner');
+                    document.getElementById('originalPrice').classList.remove('filled-by-scanner');
                 }, 1000);
                 
                 showNotification(`✅ Found: ${product.name} - $${product.price}`, 'success');
-                
-                // Try to get additional info from online API (OpenFoodFacts)
                 await fetchProductInfo(decodedText);
             } else {
-                // Product not found in local database, still fill barcode as reference
                 showNotification(`⚠️ Product not found. Barcode: ${decodedText}. Please enter details manually.`, 'info');
-                
-                // Optionally, try to fetch from online API
                 await fetchProductInfo(decodedText);
             }
         }
         
         async function fetchProductInfo(barcode) {
             try {
-                // Try to fetch from OpenFoodFacts API (free, no API key required)
                 const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
                 const data = await response.json();
                 
@@ -608,7 +727,6 @@
                         setTimeout(() => desc.classList.remove('filled-by-scanner'), 1000);
                     }
                     
-                    // Guess category based on categories
                     if (product.categories) {
                         const categories = product.categories.toLowerCase();
                         const categoryMap = {
@@ -629,16 +747,37 @@
                     }
                     
                     showNotification(`📦 Found product info from online database!`, 'success');
+                    
+                    // Try to get product image
+                    if (product.image_url) {
+                        // Optionally download and set image
+                        fetchImageAsBase64(product.image_url);
+                    }
                 }
             } catch (error) {
                 console.log('Online lookup failed:', error);
-                // Silent fail - not critical
+            }
+        }
+        
+        async function fetchImageAsBase64(url) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    uploadedImageBase64 = reader.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${uploadedImageBase64}" alt="Product preview">`;
+                    document.getElementById('removeImageBtn').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(blob);
+            } catch (error) {
+                console.log('Could not fetch product image:', error);
             }
         }
         
         function onScanError(errorMessage) {
-            // Silently ignore scan errors (user moving camera)
-            // console.log("Scan error:", errorMessage);
+            // Silently ignore
         }
         
         async function submitAd() {
@@ -652,7 +791,6 @@
             const batchExpiry = document.getElementById('batchExpiry').value;
             const category = document.getElementById('category').value;
             
-            // Validation
             if (!foodName) {
                 showNotification('Please enter food name', 'error');
                 return;
@@ -689,7 +827,8 @@
                 batchNumber: batchNumber,
                 offerEnds: offerEnds,
                 batchExpiryDate: batchExpiry || offerEnds,
-                category: category
+                category: category,
+                imageBase64: uploadedImageBase64
             };
             
             try {
@@ -706,8 +845,8 @@
                     document.getElementById('quantity').value = '50';
                     document.getElementById('batchNumber').value = '';
                     document.getElementById('category').value = 'other';
+                    removeImage();
                     
-                    // Reset dates
                     const today = new Date();
                     const nextWeek = new Date();
                     nextWeek.setDate(today.getDate() + 7);
@@ -737,18 +876,18 @@
             setTimeout(() => notif.classList.remove('show'), 3000);
         }
         
-        // Clean up on page unload
         window.addEventListener('beforeunload', () => {
             if (html5QrCode && isScanning) {
                 html5QrCode.stop().catch(console.error);
             }
         });
         
-        // Make functions global
         window.startScanner = startScanner;
         window.stopScanner = stopScanner;
         window.hideScanner = hideScanner;
         window.submitAd = submitAd;
+        window.handleImageUpload = handleImageUpload;
+        window.removeImage = removeImage;
     </script>
 </body>
 </html>
