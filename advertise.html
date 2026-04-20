@@ -6,6 +6,8 @@
     <title>foodsavvi • post ad</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <!-- HTML5 QR Code Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         @font-face {
             font-family: 'RusticStory';
@@ -18,7 +20,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -35,8 +36,6 @@
             max-width: 400px;
             background: white;
             min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0,0,0,0.03);
-            position: relative;
         }
         
         .header {
@@ -46,9 +45,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .back-link {
@@ -70,363 +66,188 @@
             font-weight: 600;
         }
         
-        .sync-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #f5f7fa;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .sync-btn:active {
-            background: #e8ecf0;
-            transform: rotate(180deg);
-        }
-        
-        .logout-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #f5f7fa;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #ff3b30;
-        }
-        
-        .logout-btn:active {
-            background: #e8ecf0;
-            transform: scale(0.95);
-        }
-        
         .content {
             padding: 16px;
             padding-bottom: 80px;
         }
         
-        .shop-info {
+        /* Barcode Scanner Section */
+        .scanner-section {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
             border-radius: 16px;
+            padding: 16px;
             margin-bottom: 20px;
+            color: white;
         }
         
-        .shop-name {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .scanner-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
         }
         
-        .verification-badge {
-            display: inline-block;
-            padding: 4px 8px;
+        .scanner-header h3 {
+            font-size: 16px;
+        }
+        
+        .scan-btn {
             background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .scan-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.98);
+        }
+        
+        .scanner-container {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            margin-bottom: 12px;
+        }
+        
+        .scanner-container.active {
+            display: block;
+        }
+        
+        #reader {
+            width: 100%;
+            min-height: 300px;
+        }
+        
+        .stop-scan-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+        
+        .manual-entry-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .scanned-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
             border-radius: 12px;
             font-size: 11px;
-            margin-top: 4px;
+            display: inline-block;
+            margin-top: 8px;
         }
         
-        .shop-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255,255,255,0.2);
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #f0f0f0;
         }
         
-        .stat {
-            flex: 1;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 24px;
+        .form-title {
+            font-size: 18px;
             font-weight: 600;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        
-        .form-section {
-            margin-bottom: 24px;
-        }
-        
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
+            margin-bottom: 20px;
             color: #1a1a1a;
+        }
+        
+        .input-group {
             margin-bottom: 16px;
         }
         
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
+        .input-label {
             font-size: 14px;
             color: #666;
             margin-bottom: 6px;
             display: block;
+            font-weight: 500;
         }
         
-        .form-label .required {
-            color: #ff3b30;
-        }
-        
-        .form-input, .form-select {
+        .input-field {
             width: 100%;
             padding: 14px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 16px;
             font-size: 16px;
             background: #fafafa;
-            transition: 0.2s;
+            transition: all 0.2s;
             font-family: inherit;
         }
         
-        .form-input:focus, .form-select:focus {
+        .input-field:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #007aff;
             background: white;
         }
         
-        .form-row {
+        .input-field.filled-by-scanner {
+            background: #e8f5e8;
+            border-color: #34c759;
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); background: #e8f5e8; }
+            50% { transform: scale(1.02); background: #d4edda; }
+            100% { transform: scale(1); background: #e8f5e8; }
+        }
+        
+        .row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
         
-        .info-note {
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
-            display: block;
-        }
-        
-        .post-btn {
+        .submit-btn {
             width: 100%;
             padding: 16px;
-            background: #667eea;
+            background: #34c759;
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
-            margin-top: 8px;
         }
         
-        .post-btn:active {
-            background: #5a67d8;
+        .submit-btn:active {
+            background: #2db14e;
             transform: scale(0.98);
         }
         
-        .post-btn:disabled {
+        .submit-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
         
-        .post-btn.verified {
-            background: #34c759;
-        }
-        
-        .ads-section {
-            margin-top: 24px;
-        }
-        
-        .ads-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .ads-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .refresh-btn {
-            background: none;
-            border: none;
-            color: #667eea;
-            font-size: 14px;
-            padding: 4px 8px;
-            cursor: pointer;
-        }
-        
-        .ad-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid #34c759;
-            transition: 0.2s;
-        }
-        
-        .ad-item.expiring-soon {
-            border-left-color: #ff9500;
-        }
-        
-        .ad-item.inactive {
-            opacity: 0.6;
-            border-left-color: #999;
-        }
-        
-        .ad-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .ad-food {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .ad-discount {
-            background: #34c759;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .ad-details {
-            display: flex;
-            gap: 16px;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .ad-batch-info {
-            background: #f0f0f0;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-family: monospace;
-            color: #333;
-        }
-        
-        .ad-quantity {
-            background: #e8f5e8;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #34c759;
-        }
-        
-        .ad-quantity.low {
-            background: #ffebee;
-            color: #ff3b30;
-        }
-        
-        .ad-stats {
-            display: flex;
-            gap: 16px;
-            font-size: 12px;
-            color: #999;
-            padding-top: 8px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .ad-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        
-        .ad-btn {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .edit-btn {
-            background: #f0f0f0;
-            color: #333;
-        }
-        
-        .delete-btn {
-            background: #ffebee;
-            color: #ff3b30;
-        }
-        
-        .deactivate-btn {
-            background: #f0f0f0;
-            color: #666;
-        }
-        
-        .update-qty-btn {
-            background: #e3f2fd;
-            color: #007aff;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-            background: #f8f9fa;
-            border-radius: 16px;
-        }
-        
-        .empty-emoji {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        
-        .add-link {
-            display: inline-block;
-            margin-top: 16px;
-            padding: 12px 24px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-size: 14px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         .notification {
             position: fixed;
-            bottom: 80px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: #1a1a1a;
@@ -436,7 +257,7 @@
             font-size: 14px;
             transition: 0.3s;
             z-index: 1000;
-            white-space: nowrap;
+            text-align: center;
             max-width: 90%;
         }
         
@@ -450,6 +271,37 @@
         
         .notification.error {
             background: #ff3b30;
+        }
+        
+        .notification.info {
+            background: #007aff;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         .bottom-nav {
@@ -475,7 +327,7 @@
         }
         
         .nav-item.active {
-            color: #667eea;
+            color: #007aff;
         }
         
         .nav-emoji {
@@ -489,110 +341,89 @@
     <div class="app">
         <div class="header">
             <a href="index.html" class="back-link">←</a>
-            <h1>post advertisement</h1>
-            <button class="sync-btn" onclick="loadShopAds()">↻</button>
-            <button class="logout-btn" onclick="logout()">🚪</button>
+            <h1>post new deal</h1>
         </div>
         
         <div class="content">
-            <div class="shop-info" id="shopInfo">
-                <div class="shop-name" id="shopNameDisplay">loading...</div>
-                <div class="verification-badge" id="verificationBadge">⏳ verification pending</div>
-                <div class="shop-stats">
-                    <div class="stat">
-                        <div class="stat-value" id="totalAds">0</div>
-                        <div class="stat-label">active ads</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="totalViews">0</div>
-                        <div class="stat-label">total views</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="totalClaimed">0</div>
-                        <div class="stat-label">claimed</div>
-                    </div>
+            <!-- Barcode Scanner Section -->
+            <div class="scanner-section">
+                <div class="scanner-header">
+                    <span>📷</span>
+                    <h3>Quick Add with Barcode</h3>
                 </div>
+                <button class="scan-btn" id="scanBtn" onclick="startScanner()">
+                    📸 Scan Product Barcode
+                </button>
+                <div class="scanner-container" id="scannerContainer">
+                    <div id="reader"></div>
+                    <button class="stop-scan-btn" onclick="stopScanner()">❌ Stop Scanning</button>
+                </div>
+                <button class="manual-entry-btn" onclick="hideScanner()">
+                    ✏️ Enter Manually Instead
+                </button>
             </div>
             
-            <div class="form-section">
-                <div class="section-title">post new deal</div>
+            <!-- Form Card -->
+            <div class="form-card">
+                <div class="form-title">📝 Deal Details</div>
                 
-                <div class="form-group">
-                    <label class="form-label">food item <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="foodName" placeholder="e.g., organic milk">
+                <div class="input-group">
+                    <label class="input-label">🍽️ Food Name *</label>
+                    <input type="text" class="input-field" id="foodName" placeholder="e.g., Organic Milk">
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">discount % <span class="required">*</span></label>
-                        <input type="number" class="form-input" id="discount" placeholder="20" min="1" max="100">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">original price <span class="required">*</span></label>
-                        <input type="number" class="form-input" id="price" placeholder="4.99" step="0.01" min="0">
-                    </div>
+                <div class="input-group">
+                    <label class="input-label">🏷️ Brand / Description</label>
+                    <input type="text" class="input-field" id="description" placeholder="Optional brand or description">
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">quantity left <span class="required">*</span></label>
-                        <input type="number" class="form-input" id="quantityLeft" placeholder="e.g., 24" min="1" step="1">
-                        <span class="info-note">Number of items available for this offer</span>
+                <div class="row-2">
+                    <div class="input-group">
+                        <label class="input-label">💰 Original Price *</label>
+                        <input type="number" class="input-field" id="originalPrice" placeholder="$0.00" step="0.01" min="0">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">batch number (optional)</label>
-                        <input type="text" class="form-input" id="batchNumber" placeholder="e.g., BATCH-2401-001">
-                        <span class="info-note">Optional: For tracking specific production batches</span>
+                    <div class="input-group">
+                        <label class="input-label">🎉 Discount % *</label>
+                        <input type="number" class="input-field" id="discount" placeholder="e.g., 20" step="1" min="0" max="100">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">offer ends <span class="required">*</span></label>
-                        <input type="date" class="form-input" id="offerEnds">
-                        <span class="info-note">This offer will expire on this date</span>
+                <div class="row-2">
+                    <div class="input-group">
+                        <label class="input-label">📦 Quantity Available *</label>
+                        <input type="number" class="input-field" id="quantity" placeholder="e.g., 50" min="1">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">batch expiry date <span class="required">*</span></label>
-                        <input type="date" class="form-input" id="batchExpiryDate">
-                        <span class="info-note">Actual expiry date of the batch (must be same or after offer ends)</span>
+                    <div class="input-group">
+                        <label class="input-label">🔢 Batch Number</label>
+                        <input type="text" class="input-field" id="batchNumber" placeholder="Optional">
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">category</label>
-                    <select class="form-select" id="category">
+                <div class="row-2">
+                    <div class="input-group">
+                        <label class="input-label">📅 Offer End Date *</label>
+                        <input type="date" class="input-field" id="offerEnds">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">⏰ Batch Expiry Date</label>
+                        <input type="date" class="input-field" id="batchExpiry">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">📂 Category</label>
+                    <select class="input-field" id="category">
+                        <option value="other">📌 Other</option>
                         <option value="dairy">🥛 Dairy</option>
                         <option value="produce">🥬 Produce</option>
                         <option value="meat">🥩 Meat</option>
                         <option value="bakery">🥖 Bakery</option>
                         <option value="pantry">📦 Pantry</option>
                         <option value="frozen">❄️ Frozen</option>
-                        <option value="other">📌 Other</option>
                     </select>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">description (optional)</label>
-                    <input type="text" class="form-input" id="description" placeholder="e.g., organic, local">
-                </div>
-                
-                <button class="post-btn" onclick="postAd()" id="postBtn">post deal</button>
-                <p id="verifyWarning" style="color: #ff3b30; font-size: 13px; text-align: center; margin-top: 8px; display: none;">⚠️ verification required to post ads</p>
-            </div>
-            
-            <div class="ads-section">
-                <div class="ads-header">
-                    <div class="ads-title">your active deals</div>
-                    <button class="refresh-btn" onclick="loadShopAds()">↻ refresh</button>
-                </div>
-                
-                <div id="adsContainer">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        loading your ads...
-                    </div>
-                </div>
+                <button class="submit-btn" onclick="submitAd()">📢 Post Deal</button>
             </div>
         </div>
         
@@ -601,332 +432,323 @@
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
             </a>
+            <a href="business-profile.html" class="nav-item">
+                <span class="nav-emoji">📊</span>
+                <span>analytics</span>
+            </a>
             <a href="#" class="nav-item active">
                 <span class="nav-emoji">📢</span>
                 <span>post ad</span>
             </a>
-            <a href="business-profile.html" class="nav-item">
-                <span class="nav-emoji">👤</span>
-                <span>profile</span>
+            <a href="business-profile.html?tab=orders" class="nav-item">
+                <span class="nav-emoji">📦</span>
+                <span>orders</span>
             </a>
         </div>
     </div>
     
     <div class="notification" id="notification"></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="backend.js"></script>
     
     <script>
-        let currentShop = null;
-        let shopAds = [];
-        let isVerified = false;
-        let businessRole = 'staff';
+        let html5QrCode = null;
+        let isScanning = false;
         
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = Backend.getCurrentUser();
-            const role = localStorage.getItem('userRole');
-            
-            if (!user || role !== 'advertiser') {
-                showNotification('Please login as shop owner', 'error');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
-                return;
-            }
-            
-            currentShop = {
-                id: user.id,
-                name: localStorage.getItem('businessName') || user.get('username')
-            };
-            
-            isVerified = localStorage.getItem('businessVerified') === 'true';
-            businessRole = localStorage.getItem('businessRole') || 'staff';
-            
-            document.getElementById('shopNameDisplay').textContent = currentShop.name;
-            
-            const badge = document.getElementById('verificationBadge');
-            const postBtn = document.getElementById('postBtn');
-            const verifyWarning = document.getElementById('verifyWarning');
-            
-            if (isVerified) {
-                badge.textContent = '✅ verified business';
-                badge.style.background = 'rgba(52,199,89,0.2)';
-                postBtn.classList.add('verified');
-                verifyWarning.style.display = 'none';
-            } else {
-                badge.textContent = '⏳ verification pending';
-                badge.style.background = 'rgba(255,59,48,0.2)';
-                verifyWarning.style.display = 'block';
-            }
-            
-            if (!isVerified && businessRole === 'staff') {
-                postBtn.disabled = true;
-            }
-            
-            // Set default dates
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('offerEnds').value = tomorrow.toISOString().split('T')[0];
-            
+        // Product database for barcode lookup (mock - in real app, would connect to OpenFoodFacts or similar API)
+        const productDatabase = {
+            // Common product barcodes for demo
+            "8901234567890": { name: "Amul Milk", price: 45, category: "dairy" },
+            "8901234567891": { name: "Britannia Bread", price: 35, category: "bakery" },
+            "8901234567892": { name: "Nestle Maggi", price: 12, category: "pantry" },
+            "8901234567893": { name: "Dove Soap", price: 85, category: "other" },
+            "8901234567894": { name: "Patanjali Atta", price: 220, category: "pantry" },
+            "8901234567895": { name: "Amul Butter", price: 55, category: "dairy" },
+            "8901234567896": { name: "Tata Salt", price: 25, category: "pantry" },
+            "8901234567897": { name: "Coca Cola", price: 40, category: "other" },
+            "8901234567898": { name: "Lays Chips", price: 20, category: "other" },
+            "8901234567899": { name: "Kissan Jam", price: 95, category: "pantry" },
+            // Add more mock products
+            "123456789012": { name: "Organic Milk", price: 60, category: "dairy" },
+            "123456789013": { name: "Free Range Eggs", price: 90, category: "dairy" },
+            "123456789014": { name: "Sourdough Bread", price: 45, category: "bakery" },
+            "123456789015": { name: "Chicken Breast", price: 220, category: "meat" },
+            "123456789016": { name: "Broccoli", price: 40, category: "produce" },
+            "123456789017": { name: "Bananas", price: 30, category: "produce" },
+            "123456789018": { name: "Greek Yogurt", price: 65, category: "dairy" },
+            "123456789019": { name: "Frozen Pizza", price: 180, category: "frozen" }
+        };
+        
+        // Set default dates
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
             const nextWeek = new Date();
-            nextWeek.setDate(nextWeek.getDate() + 7);
-            document.getElementById('batchExpiryDate').value = nextWeek.toISOString().split('T')[0];
+            nextWeek.setDate(today.getDate() + 7);
+            const nextMonth = new Date();
+            nextMonth.setDate(today.getDate() + 30);
             
-            await loadShopAds();
+            document.getElementById('offerEnds').value = nextWeek.toISOString().split('T')[0];
+            document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
+            document.getElementById('quantity').value = 50;
         });
         
-        async function postAd() {
-            if (!isVerified) {
-                showNotification('Business must be verified to post ads', 'error');
-                return;
+        async function startScanner() {
+            const scannerContainer = document.getElementById('scannerContainer');
+            scannerContainer.classList.add('active');
+            
+            if (html5QrCode === null) {
+                html5QrCode = new Html5Qrcode("reader");
             }
             
+            if (!isScanning) {
+                try {
+                    isScanning = true;
+                    await html5QrCode.start(
+                        { facingMode: "environment" },
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 }
+                        },
+                        onScanSuccess,
+                        onScanError
+                    );
+                    showNotification('Scanner started. Point camera at barcode.', 'info');
+                } catch (err) {
+                    console.error("Failed to start scanner:", err);
+                    showNotification('Could not start camera. Please check permissions.', 'error');
+                    isScanning = false;
+                }
+            }
+        }
+        
+        async function stopScanner() {
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    isScanning = false;
+                    const scannerContainer = document.getElementById('scannerContainer');
+                    scannerContainer.classList.remove('active');
+                    showNotification('Scanner stopped', 'info');
+                } catch (err) {
+                    console.error("Failed to stop scanner:", err);
+                }
+            } else {
+                const scannerContainer = document.getElementById('scannerContainer');
+                scannerContainer.classList.remove('active');
+            }
+        }
+        
+        function hideScanner() {
+            stopScanner();
+        }
+        
+        async function onScanSuccess(decodedText, decodedResult) {
+            console.log(`Scanned barcode: ${decodedText}`);
+            stopScanner();
+            
+            // Look up product in database
+            const product = productDatabase[decodedText];
+            
+            if (product) {
+                // Auto-fill form fields
+                const foodNameInput = document.getElementById('foodName');
+                const originalPriceInput = document.getElementById('originalPrice');
+                const categorySelect = document.getElementById('category');
+                
+                foodNameInput.value = product.name;
+                originalPriceInput.value = product.price;
+                categorySelect.value = product.category;
+                
+                // Add visual feedback
+                foodNameInput.classList.add('filled-by-scanner');
+                originalPriceInput.classList.add('filled-by-scanner');
+                
+                setTimeout(() => {
+                    foodNameInput.classList.remove('filled-by-scanner');
+                    originalPriceInput.classList.remove('filled-by-scanner');
+                }, 1000);
+                
+                showNotification(`✅ Found: ${product.name} - $${product.price}`, 'success');
+                
+                // Try to get additional info from online API (OpenFoodFacts)
+                await fetchProductInfo(decodedText);
+            } else {
+                // Product not found in local database, still fill barcode as reference
+                showNotification(`⚠️ Product not found. Barcode: ${decodedText}. Please enter details manually.`, 'info');
+                
+                // Optionally, try to fetch from online API
+                await fetchProductInfo(decodedText);
+            }
+        }
+        
+        async function fetchProductInfo(barcode) {
+            try {
+                // Try to fetch from OpenFoodFacts API (free, no API key required)
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+                const data = await response.json();
+                
+                if (data.status === 1 && data.product) {
+                    const product = data.product;
+                    
+                    if (product.product_name) {
+                        document.getElementById('foodName').value = product.product_name;
+                        document.getElementById('foodName').classList.add('filled-by-scanner');
+                        setTimeout(() => document.getElementById('foodName').classList.remove('filled-by-scanner'), 1000);
+                    }
+                    
+                    if (product.brands) {
+                        const desc = document.getElementById('description');
+                        if (desc.value) desc.value += ` | ${product.brands}`;
+                        else desc.value = product.brands;
+                        desc.classList.add('filled-by-scanner');
+                        setTimeout(() => desc.classList.remove('filled-by-scanner'), 1000);
+                    }
+                    
+                    // Guess category based on categories
+                    if (product.categories) {
+                        const categories = product.categories.toLowerCase();
+                        const categoryMap = {
+                            'dairy': ['milk', 'cheese', 'yogurt', 'butter', 'cream'],
+                            'meat': ['meat', 'chicken', 'beef', 'pork', 'lamb', 'sausage'],
+                            'produce': ['fruit', 'vegetable', 'salad', 'apple', 'banana', 'carrot'],
+                            'bakery': ['bread', 'cake', 'cookie', 'pastry', 'bun', 'roll'],
+                            'frozen': ['frozen', 'ice cream', 'freezer'],
+                            'pantry': ['rice', 'pasta', 'cereal', 'bean', 'lentil', 'flour', 'sugar']
+                        };
+                        
+                        for (const [cat, keywords] of Object.entries(categoryMap)) {
+                            if (keywords.some(kw => categories.includes(kw))) {
+                                document.getElementById('category').value = cat;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    showNotification(`📦 Found product info from online database!`, 'success');
+                }
+            } catch (error) {
+                console.log('Online lookup failed:', error);
+                // Silent fail - not critical
+            }
+        }
+        
+        function onScanError(errorMessage) {
+            // Silently ignore scan errors (user moving camera)
+            // console.log("Scan error:", errorMessage);
+        }
+        
+        async function submitAd() {
             const foodName = document.getElementById('foodName').value.trim();
-            const discount = document.getElementById('discount').value;
-            const price = document.getElementById('price').value;
-            const quantityLeft = document.getElementById('quantityLeft').value;
-            const offerEnds = document.getElementById('offerEnds').value;
-            const batchExpiryDate = document.getElementById('batchExpiryDate').value;
-            const batchNumber = document.getElementById('batchNumber').value.trim();
-            const category = document.getElementById('category').value;
             const description = document.getElementById('description').value.trim();
+            const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            const discount = parseFloat(document.getElementById('discount').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const batchNumber = document.getElementById('batchNumber').value.trim();
+            const offerEnds = document.getElementById('offerEnds').value;
+            const batchExpiry = document.getElementById('batchExpiry').value;
+            const category = document.getElementById('category').value;
             
-            // Validate required fields
+            // Validation
             if (!foodName) {
-                showNotification('Enter food name', 'error');
+                showNotification('Please enter food name', 'error');
                 return;
             }
             
-            if (!discount || discount < 1 || discount > 100) {
-                showNotification('Enter valid discount (1-100)', 'error');
+            if (isNaN(originalPrice) || originalPrice <= 0) {
+                showNotification('Please enter a valid original price', 'error');
                 return;
             }
             
-            if (!price || price < 0) {
-                showNotification('Enter valid price', 'error');
+            if (isNaN(discount) || discount < 0 || discount > 100) {
+                showNotification('Please enter a valid discount (0-100)', 'error');
                 return;
             }
             
-            if (!quantityLeft || quantityLeft < 1) {
-                showNotification('Enter quantity left (at least 1)', 'error');
+            if (isNaN(quantity) || quantity < 1) {
+                showNotification('Please enter quantity available', 'error');
                 return;
             }
             
             if (!offerEnds) {
-                showNotification('Select offer end date', 'error');
+                showNotification('Please select offer end date', 'error');
                 return;
             }
             
-            if (!batchExpiryDate) {
-                showNotification('Select batch expiry date', 'error');
-                return;
-            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
             
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const offerEnd = new Date(offerEnds);
-            const batchExpiry = new Date(batchExpiryDate);
-            
-            if (offerEnd < today) {
-                showNotification('Offer end date must be in the future', 'error');
-                return;
-            }
-            
-            if (batchExpiry < offerEnd) {
-                showNotification('Batch expiry date must be on or after offer end date', 'error');
-                return;
-            }
-            
-            const postBtn = document.getElementById('postBtn');
-            postBtn.disabled = true;
-            postBtn.textContent = 'posting...';
-            
-            const result = await Backend.createAd({
-                foodName,
-                discount,
-                originalPrice: price,
-                quantityLeft: parseInt(quantityLeft),
+            const adData = {
+                foodName: foodName,
+                description: description,
+                originalPrice: originalPrice,
+                discount: discount,
+                quantityLeft: quantity,
+                batchNumber: batchNumber,
                 offerEnds: offerEnds,
-                batchExpiryDate: batchExpiryDate,
-                batchNumber: batchNumber || '',
-                category,
-                description,
-                shopName: currentShop.name
-            });
-            
-            if (result.success) {
-                showNotification('Deal posted successfully!', 'success');
-                
-                document.getElementById('foodName').value = '';
-                document.getElementById('discount').value = '';
-                document.getElementById('price').value = '';
-                document.getElementById('quantityLeft').value = '';
-                document.getElementById('batchNumber').value = '';
-                document.getElementById('description').value = '';
-                
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                document.getElementById('offerEnds').value = tomorrow.toISOString().split('T')[0];
-                
-                const nextWeek = new Date();
-                nextWeek.setDate(nextWeek.getDate() + 7);
-                document.getElementById('batchExpiryDate').value = nextWeek.toISOString().split('T')[0];
-                
-                await loadShopAds();
-            } else {
-                showNotification(result.message || 'Failed to post', 'error');
-            }
-            
-            postBtn.disabled = false;
-            postBtn.textContent = 'post deal';
-        }
-        
-        async function loadShopAds() {
-            const container = document.getElementById('adsContainer');
+                batchExpiryDate: batchExpiry || offerEnds,
+                category: category
+            };
             
             try {
-                const currentUser = Backend.getCurrentUser();
-                if (!currentUser) {
-                    container.innerHTML = '<div class="empty-state">please login</div>';
-                    return;
-                }
+                const result = await Backend.createAd(adData);
                 
-                shopAds = await Backend.getShopAds(currentUser.id);
-                
-                document.getElementById('totalAds').textContent = shopAds.length;
-                
-                let views = 0, claimed = 0;
-                shopAds.forEach(ad => {
-                    views += ad.views || 0;
-                    claimed += ad.claimed || 0;
-                });
-                document.getElementById('totalViews').textContent = views;
-                document.getElementById('totalClaimed').textContent = claimed;
-                
-                if (shopAds.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-emoji">📢</div>
-                            <div>no active deals</div>
-                            <div style="font-size:13px; margin-top:8px;">post your first deal above</div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                shopAds.sort((a, b) => new Date(a.offerEnds) - new Date(b.offerEnds));
-                
-                container.innerHTML = shopAds.map(ad => {
-                    const daysUntilEnd = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
-                    const isExpiringSoon = daysUntilEnd <= 3;
-                    const isLowQuantity = ad.quantityLeft && ad.quantityLeft <= 5;
+                if (result.success) {
+                    showNotification('Deal posted successfully!', 'success');
                     
-                    return `
-                        <div class="ad-item ${isExpiringSoon ? 'expiring-soon' : ''} ${!ad.active ? 'inactive' : ''}">
-                            <div class="ad-header">
-                                <span class="ad-food">${escapeHtml(ad.foodName)}</span>
-                                <span class="ad-discount">${ad.discount}% off</span>
-                            </div>
-                            <div class="ad-details">
-                                ${ad.originalPrice ? `<span>was $${ad.originalPrice}</span>` : ''}
-                                ${ad.batchNumber ? `<span class="ad-batch-info">📦 batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
-                                <span class="ad-quantity ${isLowQuantity ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
-                                <span>offer ends: ${new Date(ad.offerEnds).toLocaleDateString()}</span>
-                                ${ad.batchExpiryDate ? `<span>batch expiry: ${new Date(ad.batchExpiryDate).toLocaleDateString()}</span>` : ''}
-                                ${isExpiringSoon ? '<span style="color:#ff9500;">⚠️ ends soon</span>' : ''}
-                            </div>
-                            <div class="ad-stats">
-                                <span>👁️ ${ad.views || 0} views</span>
-                                <span>✅ ${ad.claimed || 0} claimed</span>
-                                <span>📅 ${new Date(ad.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            ${businessRole === 'owner' || businessRole === 'manager' ? `
-                                <div class="ad-actions">
-                                    <button class="ad-btn update-qty-btn" onclick="updateQuantity('${ad.id}', ${ad.quantityLeft || 0})">📦 update stock</button>
-                                    <button class="ad-btn deactivate-btn" onclick="deactivateAd('${ad.id}')">deactivate</button>
-                                    <button class="ad-btn delete-btn" onclick="deleteAd('${ad.id}')">delete</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }).join('');
-                
+                    // Reset form
+                    document.getElementById('foodName').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('originalPrice').value = '';
+                    document.getElementById('discount').value = '';
+                    document.getElementById('quantity').value = '50';
+                    document.getElementById('batchNumber').value = '';
+                    document.getElementById('category').value = 'other';
+                    
+                    // Reset dates
+                    const today = new Date();
+                    const nextWeek = new Date();
+                    nextWeek.setDate(today.getDate() + 7);
+                    const nextMonth = new Date();
+                    nextMonth.setDate(today.getDate() + 30);
+                    document.getElementById('offerEnds').value = nextWeek.toISOString().split('T')[0];
+                    document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
+                    
+                    setTimeout(() => {
+                        window.location.href = 'business-profile.html';
+                    }, 2000);
+                } else {
+                    showNotification(result.message || 'Failed to post deal', 'error');
+                }
             } catch (error) {
-                console.error('Error loading ads:', error);
-                container.innerHTML = '<div class="empty-state">error loading ads</div>';
+                console.error('Error posting ad:', error);
+                showNotification('Error posting deal. Please try again.', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
             }
-        }
-        
-        async function updateQuantity(adId, currentQuantity) {
-            const newQuantity = prompt(`Current quantity left: ${currentQuantity}\nEnter new quantity left:`, currentQuantity);
-            if (newQuantity === null) return;
-            
-            const qty = parseInt(newQuantity);
-            if (isNaN(qty) || qty < 0) {
-                showNotification('Please enter a valid quantity', 'error');
-                return;
-            }
-            
-            const result = await Backend.updateAd(adId, { quantityLeft: qty });
-            if (result.success) {
-                showNotification(`Quantity updated to ${qty}`, 'success');
-                await loadShopAds();
-            } else {
-                showNotification(result.message, 'error');
-            }
-        }
-        
-        async function deleteAd(adId) {
-            if (!confirm('Delete this ad permanently?')) return;
-            const result = await Backend.deleteAd(adId);
-            if (result.success) {
-                showNotification('Ad deleted', 'success');
-                await loadShopAds();
-            } else {
-                showNotification(result.message, 'error');
-            }
-        }
-        
-        async function deactivateAd(adId) {
-            const result = await Backend.updateAd(adId, { active: false });
-            if (result.success) {
-                showNotification('Ad deactivated', 'success');
-                await loadShopAds();
-            } else {
-                showNotification(result.message, 'error');
-            }
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
         
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            setTimeout(() => {
-                notif.className = 'notification';
-            }, 2000);
+            setTimeout(() => notif.classList.remove('show'), 3000);
         }
         
-        function logout() {
-            window.location.href = 'index.html';
-        }
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (html5QrCode && isScanning) {
+                html5QrCode.stop().catch(console.error);
+            }
+        });
         
-        window.postAd = postAd;
-        window.loadShopAds = loadShopAds;
-        window.deleteAd = deleteAd;
-        window.deactivateAd = deactivateAd;
-        window.updateQuantity = updateQuantity;
-        window.logout = logout;
+        // Make functions global
+        window.startScanner = startScanner;
+        window.stopScanner = stopScanner;
+        window.hideScanner = hideScanner;
+        window.submitAd = submitAd;
     </script>
 </body>
 </html>
