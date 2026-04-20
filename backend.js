@@ -49,7 +49,7 @@ const Backend = {
             user.set("username", username);
             user.set("password", password);
             user.set("role", role);
-            user.set("email", businessDetails?.email || `${username}@foodsave.com`);
+            user.set("email", businessDetails?.email || `${username}@foodsavvi.com`);
             
             if (role === "advertiser" && businessDetails) {
                 user.set("businessName", businessDetails.name);
@@ -386,6 +386,11 @@ const Backend = {
                 ad.set("quantityLeft", parseInt(adData.quantityLeft) || 0);
                 ad.set("initialQuantity", parseInt(adData.quantityLeft) || 0);
                 
+                // Store product image if provided
+                if (adData.imageBase64) {
+                    ad.set("productImage", adData.imageBase64);
+                }
+                
                 await ad.save();
                 return { success: true, ad: ad, adId: ad.id };
             });
@@ -430,7 +435,8 @@ const Backend = {
                     views: ad.get("views"),
                     claimed: ad.get("claimed"),
                     batchNumber: ad.get("batchNumber"),
-                    quantityLeft: ad.get("quantityLeft")
+                    quantityLeft: ad.get("quantityLeft"),
+                    productImage: ad.get("productImage") || null
                 }));
             });
         } catch (error) {
@@ -464,7 +470,8 @@ const Backend = {
                     views: ad.get("views"),
                     claimed: ad.get("claimed"),
                     batchNumber: ad.get("batchNumber"),
-                    quantityLeft: ad.get("quantityLeft")
+                    quantityLeft: ad.get("quantityLeft"),
+                    productImage: ad.get("productImage") || null
                 }));
             });
         } catch (error) {
@@ -491,6 +498,8 @@ const Backend = {
                         ad.set(key, new Date(updates[key]));
                     } else if (key === 'batchExpiryDate') {
                         ad.set(key, new Date(updates[key]));
+                    } else if (key === 'imageBase64') {
+                        ad.set("productImage", updates[key]);
                     } else {
                         ad.set(key, updates[key]);
                     }
@@ -535,11 +544,11 @@ const Backend = {
         }
     },
 
-    // ========== ORDER SYSTEM - FIXED (ALL OPERATIONS IN ONE MASTER KEY BLOCK) ==========
+    // ========== ORDER SYSTEM ==========
     
     async createOrder(items, totalAmount) {
         try {
-            console.log("=== createOrder START ===");
+            console.log("=== foodsavvi createOrder START ===");
             console.log("Items received:", items);
             console.log("Total amount:", totalAmount);
             
@@ -561,10 +570,7 @@ const Backend = {
 
             console.log("Processing", orderItems.length, "items");
 
-            // IMPORTANT: ALL database operations in ONE master key block
             return await withMasterKey(async () => {
-                
-                // Get fresh user data
                 const userQuery = new Parse.Query(Parse.User);
                 const freshUser = await userQuery.get(currentUser.id, { useMasterKey: true });
                 
@@ -575,7 +581,6 @@ const Backend = {
                     return { success: false, message: `Insufficient balance. Need $${totalAmount.toFixed(2)}` };
                 }
 
-                // Verify all items first
                 const verifiedItems = [];
                 
                 for (const item of orderItems) {
@@ -634,12 +639,10 @@ const Backend = {
                     return { success: false, message: "No valid items in cart" };
                 }
 
-                // Deduct total amount from consumer wallet
                 const newBalance = walletBalance - totalAmount;
                 freshUser.set("walletBalance", newBalance);
                 await freshUser.save(null, { useMasterKey: true });
                 
-                // Update current user object
                 if (Parse.User.current()) {
                     Parse.User.current().set("walletBalance", newBalance);
                 }
@@ -648,13 +651,11 @@ const Backend = {
 
                 const createdOrders = [];
                 
-                // Create order for EACH item
                 for (const verified of verifiedItems) {
                     const { ad, item, discountedPrice, businessId, businessName, originalPrice, discount, itemTotal } = verified;
                     
                     console.log(`Creating order for: ${item.foodName}, quantity: ${item.quantity}`);
                     
-                    // Update ad quantity
                     const newQuantityLeft = ad.get("quantityLeft") - item.quantity;
                     ad.set("quantityLeft", newQuantityLeft);
                     ad.increment("claimed", item.quantity);
@@ -664,7 +665,6 @@ const Backend = {
                     await ad.save(null, { useMasterKey: true });
                     console.log(`Ad updated. Remaining: ${newQuantityLeft}`);
                     
-                    // Create order record
                     const Order = Parse.Object.extend("Order");
                     const order = new Order();
                     order.set("adId", ad.id);
@@ -684,13 +684,11 @@ const Backend = {
                     createdOrders.push(order);
                     console.log(`Order created for ${item.foodName}: $${itemTotal.toFixed(2)}`);
                     
-                    // Add to business pending balance
                     const businessUser = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
                     const currentPending = businessUser.get("pendingWalletBalance") || 0;
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
                     await businessUser.save(null, { useMasterKey: true });
                     
-                    // Send notification (this also needs master key)
                     const Notification = Parse.Object.extend("Notification");
                     const notification = new Notification();
                     notification.set("businessId", businessId);
@@ -700,7 +698,6 @@ const Backend = {
                     await notification.save(null, { useMasterKey: true });
                 }
                 
-                // Clear cart from localStorage
                 localStorage.removeItem('claimCart');
                 
                 console.log(`Successfully created ${createdOrders.length} orders`);
@@ -1278,13 +1275,13 @@ const Backend = {
             return await withMasterKey(async () => {
                 const TestObject = Parse.Object.extend("TestConnection");
                 const testObj = new TestObject();
-                testObj.set("test", "Hello at " + new Date().toISOString());
+                testObj.set("test", "Hello from foodsavvi at " + new Date().toISOString());
                 await testObj.save();
-                console.log("✅ foodsave cloud connected");
+                console.log("✅ foodsavvi cloud connected");
                 return { success: true };
             });
         } catch (error) {
-            console.error("❌ foodsave cloud error:", error);
+            console.error("❌ foodsavvi cloud error:", error);
             return { success: false, error };
         }
     }
