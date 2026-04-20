@@ -535,10 +535,14 @@ const Backend = {
         }
     },
 
-    // ========== ORDER SYSTEM - FIXED WITH FALLBACK ==========
+    // ========== ORDER SYSTEM - FIXED WITH MASTER KEY ==========
     
     async createOrder(items, totalAmount) {
         try {
+            console.log("=== createOrder START ===");
+            console.log("Items received:", items);
+            console.log("Total amount:", totalAmount);
+            
             const currentUser = Parse.User.current();
             if (!currentUser || currentUser.get("role") !== "consumer") {
                 return { success: false, message: "Please login as consumer" };
@@ -555,18 +559,17 @@ const Backend = {
                 return { success: false, message: "No items in cart" };
             }
 
-            console.log("Creating order with", orderItems.length, "items");
-            for (let i = 0; i < orderItems.length; i++) {
-                console.log(`Item ${i + 1}:`, orderItems[i].foodName, "ID:", orderItems[i].id);
-            }
+            console.log("Processing", orderItems.length, "items");
 
-            // Get fresh user with master key
+            // Get fresh user data with master key
             let freshUser = await withMasterKey(async () => {
                 const userQuery = new Parse.Query(Parse.User);
                 return await userQuery.get(currentUser.id, { useMasterKey: true });
             });
             
             const walletBalance = freshUser.get("walletBalance") || 0;
+            console.log("Wallet balance:", walletBalance);
+            
             if (walletBalance < totalAmount) {
                 return { success: false, message: `Insufficient balance. Need $${totalAmount.toFixed(2)}` };
             }
@@ -574,38 +577,42 @@ const Backend = {
             const verifiedItems = [];
             
             for (const item of orderItems) {
-                try {
-                    console.log(`Verifying item: ${item.foodName} (ID: ${item.id})`);
+                console.log(`Verifying item: ${item.foodName} (ID: ${item.id})`);
+                
+                // Use master key to get the ad
+                const verified = await withMasterKey(async () => {
                     const Ad = Parse.Object.extend("Advertisement");
                     const query = new Parse.Query(Ad);
+                    
                     let ad;
                     try {
+                        // Try by ID first
                         ad = await query.get(item.id, { useMasterKey: true });
+                        console.log(`Found ad by ID: ${ad.id}`);
                     } catch (err) {
-                        console.log(`Could not find by ID, trying by foodName: ${item.foodName}`);
-                        // Fallback: search by foodName and businessName
+                        console.log(`ID lookup failed, trying by name: ${item.foodName}`);
+                        // Fallback: search by name and business
                         const fallbackQuery = new Parse.Query(Ad);
                         fallbackQuery.equalTo("foodName", item.foodName);
                         fallbackQuery.equalTo("businessName", item.shopName);
                         fallbackQuery.equalTo("active", true);
-                        fallbackQuery.greaterThan("quantityLeft", 0);
                         ad = await fallbackQuery.first({ useMasterKey: true });
                         if (ad) {
-                            console.log(`Found fallback ad with ID: ${ad.id}`);
+                            console.log(`Found ad by name: ${ad.id}`);
                         }
                     }
                     
                     if (!ad) {
-                        return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
+                        throw new Error(`Ad not found for ${item.foodName}`);
                     }
                     
                     if (!ad.get("active")) {
-                        return { success: false, message: `${item.foodName} is no longer available` };
+                        throw new Error(`${item.foodName} is no longer active`);
                     }
                     
                     const quantityLeft = ad.get("quantityLeft") || 0;
                     if (quantityLeft < item.quantity) {
-                        return { success: false, message: `Only ${quantityLeft} of ${item.foodName} left` };
+                        throw new Error(`Only ${quantityLeft} of ${item.foodName} left`);
                     }
                     
                     const originalPrice = ad.get("originalPrice") || 0;
@@ -613,8 +620,8 @@ const Backend = {
                     const discountedPrice = originalPrice * (1 - discount / 100);
                     const itemTotal = discountedPrice * item.quantity;
                     
-                    verifiedItems.push({ 
-                        ad, 
+                    return {
+                        ad,
                         item,
                         discountedPrice,
                         businessId: ad.get("businessId"),
@@ -622,30 +629,40 @@ const Backend = {
                         originalPrice,
                         discount,
                         itemTotal
-                    });
-                } catch (err) {
-                    console.error("Error verifying item:", item.id, err);
-                    return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
-                }
+                    };
+                });
+                
+                verifiedItems.push(verified);
             }
 
             if (verifiedItems.length === 0) {
                 return { success: false, message: "No valid items in cart" };
             }
 
+            // Process the order with master key
             return await withMasterKey(async () => {
+                console.log("Processing orders with master key...");
+                
+                // Deduct total amount from consumer wallet
                 const newBalance = walletBalance - totalAmount;
                 freshUser.set("walletBalance", newBalance);
                 await freshUser.save(null, { useMasterKey: true });
+                
+                // Update current user object
                 if (Parse.User.current()) {
                     Parse.User.current().set("walletBalance", newBalance);
                 }
                 localStorage.setItem("walletBalance", newBalance);
+                console.log(`Wallet deducted. New balance: $${newBalance.toFixed(2)}`);
 
                 const createdOrders = [];
+                
                 for (const verified of verifiedItems) {
                     const { ad, item, discountedPrice, businessId, businessName, originalPrice, discount, itemTotal } = verified;
                     
+                    console.log(`Creating order for: ${item.foodName}, quantity: ${item.quantity}`);
+                    
+                    // Update ad quantity
                     const newQuantityLeft = ad.get("quantityLeft") - item.quantity;
                     ad.set("quantityLeft", newQuantityLeft);
                     ad.increment("claimed", item.quantity);
@@ -653,7 +670,9 @@ const Backend = {
                         ad.set("active", false);
                     }
                     await ad.save(null, { useMasterKey: true });
+                    console.log(`Ad updated. Remaining: ${newQuantityLeft}`);
                     
+                    // Create order record
                     const Order = Parse.Object.extend("Order");
                     const order = new Order();
                     order.set("adId", ad.id);
@@ -671,7 +690,9 @@ const Backend = {
                     order.set("createdAt", new Date());
                     await order.save(null, { useMasterKey: true });
                     createdOrders.push(order);
+                    console.log(`Order created for ${item.foodName}: $${itemTotal.toFixed(2)}`);
                     
+                    // Add to business pending balance
                     const businessUser = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
                     const currentPending = businessUser.get("pendingWalletBalance") || 0;
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
@@ -681,8 +702,11 @@ const Backend = {
                         `🛒 New order! ${freshUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
                 }
                 
+                // Clear cart from localStorage
                 localStorage.removeItem('claimCart');
+                
                 console.log(`Successfully created ${createdOrders.length} orders`);
+                
                 return { 
                     success: true, 
                     message: `Order placed successfully! ${createdOrders.length} item(s) purchased.`,
@@ -691,6 +715,7 @@ const Backend = {
                     totalPaid: totalAmount
                 };
             });
+            
         } catch (error) {
             console.error("Create order error:", error);
             return { success: false, message: error.message || "Checkout failed. Please try again." };
