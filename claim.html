@@ -118,12 +118,11 @@
         .item-image {
             width: 70px;
             height: 70px;
-            background: #e8ecf0;
+            background: transparent;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -132,6 +131,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 12px;
         }
         
         .item-details {
@@ -683,17 +683,6 @@
         let walletBalance = 0;
         let lastReceiptData = null;
         
-        // Category to emoji mapping
-        const categoryEmojis = {
-            dairy: '🥛',
-            produce: '🥬',
-            meat: '🥩',
-            bakery: '🥖',
-            pantry: '📦',
-            frozen: '❄️',
-            other: '🍽️'
-        };
-        
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
@@ -783,16 +772,14 @@
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
                 
-                const categoryEmoji = categoryEmojis[item.category] || '🍽️';
+                // Only show image if productImage exists
+                const imageHtml = item.productImage ? 
+                    `<div class="item-image"><img src="${item.productImage}" alt="${escapeHtml(item.foodName)}"></div>` : 
+                    `<div class="item-image"></div>`;
                 
                 html += `
                     <div class="cart-item">
-                        <div class="item-image">
-                            ${item.productImage ? 
-                                `<img src="${item.productImage}" alt="${escapeHtml(item.foodName)}" onerror="this.src=''; this.parentElement.innerHTML='<span style=\"font-size:30px;\">${categoryEmoji}</span>'">` : 
-                                `<span style="font-size:30px;">${categoryEmoji}</span>`
-                            }
-                        </div>
+                        ${imageHtml}
                         <div class="item-details">
                             <div class="item-name">${escapeHtml(item.foodName)}</div>
                             <div class="item-shop">🏪 ${escapeHtml(item.shopName)}</div>
