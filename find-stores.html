@@ -153,12 +153,42 @@
             padding: 16px;
             margin-bottom: 12px;
             border-left: 4px solid #34c759;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .result-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            background: #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .result-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .result-image .placeholder {
+            font-size: 32px;
+        }
+        
+        .result-info {
+            flex: 1;
         }
         
         .result-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 4px;
         }
         
         .result-food {
@@ -172,13 +202,59 @@
         }
         
         .result-shop {
-            font-size: 14px;
+            font-size: 13px;
+            color: #007aff;
+            margin-bottom: 6px;
+        }
+        
+        .result-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .batch-info {
+            font-size: 10px;
             color: #666;
-            margin-bottom: 4px;
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .quantity-info {
+            font-size: 10px;
+            color: #34c759;
+            background: #e8f5e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .quantity-info.low {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .price-info {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .price-info .original {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .price-info .discounted {
+            color: #34c759;
+            font-weight: 600;
         }
         
         .result-expiry {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
             display: flex;
             justify-content: space-between;
@@ -188,67 +264,40 @@
             margin-top: 8px;
         }
         
-        .add-to-cart-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        
-        .add-to-cart-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .add-to-cart-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
         .quantity-selector {
             display: flex;
             align-items: center;
             gap: 8px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 20px;
         }
         
         .qty-btn {
             width: 28px;
             height: 28px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 14px;
             font-size: 16px;
             cursor: pointer;
+            color: #007aff;
+        }
+        
+        .qty-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .qty-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
         
         .qty-value {
             min-width: 30px;
             text-align: center;
             font-size: 14px;
-        }
-        
-        .batch-info {
-            font-size: 11px;
-            color: #666;
-            font-family: monospace;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .quantity-info {
-            font-size: 11px;
-            color: #34c759;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .quantity-info.low {
-            color: #ff3b30;
+            font-weight: 500;
         }
         
         .empty-state {
@@ -405,6 +454,17 @@
             { id: 'frozen', label: '❄️ frozen' }
         ];
         
+        // Category to emoji mapping for fallback
+        const categoryEmojis = {
+            dairy: '🥛',
+            produce: '🥬',
+            meat: '🥩',
+            bakery: '🥖',
+            pantry: '📦',
+            frozen: '❄️',
+            other: '🍽️'
+        };
+        
         document.addEventListener('DOMContentLoaded', () => {
             // Check if user is logged in as consumer
             const user = Backend.getCurrentUser();
@@ -472,30 +532,48 @@
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
                     const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     const discountedPrice = ad.originalPrice ? (ad.originalPrice * (1 - ad.discount / 100)).toFixed(2) : null;
+                    const savedAmount = ad.originalPrice ? (ad.originalPrice - discountedPrice).toFixed(2) : 0;
                     
                     // Get current quantity in cart
                     const cartItem = currentCart.find(item => item.id === ad.id);
                     const currentQty = cartItem ? cartItem.quantity : 0;
                     const remainingStock = ad.quantityLeft - currentQty;
                     
+                    // Get emoji based on category
+                    const categoryEmoji = categoryEmojis[ad.category] || '🍽️';
+                    
                     return `
                         <div class="result-item">
-                            <div class="result-header">
-                                <span class="result-food">${escapeHtml(ad.foodName)}</span>
-                                <span class="result-discount">${ad.discount}% off</span>
+                            <div class="result-image">
+                                ${ad.productImage ? 
+                                    `<img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}" onerror="this.src=''; this.parentElement.innerHTML='<div class=\'placeholder\'>${categoryEmoji}</div>'">` : 
+                                    `<div class="placeholder">${categoryEmoji}</div>`
+                                }
                             </div>
-                            <div class="result-shop">${escapeHtml(ad.shopName)}</div>
-                            <div style="margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px;">
-                                ${ad.batchNumber ? `<span class="batch-info">📦 batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
-                                <span class="quantity-info ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft} left</span>
-                                ${ad.originalPrice ? `<span class="batch-info">💰 was $${ad.originalPrice.toFixed(2)} → $${discountedPrice}</span>` : ''}
-                            </div>
-                            <div class="result-expiry">
-                                <span>offer ends in ${daysUntil} days • ${ad.views || 0} views</span>
-                                <div class="quantity-selector">
-                                    <button class="qty-btn" onclick="changeQuantity('${ad.id}', -1, ${ad.quantityLeft})" ${remainingStock <= 0 || currentQty <= 0 ? 'disabled' : ''}>-</button>
-                                    <span class="qty-value" id="qty-${ad.id}">${currentQty}</span>
-                                    <button class="qty-btn" onclick="changeQuantity('${ad.id}', 1, ${ad.quantityLeft})" ${remainingStock <= 0 ? 'disabled' : ''}>+</button>
+                            <div class="result-info">
+                                <div class="result-header">
+                                    <span class="result-food">${escapeHtml(ad.foodName)}</span>
+                                    <span class="result-discount">-${ad.discount}%</span>
+                                </div>
+                                <div class="result-shop">🏪 ${escapeHtml(ad.shopName)}</div>
+                                <div class="result-meta">
+                                    ${ad.batchNumber ? `<span class="batch-info">📦 ${escapeHtml(ad.batchNumber)}</span>` : ''}
+                                    <span class="quantity-info ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft} left</span>
+                                </div>
+                                ${ad.originalPrice ? `
+                                    <div class="price-info">
+                                        <span class="original">$${ad.originalPrice.toFixed(2)}</span>
+                                        <span class="discounted"> → $${discountedPrice}</span>
+                                        <span style="color: #ff9500;"> (save $${savedAmount})</span>
+                                    </div>
+                                ` : ''}
+                                <div class="result-expiry">
+                                    <span>⏰ ${daysUntil} days left • 👁️ ${ad.views || 0} views</span>
+                                    <div class="quantity-selector">
+                                        <button class="qty-btn" onclick="changeQuantity('${ad.id}', -1, ${ad.quantityLeft})" ${remainingStock <= 0 || currentQty <= 0 ? 'disabled' : ''}>-</button>
+                                        <span class="qty-value" id="qty-${ad.id}">${currentQty}</span>
+                                        <button class="qty-btn" onclick="changeQuantity('${ad.id}', 1, ${ad.quantityLeft})" ${remainingStock <= 0 ? 'disabled' : ''}>+</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -508,6 +586,7 @@
                     <div class="empty-state">
                         <div>failed to load deals</div>
                         <div style="font-size:13px; margin-top:8px;">${error.message}</div>
+                        <button onclick="loadDeals()" style="margin-top:16px; padding:8px 20px; background:#007aff; color:white; border:none; border-radius:20px;">retry</button>
                     </div>
                 `;
             }
@@ -551,7 +630,8 @@
                             category: ad.category,
                             batchNumber: ad.batchNumber,
                             quantity: 1,
-                            maxQuantity: maxStock
+                            maxQuantity: maxStock,
+                            productImage: ad.productImage || null
                         });
                     }
                 }
@@ -567,11 +647,10 @@
                 }
                 
                 // Update button states
-                const remainingStock = maxStock - newQty;
                 const minusBtn = document.querySelector(`button[onclick*="changeQuantity('${adId}', -1"]`);
                 const plusBtn = document.querySelector(`button[onclick*="changeQuantity('${adId}', 1"]`);
                 if (minusBtn) minusBtn.disabled = newQty <= 0;
-                if (plusBtn) plusBtn.disabled = remainingStock <= 0;
+                if (plusBtn) plusBtn.disabled = (maxStock - newQty) <= 0;
                 
                 if (delta > 0) {
                     showNotification(`Added ${ad.foodName} to cart`, 'success');
