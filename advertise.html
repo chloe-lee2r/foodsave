@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>foodsavvi • post ad</title>
+    <title>foodsavvi • manage ads</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <!-- HTML5 QR Code Library -->
@@ -69,6 +69,44 @@
         .content {
             padding: 16px;
             padding-bottom: 80px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 4px;
+            border-radius: 16px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         /* Barcode Scanner Section */
@@ -300,6 +338,112 @@
             cursor: not-allowed;
         }
         
+        /* My Ads List */
+        .my-ads-list {
+            margin-top: 16px;
+        }
+        
+        .my-ad-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .my-ad-image {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            overflow: hidden;
+        }
+        
+        .my-ad-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .my-ad-details {
+            flex: 1;
+        }
+        
+        .my-ad-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .my-ad-meta {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        
+        .my-ad-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .status-active {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
+        .status-expired {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .my-ad-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .my-ad-actions button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .edit-ad-btn {
+            color: #007aff;
+        }
+        
+        .delete-ad-btn {
+            color: #ff3b30;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        
+        .add-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: #007aff;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+        }
+        
         .notification {
             position: fixed;
             bottom: 20px;
@@ -391,26 +535,13 @@
             display: block;
         }
         
-        /* Progress bar for image upload */
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            margin-top: 8px;
-            display: none;
-        }
-        
-        .progress-bar.active {
-            display: block;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #34c759;
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.3s;
+        .edit-mode-badge {
+            background: #ff9500;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -418,106 +549,131 @@
     <div class="app">
         <div class="header">
             <a href="index.html" class="back-link">←</a>
-            <h1>post new deal</h1>
+            <h1 id="pageTitle">manage ads</h1>
         </div>
         
         <div class="content">
-            <!-- Barcode Scanner Section -->
-            <div class="scanner-section">
-                <div class="scanner-header">
-                    <span>📷</span>
-                    <h3>Quick Add with Barcode</h3>
-                </div>
-                <button class="scan-btn" id="scanBtn" onclick="startScanner()">
-                    📸 Scan Product Barcode
-                </button>
-                <div class="scanner-container" id="scannerContainer">
-                    <div id="reader"></div>
-                    <button class="stop-scan-btn" onclick="stopScanner()">❌ Stop Scanning</button>
-                </div>
-                <button class="manual-entry-btn" onclick="hideScanner()">
-                    ✏️ Enter Manually Instead
-                </button>
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('create')">📝 create ad</button>
+                <button class="tab" onclick="switchTab('manage')">📋 manage ads</button>
             </div>
             
-            <!-- Image Upload Section -->
-            <div class="image-upload-section">
-                <div class="image-preview" id="imagePreview">
-                    <div class="placeholder">📷</div>
+            <!-- CREATE AD TAB -->
+            <div id="createTab" class="tab-content active">
+                <!-- Barcode Scanner Section -->
+                <div class="scanner-section">
+                    <div class="scanner-header">
+                        <span>📷</span>
+                        <h3>Quick Add with Barcode</h3>
+                    </div>
+                    <button class="scan-btn" onclick="startScanner()">
+                        📸 Scan Product Barcode
+                    </button>
+                    <div class="scanner-container" id="scannerContainer">
+                        <div id="reader"></div>
+                        <button class="stop-scan-btn" onclick="stopScanner()">❌ Stop Scanning</button>
+                    </div>
+                    <button class="manual-entry-btn" onclick="hideScanner()">
+                        ✏️ Enter Manually Instead
+                    </button>
                 </div>
-                <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                <button class="upload-btn" onclick="document.getElementById('imageUpload').click()">
-                    📸 Upload Product Image
-                </button>
-                <button class="remove-image-btn" onclick="removeImage()" style="display: none;" id="removeImageBtn">
-                    🗑️ Remove Image
-                </button>
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
+                
+                <!-- Image Upload Section -->
+                <div class="image-upload-section">
+                    <div class="image-preview" id="imagePreview">
+                        <div class="placeholder">📷</div>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <button class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+                        📸 Upload Product Image
+                    </button>
+                    <button class="remove-image-btn" onclick="removeImage()" style="display: none;" id="removeImageBtn">
+                        🗑️ Remove Image
+                    </button>
+                </div>
+                
+                <!-- Form Card -->
+                <div class="form-card">
+                    <div class="form-title" id="formTitle">📝 New Deal Details</div>
+                    <input type="hidden" id="editAdId" value="">
+                    
+                    <div class="input-group">
+                        <label class="input-label">🍽️ Food Name *</label>
+                        <input type="text" class="input-field" id="foodName" placeholder="e.g., Organic Milk">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">🏷️ Brand / Description</label>
+                        <input type="text" class="input-field" id="description" placeholder="Optional brand or description">
+                    </div>
+                    
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label class="input-label">💰 Original Price *</label>
+                            <input type="number" class="input-field" id="originalPrice" placeholder="$0.00" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">🎉 Discount % *</label>
+                            <input type="number" class="input-field" id="discount" placeholder="e.g., 20" step="1" min="0" max="100">
+                        </div>
+                    </div>
+                    
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label class="input-label">📦 Quantity Available *</label>
+                            <input type="number" class="input-field" id="quantity" placeholder="e.g., 50" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">🔢 Batch Number</label>
+                            <input type="text" class="input-field" id="batchNumber" placeholder="Optional">
+                        </div>
+                    </div>
+                    
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label class="input-label">📅 Offer End Date *</label>
+                            <input type="date" class="input-field" id="offerEnds">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">⏰ Batch Expiry Date</label>
+                            <input type="date" class="input-field" id="batchExpiry">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">📂 Category</label>
+                        <select class="input-field" id="category">
+                            <option value="other">📌 Other</option>
+                            <option value="dairy">🥛 Dairy</option>
+                            <option value="produce">🥬 Produce</option>
+                            <option value="meat">🥩 Meat</option>
+                            <option value="bakery">🥖 Bakery</option>
+                            <option value="pantry">📦 Pantry</option>
+                            <option value="frozen">❄️ Frozen</option>
+                        </select>
+                    </div>
+                    
+                    <button class="submit-btn" id="submitBtn" onclick="submitAd()">📢 Post Deal</button>
                 </div>
             </div>
             
-            <!-- Form Card -->
-            <div class="form-card">
-                <div class="form-title">📝 Deal Details</div>
-                
-                <div class="input-group">
-                    <label class="input-label">🍽️ Food Name *</label>
-                    <input type="text" class="input-field" id="foodName" placeholder="e.g., Organic Milk">
+            <!-- MANAGE ADS TAB -->
+            <div id="manageTab" class="tab-content">
+                <div class="section-title">
+                    📢 my active deals
+                    <button class="refresh-icon" onclick="loadMyAds()">↻</button>
+                </div>
+                <div class="my-ads-list" id="myAdsList">
+                    <div class="empty-state">loading your ads...</div>
                 </div>
                 
-                <div class="input-group">
-                    <label class="input-label">🏷️ Brand / Description</label>
-                    <input type="text" class="input-field" id="description" placeholder="Optional brand or description">
+                <div class="section-title" style="margin-top: 20px;">
+                    📦 expired deals
                 </div>
-                
-                <div class="row-2">
-                    <div class="input-group">
-                        <label class="input-label">💰 Original Price *</label>
-                        <input type="number" class="input-field" id="originalPrice" placeholder="$0.00" step="0.01" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">🎉 Discount % *</label>
-                        <input type="number" class="input-field" id="discount" placeholder="e.g., 20" step="1" min="0" max="100">
-                    </div>
+                <div class="my-ads-list" id="expiredAdsList">
+                    <div class="empty-state">loading...</div>
                 </div>
-                
-                <div class="row-2">
-                    <div class="input-group">
-                        <label class="input-label">📦 Quantity Available *</label>
-                        <input type="number" class="input-field" id="quantity" placeholder="e.g., 50" min="1">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">🔢 Batch Number</label>
-                        <input type="text" class="input-field" id="batchNumber" placeholder="Optional">
-                    </div>
-                </div>
-                
-                <div class="row-2">
-                    <div class="input-group">
-                        <label class="input-label">📅 Offer End Date *</label>
-                        <input type="date" class="input-field" id="offerEnds">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">⏰ Batch Expiry Date</label>
-                        <input type="date" class="input-field" id="batchExpiry">
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label">📂 Category</label>
-                    <select class="input-field" id="category">
-                        <option value="other">📌 Other</option>
-                        <option value="dairy">🥛 Dairy</option>
-                        <option value="produce">🥬 Produce</option>
-                        <option value="meat">🥩 Meat</option>
-                        <option value="bakery">🥖 Bakery</option>
-                        <option value="pantry">📦 Pantry</option>
-                        <option value="frozen">❄️ Frozen</option>
-                    </select>
-                </div>
-                
-                <button class="submit-btn" onclick="submitAd()">📢 Post Deal</button>
             </div>
         </div>
         
@@ -526,17 +682,17 @@
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
             </a>
-            <a href="business-profile.html" class="nav-item">
-                <span class="nav-emoji">📊</span>
-                <span>analytics</span>
-            </a>
             <a href="#" class="nav-item active">
                 <span class="nav-emoji">📢</span>
-                <span>post ad</span>
+                <span>ads</span>
             </a>
             <a href="business-profile.html?tab=orders" class="nav-item">
                 <span class="nav-emoji">📦</span>
                 <span>orders</span>
+            </a>
+            <a href="business-profile.html?tab=profile" class="nav-item">
+                <span class="nav-emoji">⚙️</span>
+                <span>settings</span>
             </a>
         </div>
     </div>
@@ -553,6 +709,8 @@
         let html5QrCode = null;
         let isScanning = false;
         let uploadedImageBase64 = null;
+        let editMode = false;
+        let editAdId = null;
         
         // Product database for barcode lookup
         const productDatabase = {
@@ -587,20 +745,89 @@
             document.getElementById('offerEnds').value = nextWeek.toISOString().split('T')[0];
             document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
             document.getElementById('quantity').value = 50;
+            
+            // Check if editing from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                editMode = true;
+                editAdId = editId;
+                document.getElementById('pageTitle').innerHTML = 'edit ad <span class="edit-mode-badge">✏️ editing</span>';
+                document.getElementById('formTitle').innerHTML = '✏️ Edit Deal';
+                document.getElementById('submitBtn').innerHTML = '💾 Save Changes';
+                loadAdForEditing(editId);
+            }
+            
+            loadMyAds();
         });
+        
+        async function loadAdForEditing(adId) {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const shopAds = await Backend.getShopAds();
+                const ad = shopAds.find(a => a.id === adId);
+                if (ad) {
+                    document.getElementById('foodName').value = ad.foodName;
+                    document.getElementById('description').value = ad.description || '';
+                    document.getElementById('originalPrice').value = ad.originalPrice;
+                    document.getElementById('discount').value = ad.discount;
+                    document.getElementById('quantity').value = ad.quantityLeft;
+                    document.getElementById('batchNumber').value = ad.batchNumber || '';
+                    document.getElementById('category').value = ad.category || 'other';
+                    
+                    const offerEnds = new Date(ad.offerEnds);
+                    document.getElementById('offerEnds').value = offerEnds.toISOString().split('T')[0];
+                    
+                    if (ad.batchExpiryDate) {
+                        const batchExpiry = new Date(ad.batchExpiryDate);
+                        document.getElementById('batchExpiry').value = batchExpiry.toISOString().split('T')[0];
+                    }
+                    
+                    if (ad.productImage) {
+                        uploadedImageBase64 = ad.productImage;
+                        const preview = document.getElementById('imagePreview');
+                        preview.innerHTML = `<img src="${uploadedImageBase64}" alt="Product preview">`;
+                        document.getElementById('removeImageBtn').style.display = 'inline-block';
+                    }
+                }
+            } catch (error) {
+                showNotification('Error loading ad for editing', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        function switchTab(tab) {
+            const createTab = document.getElementById('createTab');
+            const manageTab = document.getElementById('manageTab');
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'create') {
+                createTab.classList.add('active');
+                manageTab.classList.remove('active');
+                tabs[0].classList.add('active');
+                document.getElementById('pageTitle').innerHTML = editMode ? 'edit ad' : 'create ad';
+            } else {
+                createTab.classList.remove('active');
+                manageTab.classList.add('active');
+                tabs[1].classList.add('active');
+                document.getElementById('pageTitle').innerHTML = 'manage ads';
+                loadMyAds();
+            }
+        }
         
         // Image upload handling
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
             
-            // Check file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showNotification('Image too large. Max 5MB.', 'error');
                 return;
             }
             
-            // Check file type
             if (!file.type.startsWith('image/')) {
                 showNotification('Please select an image file.', 'error');
                 return;
@@ -688,7 +915,6 @@
                 document.getElementById('originalPrice').value = product.price;
                 document.getElementById('category').value = product.category;
                 
-                // Add visual feedback
                 document.getElementById('foodName').classList.add('filled-by-scanner');
                 document.getElementById('originalPrice').classList.add('filled-by-scanner');
                 
@@ -748,9 +974,7 @@
                     
                     showNotification(`📦 Found product info from online database!`, 'success');
                     
-                    // Try to get product image
                     if (product.image_url) {
-                        // Optionally download and set image
                         fetchImageAsBase64(product.image_url);
                     }
                 }
@@ -832,34 +1056,28 @@
             };
             
             try {
-                const result = await Backend.createAd(adData);
-                
-                if (result.success) {
-                    showNotification('Deal posted successfully!', 'success');
-                    
-                    // Reset form
-                    document.getElementById('foodName').value = '';
-                    document.getElementById('description').value = '';
-                    document.getElementById('originalPrice').value = '';
-                    document.getElementById('discount').value = '';
-                    document.getElementById('quantity').value = '50';
-                    document.getElementById('batchNumber').value = '';
-                    document.getElementById('category').value = 'other';
-                    removeImage();
-                    
-                    const today = new Date();
-                    const nextWeek = new Date();
-                    nextWeek.setDate(today.getDate() + 7);
-                    const nextMonth = new Date();
-                    nextMonth.setDate(today.getDate() + 30);
-                    document.getElementById('offerEnds').value = nextWeek.toISOString().split('T')[0];
-                    document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
-                    
-                    setTimeout(() => {
-                        window.location.href = 'business-profile.html';
-                    }, 2000);
+                let result;
+                if (editMode && editAdId) {
+                    // Update existing ad
+                    result = await Backend.updateAd(editAdId, adData);
+                    if (result.success) {
+                        showNotification('Deal updated successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'advertise.html';
+                        }, 1500);
+                    } else {
+                        showNotification(result.message || 'Failed to update deal', 'error');
+                    }
                 } else {
-                    showNotification(result.message || 'Failed to post deal', 'error');
+                    // Create new ad
+                    result = await Backend.createAd(adData);
+                    if (result.success) {
+                        showNotification('Deal posted successfully!', 'success');
+                        resetForm();
+                        loadMyAds();
+                    } else {
+                        showNotification(result.message || 'Failed to post deal', 'error');
+                    }
                 }
             } catch (error) {
                 console.error('Error posting ad:', error);
@@ -867,6 +1085,115 @@
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
+        }
+        
+        function resetForm() {
+            document.getElementById('foodName').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('originalPrice').value = '';
+            document.getElementById('discount').value = '';
+            document.getElementById('quantity').value = '50';
+            document.getElementById('batchNumber').value = '';
+            document.getElementById('category').value = 'other';
+            removeImage();
+            
+            const today = new Date();
+            const nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 7);
+            const nextMonth = new Date();
+            nextMonth.setDate(today.getDate() + 30);
+            document.getElementById('offerEnds').value = nextWeek.toISOString().split('T')[0];
+            document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
+        }
+        
+        async function loadMyAds() {
+            try {
+                const currentUser = Backend.getCurrentUser();
+                if (!currentUser) return;
+                
+                const shopAds = await Backend.getShopAds(currentUser.id);
+                const now = new Date();
+                const activeAds = shopAds.filter(ad => ad.active && new Date(ad.offerEnds) > now);
+                const expiredAds = shopAds.filter(ad => !ad.active || new Date(ad.offerEnds) <= now);
+                
+                const activeContainer = document.getElementById('myAdsList');
+                const expiredContainer = document.getElementById('expiredAdsList');
+                
+                if (activeAds.length === 0) {
+                    activeContainer.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="#" onclick="switchTab('create'); return false;" class="add-link">create your first ad →</a></div>`;
+                } else {
+                    activeContainer.innerHTML = activeAds.map(ad => `
+                        <div class="my-ad-item">
+                            ${ad.productImage ? `<div class="my-ad-image"><img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}"></div>` : `<div class="my-ad-image">🏷️</div>`}
+                            <div class="my-ad-details">
+                                <div class="my-ad-name">${escapeHtml(ad.foodName)}</div>
+                                <div class="my-ad-meta">
+                                    <span>${ad.discount}% off</span>
+                                    <span>📊 ${ad.quantityLeft || 0} left</span>
+                                    <span>💰 $${ad.originalPrice}</span>
+                                    <span class="my-ad-status status-active">active</span>
+                                </div>
+                            </div>
+                            <div class="my-ad-actions">
+                                <button class="edit-ad-btn" onclick="editAd('${ad.id}')">✏️</button>
+                                <button class="delete-ad-btn" onclick="deleteAd('${ad.id}', '${escapeHtml(ad.foodName)}')">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                if (expiredAds.length === 0) {
+                    expiredContainer.innerHTML = '<div class="empty-state">📭 no expired deals</div>';
+                } else {
+                    expiredContainer.innerHTML = expiredAds.map(ad => `
+                        <div class="my-ad-item" style="opacity: 0.7;">
+                            ${ad.productImage ? `<div class="my-ad-image"><img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}"></div>` : `<div class="my-ad-image">🏷️</div>`}
+                            <div class="my-ad-details">
+                                <div class="my-ad-name">${escapeHtml(ad.foodName)}</div>
+                                <div class="my-ad-meta">
+                                    <span>${ad.discount}% off</span>
+                                    <span>📊 ${ad.quantityLeft || 0} left</span>
+                                    <span class="my-ad-status status-expired">expired</span>
+                                </div>
+                            </div>
+                            <div class="my-ad-actions">
+                                <button class="delete-ad-btn" onclick="deleteAd('${ad.id}', '${escapeHtml(ad.foodName)}')">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading my ads:', error);
+                document.getElementById('myAdsList').innerHTML = '<div class="empty-state">error loading ads</div>';
+            }
+        }
+        
+        async function editAd(adId) {
+            window.location.href = `advertise.html?edit=${adId}`;
+        }
+        
+        async function deleteAd(adId, foodName) {
+            if (confirm(`Delete "${foodName}"? This action cannot be undone.`)) {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                try {
+                    const result = await Backend.deleteAd(adId);
+                    if (result.success) {
+                        showNotification(`"${foodName}" deleted`, 'success');
+                        loadMyAds();
+                    } else {
+                        showNotification('Failed to delete ad', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Error deleting ad', 'error');
+                } finally {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
         
         function showNotification(msg, type) {
@@ -888,6 +1215,10 @@
         window.submitAd = submitAd;
         window.handleImageUpload = handleImageUpload;
         window.removeImage = removeImage;
+        window.switchTab = switchTab;
+        window.loadMyAds = loadMyAds;
+        window.editAd = editAd;
+        window.deleteAd = deleteAd;
     </script>
 </body>
 </html>
