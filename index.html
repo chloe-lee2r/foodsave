@@ -809,7 +809,7 @@
             border-radius: 20px;
         }
         
-        /* Bottom Navigation */
+        /* Bottom Navigation - Role Based */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -842,6 +842,53 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+        }
+        
+        /* Consumer Bottom Nav */
+        body.consumer .bottom-nav-consumer {
+            display: flex;
+        }
+        
+        body.consumer .bottom-nav-business {
+            display: none;
+        }
+        
+        /* Business Bottom Nav - No deals button */
+        body.advertiser .bottom-nav-consumer {
+            display: none;
+        }
+        
+        body.advertiser .bottom-nav-business {
+            display: flex;
+        }
+        
+        .bottom-nav-consumer, .bottom-nav-business {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-consumer {
+            display: none;
+        }
+        
+        .bottom-nav-business {
+            display: none;
+        }
+        
+        body.consumer .bottom-nav-consumer {
+            display: flex;
+        }
+        
+        body.advertiser .bottom-nav-business {
+            display: flex;
         }
         
         /* Modal */
@@ -1025,7 +1072,7 @@
                             <div class="card-desc" id="dealsCount">0 nearby</div>
                         </div>
                         <div class="action-card" onclick="window.location.href='fridge.html'">
-                            <div class="card-emoji">🧊</div>
+                            <div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div>
                             <div class="card-title">my fridge</div>
                             <div class="card-desc" id="fridgeCount">0 items</div>
                         </div>
@@ -1046,13 +1093,13 @@
                     </div>
                     
                     <div class="section-title">
-                        🧊 your fridge
+                        <img src="assets/fridge.png" alt="fridge" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" onerror="this.style.display='none'"> your fridge
                         <button class="refresh-icon" onclick="loadFridgeData()">↻</button>
                         <a href="fridge.html" class="view-all">manage →</a>
                     </div>
                     <div class="fridge-summary" id="fridgeSummary">
                         <div class="fridge-header">
-                            <h3><img src="assets/fridge.png" alt="fridge" onerror="this.style.display='none'; this.nextSibling.style.display='inline';"> 🧊 fridge status</h3>
+                            <h3><img src="assets/fridge.png" alt="fridge" onerror="this.style.display='none'"> fridge status</h3>
                             <a href="fridge.html" class="fridge-link">view all →</a>
                         </div>
                         <div class="stats-row">
@@ -1073,7 +1120,7 @@
                     </div>
                 </div>
                 
-                <!-- Profile Tab - No saved addresses, with profile picture upload -->
+                <!-- Profile Tab -->
                 <div class="tab-content" id="profileTab">
                     <!-- Profile Picture Upload Section -->
                     <div class="profile-picture-section">
@@ -1176,7 +1223,8 @@
             </div>
         </div>
         
-        <div class="bottom-nav">
+        <!-- CONSUMER BOTTOM NAVIGATION -->
+        <div class="bottom-nav-consumer">
             <div class="nav-item active" onclick="goToHome()">
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
@@ -1192,6 +1240,26 @@
             <div class="nav-item" onclick="goToProfile()">
                 <span class="nav-emoji">👤</span>
                 <span>profile</span>
+            </div>
+        </div>
+        
+        <!-- BUSINESS BOTTOM NAVIGATION - No deals button -->
+        <div class="bottom-nav-business">
+            <div class="nav-item active" onclick="goToHome()">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='advertise.html'">
+                <span class="nav-emoji">📢</span>
+                <span>post ad</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='business-profile.html?tab=orders'">
+                <span class="nav-emoji">📦</span>
+                <span>orders</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='business-profile.html?tab=profile'">
+                <span class="nav-emoji">⚙️</span>
+                <span>settings</span>
             </div>
         </div>
     </div>
