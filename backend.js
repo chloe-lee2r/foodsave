@@ -1,5 +1,6 @@
+
 // ===============================
-// BACK4APP CONFIGURATION
+// BACK4APP CLIENT CONFIGURATION
 // ===============================
 
 Parse.initialize(
@@ -8,19 +9,7 @@ Parse.initialize(
 );
 Parse.serverURL = "https://parseapi.back4app.com";
 
-const MASTER_KEY = "WxkZjSeBNKbHWyouy4fSew0hLoFnxyDztZtlvxrM";
-
-async function withMasterKey(fn) {
-    Parse.CoreManager.set('MASTER_KEY', MASTER_KEY);
-    try {
-        const result = await fn();
-        Parse.CoreManager.set('MASTER_KEY', null);
-        return result;
-    } catch (error) {
-        Parse.CoreManager.set('MASTER_KEY', null);
-        throw error;
-    }
-}
+// NO MASTER KEY IN CLIENT CODE - All sensitive operations go through Cloud Code
 
 const Backend = {
     // ========== USER AUTH ==========
@@ -69,7 +58,6 @@ const Backend = {
                 user.set("pendingWalletBalance", 0);
             } else if (role === "consumer") {
                 user.set("walletBalance", 0);
-                user.set("savedAddresses", []);
             }
             
             await user.signUp();
@@ -139,6 +127,11 @@ const Backend = {
                 localStorage.setItem("loggedInConsumer", username);
                 const walletBalance = user.get("walletBalance") || 0;
                 localStorage.setItem("walletBalance", walletBalance);
+                // Load profile picture
+                const profilePic = user.get("profilePicture") || null;
+                if (profilePic) {
+                    localStorage.setItem("profilePicture", profilePic);
+                }
             }
             
             return { success: true, role };
@@ -163,88 +156,294 @@ const Backend = {
         return Parse.User.current();
     },
 
-    // ========== VALIDATION FUNCTIONS ==========
+    // ========== CLOUD FUNCTION CALLS (No Master Key Needed) ==========
     
     async checkUsernameExists(username) {
         try {
-            return await withMasterKey(async () => {
-                const query = new Parse.Query(Parse.User);
-                query.equalTo("username", username);
-                const user = await query.first({ useMasterKey: true });
-                return { exists: !!user };
-            });
+            const result = await Parse.Cloud.run("checkUsernameExists", { username });
+            return result;
         } catch (error) {
+            console.error("checkUsernameExists error:", error);
             return { exists: false };
         }
     },
 
     async checkBusinessNameExists(businessName) {
         try {
-            return await withMasterKey(async () => {
-                const query = new Parse.Query(Parse.User);
-                query.equalTo("businessName", businessName);
-                const user = await query.first({ useMasterKey: true });
-                return { exists: !!user };
-            });
+            const result = await Parse.Cloud.run("checkBusinessNameExists", { businessName });
+            return result;
         } catch (error) {
+            console.error("checkBusinessNameExists error:", error);
             return { exists: false };
         }
     },
 
-    // ========== BUSINESS PROFILE ==========
-    
+    async createOrder(items, totalAmount) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            const result = await Parse.Cloud.run("createOrder", {
+                items: items,
+                totalAmount: totalAmount,
+                userId: currentUser.id
+            });
+            if (result.success) {
+                localStorage.removeItem('claimCart');
+            }
+            return result;
+        } catch (error) {
+            console.error("createOrder error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async addToWallet(userId, amount) {
+        try {
+            const result = await Parse.Cloud.run("addToWallet", { userId, amount });
+            if (result.success && userId === Parse.User.current()?.id) {
+                localStorage.setItem("walletBalance", result.newBalance);
+                // Update current user object
+                const currentUser = Parse.User.current();
+                if (currentUser) {
+                    currentUser.set("walletBalance", result.newBalance);
+                }
+            }
+            return result;
+        } catch (error) {
+            console.error("addToWallet error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getWalletBalance(userId) {
+        try {
+            const result = await Parse.Cloud.run("getWalletBalance", { userId });
+            return result.balance;
+        } catch (error) {
+            console.error("getWalletBalance error:", error);
+            return 0;
+        }
+    },
+
+    // ========== PROFILE PICTURE FUNCTIONS ==========
+
+    async uploadProfilePicture(userId, imageBase64) {
+        try {
+            const result = await Parse.Cloud.run("uploadProfilePicture", { userId, imageBase64 });
+            if (result.success) {
+                localStorage.setItem("profilePicture", imageBase64);
+                // Update current user object
+                const currentUser = Parse.User.current();
+                if (currentUser) {
+                    currentUser.set("profilePicture", imageBase64);
+                }
+            }
+            return result;
+        } catch (error) {
+            console.error("uploadProfilePicture error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getProfilePicture(userId) {
+        try {
+            const result = await Parse.Cloud.run("getProfilePicture", { userId });
+            return result.profilePicture;
+        } catch (error) {
+            console.error("getProfilePicture error:", error);
+            return null;
+        }
+    },
+
+    // ========== ADVERTISEMENT FUNCTIONS ==========
+
+    async createAd(adData) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            return await Parse.Cloud.run("createAd", {
+                adData: adData,
+                businessId: currentUser.id
+            });
+        } catch (error) {
+            console.error("createAd error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getActiveAds(options = {}) {
+        try {
+            return await Parse.Cloud.run("getActiveAds", {
+                category: options.category,
+                search: options.search,
+                limit: options.limit
+            });
+        } catch (error) {
+            console.error("getActiveAds error:", error);
+            return [];
+        }
+    },
+
+    async getShopAds(businessId) {
+        try {
+            if (!businessId) {
+                const currentUser = Parse.User.current();
+                businessId = currentUser?.id;
+            }
+            if (!businessId) return [];
+            return await Parse.Cloud.run("getShopAds", { businessId });
+        } catch (error) {
+            console.error("getShopAds error:", error);
+            return [];
+        }
+    },
+
+    async deleteAd(adId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            return await Parse.Cloud.run("deleteAd", {
+                adId: adId,
+                businessId: currentUser.id
+            });
+        } catch (error) {
+            console.error("deleteAd error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async updateAd(adId, updates) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            return await Parse.Cloud.run("updateAd", {
+                adId: adId,
+                businessId: currentUser.id,
+                updates: updates
+            });
+        } catch (error) {
+            console.error("updateAd error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    // ========== FRIDGE FUNCTIONS ==========
+
+    async saveFridgeItems(items) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false };
+            return await Parse.Cloud.run("saveFridgeItems", {
+                userId: currentUser.id,
+                items: items
+            });
+        } catch (error) {
+            console.error("saveFridgeItems error:", error);
+            return { success: false };
+        }
+    },
+
+    async loadFridgeItems() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return [];
+            return await Parse.Cloud.run("loadFridgeItems", { userId: currentUser.id });
+        } catch (error) {
+            console.error("loadFridgeItems error:", error);
+            return [];
+        }
+    },
+
+    // ========== SHOPPING LIST FUNCTIONS ==========
+
+    async saveShoppingLists(lists) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false };
+            return await Parse.Cloud.run("saveShoppingLists", {
+                userId: currentUser.id,
+                lists: lists
+            });
+        } catch (error) {
+            console.error("saveShoppingLists error:", error);
+            return { success: false };
+        }
+    },
+
+    async loadShoppingLists() {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return null;
+            return await Parse.Cloud.run("loadShoppingLists", { userId: currentUser.id });
+        } catch (error) {
+            console.error("loadShoppingLists error:", error);
+            return null;
+        }
+    },
+
+    // ========== ORDER FUNCTIONS ==========
+
+    async getConsumerOrders(consumerId) {
+        try {
+            return await Parse.Cloud.run("getConsumerOrders", { consumerId });
+        } catch (error) {
+            console.error("getConsumerOrders error:", error);
+            return [];
+        }
+    },
+
+    async confirmCollectedByCustomer(orderId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) {
+                return { success: false, message: "Please login first" };
+            }
+            return await Parse.Cloud.run("confirmCollectedByCustomer", {
+                orderId: orderId,
+                consumerId: currentUser.id
+            });
+        } catch (error) {
+            console.error("confirmCollectedByCustomer error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    // ========== BUSINESS FUNCTIONS ==========
+
     async getBusinessProfile() {
         try {
             const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            return await withMasterKey(async () => ({
-                id: currentUser.id,
-                username: currentUser.get("username"),
-                businessName: currentUser.get("businessName"),
-                businessPhone: currentUser.get("businessPhone"),
-                businessEmail: currentUser.get("businessEmail"),
-                businessAddress: currentUser.get("businessAddress"),
-                businessLat: currentUser.get("businessLat"),
-                businessLng: currentUser.get("businessLng"),
-                businessOpen: currentUser.get("businessOpen"),
-                businessClose: currentUser.get("businessClose"),
-                businessType: currentUser.get("businessType"),
-                businessTaxId: currentUser.get("businessTaxId"),
-                businessVerified: currentUser.get("businessVerified"),
-                businessRole: currentUser.get("businessRole"),
-                businessStaff: currentUser.get("businessStaff") || [],
-                businessWalletBalance: currentUser.get("businessWalletBalance") || 0,
-                pendingWalletBalance: currentUser.get("pendingWalletBalance") || 0,
-                createdAt: currentUser.get("createdAt")
-            }));
+            if (!currentUser) return null;
+            return await Parse.Cloud.run("getBusinessProfile", { businessId: currentUser.id });
         } catch (error) {
-            return { success: false, message: error.message };
+            console.error("getBusinessProfile error:", error);
+            return null;
         }
     },
 
-    async updateBusinessProfile(updates) {
+    async getOrdersForBusiness(businessId) {
         try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            const userRole = currentUser.get("businessRole");
-            if (userRole !== "owner" && userRole !== "manager") {
-                return { success: false, message: "Only owners and managers can edit business profile" };
+            if (!businessId) {
+                const currentUser = Parse.User.current();
+                businessId = currentUser?.id;
             }
-            return await withMasterKey(async () => {
-                Object.keys(updates).forEach(key => {
-                    if (key.startsWith('business')) {
-                        currentUser.set(key, updates[key]);
-                    }
-                });
-                await currentUser.save();
-                return { success: true };
-            });
+            if (!businessId) return [];
+            return await Parse.Cloud.run("getOrdersForBusiness", { businessId });
         } catch (error) {
-            return { success: false, message: error.message };
+            console.error("getOrdersForBusiness error:", error);
+            return [];
         }
     },
 
-    // ========== STAFF MANAGEMENT ==========
+    // ========== BUSINESS STAFF MANAGEMENT ==========
     
     async addStaffMember(staffUsername, staffRole = "staff") {
         try {
@@ -253,28 +452,28 @@ const Backend = {
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can add staff members" };
             }
-            return await withMasterKey(async () => {
-                const query = new Parse.Query(Parse.User);
-                query.equalTo("username", staffUsername);
-                const staffUser = await query.first();
-                if (!staffUser) return { success: false, message: "User not found" };
-                if (staffUser.get("role") !== "advertiser") {
-                    return { success: false, message: "User must be an advertiser" };
-                }
-                const staffList = currentUser.get("businessStaff") || [];
-                if (staffList.includes(staffUser.id)) {
-                    return { success: false, message: "Staff member already added" };
-                }
-                staffList.push(staffUser.id);
-                currentUser.set("businessStaff", staffList);
-                await currentUser.save();
-                staffUser.set("businessRole", staffRole);
-                staffUser.set("businessName", currentUser.get("businessName"));
-                staffUser.set("businessId", currentUser.id);
-                await staffUser.save();
-                return { success: true, message: "Staff member added" };
-            });
+            
+            const query = new Parse.Query(Parse.User);
+            query.equalTo("username", staffUsername);
+            const staffUser = await query.first();
+            if (!staffUser) return { success: false, message: "User not found" };
+            if (staffUser.get("role") !== "advertiser") {
+                return { success: false, message: "User must be an advertiser" };
+            }
+            const staffList = currentUser.get("businessStaff") || [];
+            if (staffList.includes(staffUser.id)) {
+                return { success: false, message: "Staff member already added" };
+            }
+            staffList.push(staffUser.id);
+            currentUser.set("businessStaff", staffList);
+            await currentUser.save();
+            staffUser.set("businessRole", staffRole);
+            staffUser.set("businessName", currentUser.get("businessName"));
+            staffUser.set("businessId", currentUser.id);
+            await staffUser.save();
+            return { success: true, message: "Staff member added" };
         } catch (error) {
+            console.error("addStaffMember error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -286,18 +485,17 @@ const Backend = {
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can remove staff members" };
             }
-            return await withMasterKey(async () => {
-                const staffList = currentUser.get("businessStaff") || [];
-                currentUser.set("businessStaff", staffList.filter(id => id !== staffId));
-                await currentUser.save();
-                const staffUser = await new Parse.Query(Parse.User).get(staffId, { useMasterKey: true });
-                staffUser.unset("businessRole");
-                staffUser.unset("businessName");
-                staffUser.unset("businessId");
-                await staffUser.save();
-                return { success: true };
-            });
+            const staffList = currentUser.get("businessStaff") || [];
+            currentUser.set("businessStaff", staffList.filter(id => id !== staffId));
+            await currentUser.save();
+            const staffUser = await new Parse.Query(Parse.User).get(staffId);
+            staffUser.unset("businessRole");
+            staffUser.unset("businessName");
+            staffUser.unset("businessId");
+            await staffUser.save();
+            return { success: true };
         } catch (error) {
+            console.error("removeStaffMember error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -306,20 +504,19 @@ const Backend = {
         try {
             const currentUser = Parse.User.current();
             if (!currentUser) return [];
-            return await withMasterKey(async () => {
-                const staffIds = currentUser.get("businessStaff") || [];
-                if (staffIds.length === 0) return [];
-                const query = new Parse.Query(Parse.User);
-                query.containedIn("objectId", staffIds);
-                const staffUsers = await query.find();
-                return staffUsers.map(user => ({
-                    id: user.id,
-                    username: user.get("username"),
-                    role: user.get("businessRole"),
-                    email: user.get("email")
-                }));
-            });
+            const staffIds = currentUser.get("businessStaff") || [];
+            if (staffIds.length === 0) return [];
+            const query = new Parse.Query(Parse.User);
+            query.containedIn("objectId", staffIds);
+            const staffUsers = await query.find();
+            return staffUsers.map(user => ({
+                id: user.id,
+                username: user.get("username"),
+                role: user.get("businessRole"),
+                email: user.get("email")
+            }));
         } catch (error) {
+            console.error("getStaffList error:", error);
             return [];
         }
     },
@@ -333,13 +530,12 @@ const Backend = {
             if (currentUser.get("businessRole") !== "owner") {
                 return { success: false, message: "Only owners can submit verification" };
             }
-            return await withMasterKey(async () => {
-                currentUser.set("businessVerified", true);
-                await currentUser.save();
-                localStorage.setItem("businessVerified", "true");
-                return { success: true, message: "Business verified!" };
-            });
+            currentUser.set("businessVerified", true);
+            await currentUser.save();
+            localStorage.setItem("businessVerified", "true");
+            return { success: true, message: "Business verified!" };
         } catch (error) {
+            console.error("submitVerification error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -353,685 +549,8 @@ const Backend = {
                 verified: currentUser.get("businessVerified") || false
             };
         } catch (error) {
+            console.error("getVerificationStatus error:", error);
             return null;
-        }
-    },
-
-    // ========== ADVERTISEMENTS ==========
-    
-    async createAd(adData) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            if (!currentUser.get("businessVerified")) {
-                return { success: false, message: "Business must be verified to post ads" };
-            }
-
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const ad = new Ad();
-                ad.set("foodName", adData.foodName);
-                ad.set("discount", parseFloat(adData.discount));
-                ad.set("offerEnds", new Date(adData.offerEnds));
-                ad.set("batchExpiryDate", new Date(adData.batchExpiryDate));
-                ad.set("businessName", currentUser.get("businessName"));
-                ad.set("businessId", currentUser.id);
-                ad.set("description", adData.description || "");
-                ad.set("originalPrice", parseFloat(adData.originalPrice) || 0);
-                ad.set("category", adData.category || "other");
-                ad.set("active", true);
-                ad.set("views", 0);
-                ad.set("claimed", 0);
-                ad.set("batchNumber", adData.batchNumber || "");
-                ad.set("quantityLeft", parseInt(adData.quantityLeft) || 0);
-                ad.set("initialQuantity", parseInt(adData.quantityLeft) || 0);
-                
-                // Store product image if provided
-                if (adData.imageBase64) {
-                    ad.set("productImage", adData.imageBase64);
-                }
-                
-                await ad.save();
-                return { success: true, ad: ad, adId: ad.id };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
-
-    async getActiveAds(options = {}) {
-        try {
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                query.equalTo("active", true);
-                query.greaterThan("offerEnds", new Date());
-                query.greaterThan("quantityLeft", 0);
-                query.descending("createdAt");
-                
-                if (options.category && options.category !== 'all') {
-                    query.equalTo("category", options.category);
-                }
-                if (options.businessId) {
-                    query.equalTo("businessId", options.businessId);
-                }
-                if (options.search) {
-                    query.matches("foodName", new RegExp(options.search, "i"));
-                }
-                query.limit(options.limit || 100);
-                
-                const ads = await query.find();
-                return ads.map(ad => ({
-                    id: ad.id,
-                    foodName: ad.get("foodName"),
-                    discount: ad.get("discount"),
-                    offerEnds: ad.get("offerEnds"),
-                    batchExpiryDate: ad.get("batchExpiryDate"),
-                    businessName: ad.get("businessName"),
-                    shopName: ad.get("businessName"),
-                    description: ad.get("description"),
-                    originalPrice: ad.get("originalPrice"),
-                    category: ad.get("category"),
-                    views: ad.get("views"),
-                    claimed: ad.get("claimed"),
-                    batchNumber: ad.get("batchNumber"),
-                    quantityLeft: ad.get("quantityLeft"),
-                    productImage: ad.get("productImage") || null
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-
-    async getShopAds(businessId) {
-        try {
-            return await withMasterKey(async () => {
-                if (!businessId) {
-                    const currentUser = Parse.User.current();
-                    businessId = currentUser?.id;
-                }
-                if (!businessId) return [];
-                
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                query.equalTo("businessId", businessId);
-                query.descending("createdAt");
-                
-                const ads = await query.find();
-                return ads.map(ad => ({
-                    id: ad.id,
-                    foodName: ad.get("foodName"),
-                    discount: ad.get("discount"),
-                    offerEnds: ad.get("offerEnds"),
-                    batchExpiryDate: ad.get("batchExpiryDate"),
-                    businessName: ad.get("businessName"),
-                    active: ad.get("active"),
-                    views: ad.get("views"),
-                    claimed: ad.get("claimed"),
-                    batchNumber: ad.get("batchNumber"),
-                    quantityLeft: ad.get("quantityLeft"),
-                    productImage: ad.get("productImage") || null
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-
-    async getBusinessAds(businessId) {
-        return this.getShopAds(businessId);
-    },
-
-    async updateAd(adId, updates) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const ad = await new Parse.Query(Ad).get(adId);
-                if (ad.get("businessId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
-                }
-                Object.keys(updates).forEach(key => {
-                    if (key === 'offerEnds') {
-                        ad.set(key, new Date(updates[key]));
-                    } else if (key === 'batchExpiryDate') {
-                        ad.set(key, new Date(updates[key]));
-                    } else if (key === 'imageBase64') {
-                        ad.set("productImage", updates[key]);
-                    } else {
-                        ad.set(key, updates[key]);
-                    }
-                });
-                await ad.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
-
-    async deleteAd(adId) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const ad = await new Parse.Query(Ad).get(adId);
-                if (ad.get("businessId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
-                }
-                await ad.destroy();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
-
-    async incrementViews(adId) {
-        try {
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const ad = await new Parse.Query(Ad).get(adId);
-                ad.increment("views");
-                await ad.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-
-    // ========== ORDER SYSTEM ==========
-    
-    async createOrder(items, totalAmount) {
-        try {
-            console.log("=== foodsavvi createOrder START ===");
-            console.log("Items received:", items);
-            console.log("Total amount:", totalAmount);
-            
-            const currentUser = Parse.User.current();
-            if (!currentUser || currentUser.get("role") !== "consumer") {
-                return { success: false, message: "Please login as consumer" };
-            }
-
-            let orderItems = [];
-            if (Array.isArray(items)) {
-                orderItems = items;
-            } else if (items && typeof items === 'object') {
-                orderItems = [items];
-            }
-            
-            if (orderItems.length === 0) {
-                return { success: false, message: "No items in cart" };
-            }
-
-            console.log("Processing", orderItems.length, "items");
-
-            return await withMasterKey(async () => {
-                const userQuery = new Parse.Query(Parse.User);
-                const freshUser = await userQuery.get(currentUser.id, { useMasterKey: true });
-                
-                const walletBalance = freshUser.get("walletBalance") || 0;
-                console.log("Wallet balance:", walletBalance);
-                
-                if (walletBalance < totalAmount) {
-                    return { success: false, message: `Insufficient balance. Need $${totalAmount.toFixed(2)}` };
-                }
-
-                const verifiedItems = [];
-                
-                for (const item of orderItems) {
-                    console.log(`Verifying item: ${item.foodName} (ID: ${item.id})`);
-                    
-                    const Ad = Parse.Object.extend("Advertisement");
-                    const query = new Parse.Query(Ad);
-                    
-                    let ad;
-                    try {
-                        ad = await query.get(item.id, { useMasterKey: true });
-                        console.log(`Found ad by ID: ${ad.id}`);
-                    } catch (err) {
-                        console.log(`ID lookup failed, trying by name: ${item.foodName}`);
-                        const fallbackQuery = new Parse.Query(Ad);
-                        fallbackQuery.equalTo("foodName", item.foodName);
-                        fallbackQuery.equalTo("businessName", item.shopName);
-                        fallbackQuery.equalTo("active", true);
-                        ad = await fallbackQuery.first({ useMasterKey: true });
-                        if (ad) {
-                            console.log(`Found ad by name: ${ad.id}`);
-                        }
-                    }
-                    
-                    if (!ad) {
-                        return { success: false, message: `${item.foodName} is no longer available. Please remove it from cart.` };
-                    }
-                    
-                    if (!ad.get("active")) {
-                        return { success: false, message: `${item.foodName} is no longer available` };
-                    }
-                    
-                    const quantityLeft = ad.get("quantityLeft") || 0;
-                    if (quantityLeft < item.quantity) {
-                        return { success: false, message: `Only ${quantityLeft} of ${item.foodName} left` };
-                    }
-                    
-                    const originalPrice = ad.get("originalPrice") || 0;
-                    const discount = ad.get("discount") || 0;
-                    const discountedPrice = originalPrice * (1 - discount / 100);
-                    const itemTotal = discountedPrice * item.quantity;
-                    
-                    verifiedItems.push({
-                        ad,
-                        item,
-                        discountedPrice,
-                        businessId: ad.get("businessId"),
-                        businessName: ad.get("businessName"),
-                        originalPrice,
-                        discount,
-                        itemTotal
-                    });
-                }
-
-                if (verifiedItems.length === 0) {
-                    return { success: false, message: "No valid items in cart" };
-                }
-
-                const newBalance = walletBalance - totalAmount;
-                freshUser.set("walletBalance", newBalance);
-                await freshUser.save(null, { useMasterKey: true });
-                
-                if (Parse.User.current()) {
-                    Parse.User.current().set("walletBalance", newBalance);
-                }
-                localStorage.setItem("walletBalance", newBalance);
-                console.log(`Wallet deducted. New balance: $${newBalance.toFixed(2)}`);
-
-                const createdOrders = [];
-                
-                for (const verified of verifiedItems) {
-                    const { ad, item, discountedPrice, businessId, businessName, originalPrice, discount, itemTotal } = verified;
-                    
-                    console.log(`Creating order for: ${item.foodName}, quantity: ${item.quantity}`);
-                    
-                    const newQuantityLeft = ad.get("quantityLeft") - item.quantity;
-                    ad.set("quantityLeft", newQuantityLeft);
-                    ad.increment("claimed", item.quantity);
-                    if (newQuantityLeft === 0) {
-                        ad.set("active", false);
-                    }
-                    await ad.save(null, { useMasterKey: true });
-                    console.log(`Ad updated. Remaining: ${newQuantityLeft}`);
-                    
-                    const Order = Parse.Object.extend("Order");
-                    const order = new Order();
-                    order.set("adId", ad.id);
-                    order.set("businessId", businessId);
-                    order.set("businessName", businessName);
-                    order.set("consumerId", freshUser.id);
-                    order.set("consumerName", freshUser.get("username"));
-                    order.set("foodName", ad.get("foodName"));
-                    order.set("quantity", item.quantity);
-                    order.set("discount", discount);
-                    order.set("originalPrice", originalPrice);
-                    order.set("batchNumber", ad.get("batchNumber") || "");
-                    order.set("totalAmount", itemTotal);
-                    order.set("status", "pending");
-                    order.set("createdAt", new Date());
-                    await order.save(null, { useMasterKey: true });
-                    createdOrders.push(order);
-                    console.log(`Order created for ${item.foodName}: $${itemTotal.toFixed(2)}`);
-                    
-                    const businessUser = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
-                    const currentPending = businessUser.get("pendingWalletBalance") || 0;
-                    businessUser.set("pendingWalletBalance", currentPending + itemTotal);
-                    await businessUser.save(null, { useMasterKey: true });
-                    
-                    const Notification = Parse.Object.extend("Notification");
-                    const notification = new Notification();
-                    notification.set("businessId", businessId);
-                    notification.set("message", `🛒 New order! ${freshUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
-                    notification.set("read", false);
-                    notification.set("createdAt", new Date());
-                    await notification.save(null, { useMasterKey: true });
-                }
-                
-                localStorage.removeItem('claimCart');
-                
-                console.log(`Successfully created ${createdOrders.length} orders`);
-                
-                return { 
-                    success: true, 
-                    message: `Order placed successfully! ${createdOrders.length} item(s) purchased.`,
-                    orders: createdOrders,
-                    newBalance: newBalance,
-                    totalPaid: totalAmount
-                };
-            });
-            
-        } catch (error) {
-            console.error("Create order error:", error);
-            return { success: false, message: error.message || "Checkout failed. Please try again." };
-        }
-    },
-    
-    async sendNotification(businessId, message) {
-        try {
-            return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const notification = new Notification();
-                notification.set("businessId", businessId);
-                notification.set("message", message);
-                notification.set("read", false);
-                notification.set("createdAt", new Date());
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
-    async getNotifications(businessId) {
-        try {
-            return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const query = new Parse.Query(Notification);
-                query.equalTo("businessId", businessId);
-                query.descending("createdAt");
-                const notifications = await query.find();
-                return notifications.map(n => ({
-                    id: n.id,
-                    message: n.get("message"),
-                    read: n.get("read"),
-                    createdAt: n.get("createdAt")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async markNotificationRead(notificationId) {
-        try {
-            return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const notification = await new Parse.Query(Notification).get(notificationId);
-                notification.set("read", true);
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
-    async getOrdersForBusiness(businessId) {
-        try {
-            return await withMasterKey(async () => {
-                if (!businessId) {
-                    const currentUser = Parse.User.current();
-                    businessId = currentUser?.id;
-                }
-                if (!businessId) return [];
-                
-                const Order = Parse.Object.extend("Order");
-                const query = new Parse.Query(Order);
-                query.equalTo("businessId", businessId);
-                query.descending("createdAt");
-                const orders = await query.find();
-                return orders.map(o => ({
-                    id: o.id,
-                    consumerName: o.get("consumerName"),
-                    consumerId: o.get("consumerId"),
-                    foodName: o.get("foodName"),
-                    quantity: o.get("quantity"),
-                    discount: o.get("discount"),
-                    batchNumber: o.get("batchNumber"),
-                    totalAmount: o.get("totalAmount"),
-                    status: o.get("status"),
-                    createdAt: o.get("createdAt")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async getConsumerOrders(consumerId) {
-        try {
-            return await withMasterKey(async () => {
-                const Order = Parse.Object.extend("Order");
-                const query = new Parse.Query(Order);
-                query.equalTo("consumerId", consumerId);
-                query.descending("createdAt");
-                const orders = await query.find();
-                return orders.map(o => ({
-                    id: o.id,
-                    businessName: o.get("businessName"),
-                    foodName: o.get("foodName"),
-                    quantity: o.get("quantity"),
-                    totalAmount: o.get("totalAmount"),
-                    status: o.get("status"),
-                    createdAt: o.get("createdAt")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async confirmOrderByBusiness(orderId) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false, message: "Please login first" };
-            
-            return await withMasterKey(async () => {
-                const Order = Parse.Object.extend("Order");
-                const query = new Parse.Query(Order);
-                const order = await query.get(orderId);
-                
-                if (!order) {
-                    return { success: false, message: "Order not found" };
-                }
-                
-                if (order.get("businessId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized" };
-                }
-                
-                if (order.get("status") !== "pending") {
-                    return { success: false, message: "Order already processed" };
-                }
-                
-                order.set("status", "confirmed_by_business");
-                await order.save();
-                
-                await this.sendNotificationToConsumer(order.get("consumerId"),
-                    `✅ Your order "${order.get("foodName")}" is ready for pickup!`);
-                
-                return { success: true, message: "Order confirmed! Customer notified." };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
-    
-    async confirmCollectedByCustomer(orderId) {
-        try {
-            console.log("confirmCollectedByCustomer called with orderId:", orderId);
-            
-            const currentUser = Parse.User.current();
-            if (!currentUser) {
-                return { success: false, message: "Please login first" };
-            }
-            
-            if (currentUser.get("role") !== "consumer") {
-                return { success: false, message: "Only consumers can confirm pickup" };
-            }
-            
-            return await withMasterKey(async () => {
-                const Order = Parse.Object.extend("Order");
-                const orderQuery = new Parse.Query(Order);
-                const order = await orderQuery.get(orderId);
-                
-                if (!order) {
-                    console.error("Order not found:", orderId);
-                    return { success: false, message: "Order not found" };
-                }
-                
-                if (order.get("consumerId") !== currentUser.id) {
-                    return { success: false, message: "Unauthorized - This is not your order" };
-                }
-                
-                if (order.get("status") !== "confirmed_by_business") {
-                    return { success: false, message: "Order must be confirmed by business first" };
-                }
-                
-                const businessUserQuery = new Parse.Query(Parse.User);
-                const businessUser = await businessUserQuery.get(order.get("businessId"), { useMasterKey: true });
-                
-                if (!businessUser) {
-                    return { success: false, message: "Business not found" };
-                }
-                
-                const pendingBalance = businessUser.get("pendingWalletBalance") || 0;
-                const currentBalance = businessUser.get("businessWalletBalance") || 0;
-                const orderAmount = order.get("totalAmount") || 0;
-                
-                order.set("status", "collected_by_customer");
-                await order.save(null, { useMasterKey: true });
-                
-                businessUser.set("pendingWalletBalance", pendingBalance - orderAmount);
-                businessUser.set("businessWalletBalance", currentBalance + orderAmount);
-                await businessUser.save(null, { useMasterKey: true });
-                
-                await this.sendNotification(order.get("businessId"),
-                    `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
-                
-                return { success: true, message: "Pickup confirmed! Payment released to business." };
-            });
-        } catch (error) {
-            console.error("Confirm collected error:", error);
-            return { success: false, message: error.message || "Failed to confirm pickup" };
-        }
-    },
-    
-    async sendNotificationToConsumer(consumerId, message) {
-        try {
-            return await withMasterKey(async () => {
-                const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
-                const notification = new ConsumerNotification();
-                notification.set("consumerId", consumerId);
-                notification.set("message", message);
-                notification.set("read", false);
-                notification.set("createdAt", new Date());
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
-    async getConsumerNotifications(consumerId) {
-        try {
-            return await withMasterKey(async () => {
-                const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
-                const query = new Parse.Query(ConsumerNotification);
-                query.equalTo("consumerId", consumerId);
-                query.descending("createdAt");
-                const notifications = await query.find();
-                return notifications.map(n => ({
-                    id: n.id,
-                    message: n.get("message"),
-                    read: n.get("read"),
-                    createdAt: n.get("createdAt")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
-    async markConsumerNotificationRead(notificationId) {
-        try {
-            return await withMasterKey(async () => {
-                const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
-                const notification = await new Parse.Query(ConsumerNotification).get(notificationId);
-                notification.set("read", true);
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-
-    // ========== WALLET METHODS ==========
-    
-    async getWalletBalance(userId) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                return user.get("walletBalance") || 0;
-            });
-        } catch (error) {
-            return 0;
-        }
-    },
-    
-    async addToWallet(userId, amount) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                const currentBalance = user.get("walletBalance") || 0;
-                user.set("walletBalance", currentBalance + amount);
-                await user.save(null, { useMasterKey: true });
-                if (userId === Parse.User.current()?.id) {
-                    Parse.User.current().set("walletBalance", currentBalance + amount);
-                    localStorage.setItem("walletBalance", currentBalance + amount);
-                }
-                return { success: true, newBalance: currentBalance + amount };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
-    
-    async getBusinessWalletBalance(businessId) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
-                return {
-                    available: user.get("businessWalletBalance") || 0,
-                    pending: user.get("pendingWalletBalance") || 0,
-                    total: (user.get("businessWalletBalance") || 0) + (user.get("pendingWalletBalance") || 0)
-                };
-            });
-        } catch (error) {
-            return { available: 0, pending: 0, total: 0 };
-        }
-    },
-    
-    async requestWithdrawal(businessId, amount) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(businessId, { useMasterKey: true });
-                const availableBalance = user.get("businessWalletBalance") || 0;
-                if (amount < 5) {
-                    return { success: false, message: "Minimum withdrawal amount is $5" };
-                }
-                if (availableBalance < amount) {
-                    return { success: false, message: `Insufficient balance. Available: $${availableBalance.toFixed(2)}` };
-                }
-                user.set("businessWalletBalance", availableBalance - amount);
-                await user.save(null, { useMasterKey: true });
-                return { success: true, message: `Withdrawal request submitted for $${amount.toFixed(2)}` };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
         }
     },
 
@@ -1039,45 +558,20 @@ const Backend = {
     
     async getConsumerProfile(consumerId) {
         try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(consumerId, { useMasterKey: true });
-                return {
-                    id: user.id,
-                    username: user.get("username"),
-                    email: user.get("email"),
-                    walletBalance: user.get("walletBalance") || 0,
-                    savedAddresses: user.get("savedAddresses") || [],
-                    createdAt: user.get("createdAt")
-                };
-            });
+            const user = await new Parse.Query(Parse.User).get(consumerId);
+            return {
+                id: user.id,
+                username: user.get("username"),
+                email: user.get("email"),
+                walletBalance: user.get("walletBalance") || 0,
+                createdAt: user.get("createdAt"),
+                profilePicture: user.get("profilePicture") || null,
+                phone: user.get("phone") || null,
+                fullName: user.get("fullName") || user.get("username")
+            };
         } catch (error) {
+            console.error("getConsumerProfile error:", error);
             return null;
-        }
-    },
-    
-    async saveAddress(userId, address) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                const addresses = user.get("savedAddresses") || [];
-                addresses.push({ id: Date.now(), ...address });
-                user.set("savedAddresses", addresses);
-                await user.save(null, { useMasterKey: true });
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
-    async getSavedAddresses(userId) {
-        try {
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                return user.get("savedAddresses") || [];
-            });
-        } catch (error) {
-            return [];
         }
     },
     
@@ -1087,15 +581,49 @@ const Backend = {
             if (!currentUser || currentUser.id !== userId) {
                 return { success: false, message: "Unauthorized" };
             }
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                if (updates.email) user.set("email", updates.email);
-                if (updates.phone) user.set("phone", updates.phone);
-                if (updates.fullName) user.set("fullName", updates.fullName);
-                await user.save(null, { useMasterKey: true });
-                return { success: true };
-            });
+            const user = await new Parse.Query(Parse.User).get(userId);
+            if (updates.email) user.set("email", updates.email);
+            if (updates.phone) user.set("phone", updates.phone);
+            if (updates.fullName) user.set("fullName", updates.fullName);
+            await user.save();
+            return { success: true };
         } catch (error) {
+            console.error("updateConsumerProfile error:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    // ========== BUSINESS WALLET ==========
+    
+    async getBusinessWalletBalance(businessId) {
+        try {
+            const user = await new Parse.Query(Parse.User).get(businessId);
+            return {
+                available: user.get("businessWalletBalance") || 0,
+                pending: user.get("pendingWalletBalance") || 0,
+                total: (user.get("businessWalletBalance") || 0) + (user.get("pendingWalletBalance") || 0)
+            };
+        } catch (error) {
+            console.error("getBusinessWalletBalance error:", error);
+            return { available: 0, pending: 0, total: 0 };
+        }
+    },
+    
+    async requestWithdrawal(businessId, amount) {
+        try {
+            const user = await new Parse.Query(Parse.User).get(businessId);
+            const availableBalance = user.get("businessWalletBalance") || 0;
+            if (amount < 5) {
+                return { success: false, message: "Minimum withdrawal amount is $5" };
+            }
+            if (availableBalance < amount) {
+                return { success: false, message: `Insufficient balance. Available: $${availableBalance.toFixed(2)}` };
+            }
+            user.set("businessWalletBalance", availableBalance - amount);
+            await user.save();
+            return { success: true, message: `Withdrawal request submitted for $${amount.toFixed(2)}` };
+        } catch (error) {
+            console.error("requestWithdrawal error:", error);
             return { success: false, message: error.message };
         }
     },
@@ -1104,133 +632,43 @@ const Backend = {
     
     async getBusinessRevenue(businessId) {
         try {
-            return await withMasterKey(async () => {
-                const Order = Parse.Object.extend("Order");
-                const query = new Parse.Query(Order);
-                query.equalTo("businessId", businessId);
-                query.equalTo("status", "collected_by_customer");
-                const orders = await query.find();
-                let totalRevenue = 0;
-                for (const order of orders) {
-                    totalRevenue += order.get("totalAmount") || 0;
-                }
-                return { totalRevenue: totalRevenue, totalOrders: orders.length };
-            });
+            const Order = Parse.Object.extend("Order");
+            const query = new Parse.Query(Order);
+            query.equalTo("businessId", businessId);
+            query.equalTo("status", "collected_by_customer");
+            const orders = await query.find();
+            let totalRevenue = 0;
+            for (const order of orders) {
+                totalRevenue += order.get("totalAmount") || 0;
+            }
+            return { totalRevenue: totalRevenue, totalOrders: orders.length };
         } catch (error) {
+            console.error("getBusinessRevenue error:", error);
             return null;
         }
     },
 
     async getNearExpiryStats(businessId) {
         try {
-            return await withMasterKey(async () => {
-                const Ad = Parse.Object.extend("Advertisement");
-                const query = new Parse.Query(Ad);
-                query.equalTo("businessId", businessId);
-                query.greaterThan("offerEnds", new Date());
-                const ads = await query.find();
-                const expiringSoon = ads.filter(ad => {
-                    const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
-                    return daysLeft <= 3 && daysLeft > 0;
-                });
-                const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
-                const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
-                return {
-                    totalActiveOffers: ads.length,
-                    expiringSoonCount: expiringSoon.length,
-                    lowStockCount: lowStock.length,
-                    totalItemsLeft: totalItems
-                };
+            const Ad = Parse.Object.extend("Advertisement");
+            const query = new Parse.Query(Ad);
+            query.equalTo("businessId", businessId);
+            query.greaterThan("offerEnds", new Date());
+            const ads = await query.find();
+            const expiringSoon = ads.filter(ad => {
+                const daysLeft = Math.ceil((ad.get("offerEnds") - new Date()) / (1000 * 60 * 60 * 24));
+                return daysLeft <= 3 && daysLeft > 0;
             });
+            const lowStock = ads.filter(ad => ad.get("quantityLeft") <= 5 && ad.get("quantityLeft") > 0);
+            const totalItems = ads.reduce((sum, ad) => sum + (ad.get("quantityLeft") || 0), 0);
+            return {
+                totalActiveOffers: ads.length,
+                expiringSoonCount: expiringSoon.length,
+                lowStockCount: lowStock.length,
+                totalItemsLeft: totalItems
+            };
         } catch (error) {
-            return null;
-        }
-    },
-
-    // ========== FRIDGE FUNCTIONS ==========
-    
-    async saveFridgeItems(items) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false };
-            return await withMasterKey(async () => {
-                const Fridge = Parse.Object.extend("Fridge");
-                const query = new Parse.Query(Fridge);
-                query.equalTo("userId", currentUser.id);
-                const oldItems = await query.find();
-                await Parse.Object.destroyAll(oldItems);
-                const newItems = items.map(item => {
-                    const fridgeItem = new Fridge();
-                    fridgeItem.set("userId", currentUser.id);
-                    fridgeItem.set("name", item.name);
-                    fridgeItem.set("expiryDate", new Date(item.expiry));
-                    fridgeItem.set("category", item.category || "other");
-                    return fridgeItem;
-                });
-                await Parse.Object.saveAll(newItems);
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-
-    async loadFridgeItems() {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return [];
-            return await withMasterKey(async () => {
-                const Fridge = Parse.Object.extend("Fridge");
-                const query = new Parse.Query(Fridge);
-                query.equalTo("userId", currentUser.id);
-                const items = await query.find();
-                return items.map(item => ({
-                    name: item.get("name"),
-                    expiry: item.get("expiryDate").toISOString().split('T')[0],
-                    category: item.get("category")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-
-    // ========== SHOPPING LIST ==========
-    
-    async saveShoppingLists(lists) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false };
-            return await withMasterKey(async () => {
-                const ShoppingLists = Parse.Object.extend("ShoppingLists");
-                const query = new Parse.Query(ShoppingLists);
-                query.equalTo("userId", currentUser.id);
-                const oldLists = await query.find();
-                await Parse.Object.destroyAll(oldLists);
-                const newLists = new ShoppingLists();
-                newLists.set("userId", currentUser.id);
-                newLists.set("lists", JSON.stringify(lists));
-                newLists.set("lastUpdated", new Date());
-                await newLists.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-
-    async loadShoppingLists() {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return null;
-            return await withMasterKey(async () => {
-                const ShoppingLists = Parse.Object.extend("ShoppingLists");
-                const query = new Parse.Query(ShoppingLists);
-                query.equalTo("userId", currentUser.id);
-                const result = await query.first();
-                return result ? JSON.parse(result.get("lists")) : null;
-            });
-        } catch (error) {
+            console.error("getNearExpiryStats error:", error);
             return null;
         }
     },
@@ -1247,6 +685,7 @@ const Backend = {
             if (localFridge) await this.saveFridgeItems(JSON.parse(localFridge));
             return { success: true };
         } catch (error) {
+            console.error("syncAll error:", error);
             return { success: false };
         }
     },
@@ -1259,6 +698,7 @@ const Backend = {
             if (cloudFridge.length > 0) localStorage.setItem("foodItems", JSON.stringify(cloudFridge));
             return { success: true };
         } catch (error) {
+            console.error("loadAll error:", error);
             return { success: false };
         }
     },
@@ -1272,14 +712,12 @@ const Backend = {
 
     async testConnection() {
         try {
-            return await withMasterKey(async () => {
-                const TestObject = Parse.Object.extend("TestConnection");
-                const testObj = new TestObject();
-                testObj.set("test", "Hello from foodsavvi at " + new Date().toISOString());
-                await testObj.save();
-                console.log("✅ foodsavvi cloud connected");
-                return { success: true };
-            });
+            const TestObject = Parse.Object.extend("TestConnection");
+            const testObj = new TestObject();
+            testObj.set("test", "Hello from foodsavvi at " + new Date().toISOString());
+            await testObj.save();
+            console.log("✅ foodsavvi cloud connected");
+            return { success: true };
         } catch (error) {
             console.error("❌ foodsavvi cloud error:", error);
             return { success: false, error };
