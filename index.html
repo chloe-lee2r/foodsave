@@ -85,6 +85,14 @@
             justify-content: center;
             font-size: 24px;
             cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .user-info {
@@ -332,6 +340,50 @@
             cursor: pointer;
         }
         
+        /* Profile Picture Upload */
+        .profile-picture-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            background: #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-picture .placeholder {
+            font-size: 48px;
+        }
+        
+        .change-pic-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
         /* Order History */
         .order-item {
             background: #f8f9fa;
@@ -398,21 +450,6 @@
             cursor: pointer;
             margin-top: 8px;
             width: 100%;
-        }
-        
-        /* Addresses */
-        .address-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .address-text {
-            font-size: 14px;
         }
         
         /* Hot Deals Section */
@@ -494,7 +531,7 @@
             color: #ff3b30;
         }
         
-        /* Fridge Summary with Color Indicators */
+        /* Fridge Summary with Fridge Image */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -506,11 +543,20 @@
         .fridge-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
         
         .fridge-header h3 {
             font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .fridge-header h3 img {
+            width: 24px;
+            height: 24px;
         }
         
         .fridge-link {
@@ -530,6 +576,8 @@
             flex: 1;
             cursor: pointer;
             transition: transform 0.2s;
+            border-radius: 16px;
+            padding: 12px 0;
         }
         
         .stat-box:active {
@@ -549,9 +597,6 @@
         /* Color-coded stat boxes */
         .stat-box.good {
             background: rgba(52, 199, 89, 0.2);
-            border-radius: 16px;
-            padding: 12px 0;
-            margin: 0 4px;
         }
         
         .stat-box.good .stat-number {
@@ -560,9 +605,6 @@
         
         .stat-box.expiring {
             background: rgba(255, 149, 0, 0.2);
-            border-radius: 16px;
-            padding: 12px 0;
-            margin: 0 4px;
         }
         
         .stat-box.expiring .stat-number {
@@ -571,9 +613,6 @@
         
         .stat-box.expired {
             background: rgba(255, 59, 48, 0.2);
-            border-radius: 16px;
-            padding: 12px 0;
-            margin: 0 4px;
         }
         
         .stat-box.expired .stat-number {
@@ -770,6 +809,7 @@
             border-radius: 20px;
         }
         
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -1012,7 +1052,7 @@
                     </div>
                     <div class="fridge-summary" id="fridgeSummary">
                         <div class="fridge-header">
-                            <h3>fridge status</h3>
+                            <h3><img src="assets/fridge.png" alt="fridge" onerror="this.style.display='none'; this.nextSibling.style.display='inline';"> 🧊 fridge status</h3>
                             <a href="fridge.html" class="fridge-link">view all →</a>
                         </div>
                         <div class="stats-row">
@@ -1033,8 +1073,18 @@
                     </div>
                 </div>
                 
-                <!-- Profile Tab -->
+                <!-- Profile Tab - No saved addresses, with profile picture upload -->
                 <div class="tab-content" id="profileTab">
+                    <!-- Profile Picture Upload Section -->
+                    <div class="profile-picture-section">
+                        <div class="profile-picture" id="profilePictureContainer" onclick="uploadProfilePicture()">
+                            <div class="placeholder" id="profilePicturePlaceholder">👤</div>
+                            <img id="profilePictureImg" style="display: none;">
+                        </div>
+                        <button class="change-pic-btn" onclick="uploadProfilePicture()">📸 Change Profile Picture</button>
+                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;" onchange="handleProfilePictureUpload(event)">
+                    </div>
+                    
                     <div class="profile-info-card">
                         <div class="info-row">
                             <div class="info-label">Name</div>
@@ -1056,12 +1106,6 @@
                             <div class="info-value" id="memberSince">-</div>
                         </div>
                     </div>
-                    
-                    <div class="section-title">
-                        📍 saved addresses
-                        <span class="view-all" onclick="addAddress()">+ add</span>
-                    </div>
-                    <div id="addressesList"></div>
                 </div>
                 
                 <!-- Orders Tab -->
@@ -1076,7 +1120,7 @@
                 </div>
             </div>
             
-            <!-- ADVERTISER VIEW -->
+            <!-- ADVERTISER VIEW - No find deals button -->
             <div class="advertiser-only">
                 <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                     <div class="profile-header">
@@ -1176,20 +1220,6 @@
         </div>
     </div>
     
-    <!-- Address Modal -->
-    <div class="modal" id="addressModal">
-        <div class="modal-content">
-            <div class="modal-title">Add Address</div>
-            <input type="text" class="modal-input" id="addressLine" placeholder="Street address">
-            <input type="text" class="modal-input" id="addressCity" placeholder="City">
-            <input type="text" class="modal-input" id="addressPostal" placeholder="Postal code">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeAddressModal()">Cancel</button>
-                <button class="modal-btn confirm" onclick="saveAddress()">Save</button>
-            </div>
-        </div>
-    </div>
-    
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
@@ -1235,6 +1265,9 @@
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
             updateNavigation();
+            
+            // Load profile picture
+            loadProfilePicture();
             
             if (role === 'consumer') {
                 await refreshAll();
@@ -1295,15 +1328,68 @@
         });
         window.addEventListener('mouseup', () => { mouseDown = false; });
         
+        // Profile Picture Functions
+        function loadProfilePicture() {
+            const savedPic = localStorage.getItem('profilePicture');
+            const avatarDiv = document.getElementById('userAvatar');
+            const profileImg = document.getElementById('profilePictureImg');
+            const profilePlaceholder = document.getElementById('profilePicturePlaceholder');
+            
+            if (savedPic) {
+                avatarDiv.innerHTML = `<img src="${savedPic}" alt="Profile">`;
+                profileImg.src = savedPic;
+                profileImg.style.display = 'block';
+                profilePlaceholder.style.display = 'none';
+            } else {
+                avatarDiv.innerHTML = '👤';
+                profileImg.style.display = 'none';
+                profilePlaceholder.style.display = 'flex';
+            }
+        }
+        
+        function uploadProfilePicture() {
+            document.getElementById('profilePictureInput').click();
+        }
+        
+        async function handleProfilePictureUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('Image too large. Max 2MB.', 'error');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select an image file.', 'error');
+                return;
+            }
+            
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageBase64 = e.target.result;
+                const result = await Backend.uploadProfilePicture(currentUser.id, imageBase64);
+                
+                if (result.success) {
+                    loadProfilePicture();
+                    showNotification('Profile picture updated!', 'success');
+                } else {
+                    showNotification('Failed to update profile picture', 'error');
+                }
+                document.getElementById('loadingOverlay').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
         async function refreshAll() {
             await loadWalletBalance();
             await loadProfile();
             await loadOrders();
-            await loadAddresses();
             await loadFridgeData();
             await loadListCount();
             await loadDealsData();
-            // No notification - removed as requested
         }
         
         async function loadWalletBalance() {
@@ -1319,9 +1405,9 @@
             try {
                 const profile = await Backend.getConsumerProfile(currentUser.id);
                 if (profile) {
-                    document.getElementById('profileName').textContent = profile.username || currentUser.get('username');
+                    document.getElementById('profileName').textContent = profile.fullName || profile.username || currentUser.get('username');
                     document.getElementById('profileEmail').textContent = profile.email || currentUser.get('email') || 'Not set';
-                    document.getElementById('profilePhone').textContent = currentUser.get('phone') || 'Not set';
+                    document.getElementById('profilePhone').textContent = profile.phone || 'Not set';
                     document.getElementById('memberSince').textContent = new Date(profile.createdAt).toLocaleDateString();
                 }
             } catch (error) {
@@ -1416,24 +1502,6 @@
             }
         }
         
-        async function loadAddresses() {
-            const container = document.getElementById('addressesList');
-            try {
-                const addresses = await Backend.getSavedAddresses(currentUser.id);
-                if (addresses.length === 0) {
-                    container.innerHTML = '<div class="empty-state">📍 No saved addresses</div>';
-                    return;
-                }
-                container.innerHTML = addresses.map(addr => `
-                    <div class="address-item">
-                        <div class="address-text">${escapeHtml(addr.street)}, ${escapeHtml(addr.city)} ${escapeHtml(addr.postalCode)}</div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                container.innerHTML = '<div class="empty-state">Error loading addresses</div>';
-            }
-        }
-        
         function openTopUpModal() {
             document.getElementById('topUpModal').style.display = 'flex';
         }
@@ -1496,39 +1564,8 @@
             }
         }
         
-        function addAddress() {
-            document.getElementById('addressModal').style.display = 'flex';
-        }
-        
-        async function saveAddress() {
-            const address = {
-                street: document.getElementById('addressLine').value,
-                city: document.getElementById('addressCity').value,
-                postalCode: document.getElementById('addressPostal').value
-            };
-            if (!address.street || !address.city) {
-                showNotification('Please fill required fields', 'error');
-                return;
-            }
-            const result = await Backend.saveAddress(currentUser.id, address);
-            if (result.success) {
-                showNotification('Address saved', 'success');
-                await loadAddresses();
-                closeAddressModal();
-                document.getElementById('addressLine').value = '';
-                document.getElementById('addressCity').value = '';
-                document.getElementById('addressPostal').value = '';
-            } else {
-                showNotification('Failed to save address', 'error');
-            }
-        }
-        
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
-        }
-        
-        function closeAddressModal() {
-            document.getElementById('addressModal').style.display = 'none';
         }
         
         function switchConsumerTab(tab) {
@@ -1540,6 +1577,9 @@
             
             if (tab === 'orders') {
                 loadOrders();
+            } else if (tab === 'profile') {
+                loadProfile();
+                loadProfilePicture();
             }
         }
         
@@ -1577,10 +1617,8 @@
         
         async function loadFridgeData() {
             try {
-                // Load from backend first
                 let items = await Backend.loadFridgeItems();
                 if (!items || items.length === 0) {
-                    // Fallback to localStorage
                     items = JSON.parse(localStorage.getItem('foodItems')) || [];
                 }
                 
@@ -1598,7 +1636,6 @@
                         else if (diffDays <= 3) expiring++;
                         else good++;
                     } else {
-                        // No expiry date, treat as good
                         good++;
                     }
                 });
@@ -1619,7 +1656,6 @@
                 }
             } catch (error) {
                 console.error('Error loading fridge data:', error);
-                // Fallback to localStorage
                 const items = JSON.parse(localStorage.getItem('foodItems')) || [];
                 document.getElementById('fridgeCount').textContent = items.length + ' items';
             }
@@ -1742,15 +1778,14 @@
         window.editProfileField = editProfileField;
         window.saveProfileEdit = saveProfileEdit;
         window.closeEditModal = closeEditModal;
-        window.addAddress = addAddress;
-        window.saveAddress = saveAddress;
-        window.closeAddressModal = closeAddressModal;
         window.confirmPickup = confirmPickup;
         window.refreshAll = refreshAll;
         window.loadDealsData = loadDealsData;
         window.loadFridgeData = loadFridgeData;
         window.loadOrders = loadOrders;
         window.logout = logout;
+        window.uploadProfilePicture = uploadProfilePicture;
+        window.handleProfilePictureUpload = handleProfilePictureUpload;
     </script>
 </body>
 </html>
