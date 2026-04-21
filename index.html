@@ -222,6 +222,14 @@
             display: block;
         }
         
+        .advertiser-only {
+            display: none;
+        }
+        
+        body.advertiser .advertiser-only {
+            display: block;
+        }
+        
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -328,161 +336,6 @@
             cursor: pointer;
         }
         
-        /* Favorite Stores Section */
-        .favorite-stores-card {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        /* Dropdown for ALL stores from database */
-        .all-stores-dropdown {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: inherit;
-            background: white;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-        
-        .all-stores-dropdown:focus {
-            outline: none;
-            border-color: #007aff;
-        }
-        
-        .add-favorite-btn {
-            width: 100%;
-            background: #34c759;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        
-        .add-favorite-btn:active {
-            background: #2db14e;
-            transform: scale(0.98);
-        }
-        
-        .favorite-stores-list {
-            margin-top: 12px;
-        }
-        
-        .favorite-store-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #f0f0f0;
-            cursor: pointer;
-        }
-        
-        .favorite-store-item:active {
-            background: #f9f9f9;
-        }
-        
-        .store-info {
-            flex: 1;
-        }
-        
-        .store-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .store-location {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .remove-store-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #ff3b30;
-            padding: 4px 8px;
-        }
-        
-        /* Store Promos Section */
-        .store-promos {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid #f0f0f0;
-        }
-        
-        .store-promos h4 {
-            margin-bottom: 12px;
-            color: #1a1a1a;
-            font-size: 14px;
-        }
-        
-        .promo-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .promo-item:active {
-            background: #f0f2f5;
-            transform: scale(0.98);
-        }
-        
-        .promo-info {
-            flex: 1;
-        }
-        
-        .promo-name {
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        
-        .promo-discount {
-            color: #34c759;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .promo-expiry {
-            font-size: 11px;
-            color: #999;
-        }
-        
-        .empty-promos {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-        }
-        
-        .selected-store-header {
-            background: #007aff;
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-        
-        /* Order History */
         .order-item {
             background: #f8f9fa;
             border-radius: 12px;
@@ -608,19 +461,6 @@
             font-weight: 600;
         }
         
-        .deal-quantity {
-            font-size: 11px;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 10px;
-            color: #666;
-        }
-        
-        .deal-quantity.low {
-            background: #ffebee;
-            color: #ff3b30;
-        }
-        
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -688,12 +528,162 @@
             text-decoration: underline;
         }
         
-        .advertiser-only {
-            display: none;
+        /* Business Dashboard Cards */
+        .business-dashboard {
+            padding: 0;
         }
         
-        body.advertiser .advertiser-only {
+        .business-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 16px 8px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007aff;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .business-action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .business-action-btn {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1a1a1a;
+            border: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .business-action-btn:active {
+            transform: scale(0.98);
+            background: #f0f2f5;
+        }
+        
+        .business-action-emoji {
+            font-size: 28px;
+            margin-bottom: 8px;
             display: block;
+        }
+        
+        .business-action-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .business-action-desc {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .my-ads-list {
+            margin-top: 16px;
+        }
+        
+        .my-ad-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .my-ad-image {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            overflow: hidden;
+        }
+        
+        .my-ad-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .my-ad-details {
+            flex: 1;
+        }
+        
+        .my-ad-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .my-ad-meta {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .my-ad-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .status-active {
+            background: #e8f5e8;
+            color: #34c759;
+        }
+        
+        .status-expired {
+            background: #ffebee;
+            color: #ff3b30;
+        }
+        
+        .my-ad-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .my-ad-actions button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .edit-ad-btn {
+            color: #007aff;
+        }
+        
+        .delete-ad-btn {
+            color: #ff3b30;
         }
         
         .profile-card {
@@ -766,89 +756,6 @@
             font-size: 11px;
         }
         
-        .shop-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .shop-action {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: #1a1a1a;
-            border: 1px solid #f0f0f0;
-            border-radius: 16px;
-            transition: 0.2s;
-        }
-        
-        .shop-action:active {
-            transform: scale(0.98);
-        }
-        
-        .action-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        
-        .ads-list {
-            margin-bottom: 20px;
-        }
-        
-        .ad-item {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            border-left: 4px solid #34c759;
-        }
-        
-        .ad-item.expiring {
-            border-left-color: #ff9500;
-        }
-        
-        .ad-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .ad-food {
-            font-weight: 600;
-        }
-        
-        .ad-discount {
-            color: #34c759;
-            font-weight: 600;
-        }
-        
-        .ad-meta {
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .ad-batch {
-            font-size: 10px;
-            font-family: monospace;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        
-        .ad-quantity {
-            font-size: 11px;
-            color: #34c759;
-        }
-        
-        .ad-quantity.low {
-            color: #ff3b30;
-        }
-        
         .empty-state {
             text-align: center;
             padding: 30px;
@@ -867,6 +774,7 @@
             border-radius: 20px;
         }
         
+        /* Bottom Navigation - Role Based */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -899,6 +807,53 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+        }
+        
+        /* Consumer Bottom Nav */
+        body.consumer .bottom-nav-consumer {
+            display: flex;
+        }
+        
+        body.consumer .bottom-nav-business {
+            display: none;
+        }
+        
+        /* Business Bottom Nav */
+        body.advertiser .bottom-nav-consumer {
+            display: none;
+        }
+        
+        body.advertiser .bottom-nav-business {
+            display: flex;
+        }
+        
+        .bottom-nav-consumer, .bottom-nav-business {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            justify-content: space-around;
+        }
+        
+        .bottom-nav-consumer {
+            display: none;
+        }
+        
+        .bottom-nav-business {
+            display: none;
+        }
+        
+        body.consumer .bottom-nav-consumer {
+            display: flex;
+        }
+        
+        body.advertiser .bottom-nav-business {
+            display: flex;
         }
         
         .modal {
@@ -1031,15 +986,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .store-location-badge {
-            background: #e8ecf0;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: inline-block;
-            margin-top: 4px;
-        }
     </style>
 </head>
 <body>
@@ -1076,7 +1022,6 @@
                     <button class="tab" onclick="switchConsumerTab('orders')">📦 Orders</button>
                 </div>
                 
-                <!-- Home Tab -->
                 <div class="tab-content active" id="homeTab">
                     <div class="quick-actions">
                         <div class="action-card" onclick="window.location.href='shoplist.html'">
@@ -1138,7 +1083,6 @@
                     </div>
                 </div>
                 
-                <!-- Profile Tab - Favorite Stores -->
                 <div class="tab-content" id="profileTab">
                     <div class="profile-info-card">
                         <div class="info-row">
@@ -1161,37 +1105,8 @@
                             <div class="info-value" id="memberSince">-</div>
                         </div>
                     </div>
-                    
-                    <!-- FAVORITE STORES SECTION -->
-                    <div class="favorite-stores-card">
-                        <div class="section-title">
-                            ⭐ favorite stores
-                        </div>
-                        
-                        <!-- Dropdown with ALL stores from database -->
-                        <select class="all-stores-dropdown" id="allStoresDropdown">
-                            <option value="">-- Select a store to favorite --</option>
-                        </select>
-                        
-                        <button class="add-favorite-btn" onclick="addSelectedStoreToFavorites()">
-                            + Add Selected Store to Favorites
-                        </button>
-                        
-                        <!-- Selected Favorite Store Promos -->
-                        <div class="store-promos" id="storePromosContainer" style="display: none;">
-                            <div id="selectedStoreHeader" class="selected-store-header"></div>
-                            <h4>📦 promotions from this store</h4>
-                            <div id="storePromosList">
-                                <div class="empty-promos">select a favorite store to see their deals</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Favorite Stores List -->
-                        <div class="favorite-stores-list" id="favoriteStoresList"></div>
-                    </div>
                 </div>
                 
-                <!-- Orders Tab -->
                 <div class="tab-content" id="ordersTab">
                     <div class="section-title">
                         📦 my orders
@@ -1203,8 +1118,9 @@
                 </div>
             </div>
             
-            <!-- ADVERTISER VIEW -->
+            <!-- ADVERTISER/BUSINESS VIEW -->
             <div class="advertiser-only">
+                <!-- Business Profile Card -->
                 <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                     <div class="profile-header">
                         <div class="profile-avatar">🏪</div>
@@ -1230,37 +1146,59 @@
                     </div>
                 </div>
                 
-                <div class="shop-actions">
-                    <a href="advertise.html" class="shop-action">
-                        <div class="action-icon">📢</div>
-                        <div>post ad</div>
-                    </a>
-                    <a href="business-profile.html?tab=profile" class="shop-action">
-                        <div class="action-icon">⚙️</div>
-                        <div>settings</div>
-                    </a>
-                    <a href="business-profile.html?tab=orders" class="shop-action">
-                        <div class="action-icon">📦</div>
-                        <div>orders</div>
-                    </a>
-                    <a href="business-profile.html?tab=employees" class="shop-action">
-                        <div class="action-icon">👥</div>
-                        <div>staff</div>
-                    </a>
+                <!-- Business Stats Dashboard -->
+                <div class="business-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalActiveOffers">0</div>
+                        <div class="stat-label">active offers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalOrdersCount">0</div>
+                        <div class="stat-label">total orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRevenue">$0</div>
+                        <div class="stat-label">revenue</div>
+                    </div>
                 </div>
                 
-                <div class="section-title">
-                    your active deals
-                    <a href="advertise.html" class="view-all">manage →</a>
+                <!-- Business Action Buttons -->
+                <div class="business-action-buttons">
+                    <div class="business-action-btn" onclick="window.location.href='advertise.html'">
+                        <span class="business-action-emoji">📢</span>
+                        <div class="business-action-title">post new ad</div>
+                        <div class="business-action-desc">create a new deal</div>
+                    </div>
+                    <div class="business-action-btn" onclick="window.location.href='business-profile.html?tab=orders'">
+                        <span class="business-action-emoji">📦</span>
+                        <div class="business-action-title">manage orders</div>
+                        <div class="business-action-desc">view & confirm orders</div>
+                    </div>
+                    <div class="business-action-btn" onclick="window.location.href='business-profile.html?tab=analytics'">
+                        <span class="business-action-emoji">📊</span>
+                        <div class="business-action-title">analytics</div>
+                        <div class="business-action-desc">view performance</div>
+                    </div>
+                    <div class="business-action-btn" onclick="window.location.href='business-profile.html?tab=employees'">
+                        <span class="business-action-emoji">👥</span>
+                        <div class="business-action-title">staff</div>
+                        <div class="business-action-desc">manage employees</div>
+                    </div>
                 </div>
-                <div class="ads-list" id="shopAds">
+                
+                <!-- My Ads Section -->
+                <div class="section-title">
+                    📢 my active deals
+                    <a href="advertise.html" class="view-all">+ new ad</a>
+                </div>
+                <div class="my-ads-list" id="myAdsList">
                     <div class="empty-state">📢 no active ads</div>
                 </div>
             </div>
         </div>
         
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
+        <!-- CONSUMER BOTTOM NAVIGATION -->
+        <div class="bottom-nav-consumer">
             <div class="nav-item active" onclick="goToHome()">
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
@@ -1269,18 +1207,38 @@
                 <span class="nav-emoji">🔍</span>
                 <span>deals</span>
             </div>
-            <div class="nav-item" onclick="navigateToRolePage()">
-                <span class="nav-emoji" id="navIcon">🛒</span>
-                <span id="navLabel">lists</span>
+            <div class="nav-item" onclick="window.location.href='shoplist.html'">
+                <span class="nav-emoji">🛒</span>
+                <span>lists</span>
             </div>
             <div class="nav-item" onclick="goToProfile()">
                 <span class="nav-emoji">👤</span>
                 <span>profile</span>
             </div>
         </div>
+        
+        <!-- BUSINESS BOTTOM NAVIGATION -->
+        <div class="bottom-nav-business">
+            <div class="nav-item active" onclick="goToHome()">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='advertise.html'">
+                <span class="nav-emoji">📢</span>
+                <span>post ad</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='business-profile.html?tab=orders'">
+                <span class="nav-emoji">📦</span>
+                <span>orders</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='business-profile.html?tab=profile'">
+                <span class="nav-emoji">⚙️</span>
+                <span>settings</span>
+            </div>
+        </div>
     </div>
     
-    <!-- Top Up Modal -->
+    <!-- Modals -->
     <div class="modal" id="topUpModal">
         <div class="modal-content">
             <div class="modal-title">💳 Add Funds</div>
@@ -1292,7 +1250,6 @@
         </div>
     </div>
     
-    <!-- Edit Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Edit</div>
@@ -1321,9 +1278,6 @@
         let walletBalance = 0;
         let editField = '';
         let notificationTimeout = null;
-        let favoriteStores = [];
-        let allStores = [];
-        let allAds = [];
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
@@ -1351,175 +1305,12 @@
             document.getElementById('currentDate').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             
-            updateNavigation();
-            
-            // Load favorite stores from localStorage
-            loadFavoriteStores();
-            
             if (role === 'consumer') {
                 await refreshAll();
-                await loadAllStoresAndAds();
             } else {
-                loadAdvertiserData();
+                await loadBusinessDashboard();
             }
         });
-        
-        // Load all unique stores from ads and load all ads
-        async function loadAllStoresAndAds() {
-            try {
-                allAds = await Backend.getActiveAds({ limit: 500 });
-                
-                // Extract unique store names from ads
-                const storeMap = new Map();
-                allAds.forEach(ad => {
-                    if (ad.shopName && !storeMap.has(ad.shopName)) {
-                        storeMap.set(ad.shopName, {
-                            name: ad.shopName,
-                            location: ad.businessAddress || 'Address not specified'
-                        });
-                    }
-                });
-                
-                allStores = Array.from(storeMap.values());
-                updateAllStoresDropdown();
-            } catch (error) {
-                console.error('Error loading stores:', error);
-                allStores = [];
-            }
-        }
-        
-        // Update the dropdown with all stores from database
-        function updateAllStoresDropdown() {
-            const dropdown = document.getElementById('allStoresDropdown');
-            if (allStores.length === 0) {
-                dropdown.innerHTML = '<option value="">-- No stores available --</option>';
-                return;
-            }
-            
-            dropdown.innerHTML = '<option value="">-- Select a store to favorite --</option>' + 
-                allStores.map((store, index) => `<option value="${index}">🏪 ${escapeHtml(store.name)}</option>`).join('');
-        }
-        
-        // Add selected store to favorites
-        function addSelectedStoreToFavorites() {
-            const dropdown = document.getElementById('allStoresDropdown');
-            const selectedIndex = dropdown.value;
-            
-            if (selectedIndex === "" || !allStores[selectedIndex]) {
-                showNotification('Please select a store first', 'error');
-                return;
-            }
-            
-            const selectedStore = allStores[selectedIndex];
-            
-            // Check if already in favorites
-            if (favoriteStores.some(store => store.name === selectedStore.name)) {
-                showNotification(`${selectedStore.name} is already in your favorites`, 'error');
-                return;
-            }
-            
-            favoriteStores.push({
-                id: Date.now(),
-                name: selectedStore.name,
-                location: selectedStore.location
-            });
-            
-            saveFavoriteStores();
-            showNotification(`Added ${selectedStore.name} to favorites!`, 'success');
-            dropdown.value = "";
-        }
-        
-        // Load favorite stores from localStorage
-        function loadFavoriteStores() {
-            const saved = localStorage.getItem('favoriteStores');
-            if (saved) {
-                favoriteStores = JSON.parse(saved);
-            } else {
-                favoriteStores = [];
-            }
-            renderFavoriteStores();
-        }
-        
-        // Save favorite stores to localStorage
-        function saveFavoriteStores() {
-            localStorage.setItem('favoriteStores', JSON.stringify(favoriteStores));
-            renderFavoriteStores();
-        }
-        
-        // Render favorite stores list
-        function renderFavoriteStores() {
-            const container = document.getElementById('favoriteStoresList');
-            if (favoriteStores.length === 0) {
-                container.innerHTML = '<div class="empty-state" style="padding: 20px;">⭐ No favorite stores yet. Add your first from the dropdown above!</div>';
-                document.getElementById('storePromosContainer').style.display = 'none';
-                return;
-            }
-            
-            container.innerHTML = favoriteStores.map((store, index) => `
-                <div class="favorite-store-item" onclick="selectFavoriteStore(${index})">
-                    <div class="store-info">
-                        <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
-                        <div class="store-location">📍 ${escapeHtml(store.location)}</div>
-                    </div>
-                    <button class="remove-store-btn" onclick="event.stopPropagation(); removeFavoriteStore(${index})">🗑️</button>
-                </div>
-            `).join('');
-        }
-        
-        // Select a favorite store and show its promos
-        async function selectFavoriteStore(index) {
-            const selectedStore = favoriteStores[index];
-            if (!selectedStore) return;
-            
-            // Filter ads that match the store name
-            const storeAds = allAds.filter(ad => 
-                ad.shopName && ad.shopName.toLowerCase() === selectedStore.name.toLowerCase()
-            );
-            
-            const promosContainer = document.getElementById('storePromosContainer');
-            const headerDiv = document.getElementById('selectedStoreHeader');
-            const promosList = document.getElementById('storePromosList');
-            
-            promosContainer.style.display = 'block';
-            headerDiv.innerHTML = `🏪 Currently viewing: <strong>${escapeHtml(selectedStore.name)}</strong><br>📍 ${escapeHtml(selectedStore.location)}`;
-            
-            if (storeAds.length === 0) {
-                promosList.innerHTML = `
-                    <div class="empty-promos">
-                        📭 No active promotions from ${escapeHtml(selectedStore.name)} at the moment
-                    </div>`;
-                return;
-            }
-            
-            promosList.innerHTML = storeAds.map(ad => {
-                const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
-                const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                return `
-                    <div class="promo-item" onclick="window.location.href='find-stores.html'">
-                        <div class="promo-info">
-                            <div class="promo-name">${escapeHtml(ad.foodName)}</div>
-                            <div class="promo-expiry">⏰ ${daysUntil} days left ${isLowStock ? '• ⚠️ Low stock!' : ''}</div>
-                        </div>
-                        <div class="promo-discount">-${ad.discount}%</div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // Remove favorite store
-        function removeFavoriteStore(index) {
-            const storeName = favoriteStores[index].name;
-            if (confirm(`Remove "${storeName}" from favorites?`)) {
-                favoriteStores.splice(index, 1);
-                saveFavoriteStores();
-                
-                // Hide promos container if no favorites left
-                if (favoriteStores.length === 0) {
-                    document.getElementById('storePromosContainer').style.display = 'none';
-                }
-                showNotification(`Removed ${storeName}`, 'info');
-            }
-        }
         
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
@@ -1532,7 +1323,7 @@
                     notif.classList.add('dismissing');
                     setTimeout(() => notif.classList.remove('show', 'dismissing'), 200);
                 }
-            }, 1000);
+            }, 2000);
         }
         
         // Swipe to dismiss
@@ -1573,79 +1364,7 @@
         });
         window.addEventListener('mouseup', () => { mouseDown = false; });
         
-        // confirmPickup with actual expiry date
-        async function confirmPickup(orderId) {
-            if (!orderId) {
-                showNotification('Invalid order ID', 'error');
-                return;
-            }
-            
-            if (!confirm('Confirm that you have picked up your order? The business will receive payment and items will be added to your fridge with their actual expiry dates.')) return;
-            
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            
-            try {
-                const orders = await Backend.getConsumerOrders(currentUser.id);
-                const completedOrder = orders.find(o => o.id === orderId);
-                let foodItemName = completedOrder?.foodName || 'Food item';
-                let actualExpiryDate = null;
-                
-                if (completedOrder && completedOrder.foodName) {
-                    const matchingAd = allAds.find(ad => 
-                        ad.foodName && ad.foodName.toLowerCase() === completedOrder.foodName.toLowerCase()
-                    );
-                    
-                    if (matchingAd && matchingAd.batchExpiryDate) {
-                        actualExpiryDate = new Date(matchingAd.batchExpiryDate).toISOString().split('T')[0];
-                    } else if (matchingAd && matchingAd.offerEnds) {
-                        actualExpiryDate = new Date(matchingAd.offerEnds).toISOString().split('T')[0];
-                    }
-                }
-                
-                const result = await Backend.confirmCollectedByCustomer(orderId);
-                
-                if (result.success) {
-                    let fridgeItems = await Backend.loadFridgeItems();
-                    if (!fridgeItems || fridgeItems.length === 0) {
-                        fridgeItems = JSON.parse(localStorage.getItem('foodItems')) || [];
-                    }
-                    
-                    let expiryToUse = actualExpiryDate;
-                    if (!expiryToUse) {
-                        const today = new Date();
-                        const defaultExpiry = new Date();
-                        defaultExpiry.setDate(today.getDate() + 7);
-                        expiryToUse = defaultExpiry.toISOString().split('T')[0];
-                    }
-                    
-                    fridgeItems.push({
-                        name: foodItemName,
-                        expiry: expiryToUse,
-                        category: 'other',
-                        addedDate: new Date().toISOString(),
-                        fromOrder: true,
-                        orderId: orderId
-                    });
-                    
-                    await Backend.saveFridgeItems(fridgeItems);
-                    localStorage.setItem('foodItems', JSON.stringify(fridgeItems));
-                    
-                    showNotification(`✅ "${foodItemName}" added to fridge! Expires: ${expiryToUse}`, 'success');
-                    
-                    await loadOrders();
-                    await loadWalletBalance();
-                    await loadFridgeData();
-                } else {
-                    showNotification(result.message || 'Failed to confirm pickup', 'error');
-                }
-            } catch (error) {
-                console.error('Confirm pickup error:', error);
-                showNotification('Error confirming pickup. Please try again.', 'error');
-            } finally {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
-        }
-        
+        // ========== CONSUMER FUNCTIONS ==========
         async function refreshAll() {
             await loadWalletBalance();
             await loadProfile();
@@ -1653,7 +1372,6 @@
             await loadFridgeData();
             await loadListCount();
             await loadDealsData();
-            await loadAllStoresAndAds();
             showNotification('All data refreshed!', 'success');
         }
         
@@ -1707,7 +1425,7 @@
                         case 'collected_by_customer':
                             statusClass = 'status-completed';
                             statusText = 'completed';
-                            actions = `<div style="font-size:11px; color:#34c759; margin-top:8px;">✅ Order completed. Item added to fridge with actual expiry!</div>`;
+                            actions = `<div style="font-size:11px; color:#34c759; margin-top:8px;">✅ Order completed!</div>`;
                             break;
                         default:
                             statusClass = 'status-pending';
@@ -1739,6 +1457,34 @@
             }
         }
         
+        async function confirmPickup(orderId) {
+            if (!orderId) {
+                showNotification('Invalid order ID', 'error');
+                return;
+            }
+            
+            if (!confirm('Confirm that you have picked up your order?')) return;
+            
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const result = await Backend.confirmCollectedByCustomer(orderId);
+                
+                if (result.success) {
+                    showNotification('Pickup confirmed! Thank you!', 'success');
+                    await loadOrders();
+                    await loadWalletBalance();
+                } else {
+                    showNotification(result.message || 'Failed to confirm pickup', 'error');
+                }
+            } catch (error) {
+                console.error('Confirm pickup error:', error);
+                showNotification('Error confirming pickup', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
         function openTopUpModal() {
             document.getElementById('topUpModal').style.display = 'flex';
         }
@@ -1756,18 +1502,20 @@
             }
             
             closeTopUpModal();
-            showNotification(`Processing $${amount.toFixed(2)} deposit...`, 'info');
+            document.getElementById('loadingOverlay').style.display = 'flex';
             
-            setTimeout(async () => {
-                const result = await Backend.addToWallet(currentUser.id, amount);
-                if (result.success) {
-                    walletBalance = result.newBalance;
-                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    showNotification(`$${amount.toFixed(2)} added to wallet!`, 'success');
-                } else {
-                    showNotification('Failed to add funds', 'error');
-                }
-            }, 1500);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const result = await Backend.addToWallet(currentUser.id, amount);
+            if (result.success) {
+                walletBalance = result.newBalance;
+                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                showNotification(`$${amount.toFixed(2)} added to wallet!`, 'success');
+            } else {
+                showNotification('Failed to add funds', 'error');
+            }
+            
+            document.getElementById('loadingOverlay').style.display = 'none';
         }
         
         function editProfileField(field) {
@@ -1812,40 +1560,23 @@
             
             if (tab === 'orders') {
                 loadOrders();
-            } else if (tab === 'profile') {
-                loadAllStoresAndAds();
             }
         }
         
         function goToHome() {
-            if (currentRole === 'consumer') switchConsumerTab('home');
+            if (currentRole === 'consumer') {
+                switchConsumerTab('home');
+            } else {
+                // Business home already shows dashboard
+                window.location.reload();
+            }
         }
         
         function goToProfile() {
-            if (currentRole === 'advertiser') {
-                window.location.href = 'business-profile.html?tab=profile';
-            } else {
+            if (currentRole === 'consumer') {
                 switchConsumerTab('profile');
-            }
-        }
-        
-        function navigateToRolePage() {
-            if (currentRole === 'consumer') {
-                window.location.href = 'shoplist.html';
             } else {
-                window.location.href = 'advertise.html';
-            }
-        }
-        
-        function updateNavigation() {
-            const navIcon = document.getElementById('navIcon');
-            const navLabel = document.getElementById('navLabel');
-            if (currentRole === 'consumer') {
-                navIcon.textContent = '🛒';
-                navLabel.textContent = 'lists';
-            } else {
-                navIcon.textContent = '📢';
-                navLabel.textContent = 'post ad';
+                window.location.href = 'business-profile.html?tab=profile';
             }
         }
         
@@ -1895,17 +1626,15 @@
                 for (let i = 0; i < topAds.length; i++) {
                     const ad = topAds[i];
                     const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
-                    const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
                     html += `
                         <div class="deal-item" onclick="window.location.href='find-stores.html'">
-                            <div class="deal-icon">🏷️</div>
+                            ${ad.productImage ? `<div class="deal-icon"><img src="${ad.productImage}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"></div>` : `<div class="deal-icon">🏷️</div>`}
                             <div class="deal-details">
                                 <div class="deal-name">${escapeHtml(ad.foodName)}</div>
                                 <div class="deal-meta">
                                     <span class="deal-shop">${escapeHtml(ad.shopName)}</span>
                                     <span>•</span>
                                     <span>${daysUntil} days left</span>
-                                    ${ad.quantityLeft ? `<span class="deal-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft} left</span>` : ''}
                                 </div>
                             </div>
                             <div class="deal-discount">-${ad.discount}%</div>
@@ -1919,51 +1648,98 @@
             }
         }
         
-        function loadAdvertiserData() {
+        // ========== BUSINESS FUNCTIONS ==========
+        async function loadBusinessDashboard() {
             const businessName = localStorage.getItem('businessName') || 'your shop';
             const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
             document.getElementById('shopName').textContent = businessName;
             document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
             document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
-            loadShopAds();
+            
+            await loadBusinessStats();
+            await loadMyAds();
         }
         
-        async function loadShopAds() {
+        async function loadBusinessStats() {
             try {
                 const shopAds = await Backend.getShopAds(currentUser.id);
+                const totalActiveAds = shopAds.filter(ad => ad.active).length;
                 document.getElementById('shopAdCount').textContent = shopAds.length;
+                document.getElementById('totalActiveOffers').textContent = totalActiveAds;
+                
                 let views = 0, claimed = 0;
                 shopAds.forEach(ad => { views += ad.views || 0; claimed += ad.claimed || 0; });
                 document.getElementById('shopViews').textContent = views;
                 document.getElementById('shopClaimed').textContent = claimed;
-                const container = document.getElementById('shopAds');
-                if (shopAds.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html" class="add-link">post ad →</a></div>`;
+                
+                // Get orders and revenue
+                const orders = await Backend.getOrdersForBusiness(currentUser.id);
+                const totalOrders = orders.length;
+                const completedOrders = orders.filter(o => o.status === 'collected_by_customer');
+                const revenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+                
+                document.getElementById('totalOrdersCount').textContent = totalOrders;
+                document.getElementById('totalRevenue').textContent = `$${revenue.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error loading business stats:', error);
+            }
+        }
+        
+        async function loadMyAds() {
+            try {
+                const shopAds = await Backend.getShopAds(currentUser.id);
+                const activeAds = shopAds.filter(ad => ad.active);
+                const container = document.getElementById('myAdsList');
+                
+                if (activeAds.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html" class="add-link">post your first ad →</a></div>`;
                     return;
                 }
-                let html = '';
-                for (let i = 0; i < Math.min(shopAds.length, 5); i++) {
-                    const ad = shopAds[i];
-                    const daysUntil = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000*60*60*24));
-                    const expiringClass = daysUntil <= 2 ? 'expiring' : '';
-                    const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                    html += `
-                        <div class="ad-item ${expiringClass}">
-                            <div class="ad-header">
-                                <span class="ad-food">${escapeHtml(ad.foodName)}</span>
-                                <span class="ad-discount">${ad.discount}% off</span>
-                            </div>
-                            <div class="ad-meta">
-                                <span>offer ends in ${daysUntil} days</span>
-                                ${ad.batchNumber ? `<span class="ad-batch">batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
-                                <span class="ad-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
+                
+                container.innerHTML = activeAds.map(ad => `
+                    <div class="my-ad-item">
+                        ${ad.productImage ? `<div class="my-ad-image"><img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}"></div>` : `<div class="my-ad-image">🏷️</div>`}
+                        <div class="my-ad-details">
+                            <div class="my-ad-name">${escapeHtml(ad.foodName)}</div>
+                            <div class="my-ad-meta">
+                                <span>${ad.discount}% off</span>
+                                <span>📊 ${ad.quantityLeft || 0} left</span>
+                                <span class="my-ad-status status-active">active</span>
                             </div>
                         </div>
-                    `;
-                }
-                container.innerHTML = html;
+                        <div class="my-ad-actions">
+                            <button class="edit-ad-btn" onclick="editAd('${ad.id}')">✏️</button>
+                            <button class="delete-ad-btn" onclick="deleteAd('${ad.id}', '${escapeHtml(ad.foodName)}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
             } catch (error) {
-                document.getElementById('shopAds').innerHTML = '<div class="empty-state">error loading ads</div>';
+                console.error('Error loading my ads:', error);
+                document.getElementById('myAdsList').innerHTML = '<div class="empty-state">error loading ads</div>';
+            }
+        }
+        
+        async function editAd(adId) {
+            window.location.href = `advertise.html?edit=${adId}`;
+        }
+        
+        async function deleteAd(adId, foodName) {
+            if (confirm(`Delete "${foodName}"? This action cannot be undone.`)) {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                try {
+                    const result = await Backend.deleteAd(adId);
+                    if (result.success) {
+                        showNotification(`"${foodName}" deleted`, 'success');
+                        await loadMyAds();
+                        await loadBusinessStats();
+                    } else {
+                        showNotification('Failed to delete ad', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Error deleting ad', 'error');
+                } finally {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }
             }
         }
         
@@ -1979,7 +1755,6 @@
         
         window.goToHome = goToHome;
         window.goToProfile = goToProfile;
-        window.navigateToRolePage = navigateToRolePage;
         window.switchConsumerTab = switchConsumerTab;
         window.openTopUpModal = openTopUpModal;
         window.closeTopUpModal = closeTopUpModal;
@@ -1993,9 +1768,8 @@
         window.loadFridgeData = loadFridgeData;
         window.loadOrders = loadOrders;
         window.logout = logout;
-        window.addSelectedStoreToFavorites = addSelectedStoreToFavorites;
-        window.selectFavoriteStore = selectFavoriteStore;
-        window.removeFavoriteStore = removeFavoriteStore;
+        window.editAd = editAd;
+        window.deleteAd = deleteAd;
     </script>
 </body>
 </html>
