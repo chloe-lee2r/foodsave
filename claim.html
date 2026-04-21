@@ -116,14 +116,22 @@
         }
         
         .item-image {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 70px;
+            height: 70px;
+            background: #e8ecf0;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 30px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .item-details {
@@ -675,6 +683,17 @@
         let walletBalance = 0;
         let lastReceiptData = null;
         
+        // Category to emoji mapping
+        const categoryEmojis = {
+            dairy: '🥛',
+            produce: '🥬',
+            meat: '🥩',
+            bakery: '🥖',
+            pantry: '📦',
+            frozen: '❄️',
+            other: '🍽️'
+        };
+        
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
@@ -764,9 +783,16 @@
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
                 
+                const categoryEmoji = categoryEmojis[item.category] || '🍽️';
+                
                 html += `
                     <div class="cart-item">
-                        <div class="item-image">${getFoodEmoji(item.category)}</div>
+                        <div class="item-image">
+                            ${item.productImage ? 
+                                `<img src="${item.productImage}" alt="${escapeHtml(item.foodName)}" onerror="this.src=''; this.parentElement.innerHTML='<span style=\"font-size:30px;\">${categoryEmoji}</span>'">` : 
+                                `<span style="font-size:30px;">${categoryEmoji}</span>`
+                            }
+                        </div>
                         <div class="item-details">
                             <div class="item-name">${escapeHtml(item.foodName)}</div>
                             <div class="item-shop">🏪 ${escapeHtml(item.shopName)}</div>
@@ -804,19 +830,6 @@
                 checkoutBtn.style.display = 'none';
                 insufficientWarning.style.display = 'block';
             }
-        }
-        
-        function getFoodEmoji(category) {
-            const emojis = {
-                dairy: '🥛',
-                produce: '🥬',
-                meat: '🥩',
-                bakery: '🥖',
-                pantry: '📦',
-                frozen: '❄️',
-                other: '🍽️'
-            };
-            return emojis[category] || '🍽️';
         }
         
         function updateQuantity(adId, change) {
@@ -894,7 +907,6 @@
             const now = new Date();
             receiptDate.textContent = now.toLocaleString();
             
-            // Calculate totals
             let subtotalOriginal = 0;
             let subtotalPaid = 0;
             let itemsHtml = '';
@@ -903,7 +915,6 @@
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const originalTotal = item.originalPrice * item.quantity;
                 const paidTotal = discountedPrice * item.quantity;
-                const saved = originalTotal - paidTotal;
                 
                 subtotalOriginal += originalTotal;
                 subtotalPaid += paidTotal;
@@ -970,7 +981,6 @@
                 return;
             }
             
-            // Calculate totals
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
             const orderItems = [];
@@ -1012,26 +1022,18 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             try {
-                console.log('Sending order items:', orderItems);
-                console.log('Total items count:', orderItems.length);
-                
                 const result = await Backend.createOrder(orderItems, total);
-                console.log('Backend response:', result);
                 
                 if (result.success) {
-                    // Save cart items for receipt before clearing
                     const receiptCartItems = [...cart];
                     
-                    // Clear cart
                     cart = [];
                     saveCart();
                     
-                    // Refresh wallet balance
                     const currentUser = Backend.getCurrentUser();
                     walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                     
-                    // Show receipt with the cart items
                     showReceipt(result, originalWalletBalance, receiptCartItems);
                     
                 } else {
