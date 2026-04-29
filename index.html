@@ -171,7 +171,7 @@
             margin-bottom: 16px;
             background: #f0f0f0;
         }
-        .map-container iframe, .map-container .leaflet-container {
+        .map-container .leaflet-container {
             width: 100%;
             height: 100%;
         }
@@ -202,6 +202,32 @@
         .store-item:active { background: #e8ecf0; transform: scale(0.98); }
         .store-name { font-weight: 600; margin-bottom: 4px; }
         .store-address { font-size: 11px; color: #666; }
+        
+        /* Custom Popup Styling */
+        .custom-popup .popup-store-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #007aff;
+        }
+        .custom-popup .popup-ads-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            color: #34c759;
+        }
+        .custom-popup .popup-ad-item {
+            font-size: 11px;
+            padding: 4px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .custom-popup .popup-ad-name {
+            font-weight: 500;
+        }
+        .custom-popup .popup-ad-discount {
+            color: #34c759;
+        }
         
         /* Consumer only */
         .consumer-only { display: none; }
@@ -539,7 +565,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Advertiser Section (minimal, keep existing) */
+        /* Advertiser Section */
         .advertiser-only { display: none; }
         body.advertiser .advertiser-only { display: block; }
         .profile-card {
@@ -761,6 +787,7 @@
     let map = null;
     let userMarker = null;
     let storeMarkers = [];
+    let allStoresData = [];
     
     document.addEventListener('DOMContentLoaded', async () => {
         const user = Backend.getCurrentUser(), role = localStorage.getItem('userRole');
@@ -781,63 +808,128 @@
     function initMap() {
         const container = document.getElementById('mapContainer');
         container.innerHTML = '<div id="leafletMap" style="height: 100%; width: 100%;"></div>';
-        map = L.map('leafletMap').setView([1.3521, 103.8198], 13); // Singapore center
+        map = L.map('leafletMap').setView([1.3521, 103.8198], 12);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(map);
-        loadStoresOnMap();
+        loadAllStoresOnMap();
     }
     
-    async function loadStoresOnMap() {
+    async function loadAllStoresOnMap() {
         try {
-            const ads = await Backend.getActiveAds({ limit: 500 });
-            const uniqueStores = new Map();
-            for (const ad of ads) {
-                if (!uniqueStores.has(ad.shopName) && ad.businessLat && ad.businessLng) {
-                    uniqueStores.set(ad.shopName, {
-                        name: ad.shopName,
-                        lat: parseFloat(ad.businessLat),
-                        lng: parseFloat(ad.businessLng),
-                        address: ad.businessAddress || 'Address not available'
-                    });
-                }
-            }
-            const stores = Array.from(uniqueStores.values());
+            // Get all businesses (advertisers) from the system
+            const allBusinesses = await getAllBusinesses();
+            
             const storeListDiv = document.getElementById('storeList');
-            if (stores.length === 0) {
-                storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores with active deals nearby</div>';
+            if (allBusinesses.length === 0) {
+                storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores found</div>';
                 return;
             }
+            
             // Clear existing markers
             storeMarkers.forEach(marker => map.removeLayer(marker));
             storeMarkers = [];
-            // Add markers and build list
+            
             let listHtml = '';
-            for (const store of stores) {
-                const marker = L.marker([store.lat, store.lng]).addTo(map);
-                marker.bindPopup(`<b>${store.name}</b><br>${store.address}`);
-                marker.on('click', () => {
-                    document.getElementById('storeList').querySelectorAll('.store-item').forEach(el => el.style.background = '#f8f9fa');
-                    const clickedItem = document.querySelector(`.store-item[data-store="${store.name.replace(/"/g, '&quot;')}"]`);
-                    if (clickedItem) clickedItem.style.background = '#e3f2fd';
-                });
-                storeMarkers.push(marker);
-                listHtml += `<div class="store-item" data-store="${store.name}" onclick="flyToStore(${store.lat}, ${store.lng}, '${store.name}')">
-                    <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
-                    <div class="store-address">📍 ${escapeHtml(store.address)}</div>
-                </div>`;
+            for (const store of allBusinesses) {
+                // Only show stores with valid coordinates
+                if (store.lat && store.lng && store.lat !== 0 && store.lng !== 0) {
+                    // Create custom popup content with store details and ads
+                    const popupContent = await createStorePopupContent(store);
+                    const marker = L.marker([store.lat, store.lng]).addTo(map);
+                    marker.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
+                    marker.on('click', () => {
+                        // Highlight the store in the list
+                        document.querySelectorAll('.store-item').forEach(el => el.style.background = '#f8f9fa');
+                        const clickedItem = document.querySelector(`.store-item[data-store-id="${store.id}"]`);
+                        if (clickedItem) clickedItem.style.background = '#e3f2fd';
+                    });
+                    storeMarkers.push(marker);
+                    
+                    listHtml += `<div class="store-item" data-store-id="${store.id}" onclick="flyToStore(${store.lat}, ${store.lng}, '${store.name.replace(/'/g, "\\'")}')">
+                        <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
+                        <div class="store-address">📍 ${escapeHtml(store.address || 'Address not specified')}</div>
+                    </div>`;
+                }
             }
+            
             storeListDiv.innerHTML = listHtml;
-            if (stores.length > 0) {
-                const bounds = L.latLngBounds(stores.map(s => [s.lat, s.lng]));
-                map.fitBounds(bounds);
+            
+            if (allBusinesses.length > 0) {
+                const validStores = allBusinesses.filter(s => s.lat && s.lng && s.lat !== 0 && s.lng !== 0);
+                if (validStores.length > 0) {
+                    const bounds = L.latLngBounds(validStores.map(s => [s.lat, s.lng]));
+                    map.fitBounds(bounds);
+                }
             }
         } catch(e) {
             console.error('Error loading stores:', e);
             document.getElementById('storeList').innerHTML = '<div class="empty-state">⚠️ Error loading stores</div>';
         }
+    }
+    
+    async function getAllBusinesses() {
+        try {
+            // Query all users with role = 'advertiser'
+            const query = new Parse.Query(Parse.User);
+            query.equalTo("role", "advertiser");
+            const businesses = await query.find({ useMasterKey: true });
+            
+            const stores = [];
+            for (const biz of businesses) {
+                const lat = biz.get("businessLat");
+                const lng = biz.get("businessLng");
+                stores.push({
+                    id: biz.id,
+                    name: biz.get("businessName") || biz.get("username"),
+                    address: biz.get("businessAddress") || 'Address not specified',
+                    lat: lat ? parseFloat(lat) : 0,
+                    lng: lng ? parseFloat(lng) : 0
+                });
+            }
+            return stores;
+        } catch (error) {
+            console.error('Error fetching businesses:', error);
+            return [];
+        }
+    }
+    
+    async function createStorePopupContent(store) {
+        // Get active ads for this store
+        let adsHtml = '<div class="popup-ads-title">📢 Active Deals:</div>';
+        let hasAds = false;
+        
+        try {
+            const ads = await Backend.getActiveAds({ businessId: store.id, limit: 10 });
+            if (ads && ads.length > 0) {
+                hasAds = true;
+                for (const ad of ads) {
+                    const daysLeft = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000 * 60 * 60 * 24));
+                    adsHtml += `<div class="popup-ad-item">
+                        <span class="popup-ad-name">${escapeHtml(ad.foodName)}</span>
+                        <span class="popup-ad-discount"> -${ad.discount}%</span>
+                        <div style="font-size: 10px; color: #999;">${daysLeft} days left • ${ad.quantityLeft || 0} left</div>
+                    </div>`;
+                }
+            }
+        } catch(e) {
+            console.error('Error loading ads for popup:', e);
+        }
+        
+        if (!hasAds) {
+            adsHtml = '<div class="popup-ads-title">📢 No active deals at the moment</div>';
+        }
+        
+        return `<div class="custom-popup">
+            <div class="popup-store-name">🏪 ${escapeHtml(store.name)}</div>
+            <div class="popup-store-address">📍 ${escapeHtml(store.address)}</div>
+            ${adsHtml}
+            <div style="margin-top: 8px; text-align: center;">
+                <a href="find-stores.html?store=${encodeURIComponent(store.id)}" style="font-size: 11px; color: #007aff; text-decoration: none;">View all deals →</a>
+            </div>
+        </div>`;
     }
     
     function getUserLocation() {
@@ -856,13 +948,17 @@
     
     function flyToStore(lat, lng, storeName) {
         map.flyTo([lat, lng], 16);
-        const marker = storeMarkers.find(m => m.getLatLng().lat === lat && m.getLatLng().lng === lng);
+        // Find and open the marker popup
+        const marker = storeMarkers.find(m => {
+            const pos = m.getLatLng();
+            return pos.lat === lat && pos.lng === lng;
+        });
         if (marker) marker.openPopup();
     }
     
     function refreshAll() {
         loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
-        if (map) loadStoresOnMap();
+        if (map) loadAllStoresOnMap();
     }
     
     async function loadWalletBalance() { try { walletBalance = await Backend.getWalletBalance(currentUser.id); document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; } catch(e) { console.error(e); } }
