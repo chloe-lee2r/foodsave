@@ -19,6 +19,9 @@
     <meta name="msapplication-TileImage" content="assets/icon.png">
     <meta name="msapplication-TileColor" content="#34c759">
     <meta name="theme-color" content="#34c759">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         @font-face {
             font-family: 'RusticStory';
@@ -27,7 +30,12 @@
             font-weight: normal;
             font-style: normal;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
@@ -36,6 +44,7 @@
             align-items: center;
             justify-content: center;
         }
+        
         .app {
             width: 100%;
             max-width: 400px;
@@ -43,12 +52,14 @@
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
         }
+        
         .header {
             padding: 30px 20px;
             background: linear-gradient(135deg, #34c759, #007aff);
             color: white;
             position: relative;
         }
+        
         .greeting {
             font-size: 24px;
             font-weight: 600;
@@ -57,6 +68,7 @@
             align-items: center;
             gap: 12px;
         }
+        
         .user-avatar {
             width: 50px;
             height: 50px;
@@ -69,6 +81,7 @@
             cursor: pointer;
             overflow: hidden;
         }
+        
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-info { flex: 1; }
         .user-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
@@ -124,6 +137,8 @@
         }
         .view-all { color: #007aff; font-size: 14px; text-decoration: none; cursor: pointer; }
         .refresh-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 20px; }
+        
+        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
@@ -146,8 +161,53 @@
         .tab.active { background: #007aff; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        
+        /* Map Container */
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #f0f0f0;
+        }
+        .map-container iframe, .map-container .leaflet-container {
+            width: 100%;
+            height: 100%;
+        }
+        .location-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .store-list {
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .store-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .store-item:active { background: #e8ecf0; transform: scale(0.98); }
+        .store-name { font-weight: 600; margin-bottom: 4px; }
+        .store-address { font-size: 11px; color: #666; }
+        
+        /* Consumer only */
         .consumer-only { display: none; }
         body.consumer .consumer-only { display: block; }
+        
+        /* Quick Actions */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -168,6 +228,8 @@
         .card-emoji { font-size: 28px; margin-bottom: 8px; }
         .card-title { font-weight: 600; margin-bottom: 4px; }
         .card-desc { font-size: 12px; color: #666; }
+        
+        /* Wallet Card */
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
             color: white;
@@ -187,6 +249,8 @@
             font-size: 12px;
             cursor: pointer;
         }
+        
+        /* Profile Info Card */
         .profile-info-card {
             background: #f8f9fa;
             border-radius: 16px;
@@ -202,6 +266,8 @@
         .info-label { width: 80px; font-size: 14px; color: #666; }
         .info-value { flex: 1; font-size: 14px; font-weight: 500; }
         .edit-btn { background: none; border: none; color: #007aff; font-size: 12px; cursor: pointer; }
+        
+        /* Order History */
         .order-item {
             background: #f8f9fa;
             border-radius: 12px;
@@ -231,6 +297,8 @@
             margin-top: 8px;
             width: 100%;
         }
+        
+        /* Hot Deals Section */
         .deals-list { margin-bottom: 24px; }
         .deal-item {
             background: #f8f9fa;
@@ -270,6 +338,8 @@
             color: #666;
         }
         .deal-quantity.low { background: #ffebee; color: #ff3b30; }
+        
+        /* Fridge Summary */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -315,6 +385,161 @@
         .stat-box.expired .stat-number { color: #ff6b6b; }
         .fridge-footer { text-align: center; margin-top: 10px; }
         .fridge-footer a { color: white; text-decoration: underline; }
+        
+        /* Profile Picture Upload */
+        .profile-picture-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            background: #e8ecf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-picture .placeholder { font-size: 48px; }
+        .change-pic-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active { color: #007aff; }
+        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; }
+        
+        /* Consumer Bottom Nav */
+        body.consumer .bottom-nav-consumer { display: flex; }
+        body.consumer .bottom-nav-business { display: none; }
+        body.advertiser .bottom-nav-consumer { display: none; }
+        body.advertiser .bottom-nav-business { display: flex; }
+        .bottom-nav-consumer, .bottom-nav-business {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            justify-content: space-around;
+        }
+        .bottom-nav-consumer { display: none; }
+        .bottom-nav-business { display: none; }
+        
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 16px; }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .modal-btn.confirm { background: #34c759; color: white; }
+        .modal-btn.cancel { background: #999; color: white; }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Advertiser Section (minimal, keep existing) */
         .advertiser-only { display: none; }
         body.advertiser .advertiser-only { display: block; }
         .profile-card {
@@ -391,13 +616,6 @@
         .ad-batch { font-size: 10px; font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }
         .ad-quantity { font-size: 11px; color: #34c759; }
         .ad-quantity.low { color: #ff3b30; }
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-            background: #f8f9fa;
-            border-radius: 16px;
-        }
         .add-link {
             display: inline-block;
             margin-top: 12px;
@@ -407,139 +625,6 @@
             text-decoration: none;
             border-radius: 20px;
         }
-        .profile-picture-section {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 16px;
-        }
-        .profile-picture {
-            width: 100px;
-            height: 100px;
-            border-radius: 50px;
-            background: #e8ecf0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-picture .placeholder { font-size: 48px; }
-        .change-pic-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            border-top: 1px solid #f0f0f0;
-            padding: 8px 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-        .nav-item {
-            text-decoration: none;
-            color: #999;
-            font-size: 12px;
-            text-align: center;
-            flex: 1;
-            padding: 4px 0;
-            cursor: pointer;
-        }
-        .nav-item.active { color: #007aff; }
-        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; }
-        .bottom-nav-consumer, .bottom-nav-business {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            border-top: 1px solid #f0f0f0;
-            padding: 8px 20px;
-            justify-content: space-around;
-        }
-        .bottom-nav-consumer { display: none; }
-        .bottom-nav-business { display: none; }
-        body.consumer .bottom-nav-consumer { display: flex; }
-        body.advertiser .bottom-nav-business { display: flex; }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            display: none;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 340px;
-            padding: 24px;
-        }
-        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            font-family: inherit;
-        }
-        .modal-buttons { display: flex; gap: 12px; margin-top: 16px; }
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .modal-btn.confirm { background: #34c759; color: white; }
-        .modal-btn.cancel { background: #999; color: white; }
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            display: none;
-        }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid white;
-            border-top-color: #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -568,11 +653,14 @@
                     <button class="wallet-btn" onclick="switchConsumerTab('orders')">📦 Orders</button>
                 </div>
             </div>
+            
             <div class="tabs">
                 <button class="tab active" onclick="switchConsumerTab('home')">🏠 Home</button>
                 <button class="tab" onclick="switchConsumerTab('profile')">👤 Profile</button>
+                <button class="tab" onclick="switchConsumerTab('map')">🗺️ Map</button>
                 <button class="tab" onclick="switchConsumerTab('orders')">📦 Orders</button>
             </div>
+            
             <!-- Home Tab -->
             <div class="tab-content active" id="homeTab">
                 <div class="quick-actions">
@@ -594,6 +682,7 @@
                     <div class="fridge-footer" id="fridgeFooter"></div>
                 </div>
             </div>
+            
             <!-- Profile Tab -->
             <div class="tab-content" id="profileTab">
                 <div class="profile-picture-section">
@@ -608,13 +697,25 @@
                     <div class="info-row"><div class="info-label">Member since</div><div class="info-value" id="memberSince">-</div></div>
                 </div>
             </div>
+            
+            <!-- Map Tab -->
+            <div class="tab-content" id="mapTab">
+                <div class="section-title">🗺️ Nearby Stores</div>
+                <div class="map-container" id="mapContainer"></div>
+                <button class="location-btn" onclick="getUserLocation()">📍 Find My Location</button>
+                <div class="store-list" id="storeList">
+                    <div class="empty-state">📍 loading stores...</div>
+                </div>
+            </div>
+            
             <!-- Orders Tab -->
             <div class="tab-content" id="ordersTab">
                 <div class="section-title">📦 my orders<button class="refresh-icon" onclick="loadOrders()">↻</button></div>
                 <div id="ordersList"><div class="empty-state">📦 loading orders...</div></div>
             </div>
         </div>
-        <!-- BUSINESS VIEW -->
+        
+        <!-- ADVERTISER VIEW (unchanged) -->
         <div class="advertiser-only">
             <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                 <div class="profile-header"><div class="profile-avatar">🏪</div><div class="profile-name"><h3 id="shopName">your shop</h3><div class="profile-meta" id="shopAddress">tap to edit</div><div class="verification-status" id="verificationStatus">⏳ pending</div></div></div>
@@ -630,6 +731,7 @@
             <div class="ads-list" id="shopAds"><div class="empty-state">📢 no active ads</div></div>
         </div>
     </div>
+    
     <!-- Consumer Bottom Nav -->
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
@@ -637,6 +739,7 @@
         <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">🛒</span><span id="navLabel">lists</span></div>
         <div class="nav-item" onclick="goToProfile()"><span class="nav-emoji">👤</span><span>profile</span></div>
     </div>
+    
     <!-- Business Bottom Nav -->
     <div class="bottom-nav-business">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
@@ -645,14 +748,20 @@
         <div class="nav-item" onclick="window.location.href='business-profile.html?tab=profile'"><span class="nav-emoji">⚙️</span><span>settings</span></div>
     </div>
 </div>
+
 <!-- Modals -->
 <div class="modal" id="topUpModal"><div class="modal-content"><div class="modal-title">💳 Add Funds</div><input type="number" class="modal-input" id="topUpAmount" placeholder="Enter amount ($)" min="1" step="1"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeTopUpModal()">Cancel</button><button class="modal-btn confirm" onclick="processTopUp()">Add Funds</button></div></div></div>
 <div class="modal" id="editModal"><div class="modal-content"><div class="modal-title" id="modalTitle">Edit</div><input type="text" class="modal-input" id="modalInput" placeholder="Enter value"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeEditModal()">Cancel</button><button class="modal-btn confirm" onclick="saveProfileEdit()">Save</button></div></div></div>
 <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 <script>
     let currentRole = 'consumer', businessRole = 'staff', isVerified = false, currentUser = null, walletBalance = 0, editField = '';
+    let map = null;
+    let userMarker = null;
+    let storeMarkers = [];
+    
     document.addEventListener('DOMContentLoaded', async () => {
         const user = Backend.getCurrentUser(), role = localStorage.getItem('userRole');
         if (!user || !role) { window.location.href = 'login.html'; return; }
@@ -665,35 +774,97 @@
         document.getElementById('currentDate').textContent = date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
         updateNavigation();
         loadProfilePicture();
-        if (role === 'consumer') await refreshAll();
+        if (role === 'consumer') { await refreshAll(); initMap(); }
         else loadAdvertiserData();
     });
-    function loadProfilePicture() {
-        const savedPic = localStorage.getItem('profilePicture');
-        const avatarDiv = document.getElementById('userAvatar');
-        const profileImg = document.getElementById('profilePictureImg'), profilePlaceholder = document.getElementById('profilePicturePlaceholder');
-        if (savedPic) { avatarDiv.innerHTML = `<img src="${savedPic}" alt="Profile">`; profileImg.src = savedPic; profileImg.style.display = 'block'; profilePlaceholder.style.display = 'none'; }
-        else { avatarDiv.innerHTML = '👤'; profileImg.style.display = 'none'; profilePlaceholder.style.display = 'flex'; }
+    
+    function initMap() {
+        const container = document.getElementById('mapContainer');
+        container.innerHTML = '<div id="leafletMap" style="height: 100%; width: 100%;"></div>';
+        map = L.map('leafletMap').setView([1.3521, 103.8198], 13); // Singapore center
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        loadStoresOnMap();
     }
-    function uploadProfilePicture() { document.getElementById('profilePictureInput').click(); }
-    async function handleProfilePictureUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) { alert('Image too large. Max 2MB.'); return; }
-        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const result = await Backend.uploadProfilePicture(currentUser.id, e.target.result);
-            if (result.success) loadProfilePicture();
-            else alert('Failed to update profile picture');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
+    
+    async function loadStoresOnMap() {
+        try {
+            const ads = await Backend.getActiveAds({ limit: 500 });
+            const uniqueStores = new Map();
+            for (const ad of ads) {
+                if (!uniqueStores.has(ad.shopName) && ad.businessLat && ad.businessLng) {
+                    uniqueStores.set(ad.shopName, {
+                        name: ad.shopName,
+                        lat: parseFloat(ad.businessLat),
+                        lng: parseFloat(ad.businessLng),
+                        address: ad.businessAddress || 'Address not available'
+                    });
+                }
+            }
+            const stores = Array.from(uniqueStores.values());
+            const storeListDiv = document.getElementById('storeList');
+            if (stores.length === 0) {
+                storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores with active deals nearby</div>';
+                return;
+            }
+            // Clear existing markers
+            storeMarkers.forEach(marker => map.removeLayer(marker));
+            storeMarkers = [];
+            // Add markers and build list
+            let listHtml = '';
+            for (const store of stores) {
+                const marker = L.marker([store.lat, store.lng]).addTo(map);
+                marker.bindPopup(`<b>${store.name}</b><br>${store.address}`);
+                marker.on('click', () => {
+                    document.getElementById('storeList').querySelectorAll('.store-item').forEach(el => el.style.background = '#f8f9fa');
+                    const clickedItem = document.querySelector(`.store-item[data-store="${store.name.replace(/"/g, '&quot;')}"]`);
+                    if (clickedItem) clickedItem.style.background = '#e3f2fd';
+                });
+                storeMarkers.push(marker);
+                listHtml += `<div class="store-item" data-store="${store.name}" onclick="flyToStore(${store.lat}, ${store.lng}, '${store.name}')">
+                    <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
+                    <div class="store-address">📍 ${escapeHtml(store.address)}</div>
+                </div>`;
+            }
+            storeListDiv.innerHTML = listHtml;
+            if (stores.length > 0) {
+                const bounds = L.latLngBounds(stores.map(s => [s.lat, s.lng]));
+                map.fitBounds(bounds);
+            }
+        } catch(e) {
+            console.error('Error loading stores:', e);
+            document.getElementById('storeList').innerHTML = '<div class="empty-state">⚠️ Error loading stores</div>';
+        }
     }
-    async function refreshAll() {
-        await loadWalletBalance(); await loadProfile(); await loadOrders(); await loadFridgeData(); await loadListCount(); await loadDealsData();
+    
+    function getUserLocation() {
+        if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+                map.setView([lat, lng], 14);
+            },
+            (error) => { alert('Unable to get your location'); }
+        );
     }
+    
+    function flyToStore(lat, lng, storeName) {
+        map.flyTo([lat, lng], 16);
+        const marker = storeMarkers.find(m => m.getLatLng().lat === lat && m.getLatLng().lng === lng);
+        if (marker) marker.openPopup();
+    }
+    
+    function refreshAll() {
+        loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
+        if (map) loadStoresOnMap();
+    }
+    
     async function loadWalletBalance() { try { walletBalance = await Backend.getWalletBalance(currentUser.id); document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; } catch(e) { console.error(e); } }
     async function loadProfile() { try { const profile = await Backend.getConsumerProfile(currentUser.id); if(profile){ document.getElementById('profileName').textContent = profile.fullName || profile.username || currentUser.get('username'); document.getElementById('profileEmail').textContent = profile.email || currentUser.get('email') || 'Not set'; document.getElementById('profilePhone').textContent = profile.phone || 'Not set'; document.getElementById('memberSince').textContent = new Date(profile.createdAt).toLocaleDateString(); } } catch(e) { console.error(e); } }
     async function loadOrders() {
@@ -750,10 +921,11 @@
     function switchConsumerTab(tab) {
         document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const tabMap = { home:0, profile:1, orders:2 };
+        const tabMap = { home:0, profile:1, map:2, orders:3 };
         document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
         document.getElementById(`${tab}Tab`).classList.add('active');
         if (tab === 'orders') loadOrders();
+        if (tab === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
     }
     function goToHome() { if (currentRole === 'consumer') switchConsumerTab('home'); }
     function goToProfile() { if (currentRole === 'advertiser') window.location.href = 'business-profile.html?tab=profile'; else switchConsumerTab('profile'); }
@@ -800,6 +972,29 @@
             container.innerHTML = html;
         } catch(e) { container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>'; }
     }
+    function loadProfilePicture() {
+        const savedPic = localStorage.getItem('profilePicture');
+        const avatarDiv = document.getElementById('userAvatar');
+        const profileImg = document.getElementById('profilePictureImg'), profilePlaceholder = document.getElementById('profilePicturePlaceholder');
+        if (savedPic) { avatarDiv.innerHTML = `<img src="${savedPic}" alt="Profile">`; profileImg.src = savedPic; profileImg.style.display = 'block'; profilePlaceholder.style.display = 'none'; }
+        else { avatarDiv.innerHTML = '👤'; profileImg.style.display = 'none'; profilePlaceholder.style.display = 'flex'; }
+    }
+    function uploadProfilePicture() { document.getElementById('profilePictureInput').click(); }
+    async function handleProfilePictureUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('Image too large. Max 2MB.'); return; }
+        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const result = await Backend.uploadProfilePicture(currentUser.id, e.target.result);
+            if (result.success) loadProfilePicture();
+            else alert('Failed to update profile picture');
+            document.getElementById('loadingOverlay').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
     function loadAdvertiserData() {
         const businessName = localStorage.getItem('businessName') || 'your shop';
         const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
@@ -831,7 +1026,13 @@
     }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     async function logout() { await Backend.logout(); window.location.href = 'login.html'; }
-    window.goToHome = goToHome; window.goToProfile = goToProfile; window.navigateToRolePage = navigateToRolePage; window.switchConsumerTab = switchConsumerTab; window.openTopUpModal = openTopUpModal; window.closeTopUpModal = closeTopUpModal; window.processTopUp = processTopUp; window.editProfileField = editProfileField; window.saveProfileEdit = saveProfileEdit; window.closeEditModal = closeEditModal; window.confirmPickup = confirmPickup; window.refreshAll = refreshAll; window.loadDealsData = loadDealsData; window.loadFridgeData = loadFridgeData; window.loadOrders = loadOrders; window.logout = logout; window.uploadProfilePicture = uploadProfilePicture; window.handleProfilePictureUpload = handleProfilePictureUpload;
+    
+    window.goToHome = goToHome; window.goToProfile = goToProfile; window.navigateToRolePage = navigateToRolePage; window.switchConsumerTab = switchConsumerTab;
+    window.openTopUpModal = openTopUpModal; window.closeTopUpModal = closeTopUpModal; window.processTopUp = processTopUp;
+    window.editProfileField = editProfileField; window.saveProfileEdit = saveProfileEdit; window.closeEditModal = closeEditModal;
+    window.confirmPickup = confirmPickup; window.refreshAll = refreshAll; window.loadDealsData = loadDealsData; window.loadFridgeData = loadFridgeData; window.loadOrders = loadOrders;
+    window.logout = logout; window.uploadProfilePicture = uploadProfilePicture; window.handleProfilePictureUpload = handleProfilePictureUpload;
+    window.getUserLocation = getUserLocation; window.flyToStore = flyToStore;
 </script>
 </body>
 </html>
