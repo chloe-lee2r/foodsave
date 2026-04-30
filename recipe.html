@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsavvi • sustainable recipes</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <style>
+        @font-face {
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+        }
+        
+        .header {
+            padding: 20px 16px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #007aff;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        
+        /* Fridge Summary Card */
+        .fridge-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .fridge-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .fridge-items {
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+        
+        .refresh-fridge-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        /* Recipe Card */
+        .recipe-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .recipe-card:active {
+            transform: scale(0.98);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #34c759, #007aff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .recipe-info {
+            padding: 16px;
+        }
+        
+        .recipe-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .recipe-match {
+            background: #e8f5e8;
+            color: #34c759;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+        }
+        
+        .recipe-match.high {
+            background: #34c759;
+            color: white;
+        }
+        
+        .recipe-desc {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        /* Recipe Detail Modal */
+        .recipe-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+            padding: 20px;
+        }
+        
+        .recipe-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .recipe-modal-header {
+            margin-bottom: 16px;
+        }
+        
+        .recipe-modal-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .recipe-modal-section {
+            margin-bottom: 20px;
+        }
+        
+        .recipe-modal-section h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .ingredient-list {
+            list-style: none;
+        }
+        
+        .ingredient-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        
+        .ingredient-have {
+            color: #34c759;
+            font-weight: 500;
+        }
+        
+        .ingredient-alternative {
+            color: #ff9500;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+        
+        .ingredient-missing {
+            color: #ff3b30;
+        }
+        
+        .step-list {
+            list-style: none;
+        }
+        
+        .step-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: #007aff;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .youtube-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff3b30;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .mark-cooked-btn {
+            width: 100%;
+            padding: 12px;
+            background: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        
+        .close-modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* Missing Items Section */
+        .missing-items-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .missing-items-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .missing-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .add-to-list-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            background: #34c759;
+        }
+        
+        .notification.error {
+            background: #ff3b30;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <a href="index.html" class="back-link">←</a>
+            <h1>sustainable recipes</h1>
+        </div>
+        
+        <div class="content">
+            <!-- Fridge Summary -->
+            <div class="fridge-card">
+                <h3>🧊 Your Fridge Items</h3>
+                <div class="fridge-items" id="fridgeItemsList">loading...</div>
+                <button class="refresh-fridge-btn" onclick="loadFridgeData()">↻ Refresh</button>
+            </div>
+            
+            <!-- Recommended Recipes -->
+            <div class="section-title" style="margin-bottom: 12px;">🌱 Recipes You Can Make</div>
+            <div id="recipesContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    finding recipes...
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="find-stores.html" class="nav-item">
+                <span class="nav-emoji">🔍</span>
+                <span>deals</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">🍳</span>
+                <span>recipes</span>
+            </a>
+            <a href="fridge.html" class="nav-item">
+                <span class="nav-emoji">🧊</span>
+                <span>fridge</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recipe Detail Modal -->
+    <div class="recipe-modal" id="recipeModal">
+        <div class="recipe-modal-content">
+            <div id="recipeModalContent"></div>
+            <button class="close-modal-btn" onclick="closeRecipeModal()">Close</button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="backend.js"></script>
+    
+    <script>
+        let fridgeItems = [];
+        let currentRecipe = null;
+        
+        // Flexible ingredient matching with categories and alternatives
+        const ingredientCategories = {
+            // Vegetables / Produce
+            'onion': { keywords: ['onion', 'shallot', 'leek', 'scallion'], category: 'produce' },
+            'garlic': { keywords: ['garlic', 'garlic powder'], category: 'produce' },
+            'carrot': { keywords: ['carrot', 'parsnip'], category: 'produce' },
+            'celery': { keywords: ['celery', 'fennel'], category: 'produce' },
+            'potato': { keywords: ['potato', 'sweet potato', 'yam'], category: 'produce' },
+            'tomato': { keywords: ['tomato', 'cherry tomato', 'canned tomato'], category: 'produce' },
+            'bell pepper': { keywords: ['bell pepper', 'capsicum', 'pepper'], category: 'produce' },
+            'zucchini': { keywords: ['zucchini', 'courgette', 'summer squash'], category: 'produce' },
+            'broccoli': { keywords: ['broccoli', 'broccolini'], category: 'produce' },
+            'cauliflower': { keywords: ['cauliflower'], category: 'produce' },
+            'spinach': { keywords: ['spinach', 'kale', 'chard', 'greens'], category: 'produce' },
+            'mushroom': { keywords: ['mushroom', 'portobello', 'shiitake'], category: 'produce' },
+            'any vegetable': { keywords: ['vegetable', 'veggie', 'leftover veg'], category: 'produce' },
+            
+            // Fruits
+            'banana': { keywords: ['banana', 'plantain'], category: 'produce' },
+            'apple': { keywords: ['apple'], category: 'produce' },
+            'citrus': { keywords: ['lemon', 'lime', 'orange', 'citrus'], category: 'produce' },
+            
+            // Dairy & Eggs
+            'egg': { keywords: ['egg', 'eggs'], category: 'dairy' },
+            'milk': { keywords: ['milk', 'oat milk', 'almond milk', 'soy milk'], category: 'dairy' },
+            'butter': { keywords: ['butter', 'margarine', 'ghee'], category: 'dairy' },
+            'cheese': { keywords: ['cheese', 'parmesan', 'cheddar'], category: 'dairy' },
+            'yogurt': { keywords: ['yogurt', 'greek yogurt'], category: 'dairy' },
+            
+            // Pantry
+            'flour': { keywords: ['flour', 'whole wheat flour', 'all-purpose flour'], category: 'pantry' },
+            'sugar': { keywords: ['sugar', 'brown sugar', 'coconut sugar'], category: 'pantry' },
+            'rice': { keywords: ['rice', 'white rice', 'brown rice'], category: 'pantry' },
+            'lentils': { keywords: ['lentil', 'red lentil', 'brown lentil'], category: 'pantry' },
+            'beans': { keywords: ['bean', 'chickpea', 'black bean', 'kidney bean'], category: 'pantry' },
+            'pasta': { keywords: ['pasta', 'noodle', 'spaghetti'], category: 'pantry' },
+            'oil': { keywords: ['oil', 'olive oil', 'coconut oil', 'vegetable oil'], category: 'pantry' },
+            'soy sauce': { keywords: ['soy sauce', 'tamari', 'coconut aminos'], category: 'pantry' },
+            'stock': { keywords: ['stock', 'broth', 'bouillon'], category: 'pantry' },
+            'coconut milk': { keywords: ['coconut milk', 'coconut cream'], category: 'pantry' },
+            'baking soda': { keywords: ['baking soda', 'bicarbonate'], category: 'pantry' },
+            'baking powder': { keywords: ['baking powder'], category: 'pantry' },
+            'herbs': { keywords: ['herb', 'parsley', 'cilantro', 'basil', 'thyme', 'rosemary', 'oregano'], category: 'pantry' },
+            'spices': { keywords: ['spice', 'curry powder', 'cumin', 'paprika', 'cinnamon'], category: 'pantry' }
+        };
+        
+        // Sustainable recipe database with flexible ingredients
+        const recipeDatabase = [
+            {
+                id: 1,
+                name: "🌿 Zero-Waste Vegetable Soup",
+                description: "Use any leftover vegetables in your fridge! Perfect for reducing food waste.",
+                image: "🥣",
+                cuisine: "Comfort Food",
+                prepTime: "15 mins",
+                cookTime: "30 mins",
+                sustainability: "Zero-waste - uses all vegetable parts including peels",
+                requiredIngredients: ["onion", "garlic", "any vegetable", "stock"],
+                optionalIngredients: ["carrot", "celery", "potato", "tomato", "herbs"],
+                steps: [
+                    "Chop all vegetables into small pieces (including peels - they add flavor!)",
+                    "Sauté onion and garlic until soft",
+                    "Add all other vegetables and stock",
+                    "Simmer for 20-30 minutes until vegetables are tender",
+                    "Blend partially or fully for creamy texture",
+                    "Season with herbs and serve with bread"
+                ],
+                youtubeSearch: "zero waste vegetable soup recipe"
+            },
+            {
+                id: 2,
+                name: "🍌 Overripe Banana Bread",
+                description: "Perfect way to use those brown bananas sitting in your fridge!",
+                image: "🍌",
+                cuisine: "Baking",
+                prepTime: "10 mins",
+                cookTime: "50 mins",
+                sustainability: "Uses overripe fruit that would otherwise be thrown away",
+                requiredIngredients: ["banana", "flour", "sugar", "egg", "butter"],
+                optionalIngredients: ["baking soda", "spices"],
+                steps: [
+                    "Preheat oven to 350°F (175°C)",
+                    "Mash overripe bananas in a large bowl",
+                    "Mix in melted butter, sugar, and egg",
+                    "Add flour and baking soda, mix until combined",
+                    "Pour into greased loaf pan",
+                    "Bake for 50-60 minutes until toothpick comes clean"
+                ],
+                youtubeSearch: "banana bread recipe overripe bananas"
+            },
+            {
+                id: 3,
+                name: "🥬 Root-to-Stem Stir Fry",
+                description: "Use entire vegetables - stems, leaves, and all!",
+                image: "🥬",
+                cuisine: "Asian",
+                prepTime: "10 mins",
+                cookTime: "10 mins",
+                sustainability: "Uses all parts of vegetables, nothing wasted",
+                requiredIngredients: ["any vegetable", "garlic", "oil", "soy sauce"],
+                optionalIngredients: ["onion", "ginger", "bell pepper", "carrot"],
+                steps: [
+                    "Wash and chop all vegetable stems, leaves, and peels",
+                    "Heat oil in a wok or large pan",
+                    "Stir-fry garlic until fragrant",
+                    "Add harder vegetables first (broccoli stems, carrot peels)",
+                    "Add softer vegetables and leaves last",
+                    "Season with soy sauce and serve immediately"
+                ],
+                youtubeSearch: "vegetable stir fry zero waste"
+            },
+            {
+                id: 4,
+                name: "🍲 Leftover Veggie Curry",
+                description: "Transform any leftover vegetables into delicious curry!",
+                image: "🍛",
+                cuisine: "Indian",
+                prepTime: "10 mins",
+                cookTime: "20 mins",
+                sustainability: "Perfect for using any vegetables before they go bad",
+                requiredIngredients: ["any vegetable", "coconut milk", "onion", "garlic", "spices"],
+                optionalIngredients: ["tomato", "ginger", "rice"],
+                steps: [
+                    "Sauté onion and garlic until soft",
+                    "Add spices and cook for 1 minute",
+                    "Add any chopped vegetables and coconut milk",
+                    "Simmer until vegetables are tender",
+                    "Serve over rice or with bread"
+                ],
+                youtubeSearch: "leftover vegetable curry recipe"
+            },
+            {
+                id: 5,
+                name: "🥣 Fridge Clean-Out Frittata",
+                description: "Egg-based dish that works with almost any leftover ingredients!",
+                image: "🍳",
+                cuisine: "Breakfast",
+                prepTime: "10 mins",
+                cookTime: "20 mins",
+                sustainability: "Uses up small amounts of leftover vegetables, cheese, and meats",
+                requiredIngredients: ["egg", "any vegetable"],
+                optionalIngredients: ["milk", "cheese", "onion", "garlic", "herbs", "potato"],
+                steps: [
+                    "Preheat oven to 375°F (190°C)",
+                    "Whisk eggs with milk and herbs if available",
+                    "Sauté any vegetables in an oven-safe pan",
+                    "Pour egg mixture over vegetables",
+                    "Sprinkle cheese on top if you have it",
+                    "Bake for 15-20 minutes until set"
+                ],
+                youtubeSearch: "frittata recipe leftover vegetables"
+            },
+            {
+                id: 6,
+                name: "🥣 Sustainable Lentil Soup",
+                description: "Protein-packed soup using pantry staples and vegetable scraps!",
+                image: "🥣",
+                cuisine: "Soup",
+                prepTime: "10 mins",
+                cookTime: "25 mins",
+                sustainability: "Uses dried lentils - low carbon footprint, high nutrition",
+                requiredIngredients: ["lentils", "onion", "garlic", "stock"],
+                optionalIngredients: ["carrot", "celery", "tomato", "potato", "spices"],
+                steps: [
+                    "Sauté onion and garlic until soft",
+                    "Add lentils, any vegetables, and stock",
+                    "Simmer for 20-25 minutes until lentils are tender",
+                    "Season with herbs and serve with bread"
+                ],
+                youtubeSearch: "lentil soup sustainable recipe"
+            },
+            {
+                id: 7,
+                name: "🍳 Simple Veggie Omelette",
+                description: "Quick and easy omelette using whatever vegetables you have!",
+                image: "🍳",
+                cuisine: "Breakfast",
+                prepTime: "5 mins",
+                cookTime: "5 mins",
+                sustainability: "Uses small amounts of leftover vegetables",
+                requiredIngredients: ["egg", "any vegetable"],
+                optionalIngredients: ["cheese", "milk", "herbs", "onion", "garlic"],
+                steps: [
+                    "Beat eggs in a bowl",
+                    "Chop any vegetables into small pieces",
+                    "Pour eggs into heated pan",
+                    "Add vegetables on top",
+                    "Fold and cook until done"
+                ],
+                youtubeSearch: "vegetable omelette recipe"
+            },
+            {
+                id: 8,
+                name: "🥔 Roasted Vegetable Medley",
+                description: "Simple roasted vegetables - works with almost any vegetables!",
+                image: "🥔",
+                cuisine: "Side Dish",
+                prepTime: "10 mins",
+                cookTime: "25 mins",
+                sustainability: "Perfect for using aging vegetables",
+                requiredIngredients: ["any vegetable", "oil"],
+                optionalIngredients: ["garlic", "herbs", "spices"],
+                steps: [
+                    "Preheat oven to 400°F (200°C)",
+                    "Chop vegetables into similar-sized pieces",
+                    "Toss with oil and seasonings",
+                    "Spread on baking sheet",
+                    "Roast for 20-25 minutes until tender and browned"
+                ],
+                youtubeSearch: "roasted vegetables recipe"
+            },
+            {
+                id: 9,
+                name: "🍚 Fried Rice",
+                description: "Perfect way to use leftover rice and vegetables!",
+                image: "🍚",
+                cuisine: "Asian",
+                prepTime: "10 mins",
+                cookTime: "10 mins",
+                sustainability: "Uses leftover rice and almost any vegetables",
+                requiredIngredients: ["rice", "any vegetable", "egg", "soy sauce"],
+                optionalIngredients: ["onion", "garlic", "carrot", "peas"],
+                steps: [
+                    "Scramble egg and set aside",
+                    "Sauté any vegetables until tender",
+                    "Add rice and soy sauce",
+                    "Stir-fry until heated through",
+                    "Mix in scrambled egg"
+                ],
+                youtubeSearch: "fried rice leftover vegetables"
+            },
+            {
+                id: 10,
+                name: "🥗 Sustainable Grain Bowl",
+                description: "Customizable bowl with grains, vegetables, and whatever you have!",
+                image: "🥗",
+                cuisine: "Healthy",
+                prepTime: "10 mins",
+                cookTime: "15 mins",
+                sustainability: "Use any grains, vegetables, and proteins you have",
+                requiredIngredients: ["rice", "any vegetable"],
+                optionalIngredients: ["egg", "beans", "avocado", "herbs", "lemon", "oil"],
+                steps: [
+                    "Cook grains according to package",
+                    "Chop or cook vegetables",
+                    "Assemble bowl with grains as base",
+                    "Add vegetables and any protein",
+                    "Drizzle with oil or dressing"
+                ],
+                youtubeSearch: "grain bowl recipe"
+            }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = Backend.getCurrentUser();
+            const role = localStorage.getItem('userRole');
+            
+            if (!user || role !== 'consumer') {
+                alert('Please login as consumer');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            await loadFridgeData();
+            matchRecipes();
+        });
+        
+        async function loadFridgeData() {
+            try {
+                let items = await Backend.loadFridgeItems();
+                if (!items || items.length === 0) {
+                    items = JSON.parse(localStorage.getItem('foodItems')) || [];
+                }
+                fridgeItems = items;
+                
+                const fridgeListDiv = document.getElementById('fridgeItemsList');
+                if (fridgeItems.length === 0) {
+                    fridgeListDiv.innerHTML = 'No items in fridge. Add some items to get recipe recommendations!';
+                } else {
+                    const itemNames = fridgeItems.slice(0, 5).map(i => i.name).join(', ');
+                    fridgeListDiv.innerHTML = `📦 ${fridgeItems.length} items: ${itemNames}${fridgeItems.length > 5 ? '...' : ''}`;
+                }
+            } catch (error) {
+                console.error('Error loading fridge:', error);
+                fridgeItems = [];
+                document.getElementById('fridgeItemsList').innerHTML = 'Error loading fridge items';
+            }
+        }
+        
+        // Flexible ingredient matching function
+        function matchesIngredient(fridgeItemName, ingredientKey) {
+            const ingredientInfo = ingredientCategories[ingredientKey];
+            if (!ingredientInfo) {
+                // Direct match fallback
+                return fridgeItemName.toLowerCase().includes(ingredientKey.toLowerCase());
+            }
+            
+            const itemLower = fridgeItemName.toLowerCase();
+            return ingredientInfo.keywords.some(keyword => itemLower.includes(keyword));
+        }
+        
+        function getAlternativeSuggestions(ingredientKey) {
+            const ingredientInfo = ingredientCategories[ingredientKey];
+            if (!ingredientInfo) return [];
+            return ingredientInfo.keywords.filter(k => k !== ingredientKey);
+        }
+        
+        function matchRecipes() {
+            const container = document.getElementById('recipesContainer');
+            const fridgeItemNames = fridgeItems.map(i => i.name.toLowerCase());
+            
+            const recipesWithMatch = recipeDatabase.map(recipe => {
+                let requiredMatched = 0;
+                let optionalMatched = 0;
+                let matchedIngredients = [];
+                let missingRequired = [];
+                let matchedAlternatives = [];
+                
+                // Check required ingredients
+                for (const required of recipe.requiredIngredients) {
+                    let found = false;
+                    let alternativeUsed = null;
+                    
+                    for (const fridgeItem of fridgeItemNames) {
+                        if (matchesIngredient(fridgeItem, required)) {
+                            found = true;
+                            matchedIngredients.push(required);
+                            break;
+                        }
+                    }
+                    
+                    // Check if any optional ingredient could substitute
+                    if (!found) {
+                        for (const optional of recipe.optionalIngredients) {
+                            if (matchesIngredient(fridgeItemNames.join(' '), optional)) {
+                                found = true;
+                                matchedAlternatives.push(`${required} (could use ${optional})`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (found) {
+                        requiredMatched++;
+                    } else {
+                        missingRequired.push(required);
+                    }
+                }
+                
+                // Check optional ingredients (bonus points)
+                for (const optional of recipe.optionalIngredients) {
+                    for (const fridgeItem of fridgeItemNames) {
+                        if (matchesIngredient(fridgeItem, optional)) {
+                            optionalMatched++;
+                            matchedIngredients.push(optional);
+                            break;
+                        }
+                    }
+                }
+                
+                const totalRequired = recipe.requiredIngredients.length;
+                const requiredPercentage = totalRequired > 0 ? (requiredMatched / totalRequired) * 100 : 0;
+                const totalPercentage = Math.min(100, requiredPercentage + (optionalMatched * 5));
+                
+                return {
+                    ...recipe,
+                    matchPercentage: Math.round(totalPercentage),
+                    requiredMatched,
+                    requiredTotal: totalRequired,
+                    optionalMatched,
+                    missingRequired,
+                    matchedIngredients,
+                    matchedAlternatives
+                };
+            });
+            
+            const sortedRecipes = recipesWithMatch.sort((a, b) => b.matchPercentage - a.matchPercentage);
+            const topRecipes = sortedRecipes.slice(0, 10);
+            
+            if (topRecipes.length === 0 || fridgeItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size:48px; margin-bottom:16px;">🍳</div>
+                        <div>Add items to your fridge to see recipe recommendations!</div>
+                        <div style="font-size:13px; margin-top:8px;">Go to Fridge tab to add items</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = topRecipes.map(recipe => {
+                let matchText = '';
+                let matchClass = '';
+                if (recipe.matchPercentage >= 80) {
+                    matchText = '🌟 Perfect match! You have almost everything!';
+                    matchClass = 'high';
+                } else if (recipe.matchPercentage >= 50) {
+                    matchText = '👍 Good match! Just need a few items';
+                    matchClass = '';
+                } else if (recipe.matchPercentage >= 25) {
+                    matchText = '📝 Need some ingredients, but possible';
+                    matchClass = '';
+                } else {
+                    matchText = '🔍 Need several ingredients';
+                    matchClass = '';
+                }
+                
+                return `
+                    <div class="recipe-card" onclick="openRecipeModal(${recipe.id})">
+                        <div class="recipe-image">${recipe.image}</div>
+                        <div class="recipe-info">
+                            <div class="recipe-name">${recipe.name}</div>
+                            <div class="recipe-meta">
+                                <span>⏱️ ${recipe.prepTime}</span>
+                                <span>🍳 ${recipe.cookTime}</span>
+                                <span>🌱 ${recipe.sustainability}</span>
+                            </div>
+                            <div class="recipe-match ${matchClass}">${recipe.matchPercentage}% match • ${matchText}</div>
+                            <div class="recipe-desc">${recipe.description}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function openRecipeModal(recipeId) {
+            const recipe = recipeDatabase.find(r => r.id === recipeId);
+            if (!recipe) return;
+            
+            currentRecipe = recipe;
+            
+            const fridgeItemNames = fridgeItems.map(i => i.name.toLowerCase());
+            
+            let ingredientsHtml = '';
+            let missingList = [];
+            let alternativesHtml = '';
+            
+            // Display required ingredients
+            for (const required of recipe.requiredIngredients) {
+                let hasIngredient = false;
+                let alternativeSuggestion = '';
+                
+                for (const fridgeItem of fridgeItemNames) {
+                    if (matchesIngredient(fridgeItem, required)) {
+                        hasIngredient = true;
+                        break;
+                    }
+                }
+                
+                // Check alternatives
+                if (!hasIngredient) {
+                    for (const optional of recipe.optionalIngredients) {
+                        if (matchesIngredient(fridgeItemNames.join(' '), optional)) {
+                            alternativeSuggestion = ` (could use ${optional} as alternative)`;
+                            break;
+                        }
+                    }
+                }
+                
+                if (hasIngredient) {
+                    ingredientsHtml += `<li class="ingredient-item"><span class="ingredient-have">✅ ${required}</span> <span style="color:#34c759;">(you have this!)</span></li>`;
+                } else {
+                    ingredientsHtml += `<li class="ingredient-item"><span class="ingredient-missing">❌ ${required}${alternativeSuggestion}</span></li>`;
+                    missingList.push(required);
+                }
+            }
+            
+            // Display optional ingredients
+            if (recipe.optionalIngredients.length > 0) {
+                ingredientsHtml += `<li style="list-style: none; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0;"><small style="color:#999;">✨ Optional add-ons:</small></li>`;
+                for (const optional of recipe.optionalIngredients) {
+                    let hasIngredient = false;
+                    for (const fridgeItem of fridgeItemNames) {
+                        if (matchesIngredient(fridgeItem, optional)) {
+                            hasIngredient = true;
+                            break;
+                        }
+                    }
+                    if (hasIngredient) {
+                        ingredientsHtml += `<li class="ingredient-item"><span>➕ ${optional}</span> <span style="color:#34c759;">(you have this!)</span></li>`;
+                    } else {
+                        ingredientsHtml += `<li class="ingredient-item"><span>➕ ${optional}</span> <span style="color:#999;">(optional)</span></li>`;
+                    }
+                }
+            }
+            
+            let stepsHtml = '';
+            recipe.steps.forEach((step, idx) => {
+                stepsHtml += `
+                    <li class="step-item">
+                        <span class="step-number">${idx + 1}</span>
+                        <span>${step}</span>
+                    </li>
+                `;
+            });
+            
+            const matchPercentage = Math.min(100, Math.round((recipe.requiredMatched / recipe.requiredTotal) * 100 + (recipe.optionalMatched * 3)));
+            
+            const modalContent = `
+                <div class="recipe-modal-header">
+                    <div class="recipe-modal-name">${recipe.name}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 4px;">🌱 ${recipe.sustainability}</div>
+                </div>
+                
+                <div class="recipe-modal-section">
+                    <h4>📋 Match Score: ${matchPercentage}%</h4>
+                    <div style="background: #e8f5e8; border-radius: 8px; padding: 8px; margin-top: 8px;">
+                        You have ${recipe.requiredMatched} of ${recipe.requiredTotal} required ingredients!
+                        ${recipe.optionalMatched > 0 ? ` Plus ${recipe.optionalMatched} optional extras!` : ''}
+                    </div>
+                </div>
+                
+                <div class="recipe-modal-section">
+                    <h4>🥕 Ingredients</h4>
+                    <ul class="ingredient-list">${ingredientsHtml}</ul>
+                </div>
+                
+                ${missingList.length > 0 ? `
+                    <div class="recipe-modal-section">
+                        <h4>🛒 Missing Items</h4>
+                        <div class="missing-items-section" style="margin: 0; padding: 12px;">
+                            ${missingList.map(item => `
+                                <div class="missing-item">
+                                    <span>${item}</span>
+                                    <button class="add-to-list-btn" onclick="addToShoppingList('${item}'); event.stopPropagation();">+ Add to List</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '<div class="recipe-modal-section"><div style="background: #e8f5e8; border-radius: 8px; padding: 12px; text-align: center;">🎉 You have all the required ingredients! Start cooking!</div></div>'}
+                
+                <div class="recipe-modal-section">
+                    <h4>📝 Step-by-Step Instructions</h4>
+                    <ul class="step-list">${stepsHtml}</ul>
+                </div>
+                
+                <div class="recipe-modal-section">
+                    <h4>🎥 Video Tutorial</h4>
+                    <button class="youtube-btn" onclick="openYouTubeVideo('${recipe.youtubeSearch}')">
+                        ▶️ Watch on YouTube
+                    </button>
+                    <div style="background: #f0f0f0; border-radius: 12px; padding: 12px; margin-top: 8px;">
+                        <div style="font-size: 12px; color: #666;">💡 Tip: Search "${recipe.youtubeSearch}" on YouTube for visual guide!</div>
+                    </div>
+                </div>
+                
+                ${matchPercentage >= 50 ? `
+                    <button class="mark-cooked-btn" onclick="markAsCooked()">✅ Mark as Cooked & Remove Used Items</button>
+                ` : ''}
+            `;
+            
+            document.getElementById('recipeModalContent').innerHTML = modalContent;
+            document.getElementById('recipeModal').style.display = 'flex';
+        }
+        
+        async function markAsCooked() {
+            if (!currentRecipe) return;
+            
+            if (!confirm(`Mark "${currentRecipe.name}" as cooked? This will remove ingredients from your fridge that you used.`)) return;
+            
+            const usedIngredients = [];
+            
+            for (const required of currentRecipe.requiredIngredients) {
+                for (const fridgeItem of fridgeItems) {
+                    if (matchesIngredient(fridgeItem.name.toLowerCase(), required)) {
+                        usedIngredients.push(fridgeItem);
+                        break;
+                    }
+                }
+            }
+            
+            if (usedIngredients.length > 0) {
+                const removedNames = usedIngredients.map(i => i.name).join(', ');
+                const newFridgeItems = fridgeItems.filter(item => !usedIngredients.includes(item));
+                
+                try {
+                    await Backend.saveFridgeItems(newFridgeItems);
+                    localStorage.setItem('foodItems', JSON.stringify(newFridgeItems));
+                    fridgeItems = newFridgeItems;
+                    
+                    await loadFridgeData();
+                    matchRecipes();
+                    
+                    showNotification(`✅ Removed: ${removedNames}`, 'success');
+                    closeRecipeModal();
+                } catch (error) {
+                    alert('Error updating fridge. Please try again.');
+                }
+            } else {
+                showNotification('No matching ingredients found in your fridge to remove.', 'error');
+            }
+        }
+        
+        function addToShoppingList(itemName) {
+            let shoplist = JSON.parse(localStorage.getItem('shoplists')) || {};
+            let defaultList = shoplist['default'] || { id: 'default', name: 'main', icon: '📋', items: [] };
+            
+            const newItem = {
+                id: Date.now() + Math.random(),
+                name: itemName,
+                price: 0,
+                qty: 1,
+                category: 'other',
+                completed: false,
+                date: new Date().toISOString()
+            };
+            
+            defaultList.items.push(newItem);
+            shoplist['default'] = defaultList;
+            localStorage.setItem('shoplists', JSON.stringify(shoplist));
+            
+            showNotification(`✅ Added "${itemName}" to your shopping list!`, 'success');
+        }
+        
+        function openYouTubeVideo(searchQuery) {
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`, '_blank');
+        }
+        
+        function closeRecipeModal() {
+            document.getElementById('recipeModal').style.display = 'none';
+            currentRecipe = null;
+        }
+        
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.className = `notification show ${type}`;
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        
+        window.loadFridgeData = loadFridgeData;
+        window.openRecipeModal = openRecipeModal;
+        window.closeRecipeModal = closeRecipeModal;
+        window.markAsCooked = markAsCooked;
+        window.addToShoppingList = addToShoppingList;
+        window.openYouTubeVideo = openYouTubeVideo;
+    </script>
+</body>
+</html>
