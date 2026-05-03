@@ -210,30 +210,12 @@
             margin-bottom: 8px;
             color: #007aff;
         }
-        .custom-popup .popup-ads-title {
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-            margin-bottom: 4px;
-            color: #34c759;
-        }
-        .custom-popup .popup-ad-item {
-            font-size: 11px;
-            padding: 4px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .custom-popup .popup-ad-name {
-            font-weight: 500;
-        }
-        .custom-popup .popup-ad-discount {
-            color: #34c759;
-        }
         
         /* Consumer only */
         .consumer-only { display: none; }
         body.consumer .consumer-only { display: block; }
         
-        /* Quick Actions */
+        /* Quick Actions - 4 items grid */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -249,6 +231,7 @@
             border: 1px solid #f0f0f0;
             cursor: pointer;
             transition: 0.2s;
+            text-align: center;
         }
         .action-card:active { transform: scale(0.98); }
         .card-emoji { font-size: 28px; margin-bottom: 8px; }
@@ -356,14 +339,6 @@
         .deal-meta { font-size: 12px; color: #666; display: flex; gap: 8px; flex-wrap: wrap; }
         .deal-shop { color: #007aff; }
         .deal-discount { color: #34c759; font-weight: 600; }
-        .deal-quantity {
-            font-size: 11px;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 10px;
-            color: #666;
-        }
-        .deal-quantity.low { background: #ffebee; color: #ff3b30; }
         
         /* Fridge Summary */
         .fridge-summary {
@@ -690,10 +665,26 @@
             <!-- Home Tab -->
             <div class="tab-content active" id="homeTab">
                 <div class="quick-actions">
-                    <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">🛒</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
-                    <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
-                    <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
-                    <div class="action-card" onclick="switchConsumerTab('profile')"><div class="card-emoji">👤</div><div class="card-title">my profile</div><div class="card-desc">view account</div></div>
+                    <div class="action-card" onclick="window.location.href='shoplist.html'">
+                        <div class="card-emoji">🛒</div>
+                        <div class="card-title">my lists</div>
+                        <div class="card-desc" id="listCount">0 items</div>
+                    </div>
+                    <div class="action-card" onclick="window.location.href='find-stores.html'">
+                        <div class="card-emoji">🔍</div>
+                        <div class="card-title">find deals</div>
+                        <div class="card-desc" id="dealsCount">0 nearby</div>
+                    </div>
+                    <div class="action-card" onclick="window.location.href='fridge.html'">
+                        <div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div>
+                        <div class="card-title">my fridge</div>
+                        <div class="card-desc" id="fridgeCount">0 items</div>
+                    </div>
+                    <div class="action-card" onclick="window.location.href='recipe.html'">
+                        <div class="card-emoji">🍳</div>
+                        <div class="card-title">recipes</div>
+                        <div class="card-desc">sustainable cooking</div>
+                    </div>
                 </div>
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
                 <div class="deals-list" id="recentDeals"><div class="empty-state">🔍 loading deals...</div></div>
@@ -762,8 +753,8 @@
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
-        <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">🛒</span><span id="navLabel">lists</span></div>
-        <div class="nav-item" onclick="goToProfile()"><span class="nav-emoji">👤</span><span>profile</span></div>
+        <div class="nav-item" onclick="window.location.href='recipe.html'"><span class="nav-emoji">🍳</span><span>recipes</span></div>
+        <div class="nav-item" onclick="window.location.href='fridge.html'"><span class="nav-emoji">🧊</span><span>fridge</span></div>
     </div>
     
     <!-- Business Bottom Nav -->
@@ -819,29 +810,23 @@
     
     async function loadAllStoresOnMap() {
         try {
-            // Get all businesses (advertisers) from the system
             const allBusinesses = await getAllBusinesses();
-            
             const storeListDiv = document.getElementById('storeList');
             if (allBusinesses.length === 0) {
                 storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores found</div>';
                 return;
             }
             
-            // Clear existing markers
             storeMarkers.forEach(marker => map.removeLayer(marker));
             storeMarkers = [];
             
             let listHtml = '';
             for (const store of allBusinesses) {
-                // Only show stores with valid coordinates
                 if (store.lat && store.lng && store.lat !== 0 && store.lng !== 0) {
-                    // Create custom popup content with store details and ads
                     const popupContent = await createStorePopupContent(store);
                     const marker = L.marker([store.lat, store.lng]).addTo(map);
                     marker.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
                     marker.on('click', () => {
-                        // Highlight the store in the list
                         document.querySelectorAll('.store-item').forEach(el => el.style.background = '#f8f9fa');
                         const clickedItem = document.querySelector(`.store-item[data-store-id="${store.id}"]`);
                         if (clickedItem) clickedItem.style.background = '#e3f2fd';
@@ -857,12 +842,10 @@
             
             storeListDiv.innerHTML = listHtml;
             
-            if (allBusinesses.length > 0) {
-                const validStores = allBusinesses.filter(s => s.lat && s.lng && s.lat !== 0 && s.lng !== 0);
-                if (validStores.length > 0) {
-                    const bounds = L.latLngBounds(validStores.map(s => [s.lat, s.lng]));
-                    map.fitBounds(bounds);
-                }
+            const validStores = allBusinesses.filter(s => s.lat && s.lng && s.lat !== 0 && s.lng !== 0);
+            if (validStores.length > 0) {
+                const bounds = L.latLngBounds(validStores.map(s => [s.lat, s.lng]));
+                map.fitBounds(bounds);
             }
         } catch(e) {
             console.error('Error loading stores:', e);
@@ -872,11 +855,9 @@
     
     async function getAllBusinesses() {
         try {
-            // Query all users with role = 'advertiser'
             const query = new Parse.Query(Parse.User);
             query.equalTo("role", "advertiser");
             const businesses = await query.find({ useMasterKey: true });
-            
             const stores = [];
             for (const biz of businesses) {
                 const lat = biz.get("businessLat");
@@ -897,30 +878,25 @@
     }
     
     async function createStorePopupContent(store) {
-        // Get active ads for this store
         let adsHtml = '<div class="popup-ads-title">📢 Active Deals:</div>';
         let hasAds = false;
         
         try {
-            const ads = await Backend.getActiveAds({ businessId: store.id, limit: 10 });
+            const ads = await Backend.getActiveAds({ businessId: store.id, limit: 5 });
             if (ads && ads.length > 0) {
                 hasAds = true;
                 for (const ad of ads) {
                     const daysLeft = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000 * 60 * 60 * 24));
-                    adsHtml += `<div class="popup-ad-item">
-                        <span class="popup-ad-name">${escapeHtml(ad.foodName)}</span>
-                        <span class="popup-ad-discount"> -${ad.discount}%</span>
+                    adsHtml += `<div class="popup-ad-item" style="font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f0f0f0;">
+                        <span style="font-weight: 500;">${escapeHtml(ad.foodName)}</span>
+                        <span style="color: #34c759;"> -${ad.discount}%</span>
                         <div style="font-size: 10px; color: #999;">${daysLeft} days left • ${ad.quantityLeft || 0} left</div>
                     </div>`;
                 }
             }
-        } catch(e) {
-            console.error('Error loading ads for popup:', e);
-        }
+        } catch(e) { console.error(e); }
         
-        if (!hasAds) {
-            adsHtml = '<div class="popup-ads-title">📢 No active deals at the moment</div>';
-        }
+        if (!hasAds) adsHtml = '<div class="popup-ads-title">📢 No active deals at the moment</div>';
         
         return `<div class="custom-popup">
             <div class="popup-store-name">🏪 ${escapeHtml(store.name)}</div>
@@ -948,7 +924,6 @@
     
     function flyToStore(lat, lng, storeName) {
         map.flyTo([lat, lng], 16);
-        // Find and open the marker popup
         const marker = storeMarkers.find(m => {
             const pos = m.getLatLng();
             return pos.lat === lat && pos.lng === lng;
