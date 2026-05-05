@@ -693,7 +693,8 @@
                     <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">🛒</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
                     <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
-                    <div class="action-card" onclick="switchConsumerTab('profile')"><div class="card-emoji">👤</div><div class="card-title">my profile</div><div class="card-desc">view account</div></div>
+                    <!-- Changed profile quick action to recipes -->
+                    <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
                 <div class="deals-list" id="recentDeals"><div class="empty-state">🔍 loading deals...</div></div>
