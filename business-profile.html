@@ -425,6 +425,7 @@
             color: #999;
         }
         
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -512,6 +513,59 @@
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 20px;
+        }
+        
+        /* Order selection styles */
+        .order-select-checkbox {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .order-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 12px;
+        }
+        
+        .select-all-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .bulk-confirm-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .bulk-confirm-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .selected-count {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -642,6 +696,12 @@
                     <span>📦 incoming orders</span>
                     <button class="refresh-btn" onclick="loadOrders()">↻</button>
                 </div>
+                <!-- Order selection controls -->
+                <div class="order-actions-bar" id="orderActionsBar" style="display: none;">
+                    <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAll()">☐ Select All</button>
+                    <span class="selected-count" id="selectedCount">0 selected</span>
+                    <button class="bulk-confirm-btn" id="bulkConfirmBtn" onclick="confirmSelectedOrders()" disabled>✓ Confirm Selected</button>
+                </div>
                 <div class="claims-list" id="ordersList">
                     <div class="loading"><div class="loading-spinner"></div>loading orders...</div>
                 </div>
@@ -697,6 +757,9 @@
         let currentUser = null;
         let activeTab = 'profile';
         
+        // Bulk order selection state
+        let selectedOrderIds = new Set();
+        
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
@@ -743,11 +806,9 @@
         async function refreshWallet() {
             try {
                 const balance = await Backend.getBusinessWalletBalance(currentUser.id);
-                console.log('Wallet balance:', balance);
                 document.getElementById('availableBalance').textContent = `$${balance.available.toFixed(2)}`;
                 document.getElementById('pendingBalance').textContent = `Pending (waiting pickup): $${balance.pending.toFixed(2)}`;
             } catch (error) {
-                console.error('Error loading wallet:', error);
                 document.getElementById('availableBalance').textContent = '$0.00';
                 document.getElementById('pendingBalance').textContent = 'Pending: $0.00';
             }
@@ -882,56 +943,71 @@
             }
         }
         
+        // ---- ORDER LOADING WITH CHECKBOXES ----
         async function loadOrders() {
             const container = document.getElementById('ordersList');
+            const actionsBar = document.getElementById('orderActionsBar');
             try {
                 const orders = await Backend.getOrdersForBusiness(currentUser.id);
                 
                 if (orders.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
+                    actionsBar.style.display = 'none';
                     return;
+                }
+                
+                // Reset selection when reloading
+                selectedOrderIds.clear();
+                
+                const pendingOrders = orders.filter(o => o.status === 'pending');
+                
+                // Show selection bar only if there are pending orders
+                if (pendingOrders.length > 0) {
+                    actionsBar.style.display = 'flex';
+                } else {
+                    actionsBar.style.display = 'none';
                 }
                 
                 container.innerHTML = orders.map(order => {
                     let statusText = '';
                     let statusClass = '';
-                    let actions = '';
+                    let actionsHtml = '';
+                    let checkboxHtml = '';
                     
-                    switch(order.status) {
-                        case 'pending':
-                            statusText = 'pending confirmation';
-                            statusClass = 'pending';
-                            actions = `
-                                <div class="claim-actions">
-                                    <button class="claim-btn confirm-btn" onclick="confirmOrder('${order.id}')">✓ Confirm Order</button>
-                                </div>
-                            `;
-                            break;
-                        case 'confirmed_by_business':
-                            statusText = 'ready for pickup';
-                            statusClass = 'confirmed';
-                            actions = `
-                                <div class="claim-actions">
-                                    <span style="font-size:11px; color:#34c759;">⏳ Waiting for customer...</span>
-                                </div>
-                            `;
-                            break;
-                        case 'collected_by_customer':
-                            statusText = 'completed';
-                            statusClass = 'collected';
-                            actions = `
-                                <div class="claim-actions">
-                                    <span style="font-size:11px; color:#007aff;">✅ Payment released</span>
-                                </div>
-                            `;
-                            break;
-                        default:
-                            statusText = order.status;
-                            statusClass = 'pending';
+                    if (order.status === 'pending') {
+                        statusText = 'pending confirmation';
+                        statusClass = 'pending';
+                        // Add checkbox for pending orders
+                        checkboxHtml = `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`;
+                        actionsHtml = `
+                            <div class="claim-actions">
+                                <button class="claim-btn confirm-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>
+                            </div>
+                        `;
+                    } else if (order.status === 'confirmed_by_business') {
+                        statusText = 'ready for pickup';
+                        statusClass = 'confirmed';
+                        actionsHtml = `
+                            <div class="claim-actions">
+                                <span style="font-size:11px; color:#34c759;">⏳ Waiting for customer...</span>
+                            </div>
+                        `;
+                    } else if (order.status === 'collected_by_customer') {
+                        statusText = 'completed';
+                        statusClass = 'collected';
+                        actionsHtml = `
+                            <div class="claim-actions">
+                                <span style="font-size:11px; color:#007aff;">✅ Payment released</span>
+                            </div>
+                        `;
+                    } else {
+                        statusText = order.status;
+                        statusClass = 'pending';
                     }
                     
                     return `
-                        <div class="claim-item">
+                        <div class="claim-item" style="cursor: ${order.status === 'pending' ? 'pointer' : 'default'};" onclick="${order.status === 'pending' ? `toggleOrderSelection('${order.id}')` : ''}">
+                            ${checkboxHtml}
                             <div class="claim-avatar">👤</div>
                             <div class="claim-details">
                                 <div class="claim-customer">
@@ -946,18 +1022,84 @@
                                     💰 $${(order.totalAmount || 0).toFixed(2)} • 📅 ${new Date(order.createdAt).toLocaleString()}
                                 </div>
                             </div>
-                            ${actions}
+                            ${actionsHtml}
                         </div>
                     `;
                 }).join('');
                 
+                updateSelectionUI();
+                
             } catch (error) {
                 console.error('Error loading orders:', error);
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
+                actionsBar.style.display = 'none';
             }
         }
         
-        async function confirmOrder(orderId) {
+        function toggleOrderSelection(orderId) {
+            // Only for pending orders
+            if (selectedOrderIds.has(orderId)) {
+                selectedOrderIds.delete(orderId);
+            } else {
+                selectedOrderIds.add(orderId);
+            }
+            updateSelectionUI();
+        }
+        
+        function handleCheckboxChange(checkbox) {
+            const orderId = checkbox.getAttribute('data-order-id');
+            if (checkbox.checked) {
+                selectedOrderIds.add(orderId);
+            } else {
+                selectedOrderIds.delete(orderId);
+            }
+            updateSelectionUI();
+        }
+        
+        function updateSelectionUI() {
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
+            const selectedCountEl = document.getElementById('selectedCount');
+            const checkboxes = document.querySelectorAll('.order-select-checkbox');
+            
+            const count = selectedOrderIds.size;
+            selectedCountEl.textContent = `${count} selected`;
+            
+            // Update checkboxes to reflect the set
+            checkboxes.forEach(cb => {
+                const oid = cb.getAttribute('data-order-id');
+                cb.checked = selectedOrderIds.has(oid);
+            });
+            
+            // Select All button state
+            const totalPending = document.querySelectorAll('.order-select-checkbox').length;
+            if (totalPending > 0 && count === totalPending) {
+                selectAllBtn.textContent = '☑ Deselect All';
+            } else {
+                selectAllBtn.textContent = '☐ Select All';
+            }
+            
+            // Enable/disable bulk confirm button
+            bulkConfirmBtn.disabled = (count === 0);
+        }
+        
+        function toggleSelectAll() {
+            const allCheckboxes = document.querySelectorAll('.order-select-checkbox');
+            const totalPending = allCheckboxes.length;
+            
+            if (selectedOrderIds.size === totalPending) {
+                // Deselect all
+                selectedOrderIds.clear();
+            } else {
+                // Select all pending orders
+                allCheckboxes.forEach(cb => {
+                    selectedOrderIds.add(cb.getAttribute('data-order-id'));
+                });
+            }
+            updateSelectionUI();
+        }
+        
+        async function confirmSingleOrder(orderId) {
             if (!confirm('Confirm this order? The customer will be notified that their order is ready for pickup.')) return;
             
             const result = await Backend.confirmOrderByBusiness(orderId);
@@ -969,6 +1111,55 @@
             } else {
                 showStatus(result.message, 'error');
             }
+        }
+        
+        async function confirmSelectedOrders() {
+            if (selectedOrderIds.size === 0) {
+                showStatus('No orders selected', 'error');
+                return;
+            }
+            
+            if (!confirm(`Confirm ${selectedOrderIds.size} order(s)? All selected customers will be notified.`)) return;
+            
+            // Show loading state
+            const bulkBtn = document.getElementById('bulkConfirmBtn');
+            bulkBtn.disabled = true;
+            bulkBtn.textContent = '⏳ Confirming...';
+            
+            let successCount = 0;
+            let errorCount = 0;
+            const orderIds = Array.from(selectedOrderIds);
+            
+            for (const orderId of orderIds) {
+                try {
+                    const result = await Backend.confirmOrderByBusiness(orderId);
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                        console.error(`Failed to confirm order ${orderId}:`, result.message);
+                    }
+                } catch (err) {
+                    errorCount++;
+                    console.error(`Error confirming order ${orderId}:`, err);
+                }
+            }
+            
+            // Clear selection
+            selectedOrderIds.clear();
+            
+            if (errorCount === 0) {
+                showStatus(`✅ ${successCount} order(s) confirmed!`, 'success');
+            } else {
+                showStatus(`⚠️ ${successCount} confirmed, ${errorCount} failed.`, 'error');
+            }
+            
+            // Refresh the list and stats
+            await loadOrders();
+            await loadStats();
+            await refreshWallet();
+            
+            bulkBtn.textContent = '✓ Confirm Selected';
         }
         
         async function loadNotifications() {
@@ -1087,11 +1278,12 @@
             window.location.href = 'index.html';
         }
         
+        // Expose functions globally
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
         window.removeEmployee = removeEmployee;
-        window.confirmOrder = confirmOrder;
+        window.confirmSingleOrder = confirmSingleOrder; // renamed to avoid conflict
         window.requestWithdraw = requestWithdraw;
         window.markRead = markRead;
         window.submitVerification = submitVerification;
@@ -1100,6 +1292,10 @@
         window.refreshWallet = refreshWallet;
         window.refreshAll = refreshAll;
         window.logout = logout;
+        window.toggleSelectAll = toggleSelectAll;
+        window.confirmSelectedOrders = confirmSelectedOrders;
+        window.toggleOrderSelection = toggleOrderSelection;
+        window.handleCheckboxChange = handleCheckboxChange;
     </script>
 </body>
 </html>
