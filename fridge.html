@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-    font-family: 'RusticStory';
-    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-         url('./assets/RusticStory-1jDPL.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -392,15 +392,25 @@
         }
         
         .nav-item.active {
-            color: #667eea;
+            color: #007aff;
         }
         
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+            height: 24px;
+            line-height: 24px;
         }
         
+        /* Style for image icons in the nav */
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
+        }
+        
+        /* Fixed notification: hidden until shown */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -413,10 +423,16 @@
             font-size: 14px;
             transition: 0.3s;
             z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .notification.success {
@@ -473,21 +489,22 @@
             </div>
         </div>
         
+        <!-- Standard consumer bottom nav: home, deals, cart, fridge -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
                 <span>home</span>
             </a>
-            <a href="shoplist.html" class="nav-item">
-                <span class="nav-emoji">🛒</span>
-                <span>lists</span>
-            </a>
             <a href="find-stores.html" class="nav-item">
                 <span class="nav-emoji">🔍</span>
                 <span>deals</span>
             </a>
+            <a href="claim.html" class="nav-item">
+                <span class="nav-emoji">🛒</span>
+                <span>cart</span>
+            </a>
             <a href="#" class="nav-item active">
-                <span class="nav-emoji">🧊</span>
+                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
                 <span>fridge</span>
             </a>
         </div>
@@ -519,6 +536,7 @@
         let sortAscending = true;
         let items = [];
         let editingIndex = -1;
+        let notificationTimeout = null;
         
         document.addEventListener("DOMContentLoaded", async function() {
             const user = Backend.getCurrentUser();
@@ -759,9 +777,13 @@
         
         function showNotification(message, type) {
             const notif = document.getElementById('notification');
+            if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = message;
             notif.className = `notification show ${type}`;
-            setTimeout(() => notif.classList.remove('show'), 2000);
+            notificationTimeout = setTimeout(() => {
+                notif.className = 'notification';
+                notificationTimeout = null;
+            }, 2000);
         }
         
         function logout() {
