@@ -451,6 +451,15 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        /* Style for image icons in the nav */
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
         }
         
         .notification {
@@ -467,10 +476,14 @@
             z-index: 1000;
             text-align: center;
             max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .notification.success {
@@ -621,6 +634,7 @@
             <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" style="display: none;">Pay with Wallet</button>
         </div>
         
+        <!-- Standard consumer bottom nav: home, deals, cart, fridge -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -635,7 +649,7 @@
                 <span>cart</span>
             </a>
             <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji">🧊</span>
+                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
                 <span>fridge</span>
             </a>
         </div>
@@ -682,6 +696,7 @@
         let cart = [];
         let walletBalance = 0;
         let lastReceiptData = null;
+        let notificationTimeout = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
@@ -772,7 +787,6 @@
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
                 
-                // Only show image if productImage exists
                 const imageHtml = item.productImage ? 
                     `<div class="item-image"><img src="${item.productImage}" alt="${escapeHtml(item.foodName)}"></div>` : 
                     `<div class="item-image"></div>`;
@@ -1051,9 +1065,13 @@
         
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
+            if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            setTimeout(() => notif.classList.remove('show'), 3000);
+            notificationTimeout = setTimeout(() => {
+                notif.className = 'notification';
+                notificationTimeout = null;
+            }, 2000);
         }
         
         window.updateQuantity = updateQuantity;
