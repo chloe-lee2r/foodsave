@@ -844,13 +844,16 @@
             reader.readAsDataURL(file);
         }
         
-        function removeImage() {
+        // FIX: Added parameter to suppress notification when called from resetForm()
+        function removeImage(showNotif = true) {
             uploadedImageBase64 = null;
             const preview = document.getElementById('imagePreview');
             preview.innerHTML = '<div class="placeholder">📷</div>';
             document.getElementById('removeImageBtn').style.display = 'none';
             document.getElementById('imageUpload').value = '';
-            showNotification('Image removed', 'info');
+            if (showNotif) {
+                showNotification('Image removed', 'info');
+            }
         }
         
         // Barcode scanner functions
@@ -1073,6 +1076,7 @@
                     result = await Backend.createAd(adData);
                     if (result.success) {
                         showNotification('Deal posted successfully!', 'success');
+                        // FIX: reset form without showing "Image removed" notification
                         resetForm();
                         loadMyAds();
                     } else {
@@ -1095,7 +1099,8 @@
             document.getElementById('quantity').value = '50';
             document.getElementById('batchNumber').value = '';
             document.getElementById('category').value = 'other';
-            removeImage();
+            // Call removeImage with false to suppress notification
+            removeImage(false);
             
             const today = new Date();
             const nextWeek = new Date();
@@ -1209,6 +1214,7 @@
             }
         });
         
+        // Expose functions globally for inline onclick handlers
         window.startScanner = startScanner;
         window.stopScanner = stopScanner;
         window.hideScanner = hideScanner;
