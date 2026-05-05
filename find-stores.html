@@ -326,6 +326,7 @@
             to { transform: rotate(360deg); }
         }
         
+        /* FIXED: completely hidden when not .show */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -340,10 +341,14 @@
             z-index: 1000;
             text-align: center;
             max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .notification.success {
@@ -443,6 +448,7 @@
         let currentCategory = 'all';
         let currentSearch = '';
         let cart = [];
+        let notificationTimeout = null;
         
         const categories = [
             { id: 'all', label: 'all' },
@@ -454,7 +460,6 @@
             { id: 'frozen', label: '❄️ frozen' }
         ];
         
-        // Category to emoji mapping for fallback
         const categoryEmojis = {
             dairy: '🥛',
             produce: '🥬',
@@ -466,7 +471,6 @@
         };
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if user is logged in as consumer
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
             
@@ -511,8 +515,6 @@
                     search: currentSearch
                 });
                 
-                console.log('Loaded ads:', ads);
-                
                 if (ads.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -524,7 +526,6 @@
                     return;
                 }
                 
-                // Get current cart to show quantities
                 const savedCart = localStorage.getItem('claimCart');
                 const currentCart = savedCart ? JSON.parse(savedCart) : [];
                 
@@ -534,12 +535,9 @@
                     const discountedPrice = ad.originalPrice ? (ad.originalPrice * (1 - ad.discount / 100)).toFixed(2) : null;
                     const savedAmount = ad.originalPrice ? (ad.originalPrice - discountedPrice).toFixed(2) : 0;
                     
-                    // Get current quantity in cart
                     const cartItem = currentCart.find(item => item.id === ad.id);
                     const currentQty = cartItem ? cartItem.quantity : 0;
                     const remainingStock = ad.quantityLeft - currentQty;
-                    
-                    // Get emoji based on category
                     const categoryEmoji = categoryEmojis[ad.category] || '🍽️';
                     
                     return `
@@ -581,7 +579,6 @@
                 }).join('');
                 
             } catch (error) {
-                console.error('Error loading deals:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <div>failed to load deals</div>
@@ -594,13 +591,12 @@
         
         async function changeQuantity(adId, delta, maxStock) {
             try {
-                // First, get the ad details to ensure it exists
                 const ads = await Backend.getActiveAds();
                 const ad = ads.find(a => a.id === adId);
                 
                 if (!ad) {
                     showNotification('Deal not found or expired', 'error');
-                    await loadDeals(); // Refresh the page
+                    await loadDeals();
                     return;
                 }
                 
@@ -639,14 +635,11 @@
                 localStorage.setItem('claimCart', JSON.stringify(cart));
                 updateCartCount();
                 
-                // Update the displayed quantity
                 const qtySpan = document.getElementById(`qty-${adId}`);
                 if (qtySpan) {
-                    const newDisplayQty = newQty > 0 ? newQty : 0;
-                    qtySpan.textContent = newDisplayQty;
+                    qtySpan.textContent = newQty > 0 ? newQty : 0;
                 }
                 
-                // Update button states
                 const minusBtn = document.querySelector(`button[onclick*="changeQuantity('${adId}', -1"]`);
                 const plusBtn = document.querySelector(`button[onclick*="changeQuantity('${adId}', 1"]`);
                 if (minusBtn) minusBtn.disabled = newQty <= 0;
@@ -657,7 +650,6 @@
                 }
                 
             } catch (error) {
-                console.error('Error updating cart:', error);
                 showNotification('Error adding to cart', 'error');
             }
         }
@@ -685,10 +677,17 @@
         
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
+            // Clear any previous timeout to avoid conflicts
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+            }
+            // Update content and type
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            setTimeout(() => {
-                notif.className = 'notification';
+            
+            notificationTimeout = setTimeout(() => {
+                notif.className = 'notification'; // remove show and type, triggering hide animation
+                notificationTimeout = null;
             }, 2000);
         }
         
