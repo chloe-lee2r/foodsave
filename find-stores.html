@@ -326,7 +326,7 @@
             to { transform: rotate(360deg); }
         }
         
-        /* FIXED: completely hidden when not .show */
+        /* Notification styles – fade out fix */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -389,6 +389,15 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        /* Style for image icons in the nav */
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -419,6 +428,7 @@
             </div>
         </div>
         
+        <!-- Standard consumer bottom nav: home, deals, cart, fridge (with custom image) -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -433,7 +443,7 @@
                 <span>cart</span>
             </a>
             <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji">🧊</span>
+                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
                 <span>fridge</span>
             </a>
         </div>
@@ -677,16 +687,14 @@
         
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
-            // Clear any previous timeout to avoid conflicts
             if (notificationTimeout) {
                 clearTimeout(notificationTimeout);
             }
-            // Update content and type
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
             
             notificationTimeout = setTimeout(() => {
-                notif.className = 'notification'; // remove show and type, triggering hide animation
+                notif.className = 'notification';
                 notificationTimeout = null;
             }, 2000);
         }
