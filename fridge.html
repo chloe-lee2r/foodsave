@@ -8,12 +8,12 @@
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
         @font-face {
-            font-family: 'RusticStory';
-            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
-                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
-            font-weight: normal;
-            font-style: normal;
-        }
+    font-family: 'RusticStory';
+    src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+         url('./assets/RusticStory-1jDPL.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
         * {
             margin: 0;
             padding: 0;
@@ -395,18 +395,10 @@
             color: #667eea;
         }
         
-        /* Unified icon style for both emoji and images */
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
-            height: 24px;           /* fixed height so images align */
-            line-height: 24px;
-        }
-        .nav-emoji img {
-            width: auto;
-            height: 100%;
-            vertical-align: middle;
         }
         
         .notification {
@@ -481,7 +473,6 @@
             </div>
         </div>
         
-        <!-- Bottom Nav – fridge icon now uses custom uploaded image -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -496,7 +487,7 @@
                 <span>deals</span>
             </a>
             <a href="#" class="nav-item active">
-                <span class="nav-emoji"><img src="assets/icon.png" alt="fridge"></span>
+                <span class="nav-emoji">🧊</span>
                 <span>fridge</span>
             </a>
         </div>
