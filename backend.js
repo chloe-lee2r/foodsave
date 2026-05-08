@@ -386,7 +386,6 @@ const Backend = {
                 ad.set("quantityLeft", parseInt(adData.quantityLeft) || 0);
                 ad.set("initialQuantity", parseInt(adData.quantityLeft) || 0);
                 
-                // Store product image if provided
                 if (adData.imageBase64) {
                     ad.set("productImage", adData.imageBase64);
                 }
@@ -689,13 +688,11 @@ const Backend = {
                     businessUser.set("pendingWalletBalance", currentPending + itemTotal);
                     await businessUser.save(null, { useMasterKey: true });
                     
-                    const Notification = Parse.Object.extend("Notification");
-                    const notification = new Notification();
-                    notification.set("businessId", businessId);
-                    notification.set("message", `🛒 New order! ${freshUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`);
-                    notification.set("read", false);
-                    notification.set("createdAt", new Date());
-                    await notification.save(null, { useMasterKey: true });
+                    // Send notification to business
+                    await Backend.sendNotification(businessId, 
+                        `🛒 New order! ${freshUser.get("username")} ordered ${item.quantity}x ${ad.get("foodName")} - $${itemTotal.toFixed(2)}`,
+                        'order'
+                    );
                 }
                 
                 localStorage.removeItem('claimCart');
@@ -716,58 +713,30 @@ const Backend = {
             return { success: false, message: error.message || "Checkout failed. Please try again." };
         }
     },
-    
-    async sendNotification(businessId, message) {
+
+    async getConsumerOrders(consumerId) {
         try {
             return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const notification = new Notification();
-                notification.set("businessId", businessId);
-                notification.set("message", message);
-                notification.set("read", false);
-                notification.set("createdAt", new Date());
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
-    async getNotifications(businessId) {
-        try {
-            return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const query = new Parse.Query(Notification);
-                query.equalTo("businessId", businessId);
+                const Order = Parse.Object.extend("Order");
+                const query = new Parse.Query(Order);
+                query.equalTo("consumerId", consumerId);
                 query.descending("createdAt");
-                const notifications = await query.find();
-                return notifications.map(n => ({
-                    id: n.id,
-                    message: n.get("message"),
-                    read: n.get("read"),
-                    createdAt: n.get("createdAt")
+                const orders = await query.find();
+                return orders.map(o => ({
+                    id: o.id,
+                    businessName: o.get("businessName"),
+                    foodName: o.get("foodName"),
+                    quantity: o.get("quantity"),
+                    totalAmount: o.get("totalAmount"),
+                    status: o.get("status"),
+                    createdAt: o.get("createdAt")
                 }));
             });
         } catch (error) {
             return [];
         }
     },
-    
-    async markNotificationRead(notificationId) {
-        try {
-            return await withMasterKey(async () => {
-                const Notification = Parse.Object.extend("Notification");
-                const notification = await new Parse.Query(Notification).get(notificationId);
-                notification.set("read", true);
-                await notification.save();
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false };
-        }
-    },
-    
+
     async getOrdersForBusiness(businessId) {
         try {
             return await withMasterKey(async () => {
@@ -799,30 +768,7 @@ const Backend = {
             return [];
         }
     },
-    
-    async getConsumerOrders(consumerId) {
-        try {
-            return await withMasterKey(async () => {
-                const Order = Parse.Object.extend("Order");
-                const query = new Parse.Query(Order);
-                query.equalTo("consumerId", consumerId);
-                query.descending("createdAt");
-                const orders = await query.find();
-                return orders.map(o => ({
-                    id: o.id,
-                    businessName: o.get("businessName"),
-                    foodName: o.get("foodName"),
-                    quantity: o.get("quantity"),
-                    totalAmount: o.get("totalAmount"),
-                    status: o.get("status"),
-                    createdAt: o.get("createdAt")
-                }));
-            });
-        } catch (error) {
-            return [];
-        }
-    },
-    
+
     async confirmOrderByBusiness(orderId) {
         try {
             const currentUser = Parse.User.current();
@@ -848,7 +794,7 @@ const Backend = {
                 order.set("status", "confirmed_by_business");
                 await order.save();
                 
-                await this.sendNotificationToConsumer(order.get("consumerId"),
+                await Backend.sendNotificationToConsumer(order.get("consumerId"),
                     `✅ Your order "${order.get("foodName")}" is ready for pickup!`);
                 
                 return { success: true, message: "Order confirmed! Customer notified." };
@@ -857,7 +803,7 @@ const Backend = {
             return { success: false, message: error.message };
         }
     },
-    
+
     async confirmCollectedByCustomer(orderId) {
         try {
             console.log("confirmCollectedByCustomer called with orderId:", orderId);
@@ -907,7 +853,7 @@ const Backend = {
                 businessUser.set("businessWalletBalance", currentBalance + orderAmount);
                 await businessUser.save(null, { useMasterKey: true });
                 
-                await this.sendNotification(order.get("businessId"),
+                await Backend.sendNotification(order.get("businessId"),
                     `💰 Payment released! Customer collected ${order.get("foodName")}. $${orderAmount.toFixed(2)} added to wallet.`);
                 
                 return { success: true, message: "Pickup confirmed! Payment released to business." };
@@ -917,7 +863,71 @@ const Backend = {
             return { success: false, message: error.message || "Failed to confirm pickup" };
         }
     },
-    
+
+    // ========== NOTIFICATION SYSTEM ==========
+
+    async sendNotification(userId, message, type = 'general') {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("Notification");
+                const notification = new Notification();
+                notification.set("userId", userId);
+                notification.set("message", message);
+                notification.set("type", type);
+                notification.set("read", false);
+                notification.set("createdAt", new Date());
+                await notification.save();
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Error sending notification:", error);
+            return { success: false };
+        }
+    },
+
+    async getNotifications(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return [];
+                
+                const Notification = Parse.Object.extend("Notification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("userId", userId);
+                query.descending("createdAt");
+                query.limit(50);
+                
+                const notifications = await query.find();
+                return notifications.map(n => ({
+                    id: n.id,
+                    message: n.get("message"),
+                    type: n.get("type"),
+                    read: n.get("read"),
+                    createdAt: n.get("createdAt")
+                }));
+            });
+        } catch (error) {
+            return [];
+        }
+    },
+
+    async markNotificationRead(notificationId) {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("Notification");
+                const notification = await new Parse.Query(Notification).get(notificationId);
+                notification.set("read", true);
+                await notification.save();
+                return { success: true };
+            });
+        } catch (error) {
+            return { success: false };
+        }
+    },
+
     async sendNotificationToConsumer(consumerId, message) {
         try {
             return await withMasterKey(async () => {
@@ -934,7 +944,7 @@ const Backend = {
             return { success: false };
         }
     },
-    
+
     async getConsumerNotifications(consumerId) {
         try {
             return await withMasterKey(async () => {
@@ -954,7 +964,7 @@ const Backend = {
             return [];
         }
     },
-    
+
     async markConsumerNotificationRead(notificationId) {
         try {
             return await withMasterKey(async () => {
@@ -1045,6 +1055,8 @@ const Backend = {
                     id: user.id,
                     username: user.get("username"),
                     email: user.get("email"),
+                    fullName: user.get("fullName") || user.get("username"),
+                    phone: user.get("phone") || "",
                     walletBalance: user.get("walletBalance") || 0,
                     savedAddresses: user.get("savedAddresses") || [],
                     createdAt: user.get("createdAt")
@@ -1052,6 +1064,43 @@ const Backend = {
             });
         } catch (error) {
             return null;
+        }
+    },
+    
+    async updateConsumerProfile(userId, updates) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser || currentUser.id !== userId) {
+                return { success: false, message: "Unauthorized" };
+            }
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
+                if (updates.email) user.set("email", updates.email);
+                if (updates.phone) user.set("phone", updates.phone);
+                if (updates.fullName) user.set("fullName", updates.fullName);
+                await user.save(null, { useMasterKey: true });
+                return { success: true };
+            });
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
+    async uploadProfilePicture(userId, imageBase64) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser || currentUser.id !== userId) {
+                return { success: false, message: "Unauthorized" };
+            }
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
+                user.set("profilePicture", imageBase64);
+                await user.save(null, { useMasterKey: true });
+                localStorage.setItem("profilePicture", imageBase64);
+                return { success: true };
+            });
+        } catch (error) {
+            return { success: false, message: error.message };
         }
     },
     
@@ -1080,25 +1129,6 @@ const Backend = {
             return [];
         }
     },
-    
-    async updateConsumerProfile(userId, updates) {
-        try {
-            const currentUser = Parse.User.current();
-            if (!currentUser || currentUser.id !== userId) {
-                return { success: false, message: "Unauthorized" };
-            }
-            return await withMasterKey(async () => {
-                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
-                if (updates.email) user.set("email", updates.email);
-                if (updates.phone) user.set("phone", updates.phone);
-                if (updates.fullName) user.set("fullName", updates.fullName);
-                await user.save(null, { useMasterKey: true });
-                return { success: true };
-            });
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
 
     // ========== REVENUE & STATS ==========
     
@@ -1114,7 +1144,7 @@ const Backend = {
                 for (const order of orders) {
                     totalRevenue += order.get("totalAmount") || 0;
                 }
-                return { totalRevenue: totalRevenue, totalOrders: orders.length };
+                return { totalRevenue, totalOrders: orders.length };
             });
         } catch (error) {
             return null;
@@ -1185,6 +1215,7 @@ const Backend = {
                 query.equalTo("userId", currentUser.id);
                 const items = await query.find();
                 return items.map(item => ({
+                    id: item.id,
                     name: item.get("name"),
                     expiry: item.get("expiryDate").toISOString().split('T')[0],
                     category: item.get("category")
@@ -1235,6 +1266,517 @@ const Backend = {
         }
     },
 
+    // ========== COMMUNITY SHARING SYSTEM ==========
+
+    async createCommunityShare(shareData) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false, message: "Please login first" };
+
+            return await withMasterKey(async () => {
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const share = new CommunitySharing();
+                
+                share.set("sharedBy", {
+                    __type: "Pointer",
+                    className: "_User",
+                    objectId: currentUser.id
+                });
+                
+                share.set("sharerName", currentUser.get("username"));
+                share.set("foodItems", shareData.foodItems || []);
+                share.set("description", shareData.description || "");
+                share.set("shareType", shareData.shareType || "giveaway");
+                share.set("category", "community");
+                share.set("active", true);
+                share.set("status", "available");
+                
+                if (shareData.location) {
+                    share.set("location", new Parse.GeoPoint({
+                        latitude: shareData.location.lat,
+                        longitude: shareData.location.lng
+                    }));
+                    share.set("locationAddress", shareData.location.address || "");
+                }
+                
+                share.set("pickupInstructions", shareData.pickupInstructions || "");
+                
+                if (shareData.imageBase64) {
+                    share.set("image", shareData.imageBase64);
+                }
+                
+                share.set("claimedBy", []);
+                share.set("views", 0);
+                share.set("createdAt", new Date());
+                share.set("expiresAt", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+                
+                await share.save();
+                return { success: true, shareId: share.id, message: "Food shared with community!" };
+            });
+        } catch (error) {
+            console.error("Error creating community share:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async getCommunityShares(options = {}) {
+        try {
+            return await withMasterKey(async () => {
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const query = new Parse.Query(CommunitySharing);
+                
+                query.equalTo("active", true);
+                query.equalTo("status", "available");
+                query.greaterThan("expiresAt", new Date());
+                query.descending("createdAt");
+                
+                if (options.userId) {
+                    query.equalTo("sharedBy", {
+                        __type: "Pointer",
+                        className: "_User",
+                        objectId: options.userId
+                    });
+                }
+                
+                if (options.search) {
+                    query.matches("description", new RegExp(options.search, "i"));
+                }
+                
+                query.limit(options.limit || 100);
+                
+                const shares = await query.find();
+                return shares.map(share => {
+                    const location = share.get("location");
+                    const sharedBy = share.get("sharedBy");
+                    
+                    return {
+                        id: share.id,
+                        foodItems: share.get("foodItems") || [],
+                        sharedBy: {
+                            id: sharedBy?.id,
+                            username: share.get("sharerName") || (sharedBy ? sharedBy.get("username") : "Anonymous"),
+                            profilePic: null
+                        },
+                        location: location ? {
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            address: share.get("locationAddress") || "Location not specified"
+                        } : null,
+                        description: share.get("description") || "",
+                        shareType: share.get("shareType") || "giveaway",
+                        pickupInstructions: share.get("pickupInstructions") || "",
+                        image: share.get("image") || null,
+                        views: share.get("views") || 0,
+                        claimedBy: share.get("claimedBy") || [],
+                        status: share.get("status"),
+                        createdAt: share.get("createdAt"),
+                        expiresAt: share.get("expiresAt")
+                    };
+                });
+            });
+        } catch (error) {
+            console.error("Error getting community shares:", error);
+            return [];
+        }
+    },
+
+    async getMyShares(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return [];
+
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const query = new Parse.Query(CommunitySharing);
+                
+                query.equalTo("sharedBy", {
+                    __type: "Pointer",
+                    className: "_User",
+                    objectId: userId
+                });
+                query.descending("createdAt");
+                
+                const shares = await query.find();
+                return shares.map(share => {
+                    const location = share.get("location");
+                    
+                    return {
+                        id: share.id,
+                        foodItems: share.get("foodItems") || [],
+                        location: location ? {
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            address: share.get("locationAddress") || ""
+                        } : null,
+                        description: share.get("description") || "",
+                        shareType: share.get("shareType") || "giveaway",
+                        pickupInstructions: share.get("pickupInstructions") || "",
+                        image: share.get("image") || null,
+                        views: share.get("views") || 0,
+                        claimedBy: share.get("claimedBy") || [],
+                        status: share.get("status"),
+                        active: share.get("active"),
+                        createdAt: share.get("createdAt"),
+                        expiresAt: share.get("expiresAt")
+                    };
+                });
+            });
+        } catch (error) {
+            console.error("Error getting my shares:", error);
+            return [];
+        }
+    },
+
+    async claimCommunityShare(shareId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false, message: "Please login first" };
+
+            return await withMasterKey(async () => {
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const query = new Parse.Query(CommunitySharing);
+                const share = await query.get(shareId);
+                
+                if (!share) {
+                    return { success: false, message: "Share not found" };
+                }
+                
+                if (share.get("status") !== "available") {
+                    return { success: false, message: "This food has already been claimed" };
+                }
+                
+                const claimedBy = share.get("claimedBy") || [];
+                const alreadyClaimed = claimedBy.some(claim => claim.userId === currentUser.id);
+                if (alreadyClaimed) {
+                    return { success: false, message: "You've already claimed this" };
+                }
+                
+                claimedBy.push({
+                    userId: currentUser.id,
+                    username: currentUser.get("username"),
+                    claimedAt: new Date().toISOString()
+                });
+                
+                share.set("claimedBy", claimedBy);
+                share.set("status", "claimed");
+                share.set("claimedAt", new Date());
+                
+                await share.save();
+                
+                // 🔔 SEND NOTIFICATION TO THE SHARER
+                const sharerInfo = share.get("sharedBy");
+                if (sharerInfo && sharerInfo.id) {
+                    const foodNames = (share.get("foodItems") || []).map(item => 
+                        typeof item === 'string' ? item : (item.name || 'food')
+                    ).join(', ');
+                    
+                    const message = `🤝 ${currentUser.get("username")} wants to pick up your food: ${foodNames}`;
+                    
+                    // Send to both notification systems
+                    await Backend.sendCommunityClaimNotification(
+                        sharerInfo.id,
+                        currentUser.get("username"),
+                        share.get("foodItems") || [],
+                        shareId
+                    );
+                    
+                    await Backend.sendNotification(
+                        sharerInfo.id,
+                        message,
+                        'community_claim'
+                    );
+                    
+                    await Backend.sendNotificationToConsumer(
+                        sharerInfo.id,
+                        message
+                    );
+                }
+                
+                return { success: true, message: "Food claimed successfully! The sharer has been notified." };
+            });
+        } catch (error) {
+            console.error("Error claiming community share:", error);
+            return { success: false, message: error.message };
+        }
+    },
+
+    async sendCommunityClaimNotification(sharerId, claimerUsername, foodItems, shareId) {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("CommunityNotification");
+                const notification = new Notification();
+                
+                const foodNames = (foodItems || []).map(item => 
+                    typeof item === 'string' ? item : (item.name || 'food')
+                ).join(', ');
+                
+                notification.set("userId", sharerId);
+                notification.set("type", "claim");
+                notification.set("title", "🤝 Someone wants your food!");
+                notification.set("message", `${claimerUsername} wants to pick up: ${foodNames}`);
+                notification.set("relatedShareId", shareId);
+                notification.set("claimerUsername", claimerUsername);
+                notification.set("read", false);
+                notification.set("createdAt", new Date());
+                
+                await notification.save();
+                return { success: true, notificationId: notification.id };
+            });
+        } catch (error) {
+            console.error("Error sending community notification:", error);
+            return { success: false };
+        }
+    },
+
+    async getCommunityNotifications(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return [];
+                
+                const Notification = Parse.Object.extend("CommunityNotification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("userId", userId);
+                query.descending("createdAt");
+                query.limit(50);
+                
+                const notifications = await query.find();
+                return notifications.map(n => ({
+                    id: n.id,
+                    type: n.get("type"),
+                    title: n.get("title") || "Community",
+                    message: n.get("message"),
+                    relatedShareId: n.get("relatedShareId"),
+                    claimerUsername: n.get("claimerUsername"),
+                    read: n.get("read"),
+                    createdAt: n.get("createdAt"),
+                    source: "community"
+                }));
+            });
+        } catch (error) {
+            console.error("Error getting community notifications:", error);
+            return [];
+        }
+    },
+
+    async markCommunityNotificationRead(notificationId) {
+        try {
+            return await withMasterKey(async () => {
+                const Notification = Parse.Object.extend("CommunityNotification");
+                const notification = await new Parse.Query(Notification).get(notificationId);
+                notification.set("read", true);
+                await notification.save();
+                return { success: true };
+            });
+        } catch (error) {
+            return { success: false };
+        }
+    },
+
+    async getUnreadCommunityNotificationCount(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return 0;
+                
+                const Notification = Parse.Object.extend("CommunityNotification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("userId", userId);
+                query.equalTo("read", false);
+                
+                return await query.count();
+            });
+        } catch (error) {
+            return 0;
+        }
+    },
+
+    async deleteCommunityShare(shareId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false, message: "Please login first" };
+            
+            return await withMasterKey(async () => {
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const query = new Parse.Query(CommunitySharing);
+                const share = await query.get(shareId);
+                
+                const sharedBy = share.get("sharedBy");
+                if (sharedBy && sharedBy.id !== currentUser.id) {
+                    return { success: false, message: "You can only delete your own shares" };
+                }
+                
+                share.set("active", false);
+                share.set("status", "deleted");
+                await share.save();
+                
+                return { success: true, message: "Share removed" };
+            });
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
+    async incrementCommunityShareView(shareId) {
+        try {
+            return await withMasterKey(async () => {
+                const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                const query = new Parse.Query(CommunitySharing);
+                const share = await query.get(shareId);
+                share.increment("views");
+                await share.save();
+                return { success: true };
+            });
+        } catch (error) {
+            return { success: false };
+        }
+    },
+
+    // ========== ALL NOTIFICATIONS (COMBINED) ==========
+
+    async getAllNotifications(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return [];
+                
+                const Notification = Parse.Object.extend("Notification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("userId", userId);
+                query.descending("createdAt");
+                query.limit(100);
+                
+                const generalNotifications = await query.find();
+                
+                const communityNotifications = await Backend.getCommunityNotifications(userId);
+                
+                const consumerNotifications = await Backend.getConsumerNotifications(userId);
+                
+                const allNotifications = [
+                    ...generalNotifications.map(n => ({
+                        id: n.id,
+                        type: n.get("type") || "general",
+                        title: n.get("type") || "Notification",
+                        message: n.get("message") || "",
+                        read: n.get("read") || false,
+                        createdAt: n.get("createdAt"),
+                        source: "general"
+                    })),
+                    ...communityNotifications,
+                    ...consumerNotifications.map(n => ({
+                        id: n.id,
+                        type: n.get("type") || "consumer",
+                        title: "Order Update",
+                        message: n.get("message"),
+                        read: n.get("read"),
+                        createdAt: n.get("createdAt"),
+                        source: "consumer"
+                    }))
+                ];
+                
+                allNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                return allNotifications;
+            });
+        } catch (error) {
+            console.error("Error getting all notifications:", error);
+            return [];
+        }
+    },
+
+    async markAllNotificationsRead(userId) {
+        try {
+            return await withMasterKey(async () => {
+                if (!userId) {
+                    const currentUser = Parse.User.current();
+                    userId = currentUser?.id;
+                }
+                if (!userId) return { success: false };
+                
+                const Notification = Parse.Object.extend("Notification");
+                const query1 = new Parse.Query(Notification);
+                query1.equalTo("userId", userId);
+                query1.equalTo("read", false);
+                const generalNotifications = await query1.find();
+                
+                for (const notification of generalNotifications) {
+                    notification.set("read", true);
+                }
+                await Parse.Object.saveAll(generalNotifications);
+                
+                const CommunityNotification = Parse.Object.extend("CommunityNotification");
+                const query2 = new Parse.Query(CommunityNotification);
+                query2.equalTo("userId", userId);
+                query2.equalTo("read", false);
+                const communityNotifications = await query2.find();
+                
+                for (const notification of communityNotifications) {
+                    notification.set("read", true);
+                }
+                await Parse.Object.saveAll(communityNotifications);
+                
+                const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
+                const query3 = new Parse.Query(ConsumerNotification);
+                query3.equalTo("consumerId", userId);
+                query3.equalTo("read", false);
+                const consumerNotifications = await query3.find();
+                
+                for (const notification of consumerNotifications) {
+                    notification.set("read", true);
+                }
+                await Parse.Object.saveAll(consumerNotifications);
+                
+                return { success: true };
+            });
+        } catch (error) {
+            console.error("Error marking all notifications read:", error);
+            return { success: false };
+        }
+    },
+
+    async getTotalUnreadCount(userId) {
+        try {
+            if (!userId) {
+                const currentUser = Parse.User.current();
+                userId = currentUser?.id;
+            }
+            if (!userId) return 0;
+            
+            const communityCount = await Backend.getUnreadCommunityNotificationCount(userId);
+            
+            let consumerCount = 0;
+            try {
+                const consumerNotifications = await Backend.getConsumerNotifications(userId);
+                consumerCount = consumerNotifications.filter(n => !n.read).length;
+            } catch (e) {}
+            
+            let generalCount = 0;
+            try {
+                const Notification = Parse.Object.extend("Notification");
+                const query = new Parse.Query(Notification);
+                query.equalTo("userId", userId);
+                query.equalTo("read", false);
+                generalCount = await query.count();
+            } catch (e) {}
+            
+            return communityCount + consumerCount + generalCount;
+        } catch (error) {
+            return 0;
+        }
+    },
+
     // ========== SYNC FUNCTIONS ==========
     
     async syncAll() {
@@ -1265,10 +1807,24 @@ const Backend = {
 
     // ========== UTILITY ==========
     
-    isAuthenticated() { return Parse.User.current() !== null; },
-    getUserRole() { const user = Parse.User.current(); return user ? user.get("role") : null; },
-    getBusinessRole() { const user = Parse.User.current(); return user ? user.get("businessRole") : null; },
-    isVerified() { const user = Parse.User.current(); return user ? user.get("businessVerified") : false; },
+    isAuthenticated() { 
+        return Parse.User.current() !== null; 
+    },
+    
+    getUserRole() { 
+        const user = Parse.User.current(); 
+        return user ? user.get("role") : null; 
+    },
+    
+    getBusinessRole() { 
+        const user = Parse.User.current(); 
+        return user ? user.get("businessRole") : null; 
+    },
+    
+    isVerified() { 
+        const user = Parse.User.current(); 
+        return user ? user.get("businessVerified") : false; 
+    },
 
     async testConnection() {
         try {
