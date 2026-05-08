@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsavvi • community sharing</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon.png">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <meta name="theme-color" content="#34c759">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @font-face {
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            padding: 30px 20px 20px;
+            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
+            color: white;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-left: 60px;
+            margin-bottom: 4px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-left: 60px;
+        }
+        
+        .share-btn {
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            background: white;
+            color: #ee5a24;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            padding: 10px 20px;
+            background: #f5f7fa;
+            border: none;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .tab.active { background: #ee5a24; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Map Container */
+        .map-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #f0f0f0;
+        }
+        
+        .location-btn {
+            background: #ee5a24;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 16px;
+            font-family: inherit;
+        }
+        
+        .distance-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .distance-chip {
+            padding: 6px 14px;
+            background: #f5f7fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #666;
+        }
+        
+        .distance-chip.active {
+            background: #ee5a24;
+            color: white;
+            border-color: #ee5a24;
+        }
+        
+        /* Sharing Cards */
+        .sharing-list {
+            margin-bottom: 20px;
+        }
+        
+        .sharing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #f0f0f0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        
+        .sharing-card:active {
+            transform: scale(0.98);
+        }
+        
+        .sharing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .sharing-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            background: #ffebee;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .user-info-small h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+            color: #333;
+        }
+        
+        .user-info-small .distance {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .sharing-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge-free { background: #e8f5e8; color: #34c759; }
+        .badge-swap { background: #fff3e0; color: #ff9500; }
+        
+        .sharing-food {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        
+        .food-tag {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .food-tag .emoji { font-size: 16px; }
+        
+        .sharing-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sharing-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .claim-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .claim-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .claim-btn.claimed {
+            background: #999;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state .emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        
+        .nav-item.active { color: #ee5a24; }
+        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .detail-item {
+            margin-bottom: 12px;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .modal-btn.confirm {
+            background: #34c759;
+            color: white;
+        }
+        
+        .modal-btn.cancel {
+            background: #999;
+            color: white;
+        }
+        
+        .modal-btn.message {
+            background: #007aff;
+            color: white;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #ee5a24;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+        
+        .search-box:focus {
+            border-color: #ee5a24;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">← back</button>
+        <h1>🤝 Community Sharing</h1>
+        <div class="header-subtitle">neighbours helping neighbours</div>
+        <button class="share-btn" onclick="window.location.href='community-share.html'">+ share food</button>
+    </div>
+    
+    <div class="content">
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="totalShares">0</div>
+                <div class="stat-label">active shares</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="nearbyCount">0</div>
+                <div class="stat-label">near you</div>
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <input type="text" class="search-box" placeholder="🔍 search food..." id="searchInput" onkeyup="filterShares()">
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('list')">📋 list</button>
+            <button class="tab" onclick="switchTab('map')">🗺️ map</button>
+        </div>
+        
+        <!-- List Tab -->
+        <div class="tab-content active" id="listTab">
+            <div class="distance-filter">
+                <button class="distance-chip active" onclick="filterByDistance('all')">all</button>
+                <button class="distance-chip" onclick="filterByDistance(1)">1 km</button>
+                <button class="distance-chip" onclick="filterByDistance(3)">3 km</button>
+                <button class="distance-chip" onclick="filterByDistance(5)">5 km</button>
+                <button class="distance-chip" onclick="filterByDistance(10)">10 km</button>
+            </div>
+            <div class="sharing-list" id="sharingList">
+                <div class="empty-state">
+                    <div class="emoji">🤝</div>
+                    <div>loading community shares...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Tab -->
+        <div class="tab-content" id="mapTab">
+            <div class="map-container" id="mapContainer"></div>
+            <button class="location-btn" onclick="getUserLocation()">📍 find shares near me</button>
+        </div>
+    </div>
+    
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="window.location.href='index.html'">
+            <span class="nav-emoji">🏠</span><span>home</span>
+        </div>
+        <div class="nav-item active">
+            <span class="nav-emoji">🤝</span><span>community</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='community-share.html'">
+            <span class="nav-emoji">➕</span><span>share</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='index.html'">
+            <span class="nav-emoji">👤</span><span>profile</span>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal" id="detailModal">
+    <div class="modal-content">
+        <div class="modal-title" id="modalTitle">🍎 food share</div>
+        <div id="modalContent"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel" onclick="closeDetailModal()">close</button>
+            <button class="modal-btn confirm" id="claimBtn" onclick="claimFood()">🤝 claim</button>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+<script src="backend.js"></script>
+<script>
+    let map = null;
+    let userLocation = null;
+    let allShares = [];
+    let currentFilter = 'all';
+    let currentDetailShare = null;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = Backend.getCurrentUser();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        loadShares();
+        initMap();
+        getUserLocation();
+    });
+    
+    function initMap() {
+        const container = document.getElementById('mapContainer');
+        container.innerHTML = '<div id="leafletMap" style="height: 100%; width: 100%;"></div>';
+        map = L.map('leafletMap').setView([1.3521, 103.8198], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+    }
+    
+    function getUserLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation not supported');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                if (map) {
+                    L.marker([userLocation.lat, userLocation.lng])
+                        .addTo(map)
+                        .bindPopup('📍 You are here')
+                        .openPopup();
+                    map.setView([userLocation.lat, userLocation.lng], 13);
+                }
+                
+                loadShares();
+            },
+            (error) => {
+                console.log('Using default location');
+                userLocation = { lat: 1.3521, lng: 103.8198 };
+                loadShares();
+            }
+        );
+    }
+    
+    async function loadShares() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        try {
+            const CommunitySharing = Parse.Object.extend('CommunitySharing');
+            const query = new Parse.Query(CommunitySharing);
+            query.include('sharedBy');
+            query.equalTo('status', 'available');
+            query.descending('createdAt');
+            
+            const shares = await query.find();
+            
+            allShares = shares.map(share => {
+                const location = share.get('location');
+                const sharedBy = share.get('sharedBy');
+                let distance = null;
+                
+                if (userLocation && location) {
+                    distance = calculateDistance(
+                        userLocation.lat,
+                        userLocation.lng,
+                        location.latitude,
+                        location.longitude
+                    );
+                }
+                
+                return {
+                    id: share.id,
+                    foodItems: share.get('foodItems') || [],
+                    sharedBy: {
+                        id: sharedBy?.id,
+                        username: sharedBy?.get('username') || 'Anonymous',
+                        profilePic: sharedBy?.get('profilePicture')
+                    },
+                    location: location ? {
+                        lat: location.latitude,
+                        lng: location.longitude,
+                        address: location.address || 'Location not specified'
+                    } : null,
+                    description: share.get('description') || '',
+                    type: share.get('type') || 'free',
+                    shareType: share.get('shareType') || 'giveaway',
+                    createdAt: share.get('createdAt'),
+                    distance: distance,
+                    pickupInstructions: share.get('pickupInstructions') || ''
+                };
+            });
+            
+            updateStats();
+            renderShares();
+            renderMapMarkers();
+            
+        } catch (error) {
+            console.error('Error loading shares:', error);
+            document.getElementById('sharingList').innerHTML = `
+                <div class="empty-state">
+                    <div class="emoji">⚠️</div>
+                    <div>Error loading community shares</div>
+                </div>`;
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+    
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+    
+    function filterByDistance(distance) {
+        currentFilter = distance;
+        
+        // Update active chip
+        document.querySelectorAll('.distance-chip').forEach(chip => {
+            chip.classList.remove('active');
+            if ((distance === 'all' && chip.textContent === 'all') ||
+                (chip.textContent.includes(distance + ' km'))) {
+                chip.classList.add('active');
+            }
+        });
+        
+        renderShares();
+    }
+    
+    function filterShares() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        const filtered = allShares.filter(share => {
+            const matchesSearch = !searchTerm || 
+                share.foodItems.some(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    (item.category && item.category.toLowerCase().includes(searchTerm))
+                );
+            
+            const matchesDistance = currentFilter === 'all' || 
+                (share.distance && share.distance <= currentFilter);
+            
+            return matchesSearch && matchesDistance;
+        });
+        
+        renderSharesList(filtered);
+    }
+    
+    function renderShares() {
+        let filtered = [...allShares];
+        
+        // Apply distance filter
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(share => 
+                share.distance && share.distance <= currentFilter
+            );
+        }
+        
+        renderSharesList(filtered);
+    }
+    
+    function renderSharesList(shares) {
+        const container = document.getElementById('sharingList');
+        
+        if (shares.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="emoji">🔍</div>
+                    <div>no shares found nearby</div>
+                    <div style="font-size: 12px; margin-top: 8px;">try expanding your search or check back later</div>
+                </div>`;
+            return;
+        }
+        
+        container.innerHTML = shares.map(share => {
+            const distanceText = share.distance ? 
+                `${share.distance.toFixed(1)} km away` : 
+                'location unknown';
+            
+            const timeAgo = getTimeAgo(share.createdAt);
+            
+            const foodTags = share.foodItems.map(item => 
+                `<span class="food-tag">
+                    <span class="emoji">${item.emoji || '🍽️'}</span>
+                    ${escapeHtml(item.name)}
+                </span>`
+            ).join('');
+            
+            return `
+                <div class="sharing-card" onclick="openDetailModal('${share.id}')">
+                    <div class="sharing-header">
+                        <div class="sharing-user">
+                            <div class="user-avatar-small">
+                                ${share.sharedBy.profilePic ? 
+                                    `<img src="${share.sharedBy.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 
+                                    '👤'}
+                            </div>
+                            <div class="user-info-small">
+                                <h4>${escapeHtml(share.sharedBy.username)}</h4>
+                                <div class="distance">📍 ${distanceText}</div>
+                            </div>
+                        </div>
+                        <span class="sharing-badge ${share.shareType === 'swap' ? 'badge-swap' : 'badge-free'}">
+                            ${share.shareType === 'swap' ? '🔄 swap' : '🎁 free'}
+                        </span>
+                    </div>
+                    <div class="sharing-food">
+                        ${foodTags}
+                    </div>
+                    <div class="sharing-footer">
+                        <span class="sharing-time">⏰ ${timeAgo}</span>
+                        <button class="claim-btn" onclick="event.stopPropagation(); openDetailModal('${share.id}')">
+                            🤝 claim
+                        </button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+    
+    function renderMapMarkers() {
+        if (!map) return;
+        
+        // Clear existing markers
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+        
+        // Add user location if available
+        if (userLocation) {
+            L.marker([userLocation.lat, userLocation.lng])
+                .addTo(map)
+                .bindPopup('📍 You are here');
+        }
+        
+        // Add share markers
+        allShares.forEach(share => {
+            if (share.location) {
+                const marker = L.marker([share.location.lat, share.location.lng])
+                    .addTo(map);
+                
+                const popupContent = `
+                    <div style="min-width: 200px;">
+                        <strong>${escapeHtml(share.sharedBy.username)}</strong>
+                        <div style="margin: 8px 0;">
+                            ${share.foodItems.map(item => 
+                                `${item.emoji || '🍽️'} ${escapeHtml(item.name)}`
+                            ).join('<br>')}
+                        </div>
+                        <div style="font-size: 12px; color: #666;">
+                            ${share.distance ? `${share.distance.toFixed(1)} km away` : ''}
+                        </div>
+                        <button onclick="openDetailModal('${share.id}')" 
+                                style="margin-top: 8px; padding: 6px 12px; background: #34c759; color: white; border: none; border-radius: 12px; cursor: pointer; width: 100%;">
+                            🤝 claim
+                        </button>
+                    </div>`;
+                
+                marker.bindPopup(popupContent);
+            }
+        });
+        
+        // Fit bounds if there are markers
+        if (allShares.length > 0) {
+            const validLocations = allShares
+                .filter(s => s.location)
+                .map(s => [s.location.lat, s.location.lng]);
+            
+            if (userLocation) {
+                validLocations.push([userLocation.lat, userLocation.lng]);
+            }
+            
+            if (validLocations.length > 0) {
+                const bounds = L.latLngBounds(validLocations);
+                map.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
+    }
+    
+    function openDetailModal(shareId) {
+        const share = allShares.find(s => s.id === shareId);
+        if (!share) return;
+        
+        currentDetailShare = share;
+        
+        document.getElementById('modalTitle').textContent = 
+            share.shareType === 'swap' ? '🔄 Food Swap' : '🎁 Free Food';
+        
+        const content = document.getElementById('modalContent');
+        content.innerHTML = `
+            <div class="detail-item">
+                <div class="detail-label">Shared by</div>
+                <div class="detail-value">${escapeHtml(share.sharedBy.username)}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Food items</div>
+                <div class="detail-value">
+                    ${share.foodItems.map(item => 
+                        `${item.emoji || '🍽️'} ${escapeHtml(item.name)}${item.quantity ? ` (${item.quantity})` : ''}`
+                    ).join('<br>')}
+                </div>
+            </div>
+            ${share.description ? `
+                <div class="detail-item">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value">${escapeHtml(share.description)}</div>
+                </div>
+            ` : ''}
+            ${share.location ? `
+                <div class="detail-item">
+                    <div class="detail-label">Pickup location</div>
+                    <div class="detail-value">📍 ${escapeHtml(share.location.address)}</div>
+                </div>
+            ` : ''}
+            ${share.distance ? `
+                <div class="detail-item">
+                    <div class="detail-label">Distance from you</div>
+                    <div class="detail-value">${share.distance.toFixed(1)} km</div>
+                </div>
+            ` : ''}
+            ${share.pickupInstructions ? `
+                <div class="detail-item">
+                    <div class="detail-label">Pickup instructions</div>
+                    <div class="detail-value">${escapeHtml(share.pickupInstructions)}</div>
+                </div>
+            ` : ''}
+            <div class="detail-item">
+                <div class="detail-label">Posted</div>
+                <div class="detail-value">${getTimeAgo(share.createdAt)}</div>
+            </div>
+        `;
+        
+        document.getElementById('detailModal').style.display = 'flex';
+    }
+    
+    function closeDetailModal() {
+        document.getElementById('detailModal').style.display = 'none';
+        currentDetailShare = null;
+    }
+    
+    async function claimFood() {
+        if (!currentDetailShare) return;
+        
+        if (!confirm('Would you like to claim this food? The sharer will be notified.')) {
+            return;
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        try {
+            const CommunitySharing = Parse.Object.extend('CommunitySharing');
+            const query = new Parse.Query(CommunitySharing);
+            const share = await query.get(currentDetailShare.id);
+            
+            const currentUser = Backend.getCurrentUser();
+            
+            // Add to claimed by array
+            const claimedBy = share.get('claimedBy') || [];
+            claimedBy.push({
+                userId: currentUser.id,
+                username: currentUser.get('username'),
+                claimedAt: new Date().toISOString()
+            });
+            
+            share.set('claimedBy', claimedBy);
+            share.set('status', 'claimed');
+            await share.save();
+            
+            alert('Food claimed successfully! The sharer has been notified.');
+            closeDetailModal();
+            loadShares();
+            
+        } catch (error) {
+            console.error('Error claiming food:', error);
+            alert('Failed to claim food. Please try again.');
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+    
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if (tab === 'list') {
+            document.querySelector('.tab:nth-child(1)').classList.add('active');
+            document.getElementById('listTab').classList.add('active');
+        } else {
+            document.querySelector('.tab:nth-child(2)').classList.add('active');
+            document.getElementById('mapTab').classList.add('active');
+            
+            if (map) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        }
+    }
+    
+    function updateStats() {
+        document.getElementById('totalShares').textContent = allShares.length;
+        
+        const nearby = allShares.filter(s => s.distance && s.distance <= 5).length;
+        document.getElementById('nearbyCount').textContent = nearby;
+    }
+    
+    function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + ' years ago';
+        
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + ' months ago';
+        
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + ' days ago';
+        
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + ' hours ago';
+        
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + ' minutes ago';
+        
+        return 'just now';
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+    
+    window.switchTab = switchTab;
+    window.openDetailModal = openDetailModal;
+    window.closeDetailModal = closeDetailModal;
+    window.claimFood = claimFood;
+    window.getUserLocation = getUserLocation;
+    window.filterByDistance = filterByDistance;
+    window.filterShares = filterShares;
+</script>
+</body>
+</html>
