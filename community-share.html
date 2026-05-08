@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>foodsavvi • share food</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon.png">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <meta name="theme-color" content="#ee5a24">
+    <style>
+        @font-face {
+            font-family: 'RusticStory';
+            src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
+                 url('./assets/RusticStory-1jDPL.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            position: relative;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            padding: 30px 20px 20px;
+            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
+            color: white;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-left: 60px;
+            margin-bottom: 4px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-left: 60px;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: #ee5a24;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Food Items */
+        .food-items-container {
+            margin-bottom: 12px;
+        }
+        
+        .food-item-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .food-item-row .form-input {
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-food-btn {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            color: #666;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        
+        .add-food-btn:hover {
+            background: #e8e8e8;
+        }
+        
+        /* Share Type */
+        .share-type-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .share-type-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .share-type-option.active {
+            border-color: #ee5a24;
+            background: #fff5f2;
+        }
+        
+        .type-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .type-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Location Picker */
+        .location-picker {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .location-picker .form-input {
+            flex: 1;
+        }
+        
+        .locate-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .map-preview {
+            width: 100%;
+            height: 150px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .image-upload:hover {
+            border-color: #ee5a24;
+            background: #fff5f2;
+        }
+        
+        .image-preview {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .image-thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+            background: #ee5a24;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top-color: #ee5a24;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='community.html'">← back</button>
+        <h1>📦 Share Food</h1>
+        <div class="header-subtitle">help reduce food waste</div>
+    </div>
+    
+    <div class="content">
+        <form id="shareForm" onsubmit="submitShare(event)">
+            <!-- Share Type -->
+            <div class="form-group">
+                <label class="form-label">Share type</label>
+                <div class="share-type-selector">
+                    <div class="share-type-option active" onclick="selectShareType('giveaway')" id="giveawayType">
+                        <div class="type-emoji">🎁</div>
+                        <div class="type-label">Giveaway</div>
+                    </div>
+                    <div class="share-type-option" onclick="selectShareType('swap')" id="swapType">
+                        <div class="type-emoji">🔄</div>
+                        <div class="type-label">Swap</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Food Items -->
+            <div class="form-group">
+                <label class="form-label">Food items to share</label>
+                <div class="food-items-container" id="foodItemsContainer">
+                    <div class="food-item-row">
+                        <input type="text" class="form-input" placeholder="e.g., 🍎 Apples (500g)" name="foodItem">
+                        <button type="button" class="remove-btn" onclick="removeFoodItem(this)" style="visibility: hidden;">−</button>
+                    </div>
+                </div>
+                <button type="button" class="add-food-btn" onclick="addFoodItem()">+ add another item</button>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" id="description" placeholder="Describe the food, condition, expiry date, etc."></textarea>
+            </div>
+            
+            <!-- Pickup Location -->
+            <div class="form-group">
+                <label class="form-label">Pickup location</label>
+                <div class="location-picker">
+                    <input type="text" class="form-input" id="locationAddress" placeholder="Enter pickup address" readonly>
+                    <button type="button" class="locate-btn" onclick="getCurrentLocation()">📍 locate</button>
+                </div>
+                <div class="map-preview" id="mapPreview">📍 pick a location</div>
+            </div>
+            
+            <!-- Pickup Instructions -->
+            <div class="form-group">
+                <label class="form-label">Pickup instructions</label>
+                <textarea class="form-textarea" id="pickupInstructions" placeholder="e.g., Leave at door, call when arriving, etc."></textarea>
+            </div>
+            
+            <!-- Food Image -->
+            <div class="form-group">
+                <label class="form-label">Food image (optional)</label>
+                <div class="image-upload" onclick="document.getElementById('foodImageInput').click()">
+                    <div>📸 tap to add photo</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">helps your food get claimed faster</div>
+                </div>
+                <input type="file" id="foodImageInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                <div class="image-preview" id="imagePreview"></div>
+            </div>
+            
+            <button type="submit" class="submit-btn">🤝 share with community</button>
+        </form>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+<script src="backend.js"></script>
+<script>
+    let shareType = 'giveaway';
+    let userLocation = null;
+    let selectedImage = null;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = Backend.getCurrentUser();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Try to get user's current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    // Reverse geocode
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            document.getElementById('locationAddress').value = data.display_name || 'Location found';
+                        })
+                        .catch(() => {
+                            document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+                        });
+                    
+                    document.getElementById('mapPreview').innerHTML = `📍 Location set: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+                },
+                (error) => {
+                    console.log('Could not get location');
+                }
+            );
+        }
+    });
+    
+    function selectShareType(type) {
+        shareType = type;
+        document.querySelectorAll('.share-type-option').forEach(el => el.classList.remove('active'));
+        document.getElementById(type + 'Type').classList.add('active');
+    }
+    
+    function addFoodItem() {
+        const container = document.getElementById('foodItemsContainer');
+        const row = document.createElement('div');
+        row.className = 'food-item-row';
+        row.innerHTML = `
+            <input type="text" class="form-input" placeholder="e.g., 🥖 Bread" name="foodItem">
+            <button type="button" class="remove-btn" onclick="removeFoodItem(this)">−</button>
+        `;
+        container.appendChild(row);
+    }
+    
+    function removeFoodItem(btn) {
+        const container = document.getElementById('foodItemsContainer');
+        if (container.children.length > 1) {
+            btn.parentElement.remove();
+        }
+    }
+    
+    function getCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation not supported');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                // Reverse geocode
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById('locationAddress').value = data.display_name || 'Location found';
+                    })
+                    .catch(() => {
+                        document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+                    });
+                
+                document.getElementById('mapPreview').innerHTML = `📍 Location set: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+            },
+            (error) => {
+                alert('Could not get location. Please enable location services.');
+            }
+        );
+    }
+    
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedImage = e.target.result;
+            document.getElementById('imagePreview').innerHTML = `
+                <img src="${selectedImage}" class="image-thumb" alt="Food preview">
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    async function submitShare(event) {
+        event.preventDefault();
+        
+        // Validate food items
+        const foodItemInputs = document.querySelectorAll('input[name="foodItem"]');
+        const foodItems = [];
+        
+        foodItemInputs.forEach(input => {
+            const value = input.value.trim();
+            if (value) {
+                // Extract emoji if present
+                const emojiMatch = value.match(/^([\u{1F300}-\u{1F9FF}])\s*(.+)/u);
+                const item = {
+                    name: value,
+                    emoji: emojiMatch ? emojiMatch[1] : '🍽️'
+                };
+                foodItems.push(item);
+            }
+        });
+        
+        if (foodItems.length === 0) {
+            alert('Please add at least one food item');
+            return;
+        }
+        
+        if (!userLocation) {
+            alert('Please set a pickup location');
+            return;
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        try {
+            const CommunitySharing = Parse.Object.extend('CommunitySharing');
+            const share = new CommunitySharing();
+            
+            const currentUser = Backend.getCurrentUser();
+            
+            share.set('sharedBy', {
+                __type: 'Pointer',
+                className: '_User',
+                objectId: currentUser.id
+            });
+            
+            share.set('foodItems', foodItems);
+            share.set('description', document.getElementById('description').value.trim());
+            share.set('shareType', shareType);
+            share.set('type', 'food');
+            share.set('status', 'available');
+            
+            share.set('location', new Parse.GeoPoint({
+                latitude: userLocation.lat,
+                longitude: userLocation.lng
+            }));
+            
+            share.set('locationAddress', document.getElementById('locationAddress').value);
+            share.set('pickupInstructions', document.getElementById('pickupInstructions').value.trim());
+            
+            if (selectedImage) {
+                share.set('image', selectedImage);
+            }
+            
+            share.set('claimedBy', []);
+            
+            await share.save();
+            
+            alert('🎉 Food shared successfully! Your neighbours can now see it.');
+            window.location.href = 'community.html';
+            
+        } catch (error) {
+            console.error('Error sharing food:', error);
+            alert('Failed to share food. Please try again.');
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+    
+    window.selectShareType = selectShareType;
+    window.addFoodItem = addFoodItem;
+    window.removeFoodItem = removeFoodItem;
+    window.getCurrentLocation = getCurrentLocation;
+    window.previewImage = previewImage;
+</script>
+</body>
+</html>
