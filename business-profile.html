@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>foodsavvi • business profile</title>
+    <title>foodsavvi • business settings</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
@@ -573,7 +573,7 @@
     <div class="app">
         <div class="header">
             <a href="index.html" class="back-link">←</a>
-            <h1>business profile</h1>
+            <h1>business settings</h1>
             <button class="refresh-all-btn" onclick="refreshAll()">↻</button>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
@@ -729,7 +729,7 @@
             </div>
         </div>
         
-        <!-- Bottom Nav -->
+        <!-- Bottom Nav: home, ads, orders, settings -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -739,9 +739,13 @@
                 <span class="nav-emoji">📢</span>
                 <span>ads</span>
             </a>
+            <a href="business-profile.html?tab=orders" class="nav-item">
+                <span class="nav-emoji">📦</span>
+                <span>orders</span>
+            </a>
             <a href="#" class="nav-item active">
-                <span class="nav-emoji">👤</span>
-                <span>profile</span>
+                <span class="nav-emoji">⚙️</span>
+                <span>settings</span>
             </a>
         </div>
     </div>
@@ -1283,7 +1287,7 @@
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
         window.removeEmployee = removeEmployee;
-        window.confirmSingleOrder = confirmSingleOrder; // renamed to avoid conflict
+        window.confirmSingleOrder = confirmSingleOrder;
         window.requestWithdraw = requestWithdraw;
         window.markRead = markRead;
         window.submitVerification = submitVerification;
