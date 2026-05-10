@@ -555,7 +555,7 @@
         <div class="content">
             <!-- Tabs -->
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('create')">📝 create ad</button>
+                <button class="tab active" onclick="switchTab('create')">📢 post ad</button>
                 <button class="tab" onclick="switchTab('manage')">📋 manage ads</button>
             </div>
             
@@ -595,7 +595,7 @@
                 
                 <!-- Form Card -->
                 <div class="form-card">
-                    <div class="form-title" id="formTitle">📝 New Deal Details</div>
+                    <div class="form-title" id="formTitle">📢 New Ad Details</div>
                     <input type="hidden" id="editAdId" value="">
                     
                     <div class="input-group">
@@ -654,14 +654,14 @@
                         </select>
                     </div>
                     
-                    <button class="submit-btn" id="submitBtn" onclick="submitAd()">📢 Post Deal</button>
+                    <button class="submit-btn" id="submitBtn" onclick="submitAd()">📢 Post Ad</button>
                 </div>
             </div>
             
             <!-- MANAGE ADS TAB -->
             <div id="manageTab" class="tab-content">
                 <div class="section-title">
-                    📢 my active deals
+                    📢 my active ads
                     <button class="refresh-icon" onclick="loadMyAds()">↻</button>
                 </div>
                 <div class="my-ads-list" id="myAdsList">
@@ -669,7 +669,7 @@
                 </div>
                 
                 <div class="section-title" style="margin-top: 20px;">
-                    📦 expired deals
+                    📦 expired ads
                 </div>
                 <div class="my-ads-list" id="expiredAdsList">
                     <div class="empty-state">loading...</div>
@@ -753,7 +753,7 @@
                 editMode = true;
                 editAdId = editId;
                 document.getElementById('pageTitle').innerHTML = 'edit ad <span class="edit-mode-badge">✏️ editing</span>';
-                document.getElementById('formTitle').innerHTML = '✏️ Edit Deal';
+                document.getElementById('formTitle').innerHTML = '✏️ Edit Ad';
                 document.getElementById('submitBtn').innerHTML = '💾 Save Changes';
                 loadAdForEditing(editId);
             }
@@ -808,7 +808,7 @@
                 createTab.classList.add('active');
                 manageTab.classList.remove('active');
                 tabs[0].classList.add('active');
-                document.getElementById('pageTitle').innerHTML = editMode ? 'edit ad' : 'create ad';
+                document.getElementById('pageTitle').innerHTML = editMode ? 'edit ad' : 'post ad';
             } else {
                 createTab.classList.remove('active');
                 manageTab.classList.add('active');
@@ -1059,28 +1059,30 @@
             try {
                 let result;
                 if (editMode && editAdId) {
+                    // Update existing ad
                     result = await Backend.updateAd(editAdId, adData);
                     if (result.success) {
-                        showNotification('Deal updated successfully!', 'success');
+                        showNotification('Ad updated successfully!', 'success');
                         setTimeout(() => {
                             window.location.href = 'advertise.html';
                         }, 1500);
                     } else {
-                        showNotification(result.message || 'Failed to update deal', 'error');
+                        showNotification(result.message || 'Failed to update ad', 'error');
                     }
                 } else {
+                    // Create new ad
                     result = await Backend.createAd(adData);
                     if (result.success) {
-                        showNotification('Deal posted successfully!', 'success');
+                        showNotification('Ad posted successfully!', 'success');
                         resetForm();
                         loadMyAds();
                     } else {
-                        showNotification(result.message || 'Failed to post deal', 'error');
+                        showNotification(result.message || 'Failed to post ad', 'error');
                     }
                 }
             } catch (error) {
                 console.error('Error posting ad:', error);
-                showNotification('Error posting deal. Please try again.', 'error');
+                showNotification('Error posting ad. Please try again.', 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -1119,7 +1121,7 @@
                 const expiredContainer = document.getElementById('expiredAdsList');
                 
                 if (activeAds.length === 0) {
-                    activeContainer.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="#" onclick="switchTab('create'); return false;" class="add-link">create your first ad →</a></div>`;
+                    activeContainer.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="#" onclick="switchTab('create'); return false;" class="add-link">post your first ad →</a></div>`;
                 } else {
                     activeContainer.innerHTML = activeAds.map(ad => `
                         <div class="my-ad-item">
@@ -1142,7 +1144,7 @@
                 }
                 
                 if (expiredAds.length === 0) {
-                    expiredContainer.innerHTML = '<div class="empty-state">📭 no expired deals</div>';
+                    expiredContainer.innerHTML = '<div class="empty-state">📭 no expired ads</div>';
                 } else {
                     expiredContainer.innerHTML = expiredAds.map(ad => `
                         <div class="my-ad-item" style="opacity: 0.7;">
