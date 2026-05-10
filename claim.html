@@ -64,12 +64,25 @@
             font-weight: 600;
         }
         
+        /* Cart icon in header – same as on deals page */
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 24px;
+            text-decoration: none;
+        }
+        
         .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
             background: #ff3b30;
             color: white;
             border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 12px;
+            padding: 2px 6px;
+            font-size: 10px;
+            min-width: 18px;
+            text-align: center;
         }
         
         .refresh-btn {
@@ -591,7 +604,11 @@
             <a href="find-stores.html" class="back-link">←</a>
             <h1>my cart</h1>
             <button class="refresh-btn" onclick="refreshCart()">↻</button>
-            <span class="cart-count" id="cartCount">0</span>
+            <!-- Cart icon with badge – now visible and updates with item count -->
+            <a href="claim.html" class="cart-icon">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
         </div>
         
         <div class="content">
