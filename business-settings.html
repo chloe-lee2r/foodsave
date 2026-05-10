@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>foodsavvi • business settings</title>
+    <title>foodsavvi • business profile</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
@@ -573,7 +573,7 @@
     <div class="app">
         <div class="header">
             <a href="index.html" class="back-link">←</a>
-            <h1>business settings</h1>
+            <h1>business profile</h1>
             <button class="refresh-all-btn" onclick="refreshAll()">↻</button>
             <button class="logout-btn" onclick="logout()">🚪</button>
         </div>
@@ -729,7 +729,7 @@
             </div>
         </div>
         
-        <!-- Bottom Nav: home, ads, orders, settings -->
+        <!-- Bottom Nav -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -739,13 +739,9 @@
                 <span class="nav-emoji">📢</span>
                 <span>ads</span>
             </a>
-            <a href="business-profile.html?tab=orders" class="nav-item">
-                <span class="nav-emoji">📦</span>
-                <span>orders</span>
-            </a>
             <a href="#" class="nav-item active">
-                <span class="nav-emoji">⚙️</span>
-                <span>settings</span>
+                <span class="nav-emoji">👤</span>
+                <span>profile</span>
             </a>
         </div>
     </div>
@@ -1055,320 +1051,156 @@
             if (checkbox.checked) {
                 selectedOrderIds.add(orderId);
             } else {
-                selectedOrderIds.delete(orderId.delete(orderId);
-            }
-            updateSelectionUI();
-       );
+                selectedOrderIds.delete(orderId);
             }
             updateSelectionUI();
         }
-        
-        function updateSelection }
         
         function updateSelectionUI() {
-            const selectAllBtn = documentUI() {
-            const selectAllBtn = document.getElementById('.getElementById('selectAllBtnselectAllBtn');
-            const bulkConfirmBtn = document.getElementById');
-            const bulkConfirmBtn = document.getElementById('bulkConfirmBtn('bulkConfirmBtn');
-            const selectedCountEl =');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
             const selectedCountEl = document.getElementById('selectedCount');
-            const checkboxes document.getElementById('selectedCount');
-            const checkboxes = document.querySelectorAll('.order-select-check = document.querySelectorAll('.order-select-checkbox');
+            const checkboxes = document.querySelectorAll('.order-select-checkbox');
             
-            const countbox');
-            
-            const count = selected = selectedOrderIds.sizeOrderIds.size;
-            selectedCountEl.textContent = `${;
-            selectedCountEl.textContent = `${count}count} selected`;
-            
-            // Update checkboxes selected`;
+            const count = selectedOrderIds.size;
+            selectedCountEl.textContent = `${count} selected`;
             
             // Update checkboxes to reflect the set
-            to reflect the set
-            checkboxes.forEach(cb => checkboxes.forEach(cb => {
-                {
-                const oid = cb.get const oid = cb.getAttribute('data-order-idAttribute('data-order-id');
-                cb');
-                cb.checked = selectedOrderIds.has(.checked = selectedOrderIds.has(oid);
-           oid);
+            checkboxes.forEach(cb => {
+                const oid = cb.getAttribute('data-order-id');
+                cb.checked = selectedOrderIds.has(oid);
             });
             
-            // Select All button });
-            
             // Select All button state
-            const totalPending = document state
-            const totalPending = document.querySelectorAll('.order-select-checkbox')..querySelectorAll('.order-select-checkbox').lengthlength;
-            if (totalPending >;
-            if (totalPending > 0 && count === totalPending) 0 && count === totalPending) {
-                selectAllBtn.text {
-                selectAllBtn.textContent = '☑ DesContent = '☑ Deselect All';
-           elect All';
+            const totalPending = document.querySelectorAll('.order-select-checkbox').length;
+            if (totalPending > 0 && count === totalPending) {
+                selectAllBtn.textContent = '☑ Deselect All';
             } else {
-                selectAll } else {
-                selectAllBtn.textBtn.textContent =Content = '☐ Select All '☐ Select All';
+                selectAllBtn.textContent = '☐ Select All';
             }
             
-            // Enable';
-            }
-            
-            // Enable/disable/disable bulk confirm button
-            bulkConfirmBtn bulk confirm button
+            // Enable/disable bulk confirm button
             bulkConfirmBtn.disabled = (count === 0);
-       .disabled = (count === 0);
         }
-        
-        function }
         
         function toggleSelectAll() {
-            const allCheckboxes toggleSelectAll() {
-            const allCheckboxes = document.querySelectorAll('.order = document.querySelectorAll('.order-select-checkbox');
-            const totalPending-select-checkbox');
+            const allCheckboxes = document.querySelectorAll('.order-select-checkbox');
             const totalPending = allCheckboxes.length;
             
-            = allCheckboxes.length;
-            
-            if (selectedOrder if (selectedOrderIds.size === totalIds.size === totalPending) {
-                // DesPending) {
-                // Deselect allelect all
-               
+            if (selectedOrderIds.size === totalPending) {
+                // Deselect all
                 selectedOrderIds.clear();
-            } else selectedOrderIds.clear();
             } else {
-                {
                 // Select all pending orders
-                all // Select all pending orders
                 allCheckboxes.forEach(cb => {
-                    selectedOrderCheckboxes.forEach(cb => {
-                    selectedOrderIds.add(cb.getAttribute('dataIds.add(cb.getAttribute('data-order-id'));
+                    selectedOrderIds.add(cb.getAttribute('data-order-id'));
                 });
-           -order-id'));
-                });
-            }
             }
             updateSelectionUI();
-        updateSelectionUI();
         }
-        
-        async function confirmSingleOrder(order }
         
         async function confirmSingleOrder(orderId) {
-            if (!confirm('Id) {
-            if (!confirm('Confirm thisConfirm this order? The customer will be notified that order? The customer will be notified that their order is ready for pickup their order is ready for pickup.')).')) return;
+            if (!confirm('Confirm this order? The customer will be notified that their order is ready for pickup.')) return;
             
-            const result = await return;
-            
-            const result = await Backend.confirmOrderByBusiness(order Backend.confirmOrderByBusiness(orderId);
-            if (resultId);
+            const result = await Backend.confirmOrderByBusiness(orderId);
             if (result.success) {
-                showStatus('Order.success) {
-                showStatus('Order confirmed! Customer notified.', 'success confirmed! Customer notified.', 'success');
+                showStatus('Order confirmed! Customer notified.', 'success');
                 await loadOrders();
-               ');
-                await loadOrders();
-                await load await loadStats();
+                await loadStats();
                 await refreshWallet();
-           Stats();
-                await refreshWallet();
-            } else } else {
-                showStatus(result.message {
+            } else {
                 showStatus(result.message, 'error');
-           , 'error');
             }
-        }
-        
-        async function confirmSelected }
         }
         
         async function confirmSelectedOrders() {
-            if (selectedOrderOrders() {
             if (selectedOrderIds.size === 0) {
-               Ids.size === 0) {
-                showStatus('No orders selected', ' showStatus('No orders selected', 'error');
-                return;
-           error');
+                showStatus('No orders selected', 'error');
                 return;
             }
             
-            if (!confirm }
+            if (!confirm(`Confirm ${selectedOrderIds.size} order(s)? All selected customers will be notified.`)) return;
             
-            if (!confirm(`Confirm(`Confirm ${selectedOrderIds.size} ${selectedOrderIds.size} order(s)? All selected customers will be order(s)? All selected customers will be notified. notified.`)) return`)) return;
-            
-           ;
-            
-            // Show // Show loading state
-            const bulk loading state
-            const bulkBtn = document.getElementById('bulkConfirmBtn = document.getElementById('bulkConfirmBtnBtn');
-            bulkBtn.disabled =');
+            // Show loading state
+            const bulkBtn = document.getElementById('bulkConfirmBtn');
             bulkBtn.disabled = true;
-            bulkBtn.text true;
-            bulkBtn.textContent =Content = '⏳ Confirming '⏳ Confirming......';
+            bulkBtn.textContent = '⏳ Confirming...';
             
-            let successCount =';
-            
-            let successCount = 0 0;
+            let successCount = 0;
             let errorCount = 0;
-            let errorCount = 0;
-            const orderIds =;
-            const orderIds = Array.from(selectedOrderIds Array.from(selectedOrderIds);
-);
+            const orderIds = Array.from(selectedOrderIds);
             
-            for (const orderId            
-            for (const orderId of orderIds) of orderIds) {
-                {
+            for (const orderId of orderIds) {
                 try {
-                    const result = await Back try {
-                    const result = await Backend.confend.confirmOrderByBusiness(orderId);
-                   irmOrderByBusiness(orderId);
-                    if (result.success) if (result.success) {
- {
+                    const result = await Backend.confirmOrderByBusiness(orderId);
+                    if (result.success) {
                         successCount++;
-                    } else                        successCount++;
                     } else {
-                        error {
-                        errorCountCount++;
-                        console.error(`Failed to confirm order ${orderId}:`, result++;
+                        errorCount++;
                         console.error(`Failed to confirm order ${orderId}:`, result.message);
-                    }
-                }.message);
                     }
                 } catch (err) {
                     errorCount++;
-                    catch (err) {
-                    errorCount++;
-                    console.error(`Error confirming order console.error(`Error confirming order ${orderId}:`, err);
-                ${orderId}:`, err);
+                    console.error(`Error confirming order ${orderId}:`, err);
                 }
- }
             }
-            
-            //            }
             
             // Clear selection
             selectedOrderIds.clear();
- Clear selection
-            selectedOrderIds.clear();
             
-            if (error            
             if (errorCount === 0) {
-                showCount === 0) {
-                showStatus(`Status(`✅ ${successCount} order✅ ${successCount} order(s) confirmed!`, 'success(s) confirmed!`, 'success');
-            }');
+                showStatus(`✅ ${successCount} order(s) confirmed!`, 'success');
             } else {
-                show else {
-                showStatus(`⚠️ ${successCount} confirmed,Status(`⚠️ ${successCount} confirmed, ${errorCount} failed. ${errorCount} failed.`, 'error');
+                showStatus(`⚠️ ${successCount} confirmed, ${errorCount} failed.`, 'error');
             }
             
-           `, 'error');
-            }
-            
-            // Refresh the list and stats // Refresh the list and stats
-            await loadOrders();
-            await
+            // Refresh the list and stats
             await loadOrders();
             await loadStats();
-            await refresh loadStats();
             await refreshWallet();
             
-            bulkBtn.textContentWallet();
-            
             bulkBtn.textContent = '✓ Confirm Selected';
-        = '✓ Confirm Selected';
         }
         
-        async function loadNotifications }
-        
         async function loadNotifications() {
-            const container =() {
             const container = document.getElementById('notificationsList');
-            try document.getElementById('notificationsList');
             try {
-                const notifications = await Back {
                 const notifications = await Backend.getNotifications(currentUser.id);
-               end.getNotifications(currentUser.id);
-                if (notifications.length === 0 if (notifications.length === 0) {
-                    container.innerHTML = '<div) {
-                    container.innerHTML = '<div class="empty-state">🔔 No class="empty-state">🔔 No notifications</div>';
-                    return notifications</div>';
+                if (notifications.length === 0) {
+                    container.innerHTML = '<div class="empty-state">🔔 No notifications</div>';
                     return;
                 }
-                container.innerHTML;
-                }
-                container.innerHTML = notifications = notifications.map(n => `
-                    <div class.map(n => `
-                    <div class="notification="notification-item ${!n.read ?-item ${!n.read ? 'unread' : '' 'unread' : ''}" onclick}" onclick="mark="markRead('Read('${n.id}${n.id}')">
-                        <div class')">
-                        <div class="notification="notification-message">${escapeHtml(n.message-message">${escapeHtml(n.message)}</div>
-                       )}</div>
-                        <div class="notification <div class="notification-time">-time">${new Date(n.createdAt).to${new Date(n.createdAt).toLocaleString()}</LocaleString()}</div>
-                    </divdiv>
+                container.innerHTML = notifications.map(n => `
+                    <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="markRead('${n.id}')">
+                        <div class="notification-message">${escapeHtml(n.message)}</div>
+                        <div class="notification-time">${new Date(n.createdAt).toLocaleString()}</div>
                     </div>
                 `).join('');
-           >
-                `).join('');
-            } catch } catch (error) {
-                container (error) {
-                container.innerHTML = '<div class=".innerHTML = '<div class="empty-stateempty-state">Error loading notifications</div>';
-           ">Error loading notifications</div>';
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading notifications</div>';
             }
         }
         
-        async }
-        }
-        
-        async function markRead(notificationId function markRead(notificationId) {
-            await Backend.markNotificationRead() {
+        async function markRead(notificationId) {
             await Backend.markNotificationRead(notificationId);
-            await loadNotificationsnotificationId);
             await loadNotifications();
-        }
-        
-        async function();
         }
         
         async function loadStats() {
             try {
-                loadStats() {
-            try {
-                const ads const ads = await Backend.getShop = await Backend.getShopAds(currentAds(currentUser.id);
-                const orders = awaitUser.id);
-                const orders = await Backend.getOrdersForBusiness Backend.getOrdersForBusiness(currentUser.id);
+                const ads = await Backend.getShopAds(currentUser.id);
+                const orders = await Backend.getOrdersForBusiness(currentUser.id);
                 
-               (currentUser.id);
+                const activeAds = ads.filter(a => a.active).length;
+                const pendingOrders = orders.filter(o => o.status === 'pending').length;
+                const uniqueCustomers = [...new Set(orders.map(o => o.consumerId))].length;
+                const completedOrders = orders.filter(o => o.status === 'collected_by_customer');
+                const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
                 
-                const active const activeAds = ads.filter(a =>Ads = ads.filter(a => a.active).length;
-                const pending a.active).length;
-                const pendingOrders =Orders = orders.filter(o => o.status orders.filter(o => o.status === 'pending').length === 'pending').length;
-                const;
-                const uniqueCustomers = [...new Set(orders uniqueCustomers = [...new Set(orders.map(o.map(o => o.consumerId))]. => o.consumerId))].length;
-                const completedOrderslength;
-                const completedOrders = orders = orders.filter(o => o.status ===.filter(o => o.status === 'collected_by 'collected_by_customer');
-                const totalRevenue =_customer');
-                const totalRevenue = completedOrders completedOrders.reduce((sum, o) => sum + (.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-                
-                document.getElementById('stato.totalAmount || 0), 0);
-                
-                document.getElementById('statAds').Ads').textContent = activeAds;
-                documenttextContent = activeAds;
-                document.getElementById('statOrders').textContent =.getElementById('statOrders').textContent = pendingOrders;
-                document.getElementById('stat pendingOrders;
-                document.getElementById('statCustomers').textContent = uniqueCustomersCustomers').textContent = uniqueCustomers;
-                document;
-                document.getElementById('statRevenue').textContent =.getElementById('statRevenue').textContent = `$$ `$${totalRevenue.toFixed(2)}`;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
-        
-        async function requestWithdraw() {
-            const balance = await Backend.getBusinessWalletBalance(currentUser.id);
-            if (balance.available < 5) {
-                showStatus(`Minimum withdrawal is $5. Available: $${balance.available.toFixed(2)}`, 'error');
-                return;
-            }
-            const amount = prompt(`Enter amount to withdraw (min $5, max $${balance.available.toFixed(2)})`, '5');
-            if (!amount) return;
-            const withdrawAmount = parseFloat(amount);
-            if (isNaN(withdrawAmount) ||{totalRevenue.toFixed(2)}`;
+                document.getElementById('statAds').textContent = activeAds;
+                document.getElementById('statOrders').textContent = pendingOrders;
+                document.getElementById('statCustomers').textContent = uniqueCustomers;
+                document.getElementById('statRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -1451,7 +1283,7 @@
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
         window.removeEmployee = removeEmployee;
-        window.confirmSingleOrder = confirmSingleOrder;
+        window.confirmSingleOrder = confirmSingleOrder; // renamed to avoid conflict
         window.requestWithdraw = requestWithdraw;
         window.markRead = markRead;
         window.submitVerification = submitVerification;
