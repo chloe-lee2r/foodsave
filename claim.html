@@ -64,7 +64,6 @@
             font-weight: 600;
         }
         
-        /* Cart icon in header – same as on deals page */
         .cart-icon {
             position: relative;
             cursor: pointer;
@@ -604,7 +603,7 @@
             <a href="find-stores.html" class="back-link">←</a>
             <h1>my cart</h1>
             <button class="refresh-btn" onclick="refreshCart()">↻</button>
-            <!-- Cart icon with badge – now visible and updates with item count -->
+            <!-- Cart icon with badge – now always visible -->
             <a href="claim.html" class="cart-icon">
                 🛒
                 <span class="cart-count" id="cartCount">0</span>
@@ -728,6 +727,8 @@
             
             await loadWalletBalance();
             loadCart();
+            // Make sure the header badge shows the correct count on load
+            updateCartCount();
         });
         
         async function refreshCart() {
