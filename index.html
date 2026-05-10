@@ -646,6 +646,7 @@
             border-left: 4px solid #34c759;
         }
         .ad-item.expiring { border-left-color: #ff9500; }
+        .ad-item.ended { border-left-color: #ff3b30; }
         .ad-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
         .ad-food { font-weight: 600; }
         .ad-discount { color: #34c759; font-weight: 600; }
@@ -752,24 +753,24 @@
             </div>
         </div>
         
-        <!-- ADVERTISER VIEW (unchanged) -->
+        <!-- ADVERTISER VIEW -->
         <div class="advertiser-only">
             <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                 <div class="profile-header"><div class="profile-avatar">🏪</div><div class="profile-name"><h3 id="shopName">your shop</h3><div class="profile-meta" id="shopAddress">tap to edit</div><div class="verification-status" id="verificationStatus">⏳ pending</div></div></div>
                 <div class="profile-stats"><div class="stat-box"><div class="number" id="shopAdCount">0</div><div class="label">ads</div></div><div class="stat-box"><div class="number" id="shopViews">0</div><div class="label">views</div></div><div class="stat-box"><div class="number" id="shopClaimed">0</div><div class="label">claimed</div></div></div>
             </div>
             <div class="shop-actions">
-                <a href="advertise.html" class="shop-action"><div class="action-icon">📢</div><div>post ad</div></a>
+                <a href="advertise.html?tab=create" class="shop-action"><div class="action-icon">📢</div><div>post ad</div></a>
                 <a href="business-profile.html?tab=profile" class="shop-action"><div class="action-icon">⚙️</div><div>settings</div></a>
                 <a href="business-profile.html?tab=orders" class="shop-action"><div class="action-icon">📦</div><div>orders</div></a>
-                <a href="business-profile.html?tab=employees" class="shop-action"><div class="action-icon">👥</div><div>staff</div></a>
+                <a href="business-profile.html?tab=employees" class="shop-action"><div class="action-icon">👥</div><div>employees</div></a>
             </div>
-            <div class="section-title">your active deals<a href="advertise.html" class="view-all">manage →</a></div>
+            <div class="section-title">your active ads<a href="advertise.html?tab=manage" class="view-all">manage →</a></div>
             <div class="ads-list" id="shopAds"><div class="empty-state">📢 no active ads</div></div>
         </div>
     </div>
     
-    <!-- Consumer Bottom Nav: profile replaced with fridge -->
+    <!-- Consumer Bottom Nav -->
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
@@ -780,10 +781,10 @@
         </div>
     </div>
     
-    <!-- Business Bottom Nav -->
+    <!-- Business Bottom Nav (changed label to "ads") -->
     <div class="bottom-nav-business">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
-        <div class="nav-item" onclick="window.location.href='advertise.html'"><span class="nav-emoji">📢</span><span>post ad</span></div>
+        <div class="nav-item" onclick="window.location.href='advertise.html'"><span class="nav-emoji">📢</span><span>ads</span></div>
         <div class="nav-item" onclick="window.location.href='business-profile.html?tab=orders'"><span class="nav-emoji">📦</span><span>orders</span></div>
         <div class="nav-item" onclick="window.location.href='business-profile.html?tab=profile'"><span class="nav-emoji">⚙️</span><span>settings</span></div>
     </div>
@@ -1114,14 +1115,34 @@
             document.getElementById('shopViews').textContent = views;
             document.getElementById('shopClaimed').textContent = claimed;
             const container = document.getElementById('shopAds');
-            if(shopAds.length === 0) { container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html" class="add-link">post ad →</a></div>`; return; }
+            if(shopAds.length === 0) { container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html?tab=manage" class="add-link">manage ads →</a></div>`; return; }
             let html = '';
             for(let i=0; i<Math.min(shopAds.length,5); i++) {
                 const ad = shopAds[i];
                 const daysUntil = Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
-                const expiringClass = daysUntil <= 2 ? 'expiring' : '';
+                let adClass = '';
+                let statusText = '';
+                if (daysUntil < 0) {
+                    adClass = 'ended';
+                    statusText = `ended ${Math.abs(daysUntil)} day${Math.abs(daysUntil) !== 1 ? 's' : ''} ago`;
+                } else if (daysUntil <= 2) {
+                    adClass = 'expiring';
+                    statusText = `expiring soon • ${daysUntil} day${daysUntil !== 1 ? 's' : ''} left`;
+                } else {
+                    statusText = `${daysUntil} day${daysUntil !== 1 ? 's' : ''} left`;
+                }
                 const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                html += `<div class="ad-item ${expiringClass}"><div class="ad-header"><span class="ad-food">${escapeHtml(ad.foodName)}</span><span class="ad-discount">${ad.discount}% off</span></div><div class="ad-meta"><span>offer ends in ${daysUntil} days</span>${ad.batchNumber ? `<span class="ad-batch">batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}<span class="ad-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span></div></div>`;
+                html += `<div class="ad-item ${adClass}">
+                    <div class="ad-header">
+                        <span class="ad-food">${escapeHtml(ad.foodName)}</span>
+                        <span class="ad-discount">${ad.discount}% off</span>
+                    </div>
+                    <div class="ad-meta">
+                        <span>${statusText}</span>
+                        ${ad.batchNumber ? `<span class="ad-batch">batch: ${escapeHtml(ad.batchNumber)}</span>` : ''}
+                        <span class="ad-quantity ${isLowStock ? 'low' : ''}">📊 ${ad.quantityLeft || 0} left</span>
+                    </div>
+                </div>`;
             }
             container.innerHTML = html;
         } catch(e) { document.getElementById('shopAds').innerHTML = '<div class="empty-state">error loading ads</div>'; }
