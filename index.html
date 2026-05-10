@@ -884,7 +884,7 @@
         try {
             const query = new Parse.Query(Parse.User);
             query.equalTo("role", "advertiser");
-            const businesses = await query.find();
+            const businesses = await query.find();   // ← FIXED: removed { useMasterKey: true }
             
             const stores = [];
             for (const biz of businesses) {
