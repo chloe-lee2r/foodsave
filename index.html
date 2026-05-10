@@ -478,7 +478,18 @@
             cursor: pointer;
         }
         .nav-item.active { color: #007aff; }
-        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; }
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+            height: 24px;
+            line-height: 24px;
+        }
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
+        }
         
         /* Consumer Bottom Nav */
         body.consumer .bottom-nav-consumer { display: flex; }
@@ -690,7 +701,6 @@
             <!-- Home Tab -->
             <div class="tab-content active" id="homeTab">
                 <div class="quick-actions">
-                    <!-- Changed icon to 📝 for lists -->
                     <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
                     <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
@@ -759,12 +769,15 @@
         </div>
     </div>
     
-    <!-- Consumer Bottom Nav (updated list icon to 📝) -->
+    <!-- Consumer Bottom Nav: profile replaced with fridge -->
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
         <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">📝</span><span id="navLabel">lists</span></div>
-        <div class="nav-item" onclick="goToProfile()"><span class="nav-emoji">👤</span><span>profile</span></div>
+        <div class="nav-item" onclick="window.location.href='fridge.html'">
+            <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
+            <span>fridge</span>
+        </div>
     </div>
     
     <!-- Business Bottom Nav -->
