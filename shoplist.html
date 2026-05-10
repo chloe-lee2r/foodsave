@@ -98,6 +98,7 @@
         .content {
             flex: 1;
             padding: 16px;
+            padding-bottom: 80px; /* space for bottom nav */
             overflow-y: auto;
         }
         
@@ -556,7 +557,7 @@
         /* Notification */
         .notification {
             position: fixed;
-            bottom: 20px;
+            bottom: 80px; /* adjusted for bottom nav */
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: #1a1a1a;
@@ -568,10 +569,14 @@
             z-index: 1000;
             white-space: nowrap;
             max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .notification.success {
@@ -580,6 +585,48 @@
         
         .notification.error {
             background: #ff3b30;
+        }
+        
+        /* ---- Bottom Navigation (Added) ---- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 50;
+        }
+        
+        .nav-item {
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: #007aff;
+        }
+        
+        .nav-emoji {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -653,6 +700,26 @@
                 <div class="templates-grid" id="templatesGrid"></div>
             </div>
         </div>
+        
+        <!-- Standard consumer bottom nav (Added) -->
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-emoji">🏠</span>
+                <span>home</span>
+            </a>
+            <a href="find-stores.html" class="nav-item">
+                <span class="nav-emoji">🔍</span>
+                <span>deals</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-emoji">📝</span>
+                <span>lists</span>
+            </a>
+            <a href="fridge.html" class="nav-item">
+                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
+                <span>fridge</span>
+            </a>
+        </div>
     </div>
     
     <!-- Edit Item Modal -->
@@ -707,6 +774,7 @@
         let currentListId = 'default';
         let currentCategory = 'all';
         let editingItemIndex = -1;
+        let notificationTimeout = null;
         
         // Expiry checkbox toggle
         document.getElementById('addExpiryCheckbox')?.addEventListener('change', function(e) {
@@ -1203,9 +1271,13 @@
         
         function showNotification(msg, type = 'info') {
             const notif = document.getElementById('notification');
+            if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            setTimeout(() => notif.classList.remove('show'), 2000);
+            notificationTimeout = setTimeout(() => {
+                notif.className = 'notification';
+                notificationTimeout = null;
+            }, 2000);
         }
         
         // Make functions global
