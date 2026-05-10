@@ -690,9 +690,10 @@
             <!-- Home Tab -->
             <div class="tab-content active" id="homeTab">
                 <div class="quick-actions">
-                    <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
+                    <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">🛒</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
                     <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
+                    <!-- Changed profile quick action to recipes -->
                     <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
@@ -762,7 +763,7 @@
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
-        <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">📝</span><span id="navLabel">lists</span></div>
+        <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">🛒</span><span id="navLabel">lists</span></div>
         <div class="nav-item" onclick="goToProfile()"><span class="nav-emoji">👤</span><span>profile</span></div>
     </div>
     
@@ -819,6 +820,7 @@
     
     async function loadAllStoresOnMap() {
         try {
+            // Get all businesses (advertisers) from the system
             const allBusinesses = await getAllBusinesses();
             
             const storeListDiv = document.getElementById('storeList');
@@ -827,16 +829,20 @@
                 return;
             }
             
+            // Clear existing markers
             storeMarkers.forEach(marker => map.removeLayer(marker));
             storeMarkers = [];
             
             let listHtml = '';
             for (const store of allBusinesses) {
+                // Only show stores with valid coordinates
                 if (store.lat && store.lng && store.lat !== 0 && store.lng !== 0) {
+                    // Create custom popup content with store details and ads
                     const popupContent = await createStorePopupContent(store);
                     const marker = L.marker([store.lat, store.lng]).addTo(map);
                     marker.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
                     marker.on('click', () => {
+                        // Highlight the store in the list
                         document.querySelectorAll('.store-item').forEach(el => el.style.background = '#f8f9fa');
                         const clickedItem = document.querySelector(`.store-item[data-store-id="${store.id}"]`);
                         if (clickedItem) clickedItem.style.background = '#e3f2fd';
@@ -867,6 +873,7 @@
     
     async function getAllBusinesses() {
         try {
+            // Query all users with role = 'advertiser'
             const query = new Parse.Query(Parse.User);
             query.equalTo("role", "advertiser");
             const businesses = await query.find({ useMasterKey: true });
@@ -891,6 +898,7 @@
     }
     
     async function createStorePopupContent(store) {
+        // Get active ads for this store
         let adsHtml = '<div class="popup-ads-title">📢 Active Deals:</div>';
         let hasAds = false;
         
@@ -941,6 +949,7 @@
     
     function flyToStore(lat, lng, storeName) {
         map.flyTo([lat, lng], 16);
+        // Find and open the marker popup
         const marker = storeMarkers.find(m => {
             const pos = m.getLatLng();
             return pos.lat === lat && pos.lng === lng;
@@ -965,230 +974,118 @@
                 switch(order.status) {
                     case 'pending': statusClass = 'status-pending'; statusText = 'pending confirmation'; actions = `<div style="font-size:11px; color:#999; margin-top:8px;">⏳ Waiting for business to confirm...</div>`; break;
                     case 'confirmed_by_business': statusClass = 'status-ready'; statusText = 'ready for pickup'; actions = `<button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
-                    case 'collected_by_customer': statusClass = 'status-completed'; statusText = 'completed'; actions = `<div style="font-size:11px; color:#34c759; margin-top:-top:8px8px;">✅;">✅ Order completed Order completed!</div!</div>`;>`; break break;
-                    default;
-                    default:: status statusClass =Class = 'status 'status-pending-pending'; status'; statusText = order.statusText = order.status;
-               ;
+                    case 'collected_by_customer': statusClass = 'status-completed'; statusText = 'completed'; actions = `<div style="font-size:11px; color:#34c759; margin-top:8px;">✅ Order completed!</div>`; break;
+                    default: statusClass = 'status-pending'; statusText = order.status;
                 }
-                }
-                let item let itemClass =Class = order.status order.status === ' === 'pending'pending' ? ' ? 'pending'pending' : ( : (order.statusorder.status === 'confirmed_by === 'confirmed_by_business_business' ?' ? 'ready 'ready' :' : ' '');
-                return');
-                return `<div `<div class=" class="order-itemorder-item ${item ${itemClass}Class}"><div"><div class=" class="order-headerorder-header"><span"><span class=" class="order-idorder-id">#">#${order.id.slice${order.id.slice(-8(-8)}</)}</spanspan><span class><span class="order-status ${="order-status ${statusClassstatusClass}">}">${status${statusText}</Text}</span></span></div><div classdiv="order><div class="order-details-details">🍽️">🍽️ ${escape ${escapeHtml(orderHtml(order.food.foodName)}Name)} × ${ × ${order.order.quantity}</divquantity}</div><div class><div class="order="order-total">$$-total{(order">$${(order.totalAmount.totalAmount ||  || 0).0).toFixedtoFixed(2(2)}</)}</divdiv><div class><div class="order-date">="order-date">${new${new Date(order Date(order.createdAt.createdAt).to).toLocaleStringLocaleString()}</()}</div>${actions}</divdiv>${actions}</div>>`;
-            }).join`;
+                let itemClass = order.status === 'pending' ? 'pending' : (order.status === 'confirmed_by_business' ? 'ready' : '');
+                return `<div class="order-item ${itemClass}"><div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${statusClass}">${statusText}</span></div><div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div><div class="order-total">$${(order.totalAmount || 0).toFixed(2)}</div><div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>${actions}</div>`;
             }).join('');
-        }('');
-        } catch(e catch(e) {) { container.innerHTML = container.innerHTML = '<div class '<div class="empty="empty-state">Error loading orders</-state">Error loading orders</div>div>';'; }
+        } catch(e) { container.innerHTML = '<div class="empty-state">Error loading orders</div>'; }
     }
-    async }
+    async function confirmPickup(orderId) {
+        if (!orderId) { alert('Invalid order ID'); return; }
+        if (!confirm('Confirm that you have picked up your order?')) return;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        try {
+            const result = await Backend.confirmCollectedByCustomer(orderId);
+            if (result.success) { await loadOrders(); await loadWalletBalance(); }
+            else alert(result.message || 'Failed to confirm pickup');
+        } catch(e) { alert('Error confirming pickup'); }
+        finally { document.getElementById('loadingOverlay').style.display = 'none'; }
     }
-    async function confirm function confirmPickup(orderIdPickup(orderId) {
-        if) {
-        if (!order (!orderId) { alertId) { alert('Invalid order ID'); return('Invalid order ID'); return; }
-        if; }
-        if (!confirm (!confirm('Confirm that you('Confirm that you have picked up your have picked up your order?' order?')) return;
-       )) return;
-        document.getElementById document.getElementById('loadingOverlay('loadingOverlay').style').style.display = 'flex';
-       .display = 'flex';
-        try try {
-            const {
-            const result = result = await Back await Backend.confirmColend.confirmCollectedBylectedByCustomer(orderId);
-            ifCustomer(orderId);
-            if (result (result.success).success) { await loadOrders { await loadOrders(); await loadWallet(); await loadWalletBalance();Balance(); }
-            else alert }
-            else alert(result.message(result.message || ' || 'Failed toFailed to confirm pickup confirm pickup');
-       ');
-        } catch } catch(e)(e) { alert { alert('Error('Error confirming pickup confirming pickup'); }
-        finally { document.getElementById(''); }
-        finally { document.getElementById('loadingOverlay').loadingOverlay').style.display = 'style.display = 'none';none'; }
+    function openTopUpModal() { document.getElementById('topUpModal').style.display = 'flex'; }
+    function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; document.getElementById('topUpAmount').value = ''; }
+    async function processTopUp() {
+        const amount = parseFloat(document.getElementById('topUpAmount').value);
+        if (isNaN(amount) || amount < 1) { alert('Please enter a valid amount (minimum $1)'); return; }
+        closeTopUpModal(); document.getElementById('loadingOverlay').style.display = 'flex';
+        await new Promise(r => setTimeout(r, 1500));
+        const result = await Backend.addToWallet(currentUser.id, amount);
+        if (result.success) { walletBalance = result.newBalance; document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; }
+        else alert('Failed to add funds');
+        document.getElementById('loadingOverlay').style.display = 'none';
     }
+    function editProfileField(field) { editField = field; const titles = { name:'Edit Name', email:'Edit Email', phone:'Edit Phone' }; document.getElementById('modalTitle').textContent = titles[field]; document.getElementById('modalInput').value = ''; document.getElementById('editModal').style.display = 'flex'; }
+    async function saveProfileEdit() {
+        const newValue = document.getElementById('modalInput').value.trim();
+        if (!newValue) { alert('Enter a value'); return; }
+        const updates = {}; if (editField === 'name') updates.fullName = newValue; if (editField === 'email') updates.email = newValue; if (editField === 'phone') updates.phone = newValue;
+        const result = await Backend.updateConsumerProfile(currentUser.id, updates);
+        if (result.success) { await loadProfile(); closeEditModal(); }
+        else alert('Update failed');
     }
-    function open }
-    function openTopUpTopUpModal() { document.getElementById('Modal() { document.getElementById('topUptopUpModal').Modal').style.display = 'flex';style.display = 'flex'; }
-    function closeTopUp }
-    function closeTopUpModal()Modal() { document { document.getElementById('topUp.getElementById('topUpModal').Modal').style.display = 'none';style.display = 'none'; document.getElementById document.getElementById('topUpAmount('topUpAmount').value = '';').value = ''; }
-    async }
-    async function processTopUp function processTopUp() {
-        const() {
-        const amount = amount = parseFloat parseFloat(document.getElementById('top(document.getElementById('topUpAmountUpAmount').value').value);
-       );
-        if ( if (isNaNisNaN(amount) || amount(amount) || amount < 1 < 1) {) { alert('Please enter a valid alert('Please enter a valid amount ( amount (minimum $minimum $1)1)'); return;'); return; }
-        close }
-        closeTopUpModal(); document.getElementByIdTopUpModal(); document.getElementById('loadingOverlay('loadingOverlay').style').style.display = 'flex';
-       .display = 'flex';
-        await new await new Promise(r Promise(r => setTimeout(r, => setTimeout(r, 150 1500));
-        const0));
-        const result = result = await Backend.addToWallet await Backend.addToWallet(currentUser.id, amount(currentUser.id, amount);
-        if);
-        if (result (result.success).success) { wallet { walletBalance =Balance = result.new result.newBalance;Balance; document.getElementById document.getElementById('wal('walletBalance').textContent =letBalance').textContent = `$${walletBalance.toFixed `$${walletBalance.toFixed(2)}`(2)}`; }
-        else; }
-        else alert(' alert('Failed to add fundsFailed to add funds');
-        document.getElementById');
-        document.getElementById('loading('loadingOverlayOverlay').style').style.display =.display = 'none';
-    'none';
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    function switchConsumerTab(tab) {
+        document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const tabMap = { home:0, profile:1, map:2, orders:3 };
+        document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
+        document.getElementById(`${tab}Tab`).classList.add('active');
+        if (tab === 'orders') loadOrders();
+        if (tab === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
     }
-    }
-    function edit function editProfileField(fieldProfileField(field) {) { editField editField = field; const titles = = field; const titles = { name:'Edit { name:'Edit Name', Name', email:'Edit Email email:'Edit Email', phone', phone:'Edit:'Edit Phone' Phone' }; document }; document.getElementById('modalTitle').textContent =.getElementById('modalTitle').textContent = titles titles[field];[field]; document.getElementById document.getElementById('modalInput').value =('modalInput').value = ''; ''; document.getElementById document.getElementById('editModal').style.display('editModal').style.display = 'flex'; = 'flex'; }
-    }
-    async function async function saveProfileEdit() saveProfileEdit() {
-        {
-        const new const newValue = document.getElementByIdValue = document.getElementById('modalInput').('modalInput').value.trimvalue.trim();
-       ();
-        if (!newValue) { if (!newValue) { alert('Enter a value'); return; alert('Enter a value'); return; }
-        }
-        const updates = {} const updates = {}; if; if (editField === (editField === 'name 'name')') updates updates.fullName = newValue; if (.fullName = newValue; if (editFieldeditField === ' === 'email') updates.emailemail') updates.email = new = newValue;Value; if ( if (editField === 'editField === 'phone') updates.phone') updates.phone = newValue;
-        const resultphone = newValue;
-        const result = await Back = await Backendend.updateConsumerProfile(currentUser.id, updates.updateConsumerProfile(currentUser.id, updates);
-       );
-        if ( if (result.success) {result.success) { await loadProfile(); await loadProfile(); closeEdit closeEditModal();Modal(); }
-        }
-        else alert('Update failed else alert('Update failed');
-   ');
-    }
-    function }
-    function closeEditModal() { document.getElementById(' closeEditModal() { document.getElementById('editModaleditModal').style.display = 'none').style.display = 'none';'; }
-    function switchConsumer }
-    function switchConsumerTab(tTab(tab)ab) {
-        {
-        document.querySelector document.querySelectorAll('.All('.tabstabs .tab').forEach .tab').forEach(t => t.classList(t => t.classList.remove('.remove('activeactive'));
-        document'));
-        document.querySelectorAll('.tab.querySelectorAll('.tab-content').forEach(c => c-content').forEach(c => c.classList.remove('active'));
-       .classList.remove('active'));
-        const tab const tabMap = { home:0Map = { home:0, profile:1, profile:1, map:2, map:2, orders:3, orders:3 };
-        };
-        document.querySelectorAll('. document.querySelectorAll('.tabs .tabtabs .tab')[tabMap')[tabMap[tab]].classList.add('active[tab]].classList.add('active');
-        document');
-        document.getElementById(`${.getElementById(`${tab}tab}Tab`Tab`).class).classList.add('activeList.add('active');
-        if (');
-        if (tab ===tab === 'orders 'orders') loadOrders') loadOrders();
-        if();
-        if (tab === 'map' (tab === 'map' && map && map) setTimeout(() =>) setTimeout(() => map.in map.invalidateSize(), validateSize(), 100100);
-   );
-    }
-    function goToHome() }
-    function goToHome() { if (current { if (currentRole ===Role === 'consumer 'consumer') switchConsumerTab') switchConsumerTab('home('home');'); }
-    function }
-    function goToProfile() goToProfile() { if (current { if (currentRole === 'adRole === 'advertiser') windowvertiser') window.location.h.location.href = 'business-profile.htmlref = 'business-profile.html?tab=profile?tab=profile'; else'; else switchConsumer switchConsumerTab('Tab('profile'); }
-   profile'); }
-    function navigate function navigateToRoleToRolePage()Page() { window.location.h { window.location.href =ref = currentRole currentRole === 'consumer' === 'consumer' ? 'shoplist ? 'shoplist.html' : '.html' : 'advertadvertise.html'; }
-    functionise.html'; }
-    function updateNavigation updateNavigation() {() { const nav const navIcon =Icon = document.getElementById('nav document.getElementById('navIcon'),Icon'), navLabel = document.getElementById('navLabel navLabel = document.getElementById('navLabel'); if'); if (current (currentRole ===Role === 'consumer 'consumer') { navIcon') { navIcon.textContent.textContent = '📝 = '📝'; nav'; navLabel.textContent =Label.textContent = 'lists'; } 'lists'; } else { navIcon.textContent = ' else { navIcon.textContent = '📢'; navLabel.text📢'; navLabel.textContentContent = = 'post ad'; 'post ad'; } } }
-    async function load }
-    async function loadFridgeFridgeData()Data() {
-        {
-        try try {
-            let {
-            let items = items = await Back await Backend.loadend.loadFridgeItemsFridgeItems();
-            if (!items();
-            if (!items || items || items.length ===.length === 0 0) items = JSON) items = JSON.parse(localStorage.getItem('foodItems.parse(localStorage.getItem('foodItems')) || [];
-            document.getElementById('f')) || [];
-            document.getElementById('fridgeCountridgeCount').text').textContent = items.lengthContent = items.length + ' items + ' items';
-            const';
-            const today = new Date(); today today = new Date(); today.setHours.setHours(0,0,0(0,0,0,0,0);
-           );
-            let good let good =  = 0,0, expiring =  expiring = 0, expired =0, expired = 0;
-            0;
-            items.forEach(item => items.forEach(item => {
-                {
-                if (item.exp if (item.expiry)iry) {
-                    {
-                    const expiry const expiryDate =Date = new Date(item.exp new Date(item.expiry); expiryDate.setHoursiry); expiryDate.setHours(0(0,0,0,0,0,0);
-                   ,0);
-                    const diffDays = Math.round const diffDays = Math.round((expiryDate((expiryDate - today)/(100 - today)/(1000*0*60*60*60*60*24));
-                    if24));
-                    if (diffDays (diffDays < 0) expired < 0) expired++; else++; else if (diffDays <=  if (diffDays <= 3)3) expiring++; else good expiring++; else good++;
-                }++;
-                } else good else good++;
+    function goToHome() { if (currentRole === 'consumer') switchConsumerTab('home'); }
+    function goToProfile() { if (currentRole === 'advertiser') window.location.href = 'business-profile.html?tab=profile'; else switchConsumerTab('profile'); }
+    function navigateToRolePage() { window.location.href = currentRole === 'consumer' ? 'shoplist.html' : 'advertise.html'; }
+    function updateNavigation() { const navIcon = document.getElementById('navIcon'), navLabel = document.getElementById('navLabel'); if (currentRole === 'consumer') { navIcon.textContent = '🛒'; navLabel.textContent = 'lists'; } else { navIcon.textContent = '📢'; navLabel.textContent = 'post ad'; } }
+    async function loadFridgeData() {
+        try {
+            let items = await Backend.loadFridgeItems();
+            if (!items || items.length === 0) items = JSON.parse(localStorage.getItem('foodItems')) || [];
+            document.getElementById('fridgeCount').textContent = items.length + ' items';
+            const today = new Date(); today.setHours(0,0,0,0);
+            let good = 0, expiring = 0, expired = 0;
+            items.forEach(item => {
+                if (item.expiry) {
+                    const expiryDate = new Date(item.expiry); expiryDate.setHours(0,0,0,0);
+                    const diffDays = Math.round((expiryDate - today)/(1000*60*60*24));
+                    if (diffDays < 0) expired++; else if (diffDays <= 3) expiring++; else good++;
+                } else good++;
             });
-           ++;
-            });
-            document.getElementById('good document.getElementById('goodCount').Count').textContent = goodtextContent = good;
-           ;
-            document.getElementById('expiringCount').text document.getElementById('expiringCount').textContent =Content = expiring;
-            document.getElementById expiring;
-            document.getElementById('exp('expiredCount').textContent =iredCount').textContent = expired;
-            const expired;
-            const footer = document.getElementById footer = document.getElementById('f('fridgeFooter');
-            if (items.lengthridgeFooter');
-            if (items.length ===  === 0)0) footer.innerHTML = footer.innerHTML = '<a href="f '<a href="fridge.htmlridge.html">add items to">add items to fridge → fridge →</a>';
-            else if</a>';
-            else if (expired > 0) footer (expired > 0) footer.innerHTML = `<a.innerHTML = `<a href=" href="fridgefridge.html".html" style=" style="color:#color:#ff9ff9f9f;">f9f;">⚠️⚠️ ${exp ${expired} item(s) expiredired} item(s) expired - check - check fridge → fridge →</a></a>`;
-            else`;
-            else if (expiring if (expiring >  > 0)0) footer.innerHTML footer.innerHTML = `<a href = `<a href="f="fridge.html" styleridge.html" style="color:#ffd700;">="color:#ffd700;">⏰⏰ ${expiring} ${expiring} item(s) exp item(s) expiring soon →</a>iring soon →</a>`;
-           `;
-            else footer else footer.innerHTML =.innerHTML = '';
-        } catch '';
-        } catch(e) { console(e) { console.error(e.error(e); }
+            document.getElementById('goodCount').textContent = good;
+            document.getElementById('expiringCount').textContent = expiring;
+            document.getElementById('expiredCount').textContent = expired;
+            const footer = document.getElementById('fridgeFooter');
+            if (items.length === 0) footer.innerHTML = '<a href="fridge.html">add items to fridge →</a>';
+            else if (expired > 0) footer.innerHTML = `<a href="fridge.html" style="color:#ff9f9f;">⚠️ ${expired} item(s) expired - check fridge →</a>`;
+            else if (expiring > 0) footer.innerHTML = `<a href="fridge.html" style="color:#ffd700;">⏰ ${expiring} item(s) expiring soon →</a>`;
+            else footer.innerHTML = '';
+        } catch(e) { console.error(e); }
     }
-    function); }
-    }
-    function loadList loadListCount() { const lists =Count() { const lists = JSON.parse JSON.parse(local(localStorage.getItemStorage.getItem('shoplists('shoplists')) ||')) || {}; let total = 0; {}; let total = 0; for(let key in for(let key in lists) if(l lists) if(lists[keyists[key].items].items) total += lists[key].items.length) total += lists[key].items.length; document.getElementById('; document.getElementById('listCount').textContent = total +listCount').textContent = total + ' items'; ' items'; }
-    async function load }
+    function loadListCount() { const lists = JSON.parse(localStorage.getItem('shoplists')) || {}; let total = 0; for(let key in lists) if(lists[key].items) total += lists[key].items.length; document.getElementById('listCount').textContent = total + ' items'; }
     async function loadDealsData() {
-       DealsData() {
-        const container = document const container = document.getElementById('recent.getElementById('recentDealsDeals');
+        const container = document.getElementById('recentDeals');
         try {
-            const');
-        try {
-            const ads = ads = await Back await Backend.getend.getActiveAdsActiveAds({ limit:100({ limit:100 });
-            document.getElementById });
-            document.getElementById('de('dealsCountalsCount').textContent = ads.length').textContent = ads.length + ' nearby + ' nearby';
-            if(ads.length === 0';
-            if(ads.length === 0) {) { container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>'; return; container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>'; return; }
-            const }
-            const sortedAds sortedAds = [... = [...ads].sort((a,b)=> (b.discount||ads].sort((a,b)=> (b.discount||0)-(a.d0)-(a.discount||0));
-            const topAds = sortedAds.slice(0iscount||0));
+            const ads = await Backend.getActiveAds({ limit:100 });
+            document.getElementById('dealsCount').textContent = ads.length + ' nearby';
+            if(ads.length === 0) { container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>'; return; }
+            const sortedAds = [...ads].sort((a,b)=> (b.discount||0)-(a.discount||0));
             const topAds = sortedAds.slice(0,3);
-           ,3);
             let html = '';
-            for(let ad of top let html = '';
             for(let ad of topAds) {
-               Ads) {
-                const daysUntil = Math. const daysUntil = Math.ceil((new Date(adceil((new Date(ad.offerEnd.offerEnds)-s)-new Date())/(new Date())/(10001000*60*60*60*24*60*24));
-                html +=));
-                html += `<div `<div class="deal-item class="deal-item" onclick" onclick="window="window.location.h.location.href='ref='find-stfind-stores.htmlores.html'">'">${ad${ad.productImage ?.productImage ? `<div class `<div class="deal="deal-icon-icon"><img src"><img src="${ad="${ad.productImage}" alt.productImage}" alt="${escape="${escapeHtml(Html(ad.fad.foodNameoodName)}"></)}"></div>`div>` : : `<div class `<div class="deal-icon">="deal🏷-icon">️</🏷️</div>`div>`}<div}<div class=" class="deal-ddeal-detailsetails"><div class"><div class="deal="deal-name">-name">${escape${escapeHtml(Html(ad.fad.foodNameoodName)}</div><div class)}</div><div class="deal="deal-meta-meta"><span"><span class=" class="deal-shdeal-shop">op">${escape${escapeHtml(ad.sHtml(hopNamead.shopName)}</)}</spanspan><span>><span>•</•</spanspan><span>><span>${days${daysUntil}Until} days left days left</span</span></div></div></div></div><div><div class=" class="deal-discdeal-discount">ount">-${-${ad.dad.discount}iscount}%</%</div></div></div>div>`;
-           `;
+                const daysUntil = Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
+                html += `<div class="deal-item" onclick="window.location.href='find-stores.html'">${ad.productImage ? `<div class="deal-icon"><img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}"></div>` : `<div class="deal-icon">🏷️</div>`}<div class="deal-details"><div class="deal-name">${escapeHtml(ad.foodName)}</div><div class="deal-meta"><span class="deal-shop">${escapeHtml(ad.shopName)}</span><span>•</span><span>${daysUntil} days left</span></div></div><div class="deal-discount">-${ad.discount}%</div></div>`;
             }
-            }
-            container.innerHTML container.innerHTML = html = html;
-       ;
-        } catch } catch(e)(e) { container { container.innerHTML =.innerHTML = '<div '<div class=" class="empty-stateempty-state">">🔍 error loading deals</div>';🔍 error loading deals</div>'; }
+            container.innerHTML = html;
+        } catch(e) { container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>'; }
     }
+    function loadProfilePicture() {
+        const savedPic = localStorage.getItem('profilePicture');
+        const avatarDiv = document.getElementById('userAvatar');
+        const profileImg = document.getElementById('profilePictureImg'), profilePlaceholder = document.getElementById('profilePicturePlaceholder');
+        if (savedPic) { avatarDiv.innerHTML = `<img src="${savedPic}" alt="Profile">`; profileImg.src = savedPic; profileImg.style.display = 'block'; profilePlaceholder.style.display = 'none'; }
+        else { avatarDiv.innerHTML = '👤'; profileImg.style.display = 'none'; profilePlaceholder.style.display = 'flex'; }
     }
-    }
-    function loadProfilePicture function loadProfilePicture() {
-        const() {
-        const savedPic savedPic = localStorage = localStorage.getItem('.getItem('profilePictureprofilePicture');
-       ');
-        const avatarDiv = const avatarDiv = document.getElementById('userAvatar document.getElementById('userAvatar');
-        const');
-        const profileImg profileImg = document = document.getElementById('.getElementById('profilePictureImg'),profilePictureImg'), profilePlace profilePlaceholder =holder = document.getElementById document.getElementById('profilePicturePlaceholder('profilePicturePlaceholder');
-        if');
-        if (s (savedPic) { avatarDiv.innerHTML = `<imgavedPic) { avatarDiv.innerHTML = `<img src="${ src="${savedPic}"savedPic}" alt=" alt="Profile">Profile">`; profileImg`; profileImg.src =.src = savedPic; profileImg.style savedPic; profileImg.style.display = 'block'; profilePlaceholder.style.display.display = 'block'; profilePlaceholder.style.display = ' = 'none';none'; }
-        else { }
-        else { avatarDiv.innerHTML = avatarDiv.innerHTML = ' '👤'; profileImg👤'; profileImg.style.display.style.display = 'none'; = 'none'; profilePlace profilePlaceholder.styleholder.style.display = 'flex';.display = 'flex'; }
-    }
-    }
-    function }
-    function uploadProfile uploadProfilePicture()Picture() { document { document.getElementById('.getElementById('profilePictureprofilePictureInput').Input').click();click(); }
-    }
-    async function async function handleProfile handleProfilePictureUploadPictureUpload(event)(event) {
-        const file {
-        const file = event = event.target.f.target.filesiles[0[0];
-        if];
-        if (!file (!file) return) return;
-       ;
-        if ( if (file.size > 2 *file.size > 2 * 102 1024 *4 * 102 1024)4) { alert('Image { alert('Image too large too large. Max. Max 2 2MB.'MB.'); return; }
-        if); return; }
-        if (!file (!file.type.st.type.startsWith('image/artsWith('image/')) {')) { alert(' alert('Please select an image file.'); return;Please select an image file.'); return; }
-        document }
-        document.getElementById('loadingOver.getElementById('loadingOverlay').style.displaylay').style.display = ' = 'flexflex';
-        const reader =';
-        const reader = new File new FileReaderReader();
-        reader.onload();
-        reader.onload = async = async function(e function(e)) {
-            const {
-            const result = await Back result = await Backend.end.uploadProfileuploadProfilePicture(currentPicture(currentUser.idUser.id, e, e.target.result);
-            if (.target.result);
+    function uploadProfilePicture() { document.getElementById('profilePictureInput').click(); }
+    async function handleProfilePictureUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('Image too large. Max 2MB.'); return; }
+        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const result = await Backend.uploadProfilePicture(currentUser.id, e.target.result);
             if (result.success) loadProfilePicture();
             else alert('Failed to update profile picture');
             document.getElementById('loadingOverlay').style.display = 'none';
