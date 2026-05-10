@@ -746,7 +746,7 @@
             document.getElementById('batchExpiry').value = nextMonth.toISOString().split('T')[0];
             document.getElementById('quantity').value = 50;
             
-            // Check if editing from URL parameter
+            // Check URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const editId = urlParams.get('edit');
             if (editId) {
@@ -758,7 +758,14 @@
                 loadAdForEditing(editId);
             }
             
-            loadMyAds();
+            // Check if a specific tab was requested (e.g., ?tab=manage)
+            const tabParam = urlParams.get('tab');
+            if (tabParam === 'manage') {
+                switchTab('manage');
+            } else {
+                // default is create tab (already active)
+                loadMyAds(); // preload ads list in background
+            }
         });
         
         async function loadAdForEditing(adId) {
@@ -1059,7 +1066,6 @@
             try {
                 let result;
                 if (editMode && editAdId) {
-                    // Update existing ad
                     result = await Backend.updateAd(editAdId, adData);
                     if (result.success) {
                         showNotification('Ad updated successfully!', 'success');
@@ -1070,7 +1076,6 @@
                         showNotification(result.message || 'Failed to update ad', 'error');
                     }
                 } else {
-                    // Create new ad
                     result = await Backend.createAd(adData);
                     if (result.success) {
                         showNotification('Ad posted successfully!', 'success');
