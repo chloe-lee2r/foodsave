@@ -752,7 +752,8 @@
             if (editId) {
                 editMode = true;
                 editAdId = editId;
-                document.getElementById('pageTitle').innerHTML = 'edit ad <span class="edit-mode-badge">✏️ editing</span>';
+                // Title stays "ads", only the form title changes
+                document.getElementById('pageTitle').innerHTML = 'ads';
                 document.getElementById('formTitle').innerHTML = '✏️ Edit Ad';
                 document.getElementById('submitBtn').innerHTML = '💾 Save Changes';
                 loadAdForEditing(editId);
@@ -815,7 +816,8 @@
                 createTab.classList.add('active');
                 manageTab.classList.remove('active');
                 tabs[0].classList.add('active');
-                document.getElementById('pageTitle').innerHTML = editMode ? 'edit ad' : 'post ad';
+                // Title always stays "ads"
+                document.getElementById('pageTitle').innerHTML = 'ads';
             } else {
                 createTab.classList.remove('active');
                 manageTab.classList.add('active');
