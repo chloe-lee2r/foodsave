@@ -549,7 +549,7 @@
     <div class="app">
         <div class="header">
             <a href="index.html" class="back-link">←</a>
-            <h1 id="pageTitle">manage ads</h1>
+            <h1 id="pageTitle">ads</h1>
         </div>
         
         <div class="content">
@@ -813,7 +813,7 @@
                 createTab.classList.remove('active');
                 manageTab.classList.add('active');
                 tabs[1].classList.add('active');
-                document.getElementById('pageTitle').innerHTML = 'manage ads';
+                document.getElementById('pageTitle').innerHTML = 'ads';
                 loadMyAds();
             }
         }
@@ -844,7 +844,6 @@
             reader.readAsDataURL(file);
         }
         
-        // FIX: Added parameter to suppress notification when called from resetForm()
         function removeImage(showNotif = true) {
             uploadedImageBase64 = null;
             const preview = document.getElementById('imagePreview');
@@ -856,7 +855,6 @@
             }
         }
         
-        // Barcode scanner functions
         async function startScanner() {
             const scannerContainer = document.getElementById('scannerContainer');
             scannerContainer.classList.add('active');
@@ -1061,7 +1059,6 @@
             try {
                 let result;
                 if (editMode && editAdId) {
-                    // Update existing ad
                     result = await Backend.updateAd(editAdId, adData);
                     if (result.success) {
                         showNotification('Deal updated successfully!', 'success');
@@ -1072,11 +1069,9 @@
                         showNotification(result.message || 'Failed to update deal', 'error');
                     }
                 } else {
-                    // Create new ad
                     result = await Backend.createAd(adData);
                     if (result.success) {
                         showNotification('Deal posted successfully!', 'success');
-                        // FIX: reset form without showing "Image removed" notification
                         resetForm();
                         loadMyAds();
                     } else {
@@ -1099,7 +1094,6 @@
             document.getElementById('quantity').value = '50';
             document.getElementById('batchNumber').value = '';
             document.getElementById('category').value = 'other';
-            // Call removeImage with false to suppress notification
             removeImage(false);
             
             const today = new Date();
@@ -1214,7 +1208,6 @@
             }
         });
         
-        // Expose functions globally for inline onclick handlers
         window.startScanner = startScanner;
         window.stopScanner = stopScanner;
         window.hideScanner = hideScanner;
