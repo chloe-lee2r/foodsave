@@ -514,6 +514,15 @@
             font-size: 20px;
             margin-bottom: 2px;
             display: block;
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        /* Style for image icons in the nav */
+        .nav-emoji img {
+            width: auto;
+            height: 100%;
+            vertical-align: middle;
         }
         
         .notification {
@@ -555,7 +564,10 @@
         <div class="content">
             <!-- Fridge Summary -->
             <div class="fridge-card">
-                <h3>🧊 Your Fridge Items</h3>
+                <h3>
+                    <img src="assets/fridge.png" alt="fridge" style="width: 20px; height: 20px; vertical-align: middle;">
+                    Your Fridge Items
+                </h3>
                 <div class="fridge-items" id="fridgeItemsList">loading...</div>
                 <button class="refresh-fridge-btn" onclick="loadFridgeData()">↻ Refresh</button>
             </div>
@@ -570,6 +582,7 @@
             </div>
         </div>
         
+        <!-- Consistent consumer bottom nav: home, deals, lists, fridge -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -579,12 +592,12 @@
                 <span class="nav-emoji">🔍</span>
                 <span>deals</span>
             </a>
-            <a href="#" class="nav-item active">
-                <span class="nav-emoji">🍳</span>
-                <span>recipes</span>
+            <a href="shoplist.html" class="nav-item">
+                <span class="nav-emoji">📝</span>
+                <span>lists</span>
             </a>
             <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji">🧊</span>
+                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
                 <span>fridge</span>
             </a>
         </div>
