@@ -16,11 +16,7 @@
             font-weight: normal;
             font-style: normal;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -38,7 +34,7 @@
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
             position: relative;
-            padding-bottom: 80px;
+            padding-bottom: 20px;
         }
         
         .header {
@@ -62,33 +58,13 @@
             font-family: inherit;
         }
         
-        .header h1 {
-            font-size: 24px;
-            margin-left: 60px;
-            margin-bottom: 4px;
-        }
+        .header h1 { font-size: 24px; margin-left: 60px; margin-bottom: 4px; }
+        .header-subtitle { font-size: 14px; opacity: 0.9; margin-left: 60px; }
         
-        .header-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-left: 60px;
-        }
+        .content { padding: 20px; }
         
-        .content {
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            display: block;
-        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; display: block; }
         
         .form-input, .form-textarea, .form-select {
             width: 100%;
@@ -105,15 +81,39 @@
             border-color: #ee5a24;
         }
         
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
+        .form-textarea { min-height: 100px; resize: vertical; }
+        
+        /* Reason selector */
+        .reason-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
         }
         
-        /* Food Items */
-        .food-items-container {
-            margin-bottom: 12px;
+        .reason-option {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 13px;
+            background: white;
         }
+        
+        .reason-option:active { transform: scale(0.97); }
+        .reason-option.active {
+            border-color: #ee5a24;
+            background: #fff5f2;
+        }
+        
+        .reason-emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+        .reason-text { font-size: 12px; color: #666; }
+        .reason-option.active .reason-text { color: #ee5a24; }
+        
+        /* Food Items */
+        .food-items-container { margin-bottom: 12px; }
         
         .food-item-row {
             display: flex;
@@ -122,9 +122,7 @@
             align-items: center;
         }
         
-        .food-item-row .form-input {
-            flex: 1;
-        }
+        .food-item-row .form-input { flex: 1; }
         
         .remove-btn {
             background: #ff3b30;
@@ -138,6 +136,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 36px;
         }
         
         .add-food-btn {
@@ -153,52 +152,11 @@
             transition: 0.2s;
         }
         
-        .add-food-btn:hover {
-            background: #e8e8e8;
-        }
+        .add-food-btn:hover { background: #e8e8e8; }
         
-        /* Share Type */
-        .share-type-selector {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .share-type-option {
-            flex: 1;
-            padding: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .share-type-option.active {
-            border-color: #ee5a24;
-            background: #fff5f2;
-        }
-        
-        .type-emoji {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-        
-        .type-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        /* Location Picker */
-        .location-picker {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .location-picker .form-input {
-            flex: 1;
-        }
+        /* Location */
+        .location-picker { display: flex; gap: 8px; }
+        .location-picker .form-input { flex: 1; }
         
         .locate-btn {
             background: #007aff;
@@ -209,11 +167,12 @@
             cursor: pointer;
             font-family: inherit;
             font-size: 14px;
+            white-space: nowrap;
         }
         
         .map-preview {
             width: 100%;
-            height: 150px;
+            height: 100px;
             background: #f0f0f0;
             border-radius: 12px;
             margin-top: 8px;
@@ -224,34 +183,7 @@
             font-size: 14px;
         }
         
-        /* Image Upload */
-        .image-upload {
-            border: 2px dashed #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .image-upload:hover {
-            border-color: #ee5a24;
-            background: #fff5f2;
-        }
-        
-        .image-preview {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        
-        .image-thumb {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
+        .map-preview.set { background: #e8f5e8; color: #34c759; }
         
         /* Submit Button */
         .submit-btn {
@@ -266,37 +198,32 @@
             cursor: pointer;
             font-family: inherit;
             box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+            margin-top: 12px;
         }
         
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
         
         .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center;
+            justify-content: center; z-index: 2000; display: none;
         }
         
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid white;
-            border-top-color: #ee5a24;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            width: 50px; height: 50px; border: 4px solid white;
+            border-top-color: #ee5a24; border-radius: 50%; animation: spin 1s linear infinite;
         }
-        
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .tips-box {
+            background: #fffbf0;
+            border: 1px solid #ffd700;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .tips-box h4 { font-size: 14px; margin-bottom: 8px; color: #ff9500; }
+        .tips-box p { font-size: 12px; color: #666; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -304,32 +231,68 @@
     <div class="header">
         <button class="back-btn" onclick="window.location.href='community.html'">← back</button>
         <h1>📦 Share Food</h1>
-        <div class="header-subtitle">help reduce food waste</div>
+        <div class="header-subtitle">help reduce food waste 🥰</div>
     </div>
     
     <div class="content">
+        <div class="tips-box">
+            <h4>💡 Sharing tips</h4>
+            <p>Be clear about what you're sharing! Include quantities, any dietary info, and when it needs to be eaten. A photo helps too!</p>
+        </div>
+        
         <form id="shareForm" onsubmit="submitShare(event)">
+            <!-- Why sharing -->
+            <div class="form-group">
+                <label class="form-label">Why are you sharing?</label>
+                <div class="reason-grid">
+                    <button type="button" class="reason-option active" onclick="selectReason('cooked_too_much')" data-reason="cooked_too_much">
+                        <span class="reason-emoji">🍳</span>
+                        <span class="reason-text">cooked too much</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectReason('bought_extra')" data-reason="bought_extra">
+                        <span class="reason-emoji">🛒</span>
+                        <span class="reason-text">bought extra</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectReason('going_away')" data-reason="going_away">
+                        <span class="reason-emoji">✈️</span>
+                        <span class="reason-text">going away</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectReason('expiring_soon')" data-reason="expiring_soon">
+                        <span class="reason-emoji">⏰</span>
+                        <span class="reason-text">expiring soon</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectReason('diet_change')" data-reason="diet_change">
+                        <span class="reason-emoji">🥗</span>
+                        <span class="reason-text">diet change</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectReason('other')" data-reason="other">
+                        <span class="reason-emoji">🤷</span>
+                        <span class="reason-text">other</span>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Share Type -->
             <div class="form-group">
-                <label class="form-label">Share type</label>
-                <div class="share-type-selector">
-                    <div class="share-type-option active" onclick="selectShareType('giveaway')" id="giveawayType">
-                        <div class="type-emoji">🎁</div>
-                        <div class="type-label">Giveaway</div>
-                    </div>
-                    <div class="share-type-option" onclick="selectShareType('swap')" id="swapType">
-                        <div class="type-emoji">🔄</div>
-                        <div class="type-label">Swap</div>
-                    </div>
+                <label class="form-label">Giveaway or swap?</label>
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="reason-option active" onclick="selectShareType('giveaway')" id="giveawayBtn" style="flex: 1;">
+                        <span class="reason-emoji">🎁</span>
+                        <span class="reason-text">free giveaway</span>
+                    </button>
+                    <button type="button" class="reason-option" onclick="selectShareType('swap')" id="swapBtn" style="flex: 1;">
+                        <span class="reason-emoji">🔄</span>
+                        <span class="reason-text">happy to swap</span>
+                    </button>
                 </div>
             </div>
             
             <!-- Food Items -->
             <div class="form-group">
-                <label class="form-label">Food items to share</label>
+                <label class="form-label">What food are you sharing?</label>
                 <div class="food-items-container" id="foodItemsContainer">
                     <div class="food-item-row">
-                        <input type="text" class="form-input" placeholder="e.g., 🍎 Apples (500g)" name="foodItem">
+                        <input type="text" class="form-input" placeholder="e.g., 🍝 pasta with sauce (2 servings)" name="foodItem">
                         <button type="button" class="remove-btn" onclick="removeFoodItem(this)" style="visibility: hidden;">−</button>
                     </div>
                 </div>
@@ -338,38 +301,27 @@
             
             <!-- Description -->
             <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-textarea" id="description" placeholder="Describe the food, condition, expiry date, etc."></textarea>
+                <label class="form-label">Description (optional)</label>
+                <textarea class="form-textarea" id="description" placeholder="Tell neighbours about the food - when it was made, ingredients, dietary info, etc."></textarea>
             </div>
             
             <!-- Pickup Location -->
             <div class="form-group">
                 <label class="form-label">Pickup location</label>
                 <div class="location-picker">
-                    <input type="text" class="form-input" id="locationAddress" placeholder="Enter pickup address" readonly>
+                    <input type="text" class="form-input" id="locationAddress" placeholder="Tap locate button →" readonly>
                     <button type="button" class="locate-btn" onclick="getCurrentLocation()">📍 locate</button>
                 </div>
-                <div class="map-preview" id="mapPreview">📍 pick a location</div>
+                <div class="map-preview" id="mapPreview">📍 tap 'locate' to set your pickup location</div>
             </div>
             
             <!-- Pickup Instructions -->
             <div class="form-group">
-                <label class="form-label">Pickup instructions</label>
-                <textarea class="form-textarea" id="pickupInstructions" placeholder="e.g., Leave at door, call when arriving, etc."></textarea>
+                <label class="form-label">Pickup instructions (optional)</label>
+                <textarea class="form-textarea" id="pickupInstructions" placeholder="e.g., leave at door, text when arriving, available after 6pm, etc."></textarea>
             </div>
             
-            <!-- Food Image -->
-            <div class="form-group">
-                <label class="form-label">Food image (optional)</label>
-                <div class="image-upload" onclick="document.getElementById('foodImageInput').click()">
-                    <div>📸 tap to add photo</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 4px;">helps your food get claimed faster</div>
-                </div>
-                <input type="file" id="foodImageInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                <div class="image-preview" id="imagePreview"></div>
-            </div>
-            
-            <button type="submit" class="submit-btn">🤝 share with community</button>
+            <button type="submit" class="submit-btn" id="submitBtn">🤝 share with neighbours</button>
         </form>
     </div>
 </div>
@@ -381,9 +333,9 @@
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 <script>
+    let shareReason = 'cooked_too_much';
     let shareType = 'giveaway';
     let userLocation = null;
-    let selectedImage = null;
     
     document.addEventListener('DOMContentLoaded', () => {
         const user = Backend.getCurrentUser();
@@ -391,6 +343,7 @@
             window.location.href = 'login.html';
             return;
         }
+        console.log("📱 Sharing as:", user.get("username"));
         
         // Try to get user's current location
         if (navigator.geolocation) {
@@ -401,29 +354,37 @@
                         lng: position.coords.longitude
                     };
                     
-                    // Reverse geocode
                     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
                         .then(r => r.json())
                         .then(data => {
-                            document.getElementById('locationAddress').value = data.display_name || 'Location found';
+                            document.getElementById('locationAddress').value = data.display_name || `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
                         })
                         .catch(() => {
                             document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
                         });
                     
-                    document.getElementById('mapPreview').innerHTML = `📍 Location set: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+                    document.getElementById('mapPreview').innerHTML = '✅ Location set! Neighbours can see where to pick up';
+                    document.getElementById('mapPreview').classList.add('set');
                 },
                 (error) => {
-                    console.log('Could not get location');
+                    console.log('Could not get location:', error);
                 }
             );
         }
     });
     
+    function selectReason(reason) {
+        shareReason = reason;
+        document.querySelectorAll('.reason-grid .reason-option').forEach(el => {
+            el.classList.remove('active');
+            if (el.dataset.reason === reason) el.classList.add('active');
+        });
+    }
+    
     function selectShareType(type) {
         shareType = type;
-        document.querySelectorAll('.share-type-option').forEach(el => el.classList.remove('active'));
-        document.getElementById(type + 'Type').classList.add('active');
+        document.getElementById('giveawayBtn').classList.toggle('active', type === 'giveaway');
+        document.getElementById('swapBtn').classList.toggle('active', type === 'swap');
     }
     
     function addFoodItem() {
@@ -431,7 +392,7 @@
         const row = document.createElement('div');
         row.className = 'food-item-row';
         row.innerHTML = `
-            <input type="text" class="form-input" placeholder="e.g., 🥖 Bread" name="foodItem">
+            <input type="text" class="form-input" placeholder="e.g., 🥖 bread (half loaf)" name="foodItem">
             <button type="button" class="remove-btn" onclick="removeFoodItem(this)">−</button>
         `;
         container.appendChild(row);
@@ -446,9 +407,11 @@
     
     function getCurrentLocation() {
         if (!navigator.geolocation) {
-            alert('Geolocation not supported');
+            alert('Geolocation not supported on your device');
             return;
         }
+        
+        document.getElementById('mapPreview').innerHTML = '📍 getting location...';
         
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -457,7 +420,6 @@
                     lng: position.coords.longitude
                 };
                 
-                // Reverse geocode
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
                     .then(r => r.json())
                     .then(data => {
@@ -467,26 +429,16 @@
                         document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
                     });
                 
-                document.getElementById('mapPreview').innerHTML = `📍 Location set: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
+                document.getElementById('mapPreview').innerHTML = '✅ Location set! Neighbours can see where to pick up';
+                document.getElementById('mapPreview').classList.add('set');
             },
             (error) => {
-                alert('Could not get location. Please enable location services.');
-            }
+                alert('Could not get location. Please enable location services and try again.');
+                document.getElementById('mapPreview').innerHTML = '📍 tap locate to set your pickup location';
+                document.getElementById('mapPreview').classList.remove('set');
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
-    }
-    
-    function previewImage(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedImage = e.target.result;
-            document.getElementById('imagePreview').innerHTML = `
-                <img src="${selectedImage}" class="image-thumb" alt="Food preview">
-            `;
-        };
-        reader.readAsDataURL(file);
     }
     
     async function submitShare(event) {
@@ -499,78 +451,70 @@
         foodItemInputs.forEach(input => {
             const value = input.value.trim();
             if (value) {
-                // Extract emoji if present
-                const emojiMatch = value.match(/^([\u{1F300}-\u{1F9FF}])\s*(.+)/u);
-                const item = {
+                const emojiMatch = value.match(/^([\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\u{FE0F}?\s*)/u);
+                foodItems.push({
                     name: value,
-                    emoji: emojiMatch ? emojiMatch[1] : '🍽️'
-                };
-                foodItems.push(item);
+                    emoji: emojiMatch ? emojiMatch[1].trim() : '🍽️',
+                    quantity: 1
+                });
             }
         });
         
         if (foodItems.length === 0) {
-            alert('Please add at least one food item');
+            alert('Please add at least one food item to share');
             return;
         }
         
         if (!userLocation) {
-            alert('Please set a pickup location');
+            alert('Please set a pickup location using the locate button');
             return;
         }
         
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ sharing...';
         document.getElementById('loadingOverlay').style.display = 'flex';
         
         try {
-            const CommunitySharing = Parse.Object.extend('CommunitySharing');
-            const share = new CommunitySharing();
+            const shareData = {
+                foodItems: foodItems,
+                description: document.getElementById('description').value.trim(),
+                reason: shareReason,
+                shareType: shareType,
+                location: {
+                    lat: userLocation.lat,
+                    lng: userLocation.lng,
+                    address: document.getElementById('locationAddress').value
+                },
+                pickupInstructions: document.getElementById('pickupInstructions').value.trim()
+            };
             
-            const currentUser = Backend.getCurrentUser();
+            console.log("📤 Creating share:", shareData);
             
-            share.set('sharedBy', {
-                __type: 'Pointer',
-                className: '_User',
-                objectId: currentUser.id
-            });
+            const result = await Backend.createCommunityShare(shareData);
             
-            share.set('foodItems', foodItems);
-            share.set('description', document.getElementById('description').value.trim());
-            share.set('shareType', shareType);
-            share.set('type', 'food');
-            share.set('status', 'available');
-            
-            share.set('location', new Parse.GeoPoint({
-                latitude: userLocation.lat,
-                longitude: userLocation.lng
-            }));
-            
-            share.set('locationAddress', document.getElementById('locationAddress').value);
-            share.set('pickupInstructions', document.getElementById('pickupInstructions').value.trim());
-            
-            if (selectedImage) {
-                share.set('image', selectedImage);
+            if (result.success) {
+                alert('🎉 Food shared with the community! Neighbours nearby can now see it and claim it.');
+                window.location.href = 'community.html';
+            } else {
+                alert(result.message || 'Failed to share food. Please try again.');
             }
-            
-            share.set('claimedBy', []);
-            
-            await share.save();
-            
-            alert('🎉 Food shared successfully! Your neighbours can now see it.');
-            window.location.href = 'community.html';
             
         } catch (error) {
             console.error('Error sharing food:', error);
-            alert('Failed to share food. Please try again.');
+            alert('Failed to share food: ' + (error.message || 'Unknown error'));
         }
         
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🤝 share with neighbours';
         document.getElementById('loadingOverlay').style.display = 'none';
     }
     
+    window.selectReason = selectReason;
     window.selectShareType = selectShareType;
     window.addFoodItem = addFoodItem;
     window.removeFoodItem = removeFoodItem;
     window.getCurrentLocation = getCurrentLocation;
-    window.previewImage = previewImage;
 </script>
 </body>
 </html>
