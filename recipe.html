@@ -525,6 +525,7 @@
             vertical-align: middle;
         }
         
+        /* Notification – fixed to fade out properly */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -539,10 +540,14 @@
             z-index: 1000;
             text-align: center;
             max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
         }
         
         .notification.show {
             transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
         
         .notification.success {
@@ -637,6 +642,7 @@
         let timerInterval = null;
         let timerSeconds = 0;
         let isTimerRunning = false;
+        let notificationTimeout = null;
         
         // Flexible ingredient matching with categories and alternatives
         const ingredientCategories = {
@@ -1139,7 +1145,8 @@
             currentStepIndex = 0;
         }
         
-        function addToShoppingList(itemName) {
+        // FIXED: addToShoppingList now saves to cloud as well
+        async function addToShoppingList(itemName) {
             let shoplist = JSON.parse(localStorage.getItem('shoplists')) || {};
             let defaultList = shoplist['default'] || { id: 'default', name: 'main', icon: '📋', items: [] };
             
@@ -1157,6 +1164,12 @@
             shoplist['default'] = defaultList;
             localStorage.setItem('shoplists', JSON.stringify(shoplist));
             
+            try {
+                await Backend.saveShoppingLists(shoplist);
+            } catch (e) {
+                console.error('Failed to sync shopping list to cloud:', e);
+            }
+            
             showNotification(`✅ Added "${itemName}" to your shopping list!`, 'success');
         }
         
@@ -1168,11 +1181,16 @@
             document.getElementById('recipeModal').style.display = 'none';
         }
         
+        // FIXED: showNotification with timeout clearing and opacity
         function showNotification(msg, type) {
             const notif = document.getElementById('notification');
+            if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
             notif.className = `notification show ${type}`;
-            setTimeout(() => notif.classList.remove('show'), 3000);
+            notificationTimeout = setTimeout(() => {
+                notif.className = 'notification';
+                notificationTimeout = null;
+            }, 2000);
         }
         
         window.loadFridgeData = loadFridgeData;
