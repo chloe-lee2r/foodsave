@@ -7,6 +7,13 @@
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
+        :root {
+            --green: #34c759;
+            --blue: #007aff;
+            --red: #ff3b30;
+            --orange: #ff9500;
+        }
+
         @font-face {
             font-family: 'RusticStory';
             src: url('./assets/RusticStory-R9vKM.ttf') format('truetype'),
@@ -23,122 +30,303 @@
         
         body {
             font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #34c759 0%, #007aff 100%);
+            background: linear-gradient(135deg, #34c759 0%, #2d9d4f 25%, #007aff 75%, #0056cc 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden;
         }
-        
+
+        /* Floating background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-emoji {
+            position: fixed;
+            font-size: 28px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatAround 20s linear infinite;
+        }
+        .floating-emoji:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 32px; }
+        .floating-emoji:nth-child(2) { top: 15%; right: 8%; animation-delay: -5s; font-size: 24px; }
+        .floating-emoji:nth-child(3) { bottom: 12%; left: 10%; animation-delay: -10s; font-size: 30px; }
+        .floating-emoji:nth-child(4) { bottom: 18%; right: 5%; animation-delay: -15s; font-size: 26px; }
+        .floating-emoji:nth-child(5) { top: 50%; left: 3%; animation-delay: -7s; font-size: 22px; }
+
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -20px) rotate(90deg); }
+            50% { transform: translate(-20px, -40px) rotate(180deg); }
+            75% { transform: translate(-30px, -10px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceLogo {
+            0%, 100% { transform: translateY(0) scale(1); }
+            30% { transform: translateY(-15px) scale(1.05); }
+            50% { transform: translateY(0) scale(0.95); }
+            70% { transform: translateY(-8px) scale(1.02); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes rippleEffect {
+            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4), 0 0 0 0 rgba(0, 122, 255, 0.3); }
+            100% { box-shadow: 0 0 0 20px rgba(52, 199, 89, 0), 0 0 0 30px rgba(0, 122, 255, 0); }
+        }
+
+        @keyframes checkmark {
+            0% { stroke-dashoffset: 50; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+
+        @keyframes drawBorder {
+            from { stroke-dashoffset: 200; }
+            to { stroke-dashoffset: 0; }
+        }
+
         .app {
             width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1);
             overflow: hidden;
-            animation: slideUp 0.3s ease;
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(20px);
         }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+
+        .app::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green), var(--blue), var(--green));
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+            z-index: 2;
         }
         
         .header {
-            background: #f8f9fa;
-            padding: 30px 24px;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 35px 24px 28px;
             text-align: center;
             border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(52,199,89,0.3), rgba(0,122,255,0.3), transparent);
         }
         
+        .logo-container {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
         .logo {
-            font-size: 48px;
-            margin-bottom: 12px;
-            animation: bounce 0.5s ease;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            animation: bounceLogo 2s ease-in-out infinite;
         }
         
         .logo img {
-            width: 48px;
-            height: 48px;
+            width: 64px;
+            height: 64px;
             object-fit: contain;
-            display: inline-block;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
         }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+        /* Pulsing ring behind logo */
+        .logo-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            animation: rippleEffect 3s ease-out infinite;
+            pointer-events: none;
         }
+        .logo-ring:nth-child(2) { animation-delay: 1s; }
+        .logo-ring:nth-child(3) { animation-delay: 2s; }
         
         .app-name {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 30px;
+            font-weight: 700;
             color: #1a1a1a;
             letter-spacing: -0.5px;
+            animation: fadeIn 0.6s ease 0.2s both;
         }
         
         .app-name span {
-            color: #34c759;
+            color: var(--green);
+            position: relative;
+        }
+
+        .app-name span::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0; right: 0;
+            height: 3px;
+            background: var(--green);
+            border-radius: 2px;
+            opacity: 0.3;
         }
         
         .tagline {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: #888;
             margin-top: 8px;
+            letter-spacing: 0.5px;
+            animation: fadeIn 0.6s ease 0.4s both;
         }
         
         .form-container {
             padding: 24px;
-            max-height: 70vh;
+            max-height: 60vh;
             overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .form-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .form-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .form-container::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
         }
         
         .role-selector {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 24px;
             background: #f8f9fa;
-            padding: 8px;
+            padding: 6px;
             border-radius: 16px;
+            position: relative;
         }
+
+        /* Sliding indicator */
+        .role-indicator {
+            position: absolute;
+            top: 6px;
+            height: calc(100% - 12px);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+        }
+        .role-indicator.left { left: 6px; width: calc(50% - 9px); }
+        .role-indicator.right { left: calc(50% + 3px); width: calc(50% - 9px); }
         
         .role-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px 10px;
             border: none;
             border-radius: 12px;
             background: transparent;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
-            color: #666;
+            color: #888;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
         
         .role-btn.active {
-            background: white;
-            color: #007aff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transform: scale(1.02);
+            color: #1a1a1a;
+            font-weight: 600;
         }
         
-        .role-btn.consumer.active {
-            color: #34c759;
+        .role-btn.consumer.active { color: var(--green); }
+        .role-btn.shop.active { color: var(--blue); }
+
+        .role-emoji {
+            font-size: 18px;
+            transition: transform 0.3s ease;
         }
-        
-        .role-btn.shop.active {
-            color: #007aff;
+        .role-btn.active .role-emoji {
+            transform: scale(1.2);
         }
         
         .form-section {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.4s ease;
         }
         
         .form-section.hidden {
@@ -146,71 +334,111 @@
         }
         
         .section-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
-        .section-title span {
-            background: #007aff;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 12px;
+        .section-title .icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 16px;
+            flex-shrink: 0;
         }
+        .icon-circle.blue { background: #e3f2fd; color: var(--blue); }
+        .icon-circle.green { background: #e8f5e8; color: var(--green); }
         
         .input-group {
             margin-bottom: 16px;
+            position: relative;
         }
         
         .input-label {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: #888;
             margin-bottom: 6px;
             display: block;
             font-weight: 500;
+            transition: color 0.2s;
+        }
+        .input-group:focus-within .input-label {
+            color: var(--blue);
+        }
+        
+        .input-wrapper {
+            position: relative;
         }
         
         .input-field {
             width: 100%;
-            padding: 14px;
+            padding: 14px 16px;
             border: 2px solid #f0f0f0;
             border-radius: 16px;
-            font-size: 16px;
+            font-size: 15px;
             background: #fafafa;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
+            color: #1a1a1a;
+        }
+
+        .input-field::placeholder {
+            color: #ccc;
         }
         
         .input-field:focus {
             outline: none;
-            border-color: #007aff;
+            border-color: var(--blue);
             background: white;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.1);
+            box-shadow: 0 4px 16px rgba(0,122,255,0.1);
         }
         
         .input-field.consumer:focus {
-            border-color: #34c759;
+            border-color: var(--green);
+            box-shadow: 0 4px 16px rgba(52,199,89,0.1);
         }
         
         .input-field.error {
-            border-color: #ff3b30;
-            background: #ffebee;
+            border-color: var(--red);
+            background: #fff5f5;
+            animation: shake 0.5s ease;
+        }
+
+        /* Input icon */
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.3;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .input-field:focus ~ .input-icon {
+            opacity: 0.6;
+        }
+
+        /* Floating label effect */
+        .input-field.floating {
+            padding-top: 20px;
+            padding-bottom: 10px;
         }
         
         .shop-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 16px;
+        }
+        .shop-grid .input-group {
+            margin-bottom: 12px;
         }
         
         .action-btn {
@@ -221,63 +449,88 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .action-btn:hover::after {
+            opacity: 1;
         }
         
         .login-btn {
-            background: #007aff;
+            background: linear-gradient(135deg, #007aff, #0056cc);
             color: white;
+            box-shadow: 0 4px 15px rgba(0,122,255,0.3);
         }
         
         .login-btn:active {
-            background: #005bbf;
-            transform: scale(0.98);
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(0,122,255,0.2);
         }
         
         .register-btn {
-            background: #34c759;
+            background: linear-gradient(135deg, #34c759, #2db14e);
             color: white;
+            box-shadow: 0 4px 15px rgba(52,199,89,0.3);
         }
         
         .register-btn:active {
-            background: #2db14e;
-            transform: scale(0.98);
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(52,199,89,0.2);
         }
         
         .action-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
         
         .terms-section {
-            background: #f8f9fa;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
             border-radius: 16px;
             padding: 16px;
             margin: 16px 0;
+            transition: all 0.3s ease;
+        }
+        .terms-section:hover {
+            border-color: #e0e0e0;
         }
         
         .terms-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
-            margin-bottom: 12px;
+            padding: 4px 0;
+            user-select: none;
         }
         
         .terms-header h4 {
             font-size: 14px;
             color: #1a1a1a;
+            flex: 1;
         }
         
         .terms-arrow {
-            transition: transform 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 12px;
+            color: #999;
         }
         
         .terms-arrow.open {
@@ -287,14 +540,26 @@
         .terms-content {
             max-height: 0;
             overflow-y: auto;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 11px;
-            color: #666;
-            line-height: 1.5;
+            color: #777;
+            line-height: 1.6;
+            padding-right: 4px;
         }
         
         .terms-content.open {
-            max-height: 300px;
+            max-height: 250px;
+        }
+
+        .terms-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        .terms-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .terms-content::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
         }
         
         .terms-content p {
@@ -305,6 +570,7 @@
             font-size: 12px;
             color: #1a1a1a;
             margin: 12px 0 6px 0;
+            font-weight: 600;
         }
         
         .checkbox-group {
@@ -313,105 +579,122 @@
             gap: 10px;
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #eee;
         }
         
-        .checkbox-group input {
+        .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
             cursor: pointer;
+            accent-color: var(--green);
+            flex-shrink: 0;
         }
         
         .checkbox-group label {
             font-size: 13px;
-            color: #666;
+            color: #777;
             cursor: pointer;
+            line-height: 1.4;
         }
         
         .checkbox-group label a {
-            color: #007aff;
+            color: var(--blue);
             text-decoration: none;
+            font-weight: 500;
+        }
+        .checkbox-group label a:hover {
+            text-decoration: underline;
         }
         
         .divider {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             margin: 20px 0;
-            color: #999;
-            font-size: 14px;
+            color: #bbb;
+            font-size: 13px;
+            font-weight: 500;
         }
         
         .divider-line {
             flex: 1;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #f0f0f0, transparent);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e8e8e8, transparent);
         }
         
         .back-link {
-            display: block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             text-decoration: none;
-            color: #666;
+            color: #999;
             font-size: 14px;
-            padding: 12px;
-            transition: 0.2s;
+            padding: 14px;
+            transition: all 0.3s ease;
+            border-radius: 12px;
         }
         
         .back-link:hover {
-            color: #007aff;
+            color: var(--blue);
+            background: #f8f9fa;
+        }
+
+        .back-link .arrow {
+            transition: transform 0.3s ease;
+        }
+        .back-link:hover .arrow {
+            transform: translateX(-3px);
         }
         
         .status-message {
-            padding: 14px;
-            border-radius: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
             margin-bottom: 16px;
-            font-size: 14px;
+            font-size: 13px;
             display: none;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            animation: slideDown 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .status-message.error {
-            display: block;
-            background: #ffebee;
-            color: #ff3b30;
+            display: flex;
+            background: #fff5f5;
+            color: #d63031;
             border: 1px solid #ffcdd2;
         }
         
         .status-message.success {
-            display: block;
-            background: #e8f5e8;
-            color: #34c759;
+            display: flex;
+            background: #f0fff4;
+            color: #2db14e;
             border: 1px solid #c8e6c9;
         }
         
         .status-message.info {
-            display: block;
-            background: #e3f2fd;
+            display: flex;
+            background: #f0f7ff;
             color: #007aff;
             border: 1px solid #bbdefb;
         }
+
+        .status-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
         
-        .loading {
+        .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
         }
         
         @keyframes spin {
@@ -422,89 +705,134 @@
             margin-top: 8px;
             height: 4px;
             background: #f0f0f0;
-            border-radius: 2px;
+            border-radius: 3px;
             overflow: hidden;
         }
         
         .strength-bar {
             height: 100%;
             width: 0;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 3px;
         }
         
-        .strength-bar.weak {
-            width: 33%;
-            background: #ff3b30;
-        }
-        
-        .strength-bar.medium {
-            width: 66%;
-            background: #ff9500;
-        }
-        
-        .strength-bar.strong {
-            width: 100%;
-            background: #34c759;
-        }
-        
-        .validation-hint {
+        .strength-bar.weak { width: 33%; background: var(--red); }
+        .strength-bar.medium { width: 66%; background: var(--orange); }
+        .strength-bar.strong { width: 100%; background: var(--green); }
+
+        .strength-text {
             font-size: 11px;
             margin-top: 4px;
+            transition: color 0.3s;
+        }
+        .strength-text.weak { color: var(--red); }
+        .strength-text.medium { color: var(--orange); }
+        .strength-text.strong { color: var(--green); }
+        
+        /* Quick login hint */
+        .login-hint {
+            background: #f0f7ff;
+            border: 1px dashed #bbdefb;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #007aff;
+            text-align: center;
             display: none;
         }
-        
-        .validation-hint.error {
+        .login-hint.visible {
             display: block;
-            color: #ff3b30;
+            animation: fadeIn 0.4s ease;
         }
         
-        .validation-hint.success {
-            display: block;
-            color: #34c759;
+        @media (max-width: 400px) {
+            .app {
+                border-radius: 20px;
+            }
+            .header {
+                padding: 25px 18px 20px;
+            }
+            .form-container {
+                padding: 20px 18px;
+            }
+            .app-name {
+                font-size: 26px;
+            }
+            .action-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+            .shop-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Floating background emojis -->
+    <div class="floating-emoji">🍎</div>
+    <div class="floating-emoji">🥬</div>
+    <div class="floating-emoji">🍞</div>
+    <div class="floating-emoji">🥕</div>
+    <div class="floating-emoji">🧀</div>
+
     <div class="app">
         <div class="header">
-            <div class="logo">
-                <img src="assets/icon.png" alt="salad icon">
+            <div class="logo-container">
+                <div class="logo-ring"></div>
+                <div class="logo-ring"></div>
+                <div class="logo-ring"></div>
+                <div class="logo">
+                    <img src="assets/icon.png" alt="foodsavvi icon">
+                </div>
             </div>
             <div class="app-name">food<span>savvi</span></div>
-            <div class="tagline">save food • save money • save planet</div>
+            <div class="tagline">save food • save money • save the planet</div>
         </div>
         
         <div class="form-container">
-            <div id="statusMessage" class="status-message"></div>
+            <div id="statusMessage" class="status-message" style="display: none;"></div>
             
             <div class="role-selector" id="roleSelector">
+                <div class="role-indicator left" id="roleIndicator"></div>
                 <button class="role-btn consumer active" onclick="setRole('consumer')">
-                    👤 consumer
+                    <span class="role-emoji">👤</span> consumer
                 </button>
                 <button class="role-btn shop" onclick="setRole('advertiser')">
-                    🏪 business
+                    <span class="role-emoji">🏪</span> business
                 </button>
             </div>
             
             <!-- CONSUMER FORM -->
             <div id="consumerForm" class="form-section">
+                <div class="login-hint" id="consumerLoginHint">
+                    💡 already have an account? just enter your details and click "log in"
+                </div>
+
                 <div class="input-group">
                     <label class="input-label">username</label>
-                    <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off">
+                    <div class="input-wrapper">
+                        <input type="text" class="input-field consumer" id="consumerUsername" placeholder="choose a username" autocomplete="off">
+                        <span class="input-icon">👤</span>
+                    </div>
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">password</label>
-                    <input type="password" class="input-field consumer" id="consumerPassword" placeholder="••••••••" onkeyup="checkPasswordStrength(this.value, 'consumer')">
+                    <div class="input-wrapper">
+                        <input type="password" class="input-field consumer" id="consumerPassword" placeholder="••••••••" onkeyup="checkPasswordStrength(this.value, 'consumer')">
+                        <span class="input-icon">🔒</span>
+                    </div>
                     <div class="password-strength" id="consumerStrength">
                         <div class="strength-bar"></div>
                     </div>
+                    <div class="strength-text" id="consumerStrengthText" style="display: none;"></div>
                 </div>
                 
-                <!-- Terms and Conditions for Consumer -->
                 <div class="terms-section">
                     <div class="terms-header" onclick="toggleTerms()">
-                        <span class="terms-arrow" id="termsArrow">▼</span>
+                        <span class="terms-arrow" id="termsArrow">▶</span>
                         <h4>📜 Terms and Conditions</h4>
                     </div>
                     <div class="terms-content" id="termsContent">
@@ -552,32 +880,38 @@
                 </div>
                 
                 <button class="action-btn login-btn" onclick="handleConsumerLogin()" id="consumerLoginBtn">
-                    log in as consumer
+                    <span>🔐</span> log in as consumer
                 </button>
                 
                 <button class="action-btn register-btn" onclick="handleConsumerRegister()" id="consumerRegisterBtn">
-                    create consumer account
+                    <span>✨</span> create consumer account
                 </button>
             </div>
             
             <!-- BUSINESS FORM -->
             <div id="shopForm" class="form-section hidden">
                 <div class="section-title">
-                    <span>🔐</span> login to your business
+                    <span class="icon-circle blue">🔐</span> login to your business
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">username</label>
-                    <input type="text" class="input-field" id="shopLoginUsername" placeholder="your username">
+                    <div class="input-wrapper">
+                        <input type="text" class="input-field" id="shopLoginUsername" placeholder="your username">
+                        <span class="input-icon">👤</span>
+                    </div>
                 </div>
                 
                 <div class="input-group">
                     <label class="input-label">password</label>
-                    <input type="password" class="input-field" id="shopLoginPassword" placeholder="••••••••">
+                    <div class="input-wrapper">
+                        <input type="password" class="input-field" id="shopLoginPassword" placeholder="••••••••">
+                        <span class="input-icon">🔒</span>
+                    </div>
                 </div>
                 
                 <button class="action-btn login-btn" onclick="handleShopLogin()" id="shopLoginBtn">
-                    log in to business
+                    <span>🔐</span> log in to business
                 </button>
                 
                 <div class="divider">
@@ -587,11 +921,11 @@
                 </div>
                 
                 <div class="section-title">
-                    <span>🏪</span> register new business
+                    <span class="icon-circle green">🏪</span> register new business
                 </div>
                 
                 <div class="input-group">
-                    <label class="input-label">business name</label>
+                    <label class="input-label">business name *</label>
                     <input type="text" class="input-field" id="shopName" placeholder="e.g., Whole Foods Market">
                 </div>
                 
@@ -600,7 +934,6 @@
                         <label class="input-label">phone</label>
                         <input type="tel" class="input-field" id="shopPhone" placeholder="(555) 123-4567">
                     </div>
-                    
                     <div class="input-group">
                         <label class="input-label">email</label>
                         <input type="email" class="input-field" id="shopEmail" placeholder="shop@example.com">
@@ -617,7 +950,6 @@
                         <label class="input-label">latitude</label>
                         <input type="text" class="input-field" id="shopLat" placeholder="40.7128">
                     </div>
-                    
                     <div class="input-group">
                         <label class="input-label">longitude</label>
                         <input type="text" class="input-field" id="shopLng" placeholder="-74.0060">
@@ -625,16 +957,17 @@
                 </div>
                 
                 <div class="input-group">
-                    <label class="input-label">username for login</label>
+                    <label class="input-label">username for login *</label>
                     <input type="text" class="input-field" id="shopUsername" placeholder="choose a username">
                 </div>
                 
                 <div class="input-group">
-                    <label class="input-label">password</label>
+                    <label class="input-label">password *</label>
                     <input type="password" class="input-field" id="shopPassword" placeholder="••••••••" onkeyup="checkPasswordStrength(this.value, 'shop')">
                     <div class="password-strength" id="shopStrength">
                         <div class="strength-bar"></div>
                     </div>
+                    <div class="strength-text" id="shopStrengthText" style="display: none;"></div>
                 </div>
                 
                 <div class="shop-grid">
@@ -642,17 +975,15 @@
                         <label class="input-label">open time</label>
                         <input type="time" class="input-field" id="shopOpen" value="09:00">
                     </div>
-                    
                     <div class="input-group">
                         <label class="input-label">close time</label>
                         <input type="time" class="input-field" id="shopClose" value="21:00">
                     </div>
                 </div>
                 
-                <!-- Terms and Conditions for Business -->
                 <div class="terms-section">
                     <div class="terms-header" onclick="toggleTermsBusiness()">
-                        <span class="terms-arrow" id="termsArrowBusiness">▼</span>
+                        <span class="terms-arrow" id="termsArrowBusiness">▶</span>
                         <h4>📜 Terms and Conditions</h4>
                     </div>
                     <div class="terms-content" id="termsContentBusiness">
@@ -700,7 +1031,7 @@
                 </div>
                 
                 <button class="action-btn register-btn" onclick="handleShopRegister()" id="shopRegisterBtn">
-                    register new business
+                    <span>🏪</span> register new business
                 </button>
             </div>
             
@@ -710,7 +1041,9 @@
                 <span class="divider-line"></span>
             </div>
             
-            <a href="index.html" class="back-link">← back to home</a>
+            <a href="index.html" class="back-link">
+                <span class="arrow">←</span> back to home
+            </a>
         </div>
     </div>
     
@@ -728,28 +1061,41 @@
                     window.location.href = 'index.html';
                 }
             }
+            // Show hint for consumer form
+            document.getElementById('consumerLoginHint').classList.add('visible');
         });
         
         function setRole(role) {
             currentRole = role;
             
-            document.querySelectorAll('.role-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            const indicator = document.getElementById('roleIndicator');
+            const consumerForm = document.getElementById('consumerForm');
+            const shopForm = document.getElementById('shopForm');
+            
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
             
             if (role === 'consumer') {
                 document.querySelector('.role-btn.consumer').classList.add('active');
-                document.getElementById('consumerForm').classList.remove('hidden');
-                document.getElementById('shopForm').classList.add('hidden');
+                indicator.classList.remove('right');
+                indicator.classList.add('left');
+                consumerForm.classList.remove('hidden');
+                shopForm.classList.add('hidden');
+                document.getElementById('consumerLoginHint').classList.add('visible');
             } else {
                 document.querySelector('.role-btn.shop').classList.add('active');
-                document.getElementById('shopForm').classList.remove('hidden');
-                document.getElementById('consumerForm').classList.add('hidden');
+                indicator.classList.remove('left');
+                indicator.classList.add('right');
+                shopForm.classList.remove('hidden');
+                consumerForm.classList.add('hidden');
+                document.getElementById('consumerLoginHint').classList.remove('visible');
             }
+            
+            hideStatus();
         }
         
         function checkPasswordStrength(password, type) {
             const strengthBar = document.querySelector(`#${type}Strength .strength-bar`);
+            const strengthText = document.getElementById(`${type}StrengthText`);
             let strength = 0;
             
             if (password.length >= 6) strength += 1;
@@ -759,15 +1105,24 @@
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
             
             strengthBar.className = 'strength-bar';
+            strengthText.style.display = 'block';
+            strengthText.className = 'strength-text';
             
             if (password.length === 0) {
                 strengthBar.style.width = '0';
+                strengthText.style.display = 'none';
             } else if (strength <= 2) {
                 strengthBar.classList.add('weak');
+                strengthText.classList.add('weak');
+                strengthText.textContent = 'weak password — add numbers and symbols';
             } else if (strength <= 4) {
                 strengthBar.classList.add('medium');
+                strengthText.classList.add('medium');
+                strengthText.textContent = 'getting better — add a special character';
             } else {
                 strengthBar.classList.add('strong');
+                strengthText.classList.add('strong');
+                strengthText.textContent = 'strong password! 🔒';
             }
         }
         
@@ -776,6 +1131,7 @@
             const arrow = document.getElementById('termsArrow');
             content.classList.toggle('open');
             arrow.classList.toggle('open');
+            arrow.textContent = arrow.classList.contains('open') ? '▼' : '▶';
         }
         
         function toggleTermsBusiness() {
@@ -783,6 +1139,52 @@
             const arrow = document.getElementById('termsArrowBusiness');
             content.classList.toggle('open');
             arrow.classList.toggle('open');
+            arrow.textContent = arrow.classList.contains('open') ? '▼' : '▶';
+        }
+        
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            const icons = { error: '❌', success: '✅', info: 'ℹ️' };
+            statusEl.innerHTML = `<span class="status-icon">${icons[type] || 'ℹ️'}</span> ${message}`;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'flex';
+            
+            if (type !== 'info') {
+                setTimeout(() => {
+                    if (statusEl.style.display !== 'none') {
+                        statusEl.style.opacity = '0';
+                        statusEl.style.transform = 'translateY(-10px)';
+                        statusEl.style.transition = 'all 0.3s ease';
+                        setTimeout(() => {
+                            statusEl.style.display = 'none';
+                            statusEl.style.opacity = '1';
+                            statusEl.style.transform = 'translateY(0)';
+                        }, 300);
+                    }
+                }, 4000);
+            }
+        }
+        
+        function hideStatus() {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.style.display = 'none';
+            statusEl.className = 'status-message';
+        }
+        
+        function showLoading(btnId) {
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerHTML;
+            btn.dataset.originalText = originalText;
+            btn.innerHTML = '<span class="loading-spinner"></span> loading...';
+            btn.disabled = true;
+        }
+        
+        function hideLoading(btnId) {
+            const btn = document.getElementById(btnId);
+            if (btn.dataset.originalText) {
+                btn.innerHTML = btn.dataset.originalText;
+            }
+            btn.disabled = false;
         }
         
         async function handleConsumerLogin() {
@@ -790,23 +1192,24 @@
             const password = document.getElementById('consumerPassword').value;
             
             if (!username || !password) {
-                showStatus('❌ Please enter username and password', 'error');
+                showStatus('please enter username and password', 'error');
+                shakeElement(document.getElementById(!username ? 'consumerUsername' : 'consumerPassword'));
                 return;
             }
             
-            setButtonsDisabled(true, 'consumer');
-            showStatus('🔐 Logging in...', 'info');
+            showLoading('consumerLoginBtn');
+            showStatus('logging in...', 'info');
             
             const result = await Backend.login(username, password, 'consumer');
             
             if (result.success) {
-                showStatus('✅ Login successful! Redirecting...', 'success');
+                showStatus('login successful! redirecting...', 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
-                }, 1000);
+                }, 800);
             } else {
-                showStatus('❌ ' + (result.message || 'Login failed. Please check your credentials.'), 'error');
-                setButtonsDisabled(false, 'consumer');
+                showStatus(result.message || 'login failed — check your credentials', 'error');
+                hideLoading('consumerLoginBtn');
             }
         }
         
@@ -815,56 +1218,58 @@
             const password = document.getElementById('consumerPassword').value;
             const termsChecked = document.getElementById('consumerTermsCheckbox').checked;
             
-            // Validation
             if (!username || !password) {
-                showStatus('❌ Please enter username and password', 'error');
+                showStatus('please enter username and password', 'error');
+                shakeElement(document.getElementById(!username ? 'consumerUsername' : 'consumerPassword'));
                 return;
             }
             
             if (username.length < 3) {
-                showStatus('❌ Username must be at least 3 characters', 'error');
+                showStatus('username must be at least 3 characters', 'error');
+                shakeElement(document.getElementById('consumerUsername'));
                 return;
             }
             
             if (password.length < 6) {
-                showStatus('❌ Password must be at least 6 characters', 'error');
+                showStatus('password must be at least 6 characters', 'error');
+                shakeElement(document.getElementById('consumerPassword'));
                 return;
             }
             
             if (!termsChecked) {
-                showStatus('❌ Please read and agree to the Terms and Conditions', 'error');
+                showStatus('please agree to the terms and conditions', 'error');
                 return;
             }
             
-            setButtonsDisabled(true, 'consumer');
-            showStatus('📝 Checking username availability...', 'info');
+            showLoading('consumerRegisterBtn');
+            showStatus('checking username availability...', 'info');
             
-            // Check if username exists
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
-                showStatus(`❌ Username "${username}" is already taken. Please choose another username.`, 'error');
-                setButtonsDisabled(false, 'consumer');
+                showStatus(`"${username}" is already taken — try another`, 'error');
+                shakeElement(document.getElementById('consumerUsername'));
+                hideLoading('consumerRegisterBtn');
                 return;
             }
             
-            showStatus('🔄 Creating your account...', 'info');
+            showStatus('creating your account...', 'info');
             
             const result = await Backend.register(username, password, 'consumer');
             
             if (result.success) {
-                showStatus('✅ Account created successfully! Logging you in...', 'success');
+                showStatus('account created! logging you in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'consumer');
                     if (loginResult.success) {
                         window.location.href = 'index.html';
                     } else {
-                        showStatus('❌ Account created but auto-login failed. Please login manually.', 'error');
-                        setButtonsDisabled(false, 'consumer');
+                        showStatus('account created — please log in manually', 'error');
+                        hideLoading('consumerRegisterBtn');
                     }
-                }, 1500);
+                }, 1200);
             } else {
-                showStatus('❌ ' + (result.message || 'Registration failed. Please try again.'), 'error');
-                setButtonsDisabled(false, 'consumer');
+                showStatus(result.message || 'registration failed — try again', 'error');
+                hideLoading('consumerRegisterBtn');
             }
         }
         
@@ -873,29 +1278,30 @@
             const password = document.getElementById('shopLoginPassword').value;
             
             if (!username || !password) {
-                showStatus('❌ Please enter username and password', 'error');
+                showStatus('please enter username and password', 'error');
+                shakeElement(document.getElementById(!username ? 'shopLoginUsername' : 'shopLoginPassword'));
                 return;
             }
             
-            setButtonsDisabled(true, 'shop');
-            showStatus('🔐 Logging in...', 'info');
+            showLoading('shopLoginBtn');
+            showStatus('logging in...', 'info');
             
             const result = await Backend.login(username, password, 'advertiser');
             
             if (result.success) {
                 const businessRole = localStorage.getItem('businessRole');
                 let roleMessage = '';
-                if (businessRole === 'owner') roleMessage = ' (Owner)';
-                else if (businessRole === 'manager') roleMessage = ' (Manager)';
-                else if (businessRole === 'staff') roleMessage = ' (Staff)';
+                if (businessRole === 'owner') roleMessage = ' (owner)';
+                else if (businessRole === 'manager') roleMessage = ' (manager)';
+                else if (businessRole === 'staff') roleMessage = ' (staff)';
                 
-                showStatus(`✅ Login successful!${roleMessage} Redirecting...`, 'success');
+                showStatus(`welcome back${roleMessage}! redirecting...`, 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
-                }, 1000);
+                }, 800);
             } else {
-                showStatus('❌ ' + (result.message || 'Login failed. Please check your credentials.'), 'error');
-                setButtonsDisabled(false, 'shop');
+                showStatus(result.message || 'login failed — check your credentials', 'error');
+                hideLoading('shopLoginBtn');
             }
         }
         
@@ -905,48 +1311,46 @@
             const businessName = document.getElementById('shopName').value.trim();
             const termsChecked = document.getElementById('businessTermsCheckbox').checked;
             
-            // Validation
             if (!username || !password) {
-                showStatus('❌ Please enter username and password', 'error');
+                showStatus('please enter username and password', 'error');
                 return;
             }
             
             if (!businessName) {
-                showStatus('❌ Please enter your business name', 'error');
+                showStatus('please enter your business name', 'error');
+                shakeElement(document.getElementById('shopName'));
                 return;
             }
             
             if (username.length < 3) {
-                showStatus('❌ Username must be at least 3 characters', 'error');
+                showStatus('username must be at least 3 characters', 'error');
                 return;
             }
             
             if (password.length < 6) {
-                showStatus('❌ Password must be at least 6 characters', 'error');
+                showStatus('password must be at least 6 characters', 'error');
                 return;
             }
             
             if (!termsChecked) {
-                showStatus('❌ Please read and agree to the Terms and Conditions', 'error');
+                showStatus('please agree to the terms and conditions', 'error');
                 return;
             }
             
-            setButtonsDisabled(true, 'shop');
-            showStatus('📝 Checking availability...', 'info');
+            showLoading('shopRegisterBtn');
+            showStatus('checking availability...', 'info');
             
-            // Check if username exists
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
-                showStatus(`❌ Username "${username}" is already taken. Please choose another username.`, 'error');
-                setButtonsDisabled(false, 'shop');
+                showStatus(`"${username}" is already taken — try another`, 'error');
+                hideLoading('shopRegisterBtn');
                 return;
             }
             
-            // Check if business name exists
             const businessNameCheck = await Backend.checkBusinessNameExists(businessName);
             if (businessNameCheck.exists) {
-                showStatus(`❌ Business name "${businessName}" is already registered. Please choose another business name.`, 'error');
-                setButtonsDisabled(false, 'shop');
+                showStatus(`"${businessName}" is already registered`, 'error');
+                hideLoading('shopRegisterBtn');
                 return;
             }
             
@@ -962,53 +1366,32 @@
                 type: 'grocery'
             };
             
-            showStatus('🔄 Creating your business account...', 'info');
+            showStatus('creating your business account...', 'info');
             
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
             
             if (result.success) {
-                showStatus('✅ Business registered successfully! Logging you in...', 'success');
+                showStatus('business registered! logging you in...', 'success');
                 setTimeout(async () => {
                     const loginResult = await Backend.login(username, password, 'advertiser');
                     if (loginResult.success) {
                         window.location.href = 'index.html';
                     } else {
-                        showStatus('❌ Account created but auto-login failed. Please login manually.', 'error');
-                        setButtonsDisabled(false, 'shop');
+                        showStatus('account created — please log in manually', 'error');
+                        hideLoading('shopRegisterBtn');
                     }
-                }, 1500);
+                }, 1200);
             } else {
-                showStatus('❌ ' + (result.message || 'Registration failed. Please try again.'), 'error');
-                setButtonsDisabled(false, 'shop');
+                showStatus(result.message || 'registration failed — try again', 'error');
+                hideLoading('shopRegisterBtn');
             }
         }
         
-        function setButtonsDisabled(disabled, type) {
-            if (type === 'consumer') {
-                document.getElementById('consumerLoginBtn').disabled = disabled;
-                document.getElementById('consumerRegisterBtn').disabled = disabled;
-            } else {
-                document.getElementById('shopLoginBtn').disabled = disabled;
-                document.getElementById('shopRegisterBtn').disabled = disabled;
-            }
-        }
-        
-        function showStatus(message, type = 'info') {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
-            statusEl.className = `status-message ${type}`;
-            
-            // Auto-hide after 4 seconds for success/error, keep info messages longer
-            if (type !== 'info') {
-                setTimeout(() => {
-                    if (statusEl.style.display !== 'none') {
-                        statusEl.style.display = 'none';
-                        setTimeout(() => {
-                            statusEl.className = 'status-message';
-                        }, 300);
-                    }
-                }, 4000);
-            }
+        function shakeElement(element) {
+            if (!element) return;
+            element.classList.add('error');
+            element.focus();
+            setTimeout(() => element.classList.remove('error'), 600);
         }
         
         // Enter key handlers
