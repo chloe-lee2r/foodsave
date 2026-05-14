@@ -162,20 +162,13 @@
             cursor: pointer; font-family: inherit; font-size: 14px;
         }
         
-        /* Location – updated with manual entry */
-        .location-picker { display: flex; flex-direction: column; gap: 8px; }
+        /* Location */
+        .location-picker { display: flex; gap: 8px; }
         .location-picker .form-input { flex: 1; }
         .locate-btn {
             background: #007aff; color: white; border: none;
             padding: 12px 16px; border-radius: 12px; cursor: pointer;
             font-family: inherit; font-size: 14px; white-space: nowrap;
-        }
-        .manual-location-row { display: flex; gap: 8px; }
-        .manual-location-row input { flex: 1; }
-        .manual-location-row button {
-            background: #ee5a24; color: white; border: none;
-            padding: 12px 16px; border-radius: 12px; cursor: pointer;
-            font-family: inherit; font-size: 14px;
         }
         .map-preview {
             width: 100%; height: 60px; background: #f0f0f0;
@@ -223,15 +216,15 @@
 <body>
 <div class="app">
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='community.html'">back</button>
-        <h1>Share Food</h1>
-        <div class="header-subtitle">help reduce food waste</div>
+        <button class="back-btn" onclick="window.location.href='community.html'">← back</button>
+        <h1> Share Food</h1>
+        <div class="header-subtitle">help reduce food waste 🥰</div>
     </div>
     
     <div class="content">
         <!-- Guidelines -->
         <div class="guidelines-box">
-            <h4>Sharing guidelines</h4>
+            <h4>📋 Sharing guidelines</h4>
             <ul>
                 <li>Food must be <strong>safe to eat</strong> and properly stored</li>
                 <li>Be honest about ingredients and expiry dates</li>
@@ -293,7 +286,7 @@
                 <label class="form-label">What food are you sharing?</label>
                 <div class="food-items-container" id="foodItemsContainer">
                     <div class="food-item-row">
-                        <input type="text" class="form-input" placeholder="e.g., spaghetti bolognese (2 servings)" name="foodItem">
+                        <input type="text" class="form-input" placeholder="e.g., 🍝 spaghetti bolognese (2 servings)" name="foodItem">
                         <button type="button" class="remove-btn" onclick="removeFoodItem(this)" style="visibility:hidden;">−</button>
                     </div>
                 </div>
@@ -302,7 +295,7 @@
             
             <!-- Dietary Information -->
             <div class="form-group">
-                <label class="form-label">Dietary information <span style="font-weight:400;color:#999;font-size:12px;">(select all that apply)</span></label>
+                <label class="form-label">🍽️ Dietary information <span style="font-weight:400;color:#999;font-size:12px;">(select all that apply)</span></label>
                 <div class="dietary-grid">
                     <label class="dietary-option" onclick="toggleDietary(this)">
                         <input type="checkbox" name="dietary" value="halal">
@@ -345,21 +338,18 @@
 
             <!-- Allergen warning -->
             <div class="form-group">
-                <label class="form-label">Allergen info <span style="font-weight:400;color:#999;font-size:12px;">(optional but helpful)</span></label>
+                <label class="form-label">⚠️ Allergen info <span style="font-weight:400;color:#999;font-size:12px;">(optional but helpful)</span></label>
                 <input type="text" class="form-input" id="allergenInfo" placeholder="e.g., contains nuts, cooked with dairy, etc.">
             </div>
             
-            <!-- Pickup Location – now with manual entry -->
+            <!-- Pickup Location -->
             <div class="form-group">
-                <label class="form-label">Pickup location *</label>
+                <label class="form-label">Pickup location <span style="color:#ff3b30;">*</span></label>
                 <div class="location-picker">
-                    <div class="manual-location-row">
-                        <input type="text" class="form-input" id="locationAddress" placeholder="Enter address or use locate button">
-                        <button type="button" class="locate-btn" onclick="getCurrentLocation()">locate</button>
-                    </div>
-                    <button type="button" class="locate-btn" onclick="setLocationFromAddress()" style="background:#ee5a24; color:white;">Set Address</button>
+                    <input type="text" class="form-input" id="locationAddress" placeholder="Tap locate button →" readonly>
+                    <button type="button" class="locate-btn" onclick="getCurrentLocation()">📍 locate</button>
                 </div>
-                <div class="map-preview" id="mapPreview">Tap 'locate' or type an address and press 'Set Address'</div>
+                <div class="map-preview" id="mapPreview">📍 tap 'locate' to set your pickup location</div>
             </div>
             
             <!-- Pickup Instructions -->
@@ -384,7 +374,7 @@
                 </div>
             </div>
             
-            <button type="submit" class="submit-btn" id="submitBtn">share with neighbours</button>
+            <button type="submit" class="submit-btn" id="submitBtn">🤝 share with neighbours</button>
         </form>
     </div>
 </div>
@@ -404,7 +394,6 @@
         const user = Backend.getCurrentUser();
         if (!user) { window.location.href = 'login.html'; return; }
         
-        // Try to get current position for convenience, but don't force it
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -413,14 +402,10 @@
                         .then(r => r.json())
                         .then(data => {
                             document.getElementById('locationAddress').value = data.display_name || `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
-                            document.getElementById('mapPreview').innerHTML = 'Location set (GPS)';
-                            document.getElementById('mapPreview').classList.add('set');
                         })
-                        .catch(() => {
-                            document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
-                            document.getElementById('mapPreview').innerHTML = 'Location set (coordinates)';
-                            document.getElementById('mapPreview').classList.add('set');
-                        });
+                        .catch(() => { document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`; });
+                    document.getElementById('mapPreview').innerHTML = '✅ Location set!';
+                    document.getElementById('mapPreview').classList.add('set');
                 },
                 () => {}
             );
@@ -449,8 +434,9 @@
         const container = document.getElementById('foodItemsContainer');
         const row = document.createElement('div');
         row.className = 'food-item-row';
-        row.innerHTML = `<input type="text" class="form-input" placeholder="e.g., bread (half loaf)" name="foodItem"><button type="button" class="remove-btn" onclick="removeFoodItem(this)">−</button>`;
+        row.innerHTML = `<input type="text" class="form-input" placeholder="e.g., 🥖 bread (half loaf)" name="foodItem"><button type="button" class="remove-btn" onclick="removeFoodItem(this)">−</button>`;
         container.appendChild(row);
+        // Update all remove button visibility
         updateRemoveButtons();
     }
     
@@ -470,59 +456,21 @@
         });
     }
     
-    // Use GPS
     function getCurrentLocation() {
         if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-        document.getElementById('mapPreview').innerHTML = 'Getting location...';
+        document.getElementById('mapPreview').innerHTML = '📍 getting location...';
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
                     .then(r => r.json())
-                    .then(data => {
-                        document.getElementById('locationAddress').value = data.display_name || 'Location found';
-                        document.getElementById('mapPreview').innerHTML = 'Location set via GPS';
-                        document.getElementById('mapPreview').classList.add('set');
-                    })
-                    .catch(() => {
-                        document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
-                        document.getElementById('mapPreview').innerHTML = 'Location set (coordinates)';
-                        document.getElementById('mapPreview').classList.add('set');
-                    });
+                    .then(data => { document.getElementById('locationAddress').value = data.display_name || 'Location found'; })
+                    .catch(() => { document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`; });
+                document.getElementById('mapPreview').innerHTML = '✅ Location set! Neighbours can see where to pick up';
+                document.getElementById('mapPreview').classList.add('set');
             },
             () => { alert('Could not get location.'); }
         );
-    }
-    
-    // Manual address geocoding
-    async function setLocationFromAddress() {
-        const address = document.getElementById('locationAddress').value.trim();
-        if (!address) {
-            alert('Please enter an address first.');
-            return;
-        }
-        document.getElementById('mapPreview').innerHTML = 'Looking up address...';
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
-            );
-            const data = await response.json();
-            if (data.length === 0) {
-                alert('Address not found. Please try a more specific address.');
-                document.getElementById('mapPreview').innerHTML = 'Address not found';
-                return;
-            }
-            userLocation = {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon)
-            };
-            document.getElementById('locationAddress').value = data[0].display_name;
-            document.getElementById('mapPreview').innerHTML = 'Location set!';
-            document.getElementById('mapPreview').classList.add('set');
-        } catch (e) {
-            alert('Failed to look up address. Please try again.');
-            document.getElementById('mapPreview').innerHTML = 'Error setting address';
-        }
     }
     
     async function submitShare(event) {
@@ -554,7 +502,7 @@
         
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'sharing...';
+        submitBtn.textContent = '⏳ sharing...';
         document.getElementById('loadingOverlay').style.display = 'flex';
         
         try {
@@ -563,7 +511,7 @@
             
             // Include allergen info in description if provided
             const fullDescription = allergenInfo ? 
-                `${description}\n\nAllergens: ${allergenInfo}` : description;
+                `${description}\n\n⚠️ Allergens: ${allergenInfo}` : description;
             
             const shareData = {
                 foodItems, description: fullDescription,
@@ -575,14 +523,14 @@
             
             const result = await Backend.createCommunityShare(shareData);
             if (result.success) {
-                alert('Food shared! Neighbours nearby can now see it.');
+                alert('🎉 Food shared! Neighbours nearby can now see it.');
                 window.location.href = 'community.html';
             } else {
                 alert(result.message || 'Failed to share food.');
             }
         } catch(e) { alert('Failed to share food.'); }
         submitBtn.disabled = false;
-        submitBtn.textContent = 'share with neighbours';
+        submitBtn.textContent = '🤝 share with neighbours';
         document.getElementById('loadingOverlay').style.display = 'none';
     }
     
@@ -592,7 +540,6 @@
     window.addFoodItem = addFoodItem;
     window.removeFoodItem = removeFoodItem;
     window.getCurrentLocation = getCurrentLocation;
-    window.setLocationFromAddress = setLocationFromAddress;
 </script>
 </body>
 </html>
