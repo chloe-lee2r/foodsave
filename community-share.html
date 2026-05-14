@@ -48,7 +48,7 @@
             position: relative;
         }
         
-        /* Back link – matching the style from fridge/list pages */
+        /* Back link – same as fridge/list pages */
         .back-link {
             position: absolute;
             top: 30px;
@@ -91,7 +91,6 @@
         .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: #ee5a24; }
         .form-textarea { min-height: 100px; resize: vertical; }
         
-        /* Reason grid */
         .reason-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -114,7 +113,6 @@
         .reason-text { font-size: 11px; color: #666; }
         .reason-option.active .reason-text { color: #ee5a24; }
         
-        /* Dietary checkboxes */
         .dietary-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -141,7 +139,6 @@
         .dietary-icon { font-size: 18px; }
         .dietary-name { font-size: 13px; font-weight: 500; }
         
-        /* Share type */
         .share-type-selector { display: flex; gap: 12px; }
         .share-type-option {
             flex: 1; padding: 16px; border: 2px solid #e0e0e0;
@@ -151,7 +148,6 @@
         .type-emoji { font-size: 28px; margin-bottom: 6px; }
         .type-label { font-size: 14px; font-weight: 600; color: #333; }
         
-        /* Guidelines box */
         .guidelines-box {
             background: #fffbf0;
             border: 1px solid #ffd700;
@@ -163,7 +159,6 @@
         .guidelines-box ul { font-size: 12px; color: #666; padding-left: 18px; line-height: 1.6; }
         .guidelines-box ul li { margin-bottom: 4px; }
         
-        /* Food items */
         .food-items-container { margin-bottom: 12px; }
         .food-item-row {
             display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
@@ -181,7 +176,7 @@
             cursor: pointer; font-family: inherit; font-size: 14px;
         }
         
-        /* Location – editable with manual entry + GPS */
+        /* Location – now editable with manual entry + GPS */
         .location-picker { display: flex; flex-direction: column; gap: 8px; }
         .location-picker .form-input { flex: 1; }
         .locate-btn {
@@ -203,7 +198,6 @@
         }
         .map-preview.set { background: #e8f5e8; color: #34c759; }
         
-        /* Agreement checkbox */
         .agreement-box {
             background: #f8f9fa; border-radius: 12px; padding: 14px; margin-bottom: 16px;
         }
@@ -214,7 +208,6 @@
         .agreement-item input { margin-top: 2px; width: 16px; height: 16px; cursor: pointer; accent-color: #ee5a24; }
         .agreement-item label { font-size: 12px; color: #666; line-height: 1.4; cursor: pointer; }
         
-        /* Submit */
         .submit-btn {
             background: #ee5a24; color: white; border: none;
             padding: 16px; border-radius: 25px; font-weight: 600;
@@ -242,14 +235,13 @@
 <body>
 <div class="app">
     <div class="header">
-        <!-- Back button – now matches the fridge/list pages (arrow only) -->
+        <!-- Back button – matching fridge/list pages -->
         <a href="community.html" class="back-link">←</a>
         <h1>Share Food</h1>
         <div class="header-subtitle">help reduce food waste</div>
     </div>
     
     <div class="content">
-        <!-- Guidelines -->
         <div class="guidelines-box">
             <h4>📋 Sharing guidelines</h4>
             <ul>
@@ -262,53 +254,42 @@
         </div>
         
         <form id="shareForm" onsubmit="submitShare(event)">
-            <!-- Why sharing -->
             <div class="form-group">
                 <label class="form-label">Why are you sharing?</label>
                 <div class="reason-grid">
                     <button type="button" class="reason-option active" onclick="selectReason('cooked_too_much')" data-reason="cooked_too_much">
-                        <span class="reason-emoji">🍳</span>
-                        <span class="reason-text">cooked too much</span>
+                        <span class="reason-emoji">🍳</span><span class="reason-text">cooked too much</span>
                     </button>
                     <button type="button" class="reason-option" onclick="selectReason('bought_extra')" data-reason="bought_extra">
-                        <span class="reason-emoji">🛒</span>
-                        <span class="reason-text">bought extra</span>
+                        <span class="reason-emoji">🛒</span><span class="reason-text">bought extra</span>
                     </button>
                     <button type="button" class="reason-option" onclick="selectReason('going_away')" data-reason="going_away">
-                        <span class="reason-emoji">✈️</span>
-                        <span class="reason-text">going away</span>
+                        <span class="reason-emoji">✈️</span><span class="reason-text">going away</span>
                     </button>
                     <button type="button" class="reason-option" onclick="selectReason('expiring_soon')" data-reason="expiring_soon">
-                        <span class="reason-emoji">⏰</span>
-                        <span class="reason-text">expiring soon</span>
+                        <span class="reason-emoji">⏰</span><span class="reason-text">expiring soon</span>
                     </button>
                     <button type="button" class="reason-option" onclick="selectReason('diet_change')" data-reason="diet_change">
-                        <span class="reason-emoji">🥗</span>
-                        <span class="reason-text">diet change</span>
+                        <span class="reason-emoji">🥗</span><span class="reason-text">diet change</span>
                     </button>
                     <button type="button" class="reason-option" onclick="selectReason('other')" data-reason="other">
-                        <span class="reason-emoji">🤷</span>
-                        <span class="reason-text">other</span>
+                        <span class="reason-emoji">🤷</span><span class="reason-text">other</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Share Type -->
             <div class="form-group">
                 <label class="form-label">Giveaway or swap?</label>
                 <div class="share-type-selector">
                     <button type="button" class="share-type-option active" onclick="selectShareType('giveaway')" id="giveawayBtn">
-                        <div class="type-emoji">🎁</div>
-                        <div class="type-label">free giveaway</div>
+                        <div class="type-emoji">🎁</div><div class="type-label">free giveaway</div>
                     </button>
                     <button type="button" class="share-type-option" onclick="selectShareType('swap')" id="swapBtn">
-                        <div class="type-emoji">🔄</div>
-                        <div class="type-label">happy to swap</div>
+                        <div class="type-emoji">🔄</div><div class="type-label">happy to swap</div>
                     </button>
                 </div>
             </div>
             
-            <!-- Food Items -->
             <div class="form-group">
                 <label class="form-label">What food are you sharing?</label>
                 <div class="food-items-container" id="foodItemsContainer">
@@ -320,56 +301,41 @@
                 <button type="button" class="add-food-btn" onclick="addFoodItem()">+ add another item</button>
             </div>
             
-            <!-- Dietary Information -->
             <div class="form-group">
                 <label class="form-label">🍽️ Dietary information <span style="font-weight:400;color:#999;font-size:12px;">(select all that apply)</span></label>
                 <div class="dietary-grid">
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="halal">
-                        <span class="dietary-icon">☪️</span>
-                        <span class="dietary-name">halal</span>
+                        <input type="checkbox" name="dietary" value="halal"><span class="dietary-icon">☪️</span><span class="dietary-name">halal</span>
                     </label>
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="vegetarian">
-                        <span class="dietary-icon">🥬</span>
-                        <span class="dietary-name">vegetarian</span>
+                        <input type="checkbox" name="dietary" value="vegetarian"><span class="dietary-icon">🥬</span><span class="dietary-name">vegetarian</span>
                     </label>
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="vegan">
-                        <span class="dietary-icon">🌱</span>
-                        <span class="dietary-name">vegan</span>
+                        <input type="checkbox" name="dietary" value="vegan"><span class="dietary-icon">🌱</span><span class="dietary-name">vegan</span>
                     </label>
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="glutenFree">
-                        <span class="dietary-icon">🌾</span>
-                        <span class="dietary-name">gluten-free</span>
+                        <input type="checkbox" name="dietary" value="glutenFree"><span class="dietary-icon">🌾</span><span class="dietary-name">gluten-free</span>
                     </label>
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="dairyFree">
-                        <span class="dietary-icon">🥛</span>
-                        <span class="dietary-name">dairy-free</span>
+                        <input type="checkbox" name="dietary" value="dairyFree"><span class="dietary-icon">🥛</span><span class="dietary-name">dairy-free</span>
                     </label>
                     <label class="dietary-option" onclick="toggleDietary(this)">
-                        <input type="checkbox" name="dietary" value="nutFree">
-                        <span class="dietary-icon">🥜</span>
-                        <span class="dietary-name">nut-free</span>
+                        <input type="checkbox" name="dietary" value="nutFree"><span class="dietary-icon">🥜</span><span class="dietary-name">nut-free</span>
                     </label>
                 </div>
             </div>
             
-            <!-- Description -->
             <div class="form-group">
                 <label class="form-label">Description <span style="font-weight:400;color:#999;font-size:12px;">(optional)</span></label>
                 <textarea class="form-textarea" id="description" placeholder="Tell neighbours about the food — when it was made, ingredients, dietary info, how to reheat, etc."></textarea>
             </div>
 
-            <!-- Allergen warning -->
             <div class="form-group">
                 <label class="form-label">⚠️ Allergen info <span style="font-weight:400;color:#999;font-size:12px;">(optional but helpful)</span></label>
                 <input type="text" class="form-input" id="allergenInfo" placeholder="e.g., contains nuts, cooked with dairy, etc.">
             </div>
             
-            <!-- Pickup Location – now editable with manual entry + GPS -->
+            <!-- Pickup Location – editable input with GPS and manual geocoding -->
             <div class="form-group">
                 <label class="form-label">Pickup location <span style="color:#ff3b30;">*</span></label>
                 <div class="location-picker">
@@ -382,13 +348,11 @@
                 <div class="map-preview" id="mapPreview">📍 tap 'locate' or type an address and press 'Set Address'</div>
             </div>
             
-            <!-- Pickup Instructions -->
             <div class="form-group">
                 <label class="form-label">Pickup instructions <span style="font-weight:400;color:#999;font-size:12px;">(optional)</span></label>
                 <textarea class="form-textarea" id="pickupInstructions" placeholder="e.g., leave at door, text when arriving, available after 6pm, buzz #123, etc." style="min-height:70px;"></textarea>
             </div>
             
-            <!-- Agreement checkboxes -->
             <div class="agreement-box">
                 <div class="agreement-item">
                     <input type="checkbox" id="agreeSafe">
@@ -424,7 +388,7 @@
         const user = Backend.getCurrentUser();
         if (!user) { window.location.href = 'login.html'; return; }
         
-        // Try to get current position for convenience, but don't force it
+        // Try GPS automatically
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -472,21 +436,16 @@
     
     function removeFoodItem(btn) {
         const container = document.getElementById('foodItemsContainer');
-        if (container.children.length > 1) {
-            btn.parentElement.remove();
-        }
+        if (container.children.length > 1) btn.parentElement.remove();
         updateRemoveButtons();
     }
     
     function updateRemoveButtons() {
         const container = document.getElementById('foodItemsContainer');
         const buttons = container.querySelectorAll('.remove-btn');
-        buttons.forEach(btn => {
-            btn.style.visibility = container.children.length > 1 ? 'visible' : 'hidden';
-        });
+        buttons.forEach(btn => btn.style.visibility = container.children.length > 1 ? 'visible' : 'hidden');
     }
     
-    // GPS locate
     function getCurrentLocation() {
         if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
         document.getElementById('mapPreview').innerHTML = '📍 getting location...';
@@ -510,7 +469,7 @@
         );
     }
     
-    // Manual address geocoding
+    // Manual address geocoding – now with robust error handling
     async function setLocationFromAddress() {
         const address = document.getElementById('locationAddress').value.trim();
         if (!address) {
@@ -524,8 +483,8 @@
             );
             const data = await response.json();
             if (data.length === 0) {
-                alert('Address not found. Please try a more specific address.');
                 document.getElementById('mapPreview').innerHTML = '📍 address not found';
+                document.getElementById('mapPreview').classList.remove('set');
                 return;
             }
             userLocation = {
@@ -536,15 +495,13 @@
             document.getElementById('mapPreview').innerHTML = '✅ Location set!';
             document.getElementById('mapPreview').classList.add('set');
         } catch (e) {
-            alert('Failed to look up address. Please try again.');
-            document.getElementById('mapPreview').innerHTML = '⚠️ error setting address';
+            document.getElementById('mapPreview').innerHTML = '⚠️ error – check your connection';
+            document.getElementById('mapPreview').classList.remove('set');
         }
     }
     
     async function submitShare(event) {
         event.preventDefault();
-        
-        // Validate food items
         const foodItemInputs = document.querySelectorAll('input[name="foodItem"]');
         const foodItems = [];
         foodItemInputs.forEach(input => {
@@ -554,19 +511,13 @@
                 foodItems.push({ name: value, emoji: emojiMatch ? emojiMatch[1].trim() : '🍽️' });
             }
         });
-        
         if (foodItems.length === 0) { alert('Please add at least one food item'); return; }
         if (!userLocation) { alert('Please set a pickup location'); return; }
         if (!document.getElementById('agreeSafe').checked || !document.getElementById('agreeHonest').checked || !document.getElementById('agreeGuidelines').checked) {
-            alert('Please agree to all sharing guidelines');
-            return;
+            alert('Please agree to all sharing guidelines'); return;
         }
-        
-        // Get dietary info
         const dietaryInfo = {};
-        document.querySelectorAll('input[name="dietary"]:checked').forEach(cb => {
-            dietaryInfo[cb.value] = true;
-        });
+        document.querySelectorAll('input[name="dietary"]:checked').forEach(cb => dietaryInfo[cb.value] = true);
         
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
@@ -576,19 +527,14 @@
         try {
             const allergenInfo = document.getElementById('allergenInfo').value.trim();
             const description = document.getElementById('description').value.trim();
-            
-            // Include allergen info in description if provided
-            const fullDescription = allergenInfo ? 
-                `${description}\n\n⚠️ Allergens: ${allergenInfo}` : description;
+            const fullDescription = allergenInfo ? `${description}\n\n⚠️ Allergens: ${allergenInfo}` : description;
             
             const shareData = {
                 foodItems, description: fullDescription,
-                reason: shareReason, shareType,
-                dietaryInfo,
+                reason: shareReason, shareType, dietaryInfo,
                 location: { lat: userLocation.lat, lng: userLocation.lng, address: document.getElementById('locationAddress').value },
                 pickupInstructions: document.getElementById('pickupInstructions').value.trim()
             };
-            
             const result = await Backend.createCommunityShare(shareData);
             if (result.success) {
                 alert('🎉 Food shared! Neighbours nearby can now see it.');
