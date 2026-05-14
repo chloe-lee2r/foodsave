@@ -63,21 +63,7 @@
         .header h1 { font-size: 24px; margin-left: 60px; margin-bottom: 4px; }
         .header-subtitle { font-size: 14px; opacity: 0.9; margin-left: 60px; }
         
-        .share-btn {
-            position: absolute;
-            top: 30px;
-            right: 20px;
-            background: white;
-            color: #ee5a24;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: inherit;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        /* Removed absolute share button from header */
         
         .content { padding: 20px; }
         
@@ -173,6 +159,25 @@
         .stat-number { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
         .stat-label { font-size: 11px; opacity: 0.9; }
         
+        .share-action-btn {
+            display: block;
+            background: white;
+            border: 2px solid #ee5a24;
+            color: #ee5a24;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 16px;
+            font-family: inherit;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .share-action-btn:hover { background: #fff5f0; }
+        .share-action-btn:active { transform: scale(0.98); }
+        
         .empty-state { text-align: center; padding: 40px 20px; color: #999; }
         .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
         
@@ -184,7 +189,8 @@
         }
         .nav-item { text-decoration: none; color: #999; font-size: 12px; text-align: center; flex: 1; padding: 4px 0; cursor: pointer; position: relative; }
         .nav-item.active { color: #ee5a24; }
-        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; }
+        .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; height: 24px; line-height: 24px; }
+        .nav-emoji img { width: auto; height: 100%; vertical-align: middle; }
         .notif-badge {
             position: absolute; top: -5px; right: 5px;
             background: #ff3b30; color: white; font-size: 10px;
@@ -245,10 +251,9 @@
 <body>
 <div class="app">
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='index.html'">← back</button>
+        <button class="back-btn" onclick="window.location.href='index.html'">back</button>
         <h1>🤝 Community Sharing</h1>
         <div class="header-subtitle">neighbours helping neighbours</div>
-        <button class="share-btn" onclick="window.location.href='community-share.html'">+ share food</button>
     </div>
     
     <div class="content">
@@ -262,6 +267,11 @@
                 <div class="stat-label">near you</div>
             </div>
         </div>
+        
+        <!-- Moved share button here as a prominent action -->
+        <button class="share-action-btn" onclick="window.location.href='community-share.html'">
+            + share your extra food
+        </button>
         
         <input type="text" class="search-box" placeholder="🔍 search food..." id="searchInput" onkeyup="filterShares()">
         
@@ -296,20 +306,21 @@
         </div>
     </div>
     
+    <!-- Consistent consumer bottom nav: home, deals, lists, fridge -->
     <div class="bottom-nav">
-        <div class="nav-item" onclick="window.location.href='index.html'">
+        <a href="index.html" class="nav-item">
             <span class="nav-emoji">🏠</span><span>home</span>
-        </div>
-        <div class="nav-item active" style="position: relative;" id="communityNavItem">
-            <span class="nav-emoji">🤝</span><span>community</span>
-            <span class="notif-badge" id="notifBadge">0</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='community-share.html'">
-            <span class="nav-emoji">➕</span><span>share</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='index.html'">
-            <span class="nav-emoji">👤</span><span>profile</span>
-        </div>
+        </a>
+        <a href="find-stores.html" class="nav-item">
+            <span class="nav-emoji">🔍</span><span>deals</span>
+        </a>
+        <a href="shoplist.html" class="nav-item">
+            <span class="nav-emoji">📝</span><span>lists</span>
+        </a>
+        <a href="fridge.html" class="nav-item">
+            <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
+            <span>fridge</span>
+        </a>
     </div>
 </div>
 
@@ -735,156 +746,307 @@
             </div>
             ${share.pickupInstructions ? `
                 <div class="detail-item">
+                    <div class="detail-label">Pickup instructionsdetail-item">
                     <div class="detail-label">Pickup instructions</div>
-                    <div class="detail-value">${escapeHtml(share.pickupInstructions)}</div>
+                   </div>
+                    <div class="detail-value">${escapeHtml(share.pick <div class="detail-value">${escapeHtml(share.pickupInstructions)}</upInstructions)}</div>
                 </div>
             ` : ''}
-            <div class="detail-item">
+            <div class="div>
+                </div>
+            ` : ''}
+            <div class="detail-itemdetail-item">
+                <div class="detail-label">Posted</div">
                 <div class="detail-label">Posted</div>
-                <div class="detail-value">${getTimeAgo(share.createdAt)}</div>
+                <div>
+                <div class="detail-value">${getTimeAgo(share.createdAt)}</div class="detail-value">${getTimeAgo(share.createdAt)}</div>
+            </>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Claims (${share.claimedBy?.length || 0})</div>
+                <div classdiv>
+            <div class="detail-item">
+                <div class="detail="detail-label">Claims (${share.claimedBy?.length || 0})</-label">Claims (${share.claimedBy?.length || 0})</div>
+                <div class="detail-value">${claimedUsersList}</divdiv>
                 <div class="detail-value">${claimedUsersList}</div>
+           >
             </div>
         `;
         
-        const claimBtn = document.getElementById('claimBtn');
+        const claimBtn = </div>
+        `;
+        
+        const claimBtn = document.getElementById document.getElementById('claimBtn');
+        if (isOwner) {
+            claimBtn.textContent('claimBtn');
         if (isOwner) {
             claimBtn.textContent = 'This is your share';
             claimBtn.disabled = true;
-            claimBtn.style.background = '#999';
-        } else if (isClaimed || claimedByUser) {
-            claimBtn.textContent = claimedByUser ? '✓ You claimed this' : 'Already claimed';
+            = 'This is your share';
             claimBtn.disabled = true;
             claimBtn.style.background = '#999';
-        } else {
+        } else if (isClaim claimBtn.style.background = '#999';
+        } else if (isClaimed || claimedByUser) {
+            claimBtn.textContent = claimeded || claimedByUser) {
+            claimBtn.textContent = claimedByUser ? 'ByUser ? '✓ You claimed this' : 'Already claimed';
+            claimBtn.dis✓ You claimed this' : 'Already claimed';
+            claimBtn.disabled =abled = true;
+            claimBtn.style.background = '#999';
+        } true;
+            claimBtn.style.background = '#999';
+        } else else {
             claimBtn.textContent = '🤝 Claim this food';
-            claimBtn.disabled = false;
-            claimBtn.style.background = '#34c759';
+            {
+            claimBtn.textContent = '🤝 Claim this food';
+            claimBtn claimBtn.disabled = false;
+            claimBtn.style.background = '#34.disabled = false;
+            claimBtn.style.background = '#34c759c759';
         }
         
-        document.getElementById('detailModal').style.display = 'flex';
+        document.getElementById('detailModal').style.display =';
+        }
+        
+        document.getElementById('detailModal').style.display = 'flex 'flex';
     }
     
     function closeDetailModal() {
-        document.getElementById('detailModal').style.display = 'none';
+       ';
+    }
+    
+    function closeDetailModal() {
+        document.getElementById document.getElementById('detailModal').style.display = 'none';
+        currentDetailShare('detailModal').style.display = 'none';
         currentDetailShare = null;
     }
     
     async function claimFood() {
-        if (!currentDetailShare) return;
+        = null;
+    }
+    
+    async function claimFood() {
+        if (! if (!currentDetailShare) return;
+        
+        const share = currentDetailShare;
+       currentDetailShare) return;
         
         const share = currentDetailShare;
         const foodNames = share.foodItems.map(item => 
-            typeof item === 'string' ? item : (item.name || 'food')
-        ).join(', ');
+            typeof item === const foodNames = share.foodItems.map(item => 
+            typeof item === 'string 'string' ? item : (item.name || 'food')
+        ).' ? item : (item.name || 'food')
+        ).joinjoin(', ');
         
-        if (!confirm(`Claim "${foodNames}" from ${share.sharedBy.username}?\n\nThe sharer will be notified immediately and can arrange pickup with you.`)) {
+        if (!confirm(`Claim "${foodNames}" from(', ');
+        
+        if (!confirm(`Claim "${foodNames}" from ${share.sharedBy ${share.sharedBy.username}?\n\nThe sharer will be notified immediately and.username}?\n\nThe sharer will be notified immediately and can arrange can arrange pickup with you.`)) {
+            return;
+        }
+        
+        pickup with you.`)) {
             return;
         }
         
         document.getElementById('loadingOverlay').style.display = 'flex';
+ document.getElementById('loadingOverlay').style.display = 'flex';
         
+        try        
         try {
-            console.log("🤝 Claiming share:", share.id);
+            console.log("🤝 Claiming share:", share {
+            console.log("🤝 Claiming share:", share.id.id);
             const result = await Backend.claimCommunityShare(share.id);
+            const result = await Backend.claimCommunityShare(share.id);
+);
             
             if (result.success) {
-                alert('🎉 Food claimed! The sharer has been notified and will contact you for pickup. Check your notifications!');
+                alert('🎉            
+            if (result.success) {
+                alert('🎉 Food claimed Food claimed! The sharer has been notified and will contact you for pickup. Check your! The sharer has been notified and will contact you for pickup. Check your notifications!');
                 closeDetailModal();
                 await loadShares();
-                updateNotificationBadge();
+                notifications!');
+                closeDetailModal();
+                await loadShares();
+                updateNotification updateNotificationBadge();
             } else {
-                alert(result.message || 'Failed to claim food. Please try again.');
+                alert(result.message ||Badge();
+            } else {
+                alert(result.message || 'Failed to claim 'Failed to claim food. Please try again.');
             }
             
-        } catch (error) {
+        } catch food. Please try again.');
+            }
+            
+        } catch (error) (error) {
             console.error('Error claiming food:', error);
-            alert('Failed to claim food: ' + (error.message || 'Unknown error'));
+            alert {
+            console.error('Error claiming food:', error);
+            alert('Failed('Failed to claim food: ' + (error.message || 'Unknown error to claim food: ' + (error.message || 'Unknown error'));
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'none'));
         }
         
         document.getElementById('loadingOverlay').style.display = 'none';
+   ';
     }
     
     function switchTab(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll }
+    
+    function switchTab(tab) {
+        document.querySelectorAll('.tab('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+('.tab-content').forEach(c => c.classList.remove('active'));
         
         if (tab === 'list') {
+            document.querySelector('.tab:nth        
+        if (tab === 'list') {
             document.querySelector('.tab:nth-child(1)').classList.add('active');
-            document.getElementById('listTab').classList.add('active');
+            document.getElementById-child(1)').classList.add('active');
+            document.getElementById('list('listTab').classList.add('active');
+        } elseTab').classList.add('active');
         } else {
-            document.querySelector('.tab:nth-child(2)').classList.add('active');
+            document {
+            document.querySelector('.tab:nth-child(2)').classList.add('active.querySelector('.tab:nth-child(2)').classList.add('active');
             document.getElementById('mapTab').classList.add('active');
+            document.getElementById('mapTab').classList.add('active');
+');
             
             if (map) {
-                setTimeout(() => map.invalidateSize(), 100);
+                setTimeout(() => map.invalidateSize            
+            if (map) {
+                setTimeout(() => map.invalidateSize(), (), 100);
+            }
+        }
+    }
+    
+    function updateStats()100);
             }
         }
     }
     
     function updateStats() {
+        {
         document.getElementById('totalShares').textContent = allShares.length;
+ document.getElementById('totalShares').textContent = allShares.length;
         
+        const nearby = allShares.filter(s => s.distance !== null && s        
         const nearby = allShares.filter(s => s.distance !== null && s.distance <= 5).length;
-        document.getElementById('nearbyCount').textContent = nearby;
+        document.getElementById('.distance <= 5).length;
+        document.getElementById('nearbynearbyCount').textContent = nearby;
     }
     
-    async function updateNotificationBadge() {
+    async function updateCount').textContent = nearby;
+    }
+    
+    async function updateNotificationBadNotificationBadge() {
         try {
-            const unreadCount = await Backend.getTotalUnreadCount(currentUserId);
-            const badge = document.getElementById('notifBadge');
+            const unreadCount = await Backge() {
+        try {
+            const unreadCount = await Backend.getend.getTotalUnreadCount(currentUserId);
+            const badge = documentTotalUnreadCount(currentUserId);
+            const badge = document.getElementById('notif.getElementById('notifBadge');
             if (badge) {
-                if (unreadCount > 0) {
+                ifBadge');
+            if (badge) {
+                if (un (unreadCount > 0) {
+                    badge.textContent = unreadreadCount > 0) {
                     badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                    badge.style.display = 'flex';
+                   Count > 99 ? '99+' : unreadCount;
+                    badge.style badge.style.display = 'flex';
                 } else {
-                    badge.style.display = 'none';
+                   .display = 'flex';
+                } else {
+                    badge.style.display = 'none badge.style.display = 'none';
                 }
             }
         } catch(e) {
-            console.log("Notification badge update skipped:", e);
+            console.log';
+                }
+            }
+        } catch(e) {
+            console.log("Notification("Notification badge update skipped:", e);
+        }
+    }
+    
+    function get badge update skipped:", e);
         }
     }
     
     function getTimeAgo(date) {
-        if (!date) return 'just now';
-        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (!date) returnTimeAgo(date) {
+        if (!date) return 'just now 'just now';
+        const seconds = Math.floor((new Date() - new Date(date';
+        const seconds = Math.floor((new Date() - new Date(date)) /)) / 1000);
         
-        if (seconds < 60) return 'just now';
+        if (seconds < 60) return 1000);
+        
+        if (seconds < 60) return 'just 'just now';
+        
+        let interval = seconds / 31536000 now';
         
         let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval);
         if (interval > 1) return Math.floor(interval) + 'y ago';
         
+        interval = seconds / 259200 + 'y ago';
+        
         interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + 'mo ago';
+        if0;
+        if (interval > 1) return Math.floor(interval) (interval > 1) return Math.floor(interval) + ' + 'mo ago';
         
         interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + 'd ago';
+       mo ago';
+        
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + if (interval > 1) return Math.floor(interval) + 'd 'd ago';
+        
+        interval = seconds / 3600 ago';
         
         interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + 'h ago';
+        if;
+        if (interval > 1) return Math.floor(interval) + ' (interval > 1) return Math.floor(interval) + 'h agoh ago';
+        
+        interval = seconds / 60;
+        if (interval';
         
         interval = seconds / 60;
         if (interval > 1) return Math.floor(interval) + 'm ago';
+ > 1) return Math.floor(interval) + 'm ago';
         
+        return 'just now';
+    }
+    
+    function escapeHtml(str)        
         return 'just now';
     }
     
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        return str.replace(/[& {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&<>]/g, m => m === '&' ? '&amp;amp;' : m === '<' ? '&lt;' : '&gt' : m === '<' ? '&lt;' : '&gt;;');
+    }
+    
+    window.switchTab = switchTab;
+    window');
     }
     
     window.switchTab = switchTab;
     window.openDetailModal = openDetailModal;
-    window.closeDetailModal = closeDetailModal;
+    window.closeDetailModal =.openDetailModal = openDetailModal;
+    window.closeDetailModal = closeDetail closeDetailModal;
     window.claimFood = claimFood;
-    window.getUserLocation = getUserLocation;
+    window.getModal;
+    window.claimFood = claimFood;
+    window.getUserLocationUserLocation = getUserLocation;
+    window.filterByDistance = filterByDistance = getUserLocation;
     window.filterByDistance = filterByDistance;
     window.filterShares = filterShares;
     window.loadShares = loadShares;
+    window.filterShares = filterShares;
+    window.loadShares = loadShares;
+</script;
 </script>
 </body>
 </html>
