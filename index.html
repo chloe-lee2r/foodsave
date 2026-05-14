@@ -312,6 +312,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
+            z-index: 2;               /* ensure it's clickable */
         }
         .logout-btn:hover {
             background: rgba(255,59,48,0.4);
@@ -1299,7 +1300,17 @@
     }
     
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
-    async function logout() { await Backend.logout(); window.location.href = 'login.html'; }
+    
+    // ========== FIXED LOGOUT – always redirects even if cloud logout fails ==========
+    async function logout() {
+        if (!confirm('Are you sure you want to logout?')) return;
+        try {
+            await Backend.logout();
+        } catch (e) {
+            console.error('Logout error:', e);
+        }
+        window.location.href = 'login.html';
+    }
     
     window.goToHome = goToHome; window.goToProfile = goToProfile; window.navigateToRolePage = navigateToRolePage; window.switchConsumerTab = switchConsumerTab;
     window.openTopUpModal = openTopUpModal; window.closeTopUpModal = closeTopUpModal; window.processTopUp = processTopUp;
