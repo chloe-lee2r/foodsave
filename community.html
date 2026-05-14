@@ -43,62 +43,66 @@
             padding: 30px 20px 20px;
             background: linear-gradient(135deg, #FF6B6B, #ee5a24);
             color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             position: relative;
         }
         
-        .back-btn {
+        .back-link {
             position: absolute;
             top: 30px;
             left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             background: rgba(255,255,255,0.2);
-            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: inherit;
+            font-size: 20px;
+            transition: 0.2s;
         }
+        .back-link:active { background: rgba(255,255,255,0.35); transform: scale(0.95); }
         
-        .header h1 { font-size: 24px; margin-left: 60px; margin-bottom: 4px; }
-        .header-subtitle { font-size: 14px; opacity: 0.9; margin-left: 60px; }
-        
-        /* Removed absolute share button from header */
+        .header h1 { font-size: 24px; margin-bottom: 4px; }
+        .header-subtitle { font-size: 14px; opacity: 0.9; }
         
         .content { padding: 20px; }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         .tab {
-            padding: 10px 20px;
-            background: #f5f7fa;
-            border: none;
-            border-radius: 20px;
-            font-weight: 500;
-            color: #666;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-            font-size: 14px;
+            padding: 10px 20px; background: #f5f7fa; border: none; border-radius: 20px;
+            font-weight: 500; color: #666; cursor: pointer; white-space: nowrap; font-family: inherit; font-size: 14px;
         }
         .tab.active { background: #ee5a24; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        .map-container {
-            width: 100%;
-            height: 300px;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 16px;
-            background: #f0f0f0;
-        }
+        .map-container { width: 100%; height: 300px; border-radius: 16px; overflow: hidden; margin-bottom: 16px; background: #f0f0f0; }
         
         .location-btn {
-            background: #ee5a24; color: white; border: none;
-            padding: 12px 20px; border-radius: 25px; font-size: 14px;
-            width: 100%; cursor: pointer; margin-bottom: 16px; font-family: inherit;
+            background: #ee5a24; color: white; border: none; padding: 12px 20px;
+            border-radius: 25px; font-size: 14px; width: 100%; cursor: pointer; margin-bottom: 16px; font-family: inherit;
         }
+        
+        .location-picker { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .manual-location-row { display: flex; gap: 8px; }
+        .manual-location-row input { flex: 1; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 12px; font-family: inherit; font-size: 14px; }
+        .locate-btn {
+            background: #007aff; color: white; border: none; padding: 12px 16px;
+            border-radius: 12px; cursor: pointer; font-family: inherit; font-size: 14px; white-space: nowrap;
+        }
+        .set-address-btn {
+            background: #ee5a24; color: white; border: none; padding: 12px 16px;
+            border-radius: 12px; cursor: pointer; font-family: inherit; font-size: 14px; width: 100%;
+        }
+        .map-preview { width: 100%; height: 50px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 13px; }
+        .map-preview.set { background: #e8f5e8; color: #34c759; }
         
         .distance-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .distance-chip {
@@ -118,7 +122,6 @@
             width: 40px; height: 40px; background: #ffebee; border-radius: 20px;
             display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden;
         }
-        .user-avatar-small img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .user-info-small h4 { font-size: 14px; margin-bottom: 2px; color: #333; }
         .user-info-small .distance { font-size: 12px; color: #999; }
         
@@ -136,20 +139,17 @@
         
         .sharing-reason {
             font-size: 12px; color: #999; margin-bottom: 8px;
-            font-style: italic; background: #fffbf0; padding: 6px 10px;
-            border-radius: 8px; border-left: 3px solid #ff9500;
+            font-style: italic; background: #fffbf0; padding: 6px 10px; border-radius: 8px; border-left: 3px solid #ff9500;
         }
         
         .sharing-footer { display: flex; justify-content: space-between; align-items: center; }
         .sharing-time { font-size: 12px; color: #999; }
         
         .claim-btn {
-            background: #34c759; color: white; border: none;
-            padding: 8px 20px; border-radius: 20px; font-size: 13px;
-            font-weight: 600; cursor: pointer; font-family: inherit;
+            background: #34c759; color: white; border: none; padding: 8px 20px;
+            border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
         }
         .claim-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .claim-btn.claimed { background: #999; }
         
         .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; }
         .stat-card {
@@ -160,69 +160,42 @@
         .stat-label { font-size: 11px; opacity: 0.9; }
         
         .share-action-btn {
-            display: block;
-            background: white;
-            border: 2px solid #ee5a24;
-            color: #ee5a24;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 16px;
-            font-family: inherit;
-            text-align: center;
-            transition: 0.2s;
+            display: block; background: white; border: 2px solid #ee5a24; color: #ee5a24;
+            padding: 14px; border-radius: 12px; font-weight: 600; font-size: 16px; width: 100%;
+            cursor: pointer; margin-bottom: 16px; font-family: inherit; text-align: center; transition: 0.2s;
         }
         .share-action-btn:hover { background: #fff5f0; }
-        .share-action-btn:active { transform: scale(0.98); }
         
         .empty-state { text-align: center; padding: 40px 20px; color: #999; }
         .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
         
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            max-width: 400px; margin: 0 auto; background: white;
-            border-top: 1px solid #f0f0f0; padding: 8px 20px;
+            position: fixed; bottom: 0; left: 0; right: 0; max-width: 400px; margin: 0 auto;
+            background: white; border-top: 1px solid #f0f0f0; padding: 8px 20px;
             display: flex; justify-content: space-around; z-index: 100;
         }
         .nav-item { text-decoration: none; color: #999; font-size: 12px; text-align: center; flex: 1; padding: 4px 0; cursor: pointer; position: relative; }
         .nav-item.active { color: #ee5a24; }
         .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; height: 24px; line-height: 24px; }
         .nav-emoji img { width: auto; height: 100%; vertical-align: middle; }
-        .notif-badge {
-            position: absolute; top: -5px; right: 5px;
-            background: #ff3b30; color: white; font-size: 10px;
-            width: 18px; height: 18px; border-radius: 9px;
-            display: none; align-items: center; justify-content: center;
-        }
         
         .modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); display: flex; align-items: center;
-            justify-content: center; z-index: 1000; display: none;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none;
         }
-        .modal-content {
-            background: white; border-radius: 20px; width: 90%;
-            max-width: 340px; padding: 24px; max-height: 80vh; overflow-y: auto;
-        }
+        .modal-content { background: white; border-radius: 20px; width: 90%; max-width: 340px; padding: 24px; max-height: 80vh; overflow-y: auto; }
         .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
         .detail-item { margin-bottom: 12px; }
         .detail-label { font-size: 12px; color: #999; margin-bottom: 4px; }
         .detail-value { font-size: 14px; color: #333; font-weight: 500; }
         .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
-        .modal-btn {
-            flex: 1; padding: 12px; border: none; border-radius: 10px;
-            cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600;
-        }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; }
         .modal-btn.confirm { background: #34c759; color: white; }
         .modal-btn.cancel { background: #999; color: white; }
         
         .loading-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); display: flex; align-items: center;
-            justify-content: center; z-index: 2000; display: none;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; display: none;
         }
         .loading-spinner {
             width: 50px; height: 50px; border: 4px solid white;
@@ -232,46 +205,38 @@
         
         .search-box {
             width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0;
-            border-radius: 25px; font-family: inherit; font-size: 14px;
-            margin-bottom: 16px; outline: none;
+            border-radius: 25px; font-family: inherit; font-size: 14px; margin-bottom: 16px; outline: none;
         }
         .search-box:focus { border-color: #ee5a24; }
         
-        .refresh-btn {
-            background: none; border: none; font-size: 18px;
-            cursor: pointer; padding: 4px 8px; color: #ee5a24;
-        }
-        
-        .section-title {
-            font-size: 16px; font-weight: 600; color: #1a1a1a;
-            margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .refresh-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; color: #ee5a24; }
+        .section-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 <div class="app">
     <div class="header">
-        <button class="back-btn" onclick="window.location.href='index.html'">back</button>
-        <h1> Community Sharing</h1>
+        <a href="index.html" class="back-link">←</a>
+        <h1>Community Sharing</h1>
         <div class="header-subtitle">neighbours helping neighbours</div>
     </div>
     
     <div class="content">
         <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-number" id="totalShares">0</div>
-                <div class="stat-label">active shares</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="nearbyCount">0</div>
-                <div class="stat-label">near you</div>
-            </div>
+            <div class="stat-card"><div class="stat-number" id="totalShares">0</div><div class="stat-label">active shares</div></div>
+            <div class="stat-card"><div class="stat-number" id="nearbyCount">0</div><div class="stat-label">near you</div></div>
         </div>
         
-        <!-- Moved share button here as a prominent action -->
-        <button class="share-action-btn" onclick="window.location.href='community-share.html'">
-            + share your extra food
-        </button>
+        <button class="share-action-btn" onclick="window.location.href='community-share.html'">+ share your extra food</button>
+        
+        <div class="location-picker">
+            <div class="manual-location-row">
+                <input type="text" id="locationAddress" placeholder="Enter address or use locate">
+                <button type="button" class="locate-btn" onclick="getUserLocation()">locate</button>
+            </div>
+            <button type="button" class="set-address-btn" onclick="setLocationFromAddress()">Set Address</button>
+        </div>
+        <div class="map-preview" id="mapPreview">Type an address or tap 'locate'</div>
         
         <input type="text" class="search-box" placeholder="🔍 search food..." id="searchInput" onkeyup="filterShares()">
         
@@ -288,15 +253,9 @@
                 <button class="distance-chip" onclick="filterByDistance(5)">5 km</button>
                 <button class="distance-chip" onclick="filterByDistance(10)">10 km</button>
             </div>
-            <div class="section-title">
-                <span>available shares</span>
-                <button class="refresh-btn" onclick="loadShares()">↻</button>
-            </div>
+            <div class="section-title"><span>available shares</span><button class="refresh-btn" onclick="loadShares()">↻</button></div>
             <div class="sharing-list" id="sharingList">
-                <div class="empty-state">
-                    <div class="emoji">🤝</div>
-                    <div>loading community shares...</div>
-                </div>
+                <div class="empty-state"><div class="emoji">🤝</div><div>loading community shares...</div></div>
             </div>
         </div>
         
@@ -306,27 +265,17 @@
         </div>
     </div>
     
-    <!-- Consistent consumer bottom nav: home, deals, lists, fridge -->
     <div class="bottom-nav">
-        <a href="index.html" class="nav-item">
-            <span class="nav-emoji">🏠</span><span>home</span>
-        </a>
-        <a href="find-stores.html" class="nav-item">
-            <span class="nav-emoji">🔍</span><span>deals</span>
-        </a>
-        <a href="shoplist.html" class="nav-item">
-            <span class="nav-emoji">📝</span><span>lists</span>
-        </a>
-        <a href="fridge.html" class="nav-item">
-            <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
-            <span>fridge</span>
-        </a>
+        <a href="index.html" class="nav-item"><span class="nav-emoji">🏠</span><span>home</span></a>
+        <a href="find-stores.html" class="nav-item"><span class="nav-emoji">🔍</span><span>deals</span></a>
+        <a href="shoplist.html" class="nav-item"><span class="nav-emoji">📝</span><span>lists</span></a>
+        <a href="fridge.html" class="nav-item"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span><span>fridge</span></a>
     </div>
 </div>
 
 <div class="modal" id="detailModal">
     <div class="modal-content">
-        <div class="modal-title" id="modalTitle">🍎 food share</div>
+        <div class="modal-title" id="modalTitle">Food share</div>
         <div id="modalContent"></div>
         <div class="modal-buttons">
             <button class="modal-btn cancel" onclick="closeDetailModal()">close</button>
@@ -335,9 +284,7 @@
     </div>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-</div>
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
@@ -351,13 +298,8 @@
     
     document.addEventListener('DOMContentLoaded', async () => {
         const user = Backend.getCurrentUser();
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
+        if (!user) { window.location.href = 'login.html'; return; }
         currentUserId = user.id;
-        console.log("📱 Current user:", user.get("username"), "ID:", currentUserId);
-        
         initMap();
         getUserLocation();
         await loadShares();
@@ -370,683 +312,220 @@
         map = L.map('leafletMap').setView([1.3521, 103.8198], 12);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
+            subdomains: 'abcd', maxZoom: 19
         }).addTo(map);
     }
     
     function getUserLocation() {
         if (!navigator.geolocation) {
-            console.log("📍 Geolocation not supported, using default");
             userLocation = { lat: 1.3521, lng: 103.8198 };
             loadShares();
             return;
         }
-        
+        document.getElementById('mapPreview').innerHTML = 'Getting location...';
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                console.log("📍 User location:", userLocation);
-                
+                userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
+                    .then(r => r.json())
+                    .then(data => { document.getElementById('locationAddress').value = data.display_name || 'Location found'; })
+                    .catch(() => {});
+                document.getElementById('mapPreview').innerHTML = 'Location set via GPS';
+                document.getElementById('mapPreview').classList.add('set');
                 if (map) {
-                    map.eachLayer(layer => {
-                        if (layer instanceof L.Marker && layer.getPopup()?.getContent()?.includes('You are here')) {
-                            map.removeLayer(layer);
-                        }
-                    });
-                    
-                    L.marker([userLocation.lat, userLocation.lng])
-                        .addTo(map)
-                        .bindPopup('📍 You are here')
-                        .openPopup();
+                    map.eachLayer(layer => { if (layer instanceof L.Marker && layer.getPopup()?.getContent()?.includes('You are here')) map.removeLayer(layer); });
+                    L.marker([userLocation.lat, userLocation.lng]).addTo(map).bindPopup('You are here').openPopup();
                     map.setView([userLocation.lat, userLocation.lng], 13);
                 }
-                
                 loadShares();
             },
             (error) => {
-                console.log("📍 Geolocation error, using default");
+                let msg = 'Could not get location. ';
+                if (error.code === error.PERMISSION_DENIED) msg += 'Permission denied. Please enable location or type your address manually.';
+                else msg += 'Please type your address manually.';
+                document.getElementById('mapPreview').innerHTML = msg;
+                document.getElementById('mapPreview').classList.remove('set');
                 userLocation = { lat: 1.3521, lng: 103.8198 };
                 loadShares();
             }
         );
     }
     
+    async function setLocationFromAddress() {
+        const address = document.getElementById('locationAddress').value.trim();
+        if (!address) { alert('Please enter an address first.'); return; }
+        document.getElementById('mapPreview').innerHTML = 'Looking up address...';
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
+            const data = await response.json();
+            if (data.length === 0) {
+                document.getElementById('mapPreview').innerHTML = 'Address not found – try a more specific one';
+                document.getElementById('mapPreview').classList.remove('set');
+                return;
+            }
+            userLocation = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+            document.getElementById('locationAddress').value = data[0].display_name;
+            document.getElementById('mapPreview').innerHTML = 'Location set!';
+            document.getElementById('mapPreview').classList.add('set');
+            if (map) {
+                map.eachLayer(layer => { if (layer instanceof L.Marker && layer.getPopup()?.getContent()?.includes('You are here')) map.removeLayer(layer); });
+                L.marker([userLocation.lat, userLocation.lng]).addTo(map).bindPopup('Your location').openPopup();
+                map.setView([userLocation.lat, userLocation.lng], 13);
+            }
+            loadShares();
+        } catch (e) {
+            document.getElementById('mapPreview').innerHTML = 'Error – check your internet connection';
+            document.getElementById('mapPreview').classList.remove('set');
+        }
+    }
+    
     async function loadShares() {
-        console.log("🔄 Loading community shares...");
         document.getElementById('loadingOverlay').style.display = 'flex';
-        
         try {
             const shares = await Backend.getCommunityShares();
-            console.log("📦 Raw shares from backend:", shares);
-            
             allShares = shares.map(share => {
                 let distance = null;
-                
-                if (userLocation && share.location) {
-                    distance = calculateDistance(
-                        userLocation.lat,
-                        userLocation.lng,
-                        share.location.lat,
-                        share.location.lng
-                    );
-                }
-                
-                return {
-                    ...share,
-                    distance: distance
-                };
+                if (userLocation && share.location) distance = calculateDistance(userLocation.lat, userLocation.lng, share.location.lat, share.location.lng);
+                return { ...share, distance };
             });
-            
-            // Sort by distance
-            allShares.sort((a, b) => {
-                if (a.distance === null && b.distance === null) return 0;
-                if (a.distance === null) return 1;
-                if (b.distance === null) return -1;
-                return a.distance - b.distance;
-            });
-            
-            console.log(`✅ Loaded ${allShares.length} shares`);
-            updateStats();
-            renderShares();
-            renderMapMarkers();
-            
+            allShares.sort((a,b) => (a.distance === null ? 1 : b.distance === null ? -1 : a.distance - b.distance));
+            updateStats(); renderShares(); renderMapMarkers();
         } catch (error) {
-            console.error("❌ Error loading shares:", error);
-            document.getElementById('sharingList').innerHTML = `
-                <div class="empty-state">
-                    <div class="emoji">⚠️</div>
-                    <div>Error loading shares</div>
-                    <div style="font-size: 12px; margin-top: 8px;">${error.message || 'Unknown error'}</div>
-                    <button style="margin-top: 12px; padding: 8px 16px; background: #ee5a24; color: white; border: none; border-radius: 20px; cursor: pointer; font-family: inherit;" onclick="loadShares()">try again</button>
-                </div>`;
+            document.getElementById('sharingList').innerHTML = `<div class="empty-state"><div class="emoji">⚠️</div><div>Error loading shares</div><button style="margin-top:12px;padding:8px 16px;background:#ee5a24;color:white;border:none;border-radius:20px;cursor:pointer;font-family:inherit;" onclick="loadShares()">try again</button></div>`;
         }
-        
         document.getElementById('loadingOverlay').style.display = 'none';
     }
     
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
+        const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
     
-    function filterByDistance(distance) {
-        currentFilter = distance;
-        
-        document.querySelectorAll('.distance-chip').forEach(chip => {
-            chip.classList.remove('active');
-            if ((distance === 'all' && chip.textContent === 'all') ||
-                (chip.textContent.includes(distance + ' km'))) {
-                chip.classList.add('active');
-            }
-        });
-        
-        renderShares();
-    }
-    
+    function filterByDistance(d) { currentFilter = d; document.querySelectorAll('.distance-chip').forEach(c => { c.classList.toggle('active', (d==='all'&&c.textContent==='all') || c.textContent.includes(d+' km')); }); renderShares(); }
     function filterShares() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
-        const filtered = allShares.filter(share => {
-            const matchesSearch = !searchTerm || 
-                share.foodItems.some(item => {
-                    const name = typeof item === 'string' ? item : (item.name || '');
-                    return name.toLowerCase().includes(searchTerm);
-                }) ||
-                (share.description && share.description.toLowerCase().includes(searchTerm)) ||
-                (share.reason && share.reason.toLowerCase().includes(searchTerm));
-            
-            const matchesDistance = currentFilter === 'all' || 
-                (share.distance !== null && share.distance <= currentFilter);
-            
-            return matchesSearch && matchesDistance;
+        const s = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allShares.filter(sh => {
+            const m = !s || sh.foodItems.some(i => (typeof i==='string'?i:i.name||'').toLowerCase().includes(s)) || (sh.description||'').toLowerCase().includes(s) || (sh.reason||'').toLowerCase().includes(s);
+            return m && (currentFilter==='all' || (sh.distance!==null && sh.distance<=currentFilter));
         });
-        
         renderSharesList(filtered);
     }
-    
-    function renderShares() {
-        let filtered = [...allShares];
-        
-        if (currentFilter !== 'all') {
-            filtered = filtered.filter(share => 
-                share.distance !== null && share.distance <= currentFilter
-            );
-        }
-        
-        renderSharesList(filtered);
-    }
+    function renderShares() { let f=[...allShares]; if(currentFilter!=='all') f=f.filter(s=>s.distance!==null && s.distance<=currentFilter); renderSharesList(f); }
     
     function renderSharesList(shares) {
-        const container = document.getElementById('sharingList');
-        
-        if (shares.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="emoji">🍽️</div>
-                    <div>no shares found nearby</div>
-                    <div style="font-size: 12px; margin-top: 8px; color: #999;">
-                        Be the first to share! Cooked too much? Bought extra groceries? 
-                        Someone nearby would love it 🥰
-                    </div>
-                    <button style="margin-top: 16px; padding: 10px 20px; background: #ee5a24; color: white; border: none; border-radius: 25px; cursor: pointer; font-family: inherit; font-size: 14px;" onclick="window.location.href='community-share.html'">
-                        + share food now
-                    </button>
-                </div>`;
+        const c = document.getElementById('sharingList');
+        if (shares.length===0) {
+            c.innerHTML = `<div class="empty-state"><div class="emoji">🍽️</div><div>no shares found nearby</div><button style="margin-top:16px;padding:10px 20px;background:#ee5a24;color:white;border:none;border-radius:25px;" onclick="window.location.href='community-share.html'">+ share food now</button></div>`;
             return;
         }
-        
-        container.innerHTML = shares.map(share => {
-            const distanceText = share.distance !== null ? 
-                `${share.distance < 1 ? (share.distance * 1000).toFixed(0) + 'm' : share.distance.toFixed(1) + ' km'} away` : 
-                'location unknown';
-            
-            const timeAgo = getTimeAgo(share.createdAt);
-            const isClaimed = share.status === 'claimed';
-            const claimedByUser = share.claimedBy?.some(c => c.userId === currentUserId);
-            const isOwner = share.sharedBy?.id === currentUserId;
-            
-            const foodTags = share.foodItems.map(item => {
-                const name = typeof item === 'string' ? item : (item.name || 'food');
-                const emoji = typeof item === 'object' ? (item.emoji || '🍽️') : '🍽️';
-                const quantity = typeof item === 'object' && item.quantity ? ` (${item.quantity})` : '';
-                return `<span class="food-tag">
-                    <span class="emoji">${emoji}</span>
-                    ${escapeHtml(name)}${quantity}
-                </span>`;
-            }).join('');
-            
-            const reasonLabels = {
-                'cooked_too_much': '🍳 cooked too much',
-                'bought_extra': '🛒 bought extra',
-                'going_away': '✈️ going away',
-                'diet_change': '🥗 diet change',
-                'expiring_soon': '⏰ expiring soon',
-                'free': '🎁 free to good home',
-                'other': '🤷 other'
-            };
-            
-            const reasonText = share.reason ? (reasonLabels[share.reason] || share.reason) : '';
-            
-            const claimedCount = share.claimedBy?.length || 0;
-            
-            return `
-                <div class="sharing-card" onclick="openDetailModal('${share.id}')">
-                    <div class="sharing-header">
-                        <div class="sharing-user">
-                            <div class="user-avatar-small">
-                                ${(share.sharedBy.username || 'A').charAt(0).toUpperCase()}
-                            </div>
-                            <div class="user-info-small">
-                                <h4>${escapeHtml(share.sharedBy.username)} ${isOwner ? '(you)' : ''}</h4>
-                                <div class="distance">📍 ${distanceText}</div>
-                            </div>
-                        </div>
-                        <span class="sharing-badge ${isClaimed ? 'badge-claimed' : (share.shareType === 'swap' ? 'badge-swap' : 'badge-free')}">
-                            ${isClaimed ? '✅ claimed' : (share.shareType === 'swap' ? '🔄 swap' : '🎁 free')}
-                        </span>
-                    </div>
-                    <div class="sharing-food">${foodTags}</div>
-                    ${reasonText ? `<div class="sharing-reason">${reasonText}</div>` : ''}
-                    ${share.description ? `<div style="font-size: 13px; color: #666; margin-bottom: 8px;">${escapeHtml(share.description.substring(0, 100))}${share.description.length > 100 ? '...' : ''}</div>` : ''}
-                    <div class="sharing-footer">
-                        <span class="sharing-time">⏰ ${timeAgo}${claimedCount > 0 ? ` • ${claimedCount} claim(s)` : ''}</span>
-                        ${isOwner ? 
-                            `<button class="claim-btn" style="background: #999;" disabled>your share</button>` :
-                            (!isClaimed && !claimedByUser ? 
-                                `<button class="claim-btn" onclick="event.stopPropagation(); openDetailModal('${share.id}')">🤝 claim</button>` :
-                                `<button class="claim-btn claimed" disabled>${claimedByUser ? '✓ claimed by you' : 'claimed'}</button>`
-                            )
-                        }
-                    </div>
-                </div>`;
+        c.innerHTML = shares.map(sh => {
+            const dist = sh.distance!==null ? (sh.distance<1? (sh.distance*1000).toFixed(0)+'m': sh.distance.toFixed(1)+' km')+' away' : 'location unknown';
+            const timeAgo = getTimeAgo(sh.createdAt), claimed = sh.status==='claimed', byYou = sh.claimedBy?.some(c=>c.userId===currentUserId), owner = sh.sharedBy?.id===currentUserId;
+            const foodTags = sh.foodItems.map(i => { const n=typeof i==='string'?i:i.name||'food', e=typeof i==='object'?i.emoji||'🍽️':'🍽️', q=typeof i==='object'&&i.quantity?` (${i.quantity})`:''; return `<span class="food-tag"><span class="emoji">${e}</span>${escapeHtml(n)}${q}</span>`; }).join('');
+            const reasons = {cooked_too_much:'🍳 cooked too much',bought_extra:'🛒 bought extra',going_away:'✈️ going away',diet_change:'🥗 diet change',expiring_soon:'⏰ expiring soon',free:'🎁 free',other:'🤷 other'};
+            const reason = sh.reason ? (reasons[sh.reason]||sh.reason) : '';
+            return `<div class="sharing-card" onclick="openDetailModal('${sh.id}')">
+                <div class="sharing-header"><div class="sharing-user"><div class="user-avatar-small">${(sh.sharedBy.username||'A').charAt(0).toUpperCase()}</div><div class="user-info-small"><h4>${escapeHtml(sh.sharedBy.username)}${owner?' (you)':''}</h4><div class="distance">📍 ${dist}</div></div></div><span class="sharing-badge ${claimed?'badge-claimed':(sh.shareType==='swap'?'badge-swap':'badge-free')}">${claimed?'✅ claimed':(sh.shareType==='swap'?'🔄 swap':'🎁 free')}</span></div>
+                <div class="sharing-food">${foodTags}</div>${reason?`<div class="sharing-reason">${reason}</div>`:''}
+                ${sh.description?`<div style="font-size:13px;color:#666;margin-bottom:8px;">${escapeHtml(sh.description.substring(0,100))}${sh.description.length>100?'...':''}</div>`:''}
+                <div class="sharing-footer"><span class="sharing-time">⏰ ${timeAgo}${sh.claimedBy?.length? ` • ${sh.claimedBy.length} claim(s)`:''}</span>
+                ${owner?`<button class="claim-btn" style="background:#999;" disabled>your share</button>`:(!claimed&&!byYou?`<button class="claim-btn" onclick="event.stopPropagation();openDetailModal('${sh.id}')">🤝 claim</button>`:`<button class="claim-btn" style="background:#999;" disabled>${byYou?'✓ claimed by you':'claimed'}</button>`)}</div></div>`;
         }).join('');
     }
     
     function renderMapMarkers() {
         if (!map) return;
-        
-        // Clear existing markers (except user location)
-        map.eachLayer(layer => {
-            if (layer instanceof L.Marker && !layer.getPopup()?.getContent()?.includes('You are here')) {
-                map.removeLayer(layer);
+        map.eachLayer(l => { if (l instanceof L.Marker && !l.getPopup()?.getContent()?.includes('You are here')) map.removeLayer(l); });
+        allShares.forEach(sh => {
+            if (sh.location) {
+                const color = sh.status==='claimed'?'#999':'#ee5a24';
+                const icon = L.divIcon({className:'custom-marker',html:`<div style="background:${color};width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${sh.shareType==='swap'?'🔄':'🎁'}</div>`,iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-18]});
+                const m = L.marker([sh.location.lat, sh.location.lng], {icon}).addTo(map);
+                const names = sh.foodItems.map(i=>typeof i==='string'?i:i.name||'food').join(', ');
+                m.bindPopup(`<div style="min-width:200px;"><strong>${escapeHtml(sh.sharedBy.username)}</strong><div style="margin:8px 0;font-size:14px;">${escapeHtml(names)}</div><div style="font-size:12px;color:#666;">${sh.distance!==null?(sh.distance<1?(sh.distance*1000).toFixed(0)+'m':sh.distance.toFixed(1)+' km')+' away':''} ${sh.status==='claimed'?' • Claimed':''}</div><button onclick="openDetailModal('${sh.id}')" style="margin-top:8px;padding:8px 16px;background:#34c759;color:white;border:none;border-radius:15px;cursor:pointer;width:100%;font-family:inherit;font-size:13px;">view details</button></div>`);
             }
         });
-        
-        // Add share markers
-        allShares.forEach(share => {
-            if (share.location) {
-                const markerColor = share.status === 'claimed' ? '#999' : '#ee5a24';
-                
-                const icon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="background: ${markerColor}; width: 36px; height: 36px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${share.shareType === 'swap' ? '🔄' : '🎁'}</div>`,
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18],
-                    popupAnchor: [0, -18]
-                });
-                
-                const marker = L.marker([share.location.lat, share.location.lng], { icon }).addTo(map);
-                
-                const foodNames = share.foodItems.map(item => 
-                    typeof item === 'string' ? item : (item.name || 'food')
-                ).join(', ');
-                
-                const popupContent = `
-                    <div style="min-width: 200px;">
-                        <strong>${escapeHtml(share.sharedBy.username)}</strong>
-                        <div style="margin: 8px 0; font-size: 14px;">${escapeHtml(foodNames)}</div>
-                        <div style="font-size: 12px; color: #666;">
-                            ${share.distance !== null ? `${share.distance < 1 ? (share.distance * 1000).toFixed(0) + 'm' : share.distance.toFixed(1) + ' km'} away` : ''}
-                            ${share.status === 'claimed' ? ' • Claimed' : ''}
-                        </div>
-                        <button onclick="openDetailModal('${share.id}')" 
-                                style="margin-top: 8px; padding: 8px 16px; background: #34c759; color: white; border: none; border-radius: 15px; cursor: pointer; width: 100%; font-family: inherit; font-size: 13px;">
-                            view details
-                        </button>
-                    </div>`;
-                
-                marker.bindPopup(popupContent);
-            }
-        });
-        
-        // Fit bounds
-        const validLocations = allShares
-            .filter(s => s.location)
-            .map(s => [s.location.lat, s.location.lng]);
-        
-        if (userLocation) {
-            validLocations.push([userLocation.lat, userLocation.lng]);
-        }
-        
-        if (validLocations.length > 0) {
-            const bounds = L.latLngBounds(validLocations);
-            map.fitBounds(bounds, { padding: [30, 30] });
-        }
+        const locs = allShares.filter(s=>s.location).map(s=>[s.location.lat,s.location.lng]);
+        if (userLocation) locs.push([userLocation.lat, userLocation.lng]);
+        if (locs.length) map.fitBounds(L.latLngBounds(locs), {padding:[30,30]});
     }
     
     function openDetailModal(shareId) {
-        const share = allShares.find(s => s.id === shareId);
-        if (!share) return;
-        
-        currentDetailShare = share;
-        
-        const isClaimed = share.status === 'claimed';
-        const claimedByUser = share.claimedBy?.some(c => c.userId === currentUserId);
-        const isOwner = share.sharedBy?.id === currentUserId;
-        
-        const reasonLabels = {
-            'cooked_too_much': '🍳 Cooked too much - hate to see it go to waste!',
-            'bought_extra': '🛒 Bought extra by accident',
-            'going_away': '✈️ Going away - can\'t finish it all',
-            'diet_change': '🥗 Changed my diet',
-            'expiring_soon': '⏰ Expiring soon but still good!',
-            'free': '🎁 Free to a good home',
-            'other': '🤷 Other'
-        };
-        
-        document.getElementById('modalTitle').textContent = 
-            isClaimed ? '✅ Already Claimed' : (share.shareType === 'swap' ? '🔄 Food Swap' : '🎁 Free Food');
-        
-        const claimedUsersList = share.claimedBy?.length > 0 ? 
-            share.claimedBy.map(c => `<div style="font-size: 12px; padding: 4px 0;">👤 ${escapeHtml(c.username)} - ${new Date(c.claimedAt).toLocaleDateString()}</div>`).join('') :
-            '<div style="font-size: 12px; color: #999;">No claims yet - be the first!</div>';
-        
-        const distanceText = share.distance !== null ? 
-            `${share.distance < 1 ? (share.distance * 1000).toFixed(0) + ' meters' : share.distance.toFixed(1) + ' km'} from you` : 
-            'Distance unknown';
-        
-        const content = document.getElementById('modalContent');
-        content.innerHTML = `
-            <div class="detail-item">
-                <div class="detail-label">Shared by</div>
-                <div class="detail-value">${escapeHtml(share.sharedBy.username)} ${isOwner ? '(you)' : ''}</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Food items</div>
-                <div class="detail-value">
-                    ${share.foodItems.map(item => {
-                        const name = typeof item === 'string' ? item : (item.name || 'food');
-                        const emoji = typeof item === 'object' ? (item.emoji || '🍽️') : '🍽️';
-                        const quantity = typeof item === 'object' && item.quantity ? ` (${item.quantity})` : '';
-                        return `${emoji} ${escapeHtml(name)}${quantity}`;
-                    }).join('<br>')}
-                </div>
-            </div>
-            ${share.reason ? `
-                <div class="detail-item">
-                    <div class="detail-label">Why sharing</div>
-                    <div class="detail-value">${reasonLabels[share.reason] || share.reason}</div>
-                </div>
-            ` : ''}
-            ${share.description ? `
-                <div class="detail-item">
-                    <div class="detail-label">Description</div>
-                    <div class="detail-value">${escapeHtml(share.description)}</div>
-                </div>
-            ` : ''}
-            ${share.location ? `
-                <div class="detail-item">
-                    <div class="detail-label">Pickup location</div>
-                    <div class="detail-value">📍 ${escapeHtml(share.location.address)}</div>
-                </div>
-            ` : ''}
-            <div class="detail-item">
-                <div class="detail-label">Distance</div>
-                <div class="detail-value">${distanceText}</div>
-            </div>
-            ${share.pickupInstructions ? `
-                <div class="detail-item">
-                    <div class="detail-label">Pickup instructionsdetail-item">
-                    <div class="detail-label">Pickup instructions</div>
-                   </div>
-                    <div class="detail-value">${escapeHtml(share.pick <div class="detail-value">${escapeHtml(share.pickupInstructions)}</upInstructions)}</div>
-                </div>
-            ` : ''}
-            <div class="div>
-                </div>
-            ` : ''}
-            <div class="detail-itemdetail-item">
-                <div class="detail-label">Posted</div">
-                <div class="detail-label">Posted</div>
-                <div>
-                <div class="detail-value">${getTimeAgo(share.createdAt)}</div class="detail-value">${getTimeAgo(share.createdAt)}</div>
-            </>
-            </div>
-            <div class="detail-item">
-                <div classdiv>
-            <div class="detail-item">
-                <div class="detail="detail-label">Claims (${share.claimedBy?.length || 0})</-label">Claims (${share.claimedBy?.length || 0})</div>
-                <div class="detail-value">${claimedUsersList}</divdiv>
-                <div class="detail-value">${claimedUsersList}</div>
-           >
-            </div>
-        `;
-        
-        const claimBtn = </div>
-        `;
-        
-        const claimBtn = document.getElementById document.getElementById('claimBtn');
-        if (isOwner) {
-            claimBtn.textContent('claimBtn');
-        if (isOwner) {
-            claimBtn.textContent = 'This is your share';
-            claimBtn.disabled = true;
-            = 'This is your share';
-            claimBtn.disabled = true;
-            claimBtn.style.background = '#999';
-        } else if (isClaim claimBtn.style.background = '#999';
-        } else if (isClaimed || claimedByUser) {
-            claimBtn.textContent = claimeded || claimedByUser) {
-            claimBtn.textContent = claimedByUser ? 'ByUser ? '✓ You claimed this' : 'Already claimed';
-            claimBtn.dis✓ You claimed this' : 'Already claimed';
-            claimBtn.disabled =abled = true;
-            claimBtn.style.background = '#999';
-        } true;
-            claimBtn.style.background = '#999';
-        } else else {
-            claimBtn.textContent = '🤝 Claim this food';
-            {
-            claimBtn.textContent = '🤝 Claim this food';
-            claimBtn claimBtn.disabled = false;
-            claimBtn.style.background = '#34.disabled = false;
-            claimBtn.style.background = '#34c759c759';
-        }
-        
-        document.getElementById('detailModal').style.display =';
-        }
-        
-        document.getElementById('detailModal').style.display = 'flex 'flex';
+        const sh = allShares.find(s=>s.id===shareId); if(!sh) return;
+        currentDetailShare = sh;
+        const claimed = sh.status==='claimed', byYou = sh.claimedBy?.some(c=>c.userId===currentUserId), owner = sh.sharedBy?.id===currentUserId;
+        const reasons = {cooked_too_much:'🍳 Cooked too much',bought_extra:'🛒 Bought extra',going_away:'✈️ Going away',diet_change:'🥗 Diet change',expiring_soon:'⏰ Expiring soon',free:'🎁 Free',other:'🤷 Other'};
+        document.getElementById('modalTitle').textContent = claimed?'Already Claimed':(sh.shareType==='swap'?'Food Swap':'Free Food');
+        const claimedList = sh.claimedBy?.length ? sh.claimedBy.map(c=>`<div style="font-size:12px;padding:4px 0;">👤 ${escapeHtml(c.username)} - ${new Date(c.claimedAt).toLocaleDateString()}</div>`).join('') : '<div style="font-size:12px;color:#999;">No claims yet</div>';
+        const distText = sh.distance!==null ? (sh.distance<1?(sh.distance*1000).toFixed(0)+' meters':sh.distance.toFixed(1)+' km')+' from you' : 'Distance unknown';
+        document.getElementById('modalContent').innerHTML = `
+            <div class="detail-item"><div class="detail-label">Shared by</div><div class="detail-value">${escapeHtml(sh.sharedBy.username)}${owner?' (you)':''}</div></div>
+            <div class="detail-item"><div class="detail-label">Food items</div><div class="detail-value">${sh.foodItems.map(i=>{const n=typeof i==='string'?i:i.name||'food',e=typeof i==='object'?i.emoji||'🍽️':'🍽️',q=typeof i==='object'&&i.quantity?` (${i.quantity})`:'';return `${e} ${escapeHtml(n)}${q}`;}).join('<br>')}</div></div>
+            ${sh.reason?`<div class="detail-item"><div class="detail-label">Why sharing</div><div class="detail-value">${reasons[sh.reason]||sh.reason}</div></div>`:''}
+            ${sh.description?`<div class="detail-item"><div class="detail-label">Description</div><div class="detail-value">${escapeHtml(sh.description)}</div></div>`:''}
+            ${sh.location?`<div class="detail-item"><div class="detail-label">Pickup location</div><div class="detail-value">📍 ${escapeHtml(sh.location.address)}</div></div>`:''}
+            <div class="detail-item"><div class="detail-label">Distance</div><div class="detail-value">${distText}</div></div>
+            ${sh.pickupInstructions?`<div class="detail-item"><div class="detail-label">Pickup instructions</div><div class="detail-value">${escapeHtml(sh.pickupInstructions)}</div></div>`:''}
+            <div class="detail-item"><div class="detail-label">Posted</div><div class="detail-value">${getTimeAgo(sh.createdAt)}</div></div>
+            <div class="detail-item"><div class="detail-label">Claims (${sh.claimedBy?.length||0})</div><div class="detail-value">${claimedList}</div></div>`;
+        const btn = document.getElementById('claimBtn');
+        if (owner) { btn.textContent='This is your share'; btn.disabled=true; btn.style.background='#999'; }
+        else if (claimed||byYou) { btn.textContent=byYou?'✓ You claimed this':'Already claimed'; btn.disabled=true; btn.style.background='#999'; }
+        else { btn.textContent='🤝 Claim this food'; btn.disabled=false; btn.style.background='#34c759'; }
+        document.getElementById('detailModal').style.display='flex';
     }
     
-    function closeDetailModal() {
-       ';
-    }
-    
-    function closeDetailModal() {
-        document.getElementById document.getElementById('detailModal').style.display = 'none';
-        currentDetailShare('detailModal').style.display = 'none';
-        currentDetailShare = null;
-    }
+    function closeDetailModal() { document.getElementById('detailModal').style.display='none'; currentDetailShare=null; }
     
     async function claimFood() {
-        = null;
-    }
-    
-    async function claimFood() {
-        if (! if (!currentDetailShare) return;
-        
-        const share = currentDetailShare;
-       currentDetailShare) return;
-        
-        const share = currentDetailShare;
-        const foodNames = share.foodItems.map(item => 
-            typeof item === const foodNames = share.foodItems.map(item => 
-            typeof item === 'string 'string' ? item : (item.name || 'food')
-        ).' ? item : (item.name || 'food')
-        ).joinjoin(', ');
-        
-        if (!confirm(`Claim "${foodNames}" from(', ');
-        
-        if (!confirm(`Claim "${foodNames}" from ${share.sharedBy ${share.sharedBy.username}?\n\nThe sharer will be notified immediately and.username}?\n\nThe sharer will be notified immediately and can arrange can arrange pickup with you.`)) {
-            return;
-        }
-        
-        pickup with you.`)) {
-            return;
-        }
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
- document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        try        
+        if (!currentDetailShare) return;
+        const names = currentDetailShare.foodItems.map(i=>typeof i==='string'?i:i.name||'food').join(', ');
+        if (!confirm(`Claim "${names}" from ${currentDetailShare.sharedBy.username}?\n\nThe sharer will be notified immediately.`)) return;
+        document.getElementById('loadingOverlay').style.display='flex';
         try {
-            console.log("🤝 Claiming share:", share {
-            console.log("🤝 Claiming share:", share.id.id);
-            const result = await Backend.claimCommunityShare(share.id);
-            const result = await Backend.claimCommunityShare(share.id);
-);
-            
-            if (result.success) {
-                alert('🎉            
-            if (result.success) {
-                alert('🎉 Food claimed Food claimed! The sharer has been notified and will contact you for pickup. Check your! The sharer has been notified and will contact you for pickup. Check your notifications!');
-                closeDetailModal();
-                await loadShares();
-                notifications!');
-                closeDetailModal();
-                await loadShares();
-                updateNotification updateNotificationBadge();
-            } else {
-                alert(result.message ||Badge();
-            } else {
-                alert(result.message || 'Failed to claim 'Failed to claim food. Please try again.');
-            }
-            
-        } catch food. Please try again.');
-            }
-            
-        } catch (error) (error) {
-            console.error('Error claiming food:', error);
-            alert {
-            console.error('Error claiming food:', error);
-            alert('Failed('Failed to claim food: ' + (error.message || 'Unknown error to claim food: ' + (error.message || 'Unknown error'));
-        }
-        
-        document.getElementById('loadingOverlay').style.display = 'none'));
-        }
-        
-        document.getElementById('loadingOverlay').style.display = 'none';
-   ';
+            const result = await Backend.claimCommunityShare(currentDetailShare.id);
+            if (result.success) { alert('🎉 Food claimed!'); closeDetailModal(); await loadShares(); updateNotificationBadge(); }
+            else alert(result.message||'Failed to claim food.');
+        } catch(e) { alert('Failed to claim food.'); }
+        document.getElementById('loadingOverlay').style.display='none';
     }
     
     function switchTab(tab) {
-        document.querySelectorAll }
-    
-    function switchTab(tab) {
-        document.querySelectorAll('.tab('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        if (tab === 'list') {
-            document.querySelector('.tab:nth        
-        if (tab === 'list') {
-            document.querySelector('.tab:nth-child(1)').classList.add('active');
-            document.getElementById-child(1)').classList.add('active');
-            document.getElementById('list('listTab').classList.add('active');
-        } elseTab').classList.add('active');
-        } else {
-            document {
-            document.querySelector('.tab:nth-child(2)').classList.add('active.querySelector('.tab:nth-child(2)').classList.add('active');
-            document.getElementById('mapTab').classList.add('active');
-            document.getElementById('mapTab').classList.add('active');
-');
-            
-            if (map) {
-                setTimeout(() => map.invalidateSize            
-            if (map) {
-                setTimeout(() => map.invalidateSize(), (), 100);
-            }
-        }
-    }
-    
-    function updateStats()100);
-            }
-        }
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+        if (tab==='list') { document.querySelector('.tab:nth-child(1)').classList.add('active'); document.getElementById('listTab').classList.add('active'); }
+        else { document.querySelector('.tab:nth-child(2)').classList.add('active'); document.getElementById('mapTab').classList.add('active'); if(map) setTimeout(()=>map.invalidateSize(),100); }
     }
     
     function updateStats() {
-        {
         document.getElementById('totalShares').textContent = allShares.length;
- document.getElementById('totalShares').textContent = allShares.length;
-        
-        const nearby = allShares.filter(s => s.distance !== null && s        
-        const nearby = allShares.filter(s => s.distance !== null && s.distance <= 5).length;
-        document.getElementById('.distance <= 5).length;
-        document.getElementById('nearbynearbyCount').textContent = nearby;
+        document.getElementById('nearbyCount').textContent = allShares.filter(s=>s.distance!==null&&s.distance<=5).length;
     }
     
-    async function updateCount').textContent = nearby;
-    }
-    
-    async function updateNotificationBadNotificationBadge() {
+    async function updateNotificationBadge() {
         try {
-            const unreadCount = await Backge() {
-        try {
-            const unreadCount = await Backend.getend.getTotalUnreadCount(currentUserId);
-            const badge = documentTotalUnreadCount(currentUserId);
-            const badge = document.getElementById('notif.getElementById('notifBadge');
-            if (badge) {
-                ifBadge');
-            if (badge) {
-                if (un (unreadCount > 0) {
-                    badge.textContent = unreadreadCount > 0) {
-                    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                   Count > 99 ? '99+' : unreadCount;
-                    badge.style badge.style.display = 'flex';
-                } else {
-                   .display = 'flex';
-                } else {
-                    badge.style.display = 'none badge.style.display = 'none';
-                }
-            }
-        } catch(e) {
-            console.log';
-                }
-            }
-        } catch(e) {
-            console.log("Notification("Notification badge update skipped:", e);
-        }
-    }
-    
-    function get badge update skipped:", e);
-        }
+            const unread = await Backend.getTotalUnreadCount(currentUserId);
+            const badge = document.getElementById('notifBadge');
+            if (badge) { if (unread>0) { badge.textContent = unread>99?'99+':unread; badge.style.display='flex'; } else badge.style.display='none'; }
+        } catch(e) {}
     }
     
     function getTimeAgo(date) {
-        if (!date) returnTimeAgo(date) {
-        if (!date) return 'just now 'just now';
-        const seconds = Math.floor((new Date() - new Date(date';
-        const seconds = Math.floor((new Date() - new Date(date)) /)) / 1000);
-        
-        if (seconds < 60) return 1000);
-        
-        if (seconds < 60) return 'just 'just now';
-        
-        let interval = seconds / 31536000 now';
-        
-        let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval);
-        if (interval > 1) return Math.floor(interval) + 'y ago';
-        
-        interval = seconds / 259200 + 'y ago';
-        
-        interval = seconds / 2592000;
-        if0;
-        if (interval > 1) return Math.floor(interval) (interval > 1) return Math.floor(interval) + ' + 'mo ago';
-        
-        interval = seconds / 86400;
-       mo ago';
-        
-        interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + if (interval > 1) return Math.floor(interval) + 'd 'd ago';
-        
-        interval = seconds / 3600 ago';
-        
-        interval = seconds / 3600;
-        if;
-        if (interval > 1) return Math.floor(interval) + ' (interval > 1) return Math.floor(interval) + 'h agoh ago';
-        
-        interval = seconds / 60;
-        if (interval';
-        
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + 'm ago';
- > 1) return Math.floor(interval) + 'm ago';
-        
+        if (!date) return 'just now';
+        const sec = Math.floor((new Date()-new Date(date))/1000);
+        if (sec<60) return 'just now';
+        const int = [31536000,2592000,86400,3600,60];
+        const lbl = ['y','mo','d','h','m'];
+        for (let i=0;i<int.length;i++) { const v = sec/int[i]; if (v>=1) return Math.floor(v)+lbl[i]+' ago'; }
         return 'just now';
     }
     
-    function escapeHtml(str)        
-        return 'just now';
-    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
     
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[& {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&<>]/g, m => m === '&' ? '&amp;amp;' : m === '<' ? '&lt;' : '&gt' : m === '<' ? '&lt;' : '&gt;;');
-    }
-    
-    window.switchTab = switchTab;
-    window');
-    }
-    
-    window.switchTab = switchTab;
-    window.openDetailModal = openDetailModal;
-    window.closeDetailModal =.openDetailModal = openDetailModal;
-    window.closeDetailModal = closeDetail closeDetailModal;
-    window.claimFood = claimFood;
-    window.getModal;
-    window.claimFood = claimFood;
-    window.getUserLocationUserLocation = getUserLocation;
-    window.filterByDistance = filterByDistance = getUserLocation;
-    window.filterByDistance = filterByDistance;
-    window.filterShares = filterShares;
-    window.loadShares = loadShares;
-    window.filterShares = filterShares;
-    window.loadShares = loadShares;
-</script;
+    window.switchTab=switchTab; window.openDetailModal=openDetailModal; window.closeDetailModal=closeDetailModal;
+    window.claimFood=claimFood; window.getUserLocation=getUserLocation; window.filterByDistance=filterByDistance;
+    window.filterShares=filterShares; window.loadShares=loadShares; window.setLocationFromAddress=setLocationFromAddress;
 </script>
 </body>
 </html>
