@@ -48,7 +48,7 @@
             position: relative;
         }
         
-        /* Back link – same as fridge/list pages */
+        /* Back link – matching fridge/list pages */
         .back-link {
             position: absolute;
             top: 30px;
@@ -176,20 +176,20 @@
             cursor: pointer; font-family: inherit; font-size: 14px;
         }
         
-        /* Location – now editable with manual entry + GPS */
+        /* Location – manual entry + GPS */
         .location-picker { display: flex; flex-direction: column; gap: 8px; }
-        .location-picker .form-input { flex: 1; }
+        .manual-location-row { display: flex; gap: 8px; }
+        .manual-location-row input { flex: 1; }
         .locate-btn {
             background: #007aff; color: white; border: none;
             padding: 12px 16px; border-radius: 12px; cursor: pointer;
             font-family: inherit; font-size: 14px; white-space: nowrap;
         }
-        .manual-location-row { display: flex; gap: 8px; }
-        .manual-location-row input { flex: 1; }
-        .manual-location-row button {
+        .manual-location-row button,
+        .set-address-btn {
             background: #ee5a24; color: white; border: none;
             padding: 12px 16px; border-radius: 12px; cursor: pointer;
-            font-family: inherit; font-size: 14px;
+            font-family: inherit; font-size: 14px; white-space: nowrap;
         }
         .map-preview {
             width: 100%; height: 60px; background: #f0f0f0;
@@ -235,7 +235,6 @@
 <body>
 <div class="app">
     <div class="header">
-        <!-- Back button – matching fridge/list pages -->
         <a href="community.html" class="back-link">←</a>
         <h1>Share Food</h1>
         <div class="header-subtitle">help reduce food waste</div>
@@ -335,7 +334,7 @@
                 <input type="text" class="form-input" id="allergenInfo" placeholder="e.g., contains nuts, cooked with dairy, etc.">
             </div>
             
-            <!-- Pickup Location – editable input with GPS and manual geocoding -->
+            <!-- Pickup Location – manual entry + GPS (no auto-locate) -->
             <div class="form-group">
                 <label class="form-label">Pickup location <span style="color:#ff3b30;">*</span></label>
                 <div class="location-picker">
@@ -343,7 +342,7 @@
                         <input type="text" class="form-input" id="locationAddress" placeholder="Enter address or use locate button">
                         <button type="button" class="locate-btn" onclick="getCurrentLocation()">📍 locate</button>
                     </div>
-                    <button type="button" class="locate-btn" onclick="setLocationFromAddress()" style="background:#ee5a24; color:white;">Set Address</button>
+                    <button type="button" class="set-address-btn" onclick="setLocationFromAddress()">Set Address</button>
                 </div>
                 <div class="map-preview" id="mapPreview">📍 tap 'locate' or type an address and press 'Set Address'</div>
             </div>
@@ -384,28 +383,7 @@
     let shareType = 'giveaway';
     let userLocation = null;
     
-    document.addEventListener('DOMContentLoaded', () => {
-        const user = Backend.getCurrentUser();
-        if (!user) { window.location.href = 'login.html'; return; }
-        
-        // Try GPS automatically
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            document.getElementById('locationAddress').value = data.display_name || `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`;
-                            document.getElementById('mapPreview').innerHTML = '✅ Location set!';
-                            document.getElementById('mapPreview').classList.add('set');
-                        })
-                        .catch(() => { document.getElementById('locationAddress').value = `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`; });
-                },
-                () => {}
-            );
-        }
-    });
+    // NO automatic GPS request anymore – user must manually trigger it
     
     function selectReason(reason) {
         shareReason = reason;
@@ -446,8 +424,12 @@
         buttons.forEach(btn => btn.style.visibility = container.children.length > 1 ? 'visible' : 'hidden');
     }
     
+    // GPS locate – prompts for permission only when user clicks
     function getCurrentLocation() {
-        if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported on this device. Please type your address manually.');
+            return;
+        }
         document.getElementById('mapPreview').innerHTML = '📍 getting location...';
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -465,11 +447,22 @@
                         document.getElementById('mapPreview').classList.add('set');
                     });
             },
-            () => { alert('Could not get location.'); }
+            (error) => {
+                // User denied or location unavailable → show helpful message
+                let msg = 'Could not get your location. ';
+                if (error.code === error.PERMISSION_DENIED) {
+                    msg += 'Location access was denied. Please enable it in your device settings, or type your address manually below.';
+                } else {
+                    msg += 'Please ensure location services are enabled, or type your address manually.';
+                }
+                alert(msg);
+                document.getElementById('mapPreview').innerHTML = '📍 could not get location – type address instead';
+                document.getElementById('mapPreview').classList.remove('set');
+            }
         );
     }
     
-    // Manual address geocoding – now with robust error handling
+    // Manual address geocoding – works without GPS permission
     async function setLocationFromAddress() {
         const address = document.getElementById('locationAddress').value.trim();
         if (!address) {
@@ -483,7 +476,7 @@
             );
             const data = await response.json();
             if (data.length === 0) {
-                document.getElementById('mapPreview').innerHTML = '📍 address not found';
+                document.getElementById('mapPreview').innerHTML = '📍 address not found – try a more specific one';
                 document.getElementById('mapPreview').classList.remove('set');
                 return;
             }
@@ -495,7 +488,7 @@
             document.getElementById('mapPreview').innerHTML = '✅ Location set!';
             document.getElementById('mapPreview').classList.add('set');
         } catch (e) {
-            document.getElementById('mapPreview').innerHTML = '⚠️ error – check your connection';
+            document.getElementById('mapPreview').innerHTML = '⚠️ error – check your internet connection';
             document.getElementById('mapPreview').classList.remove('set');
         }
     }
@@ -512,7 +505,7 @@
             }
         });
         if (foodItems.length === 0) { alert('Please add at least one food item'); return; }
-        if (!userLocation) { alert('Please set a pickup location'); return; }
+        if (!userLocation) { alert('Please set a pickup location (use GPS or type an address)'); return; }
         if (!document.getElementById('agreeSafe').checked || !document.getElementById('agreeHonest').checked || !document.getElementById('agreeGuidelines').checked) {
             alert('Please agree to all sharing guidelines'); return;
         }
