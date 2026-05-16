@@ -417,9 +417,10 @@
         .consumer-only { display: none; }
         body.consumer .consumer-only { display: block; }
         
+        /* Quick Actions – now 3 columns for the additional community card */
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 24px;
         }
@@ -837,11 +838,14 @@
             </div>
             
             <div class="tab-content active" id="homeTab">
+                <!-- Quick actions – now 5 cards in a 3‑column grid -->
                 <div class="quick-actions">
                     <div class="action-card" onclick="window.location.href='shoplist.html'" style="animation: slideInLeft 0.4s ease 0.05s both;"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='find-stores.html'" style="animation: slideInRight 0.4s ease 0.1s both;"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
                     <div class="action-card" onclick="window.location.href='fridge.html'" style="animation: slideInLeft 0.4s ease 0.15s both;"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='recipe.html'" style="animation: slideInRight 0.4s ease 0.2s both;"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
+                    <!-- New Community button -->
+                    <div class="action-card" onclick="window.location.href='community.html'" style="animation: slideInLeft 0.4s ease 0.25s both;"><div class="card-emoji">🤝</div><div class="card-title">community</div><div class="card-desc">share & find food</div></div>
                 </div>
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
                 <div class="deals-list" id="recentDeals"><div class="empty-state">🔍 loading deals...</div></div>
