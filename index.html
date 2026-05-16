@@ -312,7 +312,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
-            z-index: 2;               /* ensure it's clickable */
+            z-index: 2;
         }
         .logout-btn:hover {
             background: rgba(255,59,48,0.4);
@@ -417,10 +417,10 @@
         .consumer-only { display: none; }
         body.consumer .consumer-only { display: block; }
         
-        /* Quick Actions – now 3 columns for the additional community card */
+        /* Quick Actions – 2 columns (original layout) */
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 24px;
         }
@@ -451,6 +451,40 @@
         }
         .card-title { font-weight: 600; margin-bottom: 4px; }
         .card-desc { font-size: 12px; color: #666; }
+        
+        /* Community banner card (standalone) */
+        .community-banner-card {
+            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+            animation: fadeInScale 0.5s ease;
+        }
+        .community-banner-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(238,90,36,0.3);
+        }
+        .community-banner-card:active { transform: scale(0.97); }
+        .community-icon {
+            font-size: 36px;
+            background: rgba(255,255,255,0.2);
+            width: 56px;
+            height: 56px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .community-text { flex: 1; }
+        .community-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .community-subtitle { font-size: 13px; opacity: 0.9; }
+        .community-arrow { font-size: 20px; }
         
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
@@ -838,15 +872,24 @@
             </div>
             
             <div class="tab-content active" id="homeTab">
-                <!-- Quick actions – now 5 cards in a 3‑column grid -->
+                <!-- Original 2×2 Quick Actions -->
                 <div class="quick-actions">
-                    <div class="action-card" onclick="window.location.href='shoplist.html'" style="animation: slideInLeft 0.4s ease 0.05s both;"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
-                    <div class="action-card" onclick="window.location.href='find-stores.html'" style="animation: slideInRight 0.4s ease 0.1s both;"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
-                    <div class="action-card" onclick="window.location.href='fridge.html'" style="animation: slideInLeft 0.4s ease 0.15s both;"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
-                    <div class="action-card" onclick="window.location.href='recipe.html'" style="animation: slideInRight 0.4s ease 0.2s both;"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
-                    <!-- New Community button -->
-                    <div class="action-card" onclick="window.location.href='community.html'" style="animation: slideInLeft 0.4s ease 0.25s both;"><div class="card-emoji">🤝</div><div class="card-title">community</div><div class="card-desc">share & find food</div></div>
+                    <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
+                    <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
+                    <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
+                    <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
+                
+                <!-- Community Banner (new separate card) -->
+                <div class="community-banner-card" onclick="window.location.href='community.html'">
+                    <div class="community-icon">🤝</div>
+                    <div class="community-text">
+                        <div class="community-title">Community Sharing</div>
+                        <div class="community-subtitle">Share or find free food nearby</div>
+                    </div>
+                    <div class="community-arrow">→</div>
+                </div>
+                
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
                 <div class="deals-list" id="recentDeals"><div class="empty-state">🔍 loading deals...</div></div>
                 <div class="section-title"><img src="assets/fridge.png" alt="fridge" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" onerror="this.style.display='none'"> your fridge<button class="refresh-icon" onclick="loadFridgeData()">↻</button><a href="fridge.html" class="view-all">manage →</a></div>
@@ -931,7 +974,6 @@
     let userMarker = null;
     let storeMarkers = [];
 
-    // Splash screen messages
     const splashMessages = [
         'loading your dashboard...',
         'checking fridge items...',
@@ -941,7 +983,6 @@
     ];
     
     document.addEventListener('DOMContentLoaded', async () => {
-        // Animate splash messages
         let msgIndex = 0;
         const msgInterval = setInterval(() => {
             msgIndex = (msgIndex + 1) % splashMessages.length;
@@ -950,10 +991,7 @@
 
         const user = Backend.getCurrentUser(), role = localStorage.getItem('userRole');
         if (!user || !role) { 
-            // Show splash briefly then redirect
-            setTimeout(() => {
-                window.location.href = 'login.html'; 
-            }, 2000);
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
             return; 
         }
         
@@ -973,7 +1011,6 @@
         updateNavigation();
         loadProfilePicture();
         
-        // Load data
         if (role === 'consumer') { 
             await refreshAll(); 
             initMap(); 
@@ -981,7 +1018,6 @@
             loadAdvertiserData();
         }
 
-        // Hide splash screen after everything is loaded
         setTimeout(() => {
             clearInterval(msgInterval);
             document.getElementById('splashMessage').textContent = 'ready! 🎉';
@@ -1305,7 +1341,6 @@
     
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
-    // ========== FIXED LOGOUT – always redirects even if cloud logout fails ==========
     async function logout() {
         if (!confirm('Are you sure you want to logout?')) return;
         try {
