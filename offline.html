@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>foodsavvi • offline</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #34c759, #007aff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .offline-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 24px;
+            max-width: 350px;
+        }
+        .emoji { font-size: 64px; margin-bottom: 20px; }
+        h1 { font-size: 24px; margin-bottom: 12px; }
+        p { font-size: 15px; opacity: 0.9; line-height: 1.5; margin-bottom: 20px; }
+        .btn {
+            background: white;
+            color: #34c759;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-card">
+        <div class="emoji">📡</div>
+        <h1>you're offline</h1>
+        <p>foodsavvi needs internet to load your data. check your connection and try again.</p>
+        <button class="btn" onclick="location.reload()">try again</button>
+    </div>
+</body>
+</html>
