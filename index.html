@@ -62,22 +62,18 @@
             z-index: 9999;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-
         .splash-screen.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
         .splash-logo {
-            width: 80px;
-            height: 80px;
+            width: 80px; height: 80px;
             background-image: url('assets/icon.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -85,69 +81,42 @@
             animation: splashBounce 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite;
             filter: drop-shadow(0 8px 20px rgba(0,0,0,0.2));
         }
-
         @keyframes splashBounce {
             0%, 100% { transform: translateY(0) scale(1); }
             30% { transform: translateY(-20px) scale(1.08); }
             50% { transform: translateY(0) scale(0.95); }
             70% { transform: translateY(-8px) scale(1.03); }
         }
-
         .splash-title {
-            color: white;
-            font-size: 36px;
-            font-weight: 700;
-            margin-top: 20px;
-            letter-spacing: -1px;
+            color: white; font-size: 36px; font-weight: 700;
+            margin-top: 20px; letter-spacing: -1px;
             animation: fadeInUp 0.6s ease 0.3s both;
         }
-
-        .splash-title span {
-            font-weight: 400;
-            opacity: 0.9;
-        }
-
+        .splash-title span { font-weight: 400; opacity: 0.9; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
-
-        .splash-loader {
-            margin-top: 30px;
-            display: flex;
-            gap: 8px;
-        }
-
+        .splash-loader { margin-top: 30px; display: flex; gap: 8px; }
         .splash-dot {
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 5px;
-            animation: dotBounce 1.4s ease-in-out infinite;
+            width: 10px; height: 10px; background: white;
+            border-radius: 5px; animation: dotBounce 1.4s ease-in-out infinite;
         }
-
         .splash-dot:nth-child(1) { animation-delay: 0s; }
         .splash-dot:nth-child(2) { animation-delay: 0.2s; }
         .splash-dot:nth-child(3) { animation-delay: 0.4s; }
-
         @keyframes dotBounce {
             0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
             40% { transform: scale(1.3); opacity: 1; }
         }
-
         .splash-text {
-            color: rgba(255,255,255,0.8);
-            font-size: 14px;
-            margin-top: 16px;
-            animation: fadeInUp 0.6s ease 0.6s both;
+            color: rgba(255,255,255,0.8); font-size: 14px;
+            margin-top: 16px; animation: fadeInUp 0.6s ease 0.6s both;
         }
-
-        /* Floating particles */
         .splash-particle {
             position: absolute;
             background: rgba(255,255,255,0.3);
@@ -155,14 +124,12 @@
             animation: particleFloat 6s ease-in-out infinite;
             pointer-events: none;
         }
-
         .splash-particle:nth-child(1) { width: 6px; height: 6px; top: 20%; left: 15%; animation-delay: 0s; }
         .splash-particle:nth-child(2) { width: 4px; height: 4px; top: 60%; right: 20%; animation-delay: 1s; }
         .splash-particle:nth-child(3) { width: 8px; height: 8px; bottom: 30%; left: 25%; animation-delay: 2s; }
         .splash-particle:nth-child(4) { width: 5px; height: 5px; top: 40%; right: 15%; animation-delay: 3s; }
         .splash-particle:nth-child(5) { width: 3px; height: 3px; bottom: 20%; right: 30%; animation-delay: 4s; }
         .splash-particle:nth-child(6) { width: 7px; height: 7px; top: 70%; left: 40%; animation-delay: 5s; }
-
         @keyframes particleFloat {
             0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
             25% { transform: translate(30px, -20px) scale(1.5); opacity: 0.8; }
@@ -179,30 +146,21 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.03);
             animation: appSlideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
         @keyframes appSlideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes slideInLeft {
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.03); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
         }
         
         .header {
@@ -214,224 +172,125 @@
             position: relative;
             overflow: hidden;
         }
-
         .header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 50%);
             pointer-events: none;
         }
         
         .greeting {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
+            font-size: 24px; font-weight: 600; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 12px;
+            position: relative; z-index: 1;
             animation: slideInLeft 0.5s ease;
         }
-        
         .user-avatar {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             background: rgba(255,255,255,0.2);
             border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer; overflow: hidden;
             transition: all 0.3s ease;
         }
-
-        .user-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
+        .user-avatar:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-info { flex: 1; }
         .user-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .user-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
-            font-size: 12px;
-            transition: all 0.3s ease;
+            display: inline-block; padding: 4px 12px;
+            background: rgba(255,255,255,0.2); border-radius: 20px;
+            font-size: 12px; transition: all 0.3s ease;
         }
         .verified-badge {
-            background: #34c759;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 8px;
+            background: #34c759; color: white;
+            padding: 2px 8px; border-radius: 12px;
+            font-size: 11px; margin-left: 8px;
             animation: pulse 2s ease-in-out infinite;
         }
-        .date { font-size: 14px; opacity: 0.9; margin-top: 8px; position: relative; z-index: 1; animation: slideInRight 0.5s ease 0.1s both; }
+        .date { 
+            font-size: 14px; opacity: 0.9; margin-top: 8px; 
+            position: relative; z-index: 1;
+            animation: slideInRight 0.5s ease 0.1s both;
+        }
         .refresh-header {
-            position: absolute;
-            top: 30px;
-            right: 100px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            position: absolute; top: 30px; right: 100px;
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; padding: 8px 12px; border-radius: 20px;
+            font-size: 14px; cursor: pointer;
+            transition: all 0.3s ease; font-family: inherit;
         }
-        .refresh-header:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg);
-        }
-        .refresh-header:active {
-            transform: rotate(360deg) scale(0.9);
-        }
+        .refresh-header:hover { background: rgba(255,255,255,0.3); transform: rotate(180deg); }
+        .refresh-header:active { transform: rotate(360deg) scale(0.9); }
         .logout-btn {
-            position: absolute;
-            top: 30px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            z-index: 2;
+            position: absolute; top: 30px; right: 20px;
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; padding: 8px 16px; border-radius: 20px;
+            font-size: 14px; cursor: pointer;
+            transition: all 0.3s ease; font-family: inherit;
         }
-        .logout-btn:hover {
-            background: rgba(255,59,48,0.4);
-        }
+        .logout-btn:hover { background: rgba(255,59,48,0.4); }
+        
         .content { padding: 20px; padding-bottom: 80px; }
         .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: fadeInUp 0.4s ease;
+            font-size: 16px; font-weight: 600; color: #1a1a1a;
+            margin-bottom: 16px; display: flex;
+            justify-content: space-between; align-items: center;
         }
-        .view-all { color: #007aff; font-size: 14px; text-decoration: none; cursor: pointer; transition: all 0.2s; }
+        .view-all { color: #007aff; font-size: 14px; text-decoration: none; cursor: pointer; }
         .view-all:hover { text-decoration: underline; }
-        .refresh-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: all 0.3s; }
+        .refresh-icon { 
+            background: none; border: none; font-size: 16px; 
+            cursor: pointer; padding: 4px 8px; border-radius: 20px;
+            transition: all 0.3s;
+        }
         .refresh-icon:active { transform: rotate(180deg); }
         
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         .tab {
-            padding: 10px 20px;
-            background: #f5f7fa;
-            border: none;
-            border-radius: 20px;
-            font-weight: 500;
-            color: #666;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 10px 20px; background: #f5f7fa;
+            border: none; border-radius: 20px; font-weight: 500;
+            color: #666; cursor: pointer; white-space: nowrap;
+            font-family: inherit; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .tab:hover {
-            background: #e8ecf0;
-            transform: translateY(-1px);
-        }
+        .tab:hover { background: #e8ecf0; transform: translateY(-1px); }
         .tab.active { 
-            background: #007aff; 
-            color: white; 
+            background: #007aff; color: white;
             box-shadow: 0 4px 12px rgba(0,122,255,0.3);
             animation: pulse 0.4s ease;
         }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeInUp 0.4s ease; }
         
-        .map-container {
-            width: 100%;
-            height: 500px;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 16px;
-            background: #f0f0f0;
-        }
+        /* Map */
+        .map-container { width: 100%; height: 500px; border-radius: 16px; overflow: hidden; margin-bottom: 16px; background: #f0f0f0; }
         .location-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            background: #007aff; color: white; border: none;
+            padding: 12px 20px; border-radius: 25px; font-size: 14px;
+            width: 100%; cursor: pointer; margin-top: 8px;
+            transition: all 0.3s ease; font-family: inherit;
         }
-        .location-btn:active {
-            transform: scale(0.97);
-            background: #0056cc;
-        }
+        .location-btn:active { transform: scale(0.97); background: #0056cc; }
         .store-list { margin-top: 16px; max-height: 200px; overflow-y: auto; }
         .store-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            background: #f8f9fa; padding: 12px; border-radius: 12px;
+            margin-bottom: 8px; cursor: pointer; transition: all 0.2s ease;
         }
-        .store-item:hover {
-            background: #e3f2fd;
-            transform: translateX(4px);
-        }
+        .store-item:hover { background: #e3f2fd; transform: translateX(4px); }
         .store-item:active { background: #e8ecf0; transform: scale(0.98); }
         .store-name { font-weight: 600; margin-bottom: 4px; }
         .store-address { font-size: 11px; color: #666; }
         
-        .custom-popup .popup-store-name { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #007aff; }
-        .custom-popup .popup-ads-title { font-size: 12px; font-weight: 600; margin-top: 8px; margin-bottom: 4px; color: #34c759; }
-        .custom-popup .popup-ad-item { font-size: 11px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
-        .custom-popup .popup-ad-name { font-weight: 500; }
-        .custom-popup .popup-ad-discount { color: #34c759; }
-        
-        .consumer-only { display: none; }
-        body.consumer .consumer-only { display: block; }
-        
-        /* Quick Actions – 2 columns (original layout) */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
+        /* Quick Actions */
+        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
         .action-card {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            text-decoration: none;
-            color: #1a1a1a;
-            border: 1px solid #f0f0f0;
-            cursor: pointer;
+            background: #f8f9fa; border-radius: 16px; padding: 20px;
+            text-decoration: none; color: #1a1a1a;
+            border: 1px solid #f0f0f0; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .action-card:hover {
@@ -441,98 +300,43 @@
         }
         .action-card:active { transform: scale(0.96); }
         .card-emoji { 
-            font-size: 28px; 
-            margin-bottom: 8px; 
-            transition: transform 0.3s ease;
-            display: inline-block;
+            font-size: 28px; margin-bottom: 8px;
+            transition: transform 0.3s ease; display: inline-block;
         }
-        .action-card:hover .card-emoji {
-            transform: scale(1.2);
-        }
+        .action-card:hover .card-emoji { transform: scale(1.2); }
         .card-title { font-weight: 600; margin-bottom: 4px; }
         .card-desc { font-size: 12px; color: #666; }
         
-        /* Community banner card (standalone) */
-        .community-banner-card {
-            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
-            color: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.3s ease;
-            animation: fadeInScale 0.5s ease;
-        }
-        .community-banner-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(238,90,36,0.3);
-        }
-        .community-banner-card:active { transform: scale(0.97); }
-        .community-icon {
-            font-size: 36px;
-            background: rgba(255,255,255,0.2);
-            width: 56px;
-            height: 56px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .community-text { flex: 1; }
-        .community-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-        .community-subtitle { font-size: 13px; opacity: 0.9; }
-        .community-arrow { font-size: 20px; }
-        
+        /* Wallet Card */
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
-            color: white;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            animation: fadeInScale 0.5s ease;
-            position: relative;
-            overflow: hidden;
+            color: white; padding: 16px; border-radius: 16px;
+            margin-bottom: 20px; animation: fadeInScale 0.5s ease;
+            position: relative; overflow: hidden;
         }
         .wallet-card::after {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             top: -30%; right: -20%;
             width: 150px; height: 150px;
             background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            pointer-events: none;
+            border-radius: 50%; pointer-events: none;
         }
         .wallet-label { font-size: 12px; opacity: 0.9; margin-bottom: 4px; }
         .wallet-amount { font-size: 28px; font-weight: 600; }
         .wallet-actions { display: flex; gap: 12px; margin-top: 12px; }
         .wallet-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; padding: 8px 16px; border-radius: 20px;
+            font-size: 12px; cursor: pointer; transition: all 0.3s ease;
             font-family: inherit;
         }
         .wallet-btn:hover { background: rgba(255,255,255,0.3); }
         
-        .profile-info-card {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+        /* Profile Info */
+        .profile-info-card { background: #f8f9fa; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
         .info-row {
-            display: flex;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e0e0e0;
-            transition: all 0.2s;
+            display: flex; margin-bottom: 12px; padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0; transition: all 0.2s;
         }
         .info-row:hover { background: #f0f2f5; margin-left: -4px; padding-left: 4px; border-radius: 8px; }
         .info-label { width: 80px; font-size: 14px; color: #666; }
@@ -540,12 +344,23 @@
         .edit-btn { background: none; border: none; color: #007aff; font-size: 12px; cursor: pointer; transition: all 0.2s; }
         .edit-btn:hover { color: #0056cc; transform: scale(1.1); }
         
+        /* Delete Account Button */
+        .delete-account-section {
+            text-align: center; margin-top: 20px;
+            padding-top: 20px; border-top: 1px solid #e0e0e0;
+        }
+        .delete-account-btn {
+            background: none; border: 2px solid #ff3b30; color: #ff3b30;
+            padding: 10px 24px; border-radius: 20px; font-size: 13px;
+            cursor: pointer; font-family: inherit; transition: all 0.3s ease;
+        }
+        .delete-account-btn:hover { background: #fff5f5; }
+        .delete-account-btn:active { transform: scale(0.97); }
+        
+        /* Orders */
         .order-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid #34c759;
+            background: #f8f9fa; border-radius: 12px; padding: 16px;
+            margin-bottom: 12px; border-left: 4px solid #34c759;
             animation: slideInLeft 0.4s ease;
             transition: all 0.3s ease;
         }
@@ -562,52 +377,29 @@
         .order-total { font-size: 14px; font-weight: 600; color: #34c759; }
         .order-date { font-size: 10px; color: #999; }
         .pickup-btn {
-            background: #34c759;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 8px;
-            width: 100%;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            background: #34c759; color: white; border: none;
+            padding: 8px 16px; border-radius: 20px; font-size: 12px;
+            cursor: pointer; margin-top: 8px; width: 100%;
+            transition: all 0.3s ease; font-family: inherit;
         }
         .pickup-btn:hover { background: #2db14e; transform: translateY(-2px); }
         .pickup-btn:active { transform: scale(0.97); }
         
+        /* Deals */
         .deals-list { margin-bottom: 24px; }
         .deal-item {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: #f8f9fa; padding: 16px; border-radius: 12px;
+            margin-bottom: 8px; display: flex; align-items: center;
+            gap: 12px; border: 1px solid #f0f0f0;
+            cursor: pointer; transition: all 0.3s ease;
             animation: slideInRight 0.4s ease;
         }
-        .deal-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border-color: #34c759;
-        }
+        .deal-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: #34c759; }
         .deal-item:active { background: #f0f2f5; }
         .deal-icon {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            overflow: hidden;
-            flex-shrink: 0;
+            width: 40px; height: 40px; background: white;
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; overflow: hidden; flex-shrink: 0;
         }
         .deal-icon img { width: 100%; height: 100%; object-fit: cover; }
         .deal-details { flex: 1; }
@@ -616,42 +408,25 @@
         .deal-shop { color: #007aff; }
         .deal-discount { color: #34c759; font-weight: 600; font-size: 16px; }
         
+        /* Fridge Summary */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 24px;
-            animation: fadeInScale 0.5s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .fridge-summary::after {
-            content: '';
-            position: absolute;
-            bottom: -30px; right: -30px;
-            width: 120px; height: 120px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 50%;
-            pointer-events: none;
+            color: white; padding: 20px; border-radius: 16px;
+            margin-bottom: 24px; animation: fadeInScale 0.5s ease;
+            position: relative; overflow: hidden;
         }
         .fridge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .fridge-header h3 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
-        .fridge-header h3 img { width: 24px; height: 24px; }
-        .fridge-link { color: white; text-decoration: none; opacity: 0.9; transition: opacity 0.2s; }
+        .fridge-link { color: white; text-decoration: none; opacity: 0.9; }
         .fridge-link:hover { opacity: 1; }
         .stats-row { display: flex; justify-content: space-around; text-align: center; margin: 20px 0; }
         .stat-box {
-            flex: 1;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 16px;
-            padding: 12px 0;
+            flex: 1; cursor: pointer; transition: all 0.3s ease;
+            border-radius: 16px; padding: 12px 0;
         }
         .stat-box:hover { transform: scale(1.05); }
         .stat-box:active { transform: scale(0.95); }
-        .stat-number { font-size: 36px; font-weight: bold; transition: all 0.3s; }
-        .stat-box:hover .stat-number { transform: scale(1.1); }
+        .stat-number { font-size: 36px; font-weight: bold; }
         .stat-label { font-size: 14px; opacity: 0.9; }
         .stat-box.good { background: rgba(52, 199, 89, 0.2); }
         .stat-box.good .stat-number { color: #4cd964; }
@@ -662,12 +437,13 @@
         .fridge-footer { text-align: center; margin-top: 10px; }
         .fridge-footer a { color: white; text-decoration: underline; }
         
+        /* Profile Picture */
         .profile-picture-section { text-align: center; margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 16px; }
         .profile-picture {
-            width: 100px; height: 100px; border-radius: 50px; background: #e8ecf0;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 12px; overflow: hidden; cursor: pointer;
-            transition: all 0.3s ease;
+            width: 100px; height: 100px; border-radius: 50px;
+            background: #e8ecf0; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto 12px;
+            overflow: hidden; cursor: pointer; transition: all 0.3s ease;
         }
         .profile-picture:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
@@ -675,35 +451,31 @@
         .change-pic-btn {
             background: #007aff; color: white; border: none;
             padding: 8px 16px; border-radius: 20px; font-size: 12px;
-            cursor: pointer; margin-top: 8px; transition: all 0.3s ease; font-family: inherit;
+            cursor: pointer; margin-top: 8px; transition: all 0.3s ease;
+            font-family: inherit;
         }
         .change-pic-btn:hover { background: #0056cc; }
         
         .empty-state { text-align: center; padding: 30px; color: #999; background: #f8f9fa; border-radius: 16px; }
         
+        /* Bottom Navigation */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; max-width: 400px;
-            margin: 0 auto; background: white; border-top: 1px solid #f0f0f0;
-            padding: 8px 20px; display: flex; justify-content: space-around;
-            z-index: 100;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            max-width: 400px; margin: 0 auto; background: white;
+            border-top: 1px solid #f0f0f0; padding: 8px 20px;
+            display: flex; justify-content: space-around; z-index: 100;
         }
         .nav-item {
             text-decoration: none; color: #999; font-size: 12px;
-            text-align: center; flex: 1; padding: 4px 0; cursor: pointer;
-            transition: all 0.3s ease; position: relative;
+            text-align: center; flex: 1; padding: 4px 0;
+            cursor: pointer; transition: all 0.3s ease; position: relative;
         }
         .nav-item:hover { color: #007aff; }
         .nav-item.active { color: #007aff; }
         .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: #007aff;
-            border-radius: 50%;
+            content: ''; position: absolute; bottom: -8px;
+            left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; background: #007aff; border-radius: 50%;
         }
         .nav-emoji { font-size: 20px; margin-bottom: 2px; display: block; height: 24px; line-height: 24px; transition: transform 0.3s; }
         .nav-item:hover .nav-emoji { transform: translateY(-3px); }
@@ -714,13 +486,15 @@
         body.advertiser .bottom-nav-consumer { display: none; }
         body.advertiser .bottom-nav-business { display: flex; }
         .bottom-nav-consumer, .bottom-nav-business {
-            position: fixed; bottom: 0; left: 0; right: 0; max-width: 400px;
-            margin: 0 auto; background: white; border-top: 1px solid #f0f0f0;
-            padding: 8px 20px; justify-content: space-around;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            max-width: 400px; margin: 0 auto; background: white;
+            border-top: 1px solid #f0f0f0; padding: 8px 20px;
+            justify-content: space-around;
         }
         .bottom-nav-consumer { display: none; }
         .bottom-nav-business { display: none; }
         
+        /* Modals */
         .modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); display: flex; align-items: center;
@@ -734,7 +508,8 @@
         .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center; }
         .modal-input {
             width: 100%; padding: 12px; border: 1px solid #e0e0e0;
-            border-radius: 10px; margin-bottom: 12px; font-family: inherit; transition: border-color 0.3s;
+            border-radius: 10px; margin-bottom: 12px; font-family: inherit;
+            transition: border-color 0.3s;
         }
         .modal-input:focus { outline: none; border-color: #007aff; }
         .modal-buttons { display: flex; gap: 12px; margin-top: 16px; }
@@ -746,6 +521,21 @@
         .modal-btn.confirm:hover { background: #2db14e; }
         .modal-btn.cancel { background: #999; color: white; }
         .modal-btn.cancel:hover { background: #888; }
+        .modal-btn.danger { background: #ff3b30; color: white; }
+        .modal-btn.danger:hover { background: #d63031; }
+        
+        /* Delete account modal specific */
+        .warning-box {
+            background: #fff5f5; border: 1px solid #ffcdd2;
+            border-radius: 12px; padding: 14px; margin: 12px 0;
+            font-size: 13px; color: #c62828; line-height: 1.5;
+        }
+        .warning-box strong { display: block; margin-bottom: 4px; }
+        .delete-confirm-input {
+            width: 100%; padding: 12px; border: 2px solid #ff3b30;
+            border-radius: 10px; font-family: inherit; font-size: 14px;
+            text-align: center; margin-top: 12px;
+        }
         
         .loading-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -754,18 +544,21 @@
         }
         .loading-spinner {
             width: 50px; height: 50px; border: 4px solid white;
-            border-top-color: #007aff; border-radius: 50%; animation: spin 1s linear infinite;
+            border-top-color: #007aff; border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
+        /* Advertiser Section */
         .advertiser-only { display: none; }
         body.advertiser .advertiser-only { display: block; }
+        .consumer-only { display: none; }
+        body.consumer .consumer-only { display: block; }
         .profile-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white; padding: 20px; border-radius: 16px;
             margin-bottom: 20px; cursor: pointer;
-            transition: all 0.3s ease;
-            animation: fadeInScale 0.5s ease;
+            transition: all 0.3s ease; animation: fadeInScale 0.5s ease;
         }
         .profile-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
@@ -789,8 +582,9 @@
         .shop-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
         .shop-action {
             background: #f8f9fa; padding: 20px; text-align: center;
-            text-decoration: none; color: #1a1a1a; border: 1px solid #f0f0f0;
-            border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none; color: #1a1a1a;
+            border: 1px solid #f0f0f0; border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .shop-action:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: #667eea; }
         .shop-action:active { transform: scale(0.96); }
@@ -819,7 +613,7 @@
 </head>
 <body>
 
-<!-- ============ SPLASH LOADING SCREEN ============ -->
+<!-- SPLASH LOADING SCREEN -->
 <div class="splash-screen" id="splashScreen">
     <div class="splash-particle"></div>
     <div class="splash-particle"></div>
@@ -827,7 +621,6 @@
     <div class="splash-particle"></div>
     <div class="splash-particle"></div>
     <div class="splash-particle"></div>
-    
     <div class="splash-logo"></div>
     <div class="splash-title">food<span>savvi</span></div>
     <div class="splash-loader">
@@ -838,7 +631,7 @@
     <div class="splash-text" id="splashMessage">loading your dashboard...</div>
 </div>
 
-<!-- ============ MAIN APP ============ -->
+<!-- MAIN APP -->
 <div class="app">
     <div class="header">
         <div class="greeting">
@@ -851,9 +644,10 @@
         </div>
         <div class="date" id="currentDate"></div>
         <button class="refresh-header" onclick="refreshAll()">↻</button>
-        <button class="logout-btn" onclick="logout()">logout</button>
+        <button class="logout-btn" onclick="handleLogout()">logout</button>
     </div>
     <div class="content">
+        <!-- CONSUMER VIEW -->
         <div class="consumer-only">
             <div class="wallet-card">
                 <div class="wallet-label">💰 My Wallet</div>
@@ -872,27 +666,15 @@
             </div>
             
             <div class="tab-content active" id="homeTab">
-                <!-- Original 2×2 Quick Actions -->
                 <div class="quick-actions">
-                    <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
-                    <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
-                    <div class="action-card" onclick="window.location.href='fridge.html'"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width: 28px; height: 28px;" onerror="this.style.display='none'; this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
-                    <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
+                    <div class="action-card" onclick="window.location.href='shoplist.html'" style="animation: slideInLeft 0.4s ease 0.05s both;"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
+                    <div class="action-card" onclick="window.location.href='find-stores.html'" style="animation: slideInRight 0.4s ease 0.1s both;"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
+                    <div class="action-card" onclick="window.location.href='fridge.html'" style="animation: slideInLeft 0.4s ease 0.15s both;"><div class="card-emoji"><img src="assets/fridge.png" alt="fridge" style="width:28px;height:28px;" onerror="this.style.display='none';this.parentElement.innerHTML='🧊'"></div><div class="card-title">my fridge</div><div class="card-desc" id="fridgeCount">0 items</div></div>
+                    <div class="action-card" onclick="window.location.href='recipe.html'" style="animation: slideInRight 0.4s ease 0.2s both;"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
-                
-                <!-- Community Banner (new separate card) -->
-                <div class="community-banner-card" onclick="window.location.href='community.html'">
-                    <div class="community-icon">🤝</div>
-                    <div class="community-text">
-                        <div class="community-title">Community Sharing</div>
-                        <div class="community-subtitle">Share or find free food nearby</div>
-                    </div>
-                    <div class="community-arrow">→</div>
-                </div>
-                
                 <div class="section-title">🔥 hot deals near you<button class="refresh-icon" onclick="loadDealsData()">↻</button><a href="find-stores.html" class="view-all">view all →</a></div>
                 <div class="deals-list" id="recentDeals"><div class="empty-state">🔍 loading deals...</div></div>
-                <div class="section-title"><img src="assets/fridge.png" alt="fridge" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;" onerror="this.style.display='none'"> your fridge<button class="refresh-icon" onclick="loadFridgeData()">↻</button><a href="fridge.html" class="view-all">manage →</a></div>
+                <div class="section-title"><img src="assets/fridge.png" alt="fridge" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'"> your fridge<button class="refresh-icon" onclick="loadFridgeData()">↻</button><a href="fridge.html" class="view-all">manage →</a></div>
                 <div class="fridge-summary" id="fridgeSummary">
                     <div class="fridge-header"><h3><img src="assets/fridge.png" alt="fridge" onerror="this.style.display='none'"> fridge status</h3><a href="fridge.html" class="fridge-link">view all →</a></div>
                     <div class="stats-row">
@@ -906,15 +688,21 @@
             
             <div class="tab-content" id="profileTab">
                 <div class="profile-picture-section">
-                    <div class="profile-picture" id="profilePictureContainer" onclick="uploadProfilePicture()"><div class="placeholder" id="profilePicturePlaceholder">👤</div><img id="profilePictureImg" style="display: none;"></div>
+                    <div class="profile-picture" id="profilePictureContainer" onclick="uploadProfilePicture()"><div class="placeholder" id="profilePicturePlaceholder">👤</div><img id="profilePictureImg" style="display:none;"></div>
                     <button class="change-pic-btn" onclick="uploadProfilePicture()">📸 Change Profile Picture</button>
-                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;" onchange="handleProfilePictureUpload(event)">
+                    <input type="file" id="profilePictureInput" accept="image/*" style="display:none;" onchange="handleProfilePictureUpload(event)">
                 </div>
                 <div class="profile-info-card">
                     <div class="info-row"><div class="info-label">Name</div><div class="info-value" id="profileName">-</div><button class="edit-btn" onclick="editProfileField('name')">edit</button></div>
                     <div class="info-row"><div class="info-label">Email</div><div class="info-value" id="profileEmail">-</div><button class="edit-btn" onclick="editProfileField('email')">edit</button></div>
                     <div class="info-row"><div class="info-label">Phone</div><div class="info-value" id="profilePhone">-</div><button class="edit-btn" onclick="editProfileField('phone')">edit</button></div>
                     <div class="info-row"><div class="info-label">Member since</div><div class="info-value" id="memberSince">-</div></div>
+                </div>
+                
+                <!-- Delete Account Section -->
+                <div class="delete-account-section">
+                    <button class="delete-account-btn" onclick="openDeleteAccountModal()">⚠️ Delete Account</button>
+                    <div style="font-size:10px;color:#999;margin-top:8px;">This action is permanent and cannot be undone</div>
                 </div>
             </div>
             
@@ -931,6 +719,7 @@
             </div>
         </div>
         
+        <!-- ADVERTISER VIEW -->
         <div class="advertiser-only">
             <div class="profile-card" onclick="window.location.href='business-profile.html?tab=profile'">
                 <div class="profile-header"><div class="profile-avatar">🏪</div><div class="profile-name"><h3 id="shopName">your shop</h3><div class="profile-meta" id="shopAddress">tap to edit</div><div class="verification-status" id="verificationStatus">⏳ pending</div></div></div>
@@ -947,13 +736,15 @@
         </div>
     </div>
     
+    <!-- Consumer Bottom Nav -->
     <div class="bottom-nav-consumer">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
         <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">📝</span><span id="navLabel">lists</span></div>
-        <div class="nav-item" onclick="window.location.href='fridge.html'"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge" style="height: 20px; vertical-align: middle;"></span><span>fridge</span></div>
+        <div class="nav-item" onclick="window.location.href='fridge.html'"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge" style="height:20px;vertical-align:middle;"></span><span>fridge</span></div>
     </div>
     
+    <!-- Business Bottom Nav -->
     <div class="bottom-nav-business">
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='advertise.html'"><span class="nav-emoji">📢</span><span>ads</span></div>
@@ -962,17 +753,57 @@
     </div>
 </div>
 
+<!-- Regular Modals -->
 <div class="modal" id="topUpModal"><div class="modal-content"><div class="modal-title">💳 Add Funds</div><input type="number" class="modal-input" id="topUpAmount" placeholder="Enter amount ($)" min="1" step="1"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeTopUpModal()">Cancel</button><button class="modal-btn confirm" onclick="processTopUp()">Add Funds</button></div></div></div>
 <div class="modal" id="editModal"><div class="modal-content"><div class="modal-title" id="modalTitle">Edit</div><input type="text" class="modal-input" id="modalInput" placeholder="Enter value"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeEditModal()">Cancel</button><button class="modal-btn confirm" onclick="saveProfileEdit()">Save</button></div></div></div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal" id="logoutModal">
+    <div class="modal-content">
+        <div class="modal-title">👋 Logout?</div>
+        <p style="text-align:center;color:#666;font-size:14px;margin-bottom:16px;">Are you sure you want to log out?</p>
+        <div class="modal-buttons">
+            <button class="modal-btn cancel" onclick="closeLogoutModal()">Cancel</button>
+            <button class="modal-btn danger" onclick="confirmLogout()">Logout</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal" id="deleteAccountModal">
+    <div class="modal-content">
+        <div class="modal-title">⚠️ Delete Account</div>
+        
+        <div class="warning-box">
+            <strong>⚠️ Warning: This action cannot be undone!</strong>
+            <ul style="padding-left:16px;margin-top:8px;">
+                <li>Your account will be <strong>permanently deleted</strong></li>
+                <li>All your data will be erased</li>
+                <li><strong>Any remaining wallet balance will NOT be refunded</strong></li>
+                <li>Active orders will be cancelled</li>
+                <li>Fridge items and shopping lists will be lost</li>
+            </ul>
+        </div>
+        
+        <p style="font-size:13px;color:#666;text-align:center;margin-bottom:8px;">
+            Type <strong style="color:#ff3b30;">DELETE</strong> to confirm:
+        </p>
+        <input type="text" class="delete-confirm-input" id="deleteConfirmInput" placeholder="Type DELETE here" autocomplete="off">
+        
+        <div class="modal-buttons" style="margin-top:16px;">
+            <button class="modal-btn cancel" onclick="closeDeleteAccountModal()">Cancel</button>
+            <button class="modal-btn danger" id="confirmDeleteBtn" onclick="confirmDeleteAccount()" disabled>Delete Forever</button>
+        </div>
+    </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 <script>
     let currentRole = 'consumer', businessRole = 'staff', isVerified = false, currentUser = null, walletBalance = 0, editField = '';
-    let map = null;
-    let userMarker = null;
-    let storeMarkers = [];
+    let map = null, userMarker = null, storeMarkers = [];
 
     const splashMessages = [
         'loading your dashboard...',
@@ -995,9 +826,8 @@
             return; 
         }
         
-        currentUser = user; 
-        currentRole = role; 
-        businessRole = localStorage.getItem('businessRole') || 'staff'; 
+        currentUser = user; currentRole = role;
+        businessRole = localStorage.getItem('businessRole') || 'staff';
         isVerified = localStorage.getItem('businessVerified') === 'true';
         
         document.body.className = role;
@@ -1011,30 +841,90 @@
         updateNavigation();
         loadProfilePicture();
         
-        if (role === 'consumer') { 
-            await refreshAll(); 
-            initMap(); 
-        } else {
-            loadAdvertiserData();
-        }
+        if (role === 'consumer') { await refreshAll(); initMap(); }
+        else loadAdvertiserData();
 
         setTimeout(() => {
             clearInterval(msgInterval);
             document.getElementById('splashMessage').textContent = 'ready! 🎉';
-            setTimeout(() => {
-                document.getElementById('splashScreen').classList.add('hidden');
-            }, 400);
+            setTimeout(() => { document.getElementById('splashScreen').classList.add('hidden'); }, 400);
         }, 1500);
     });
+
+    // ============ LOGOUT FUNCTIONS ============
+    function handleLogout() {
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    async function confirmLogout() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        try {
+            await Backend.logout();
+            window.location.href = 'login.html';
+        } catch(e) {
+            alert('Logout failed. Please try again.');
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    }
+
+    // ============ DELETE ACCOUNT FUNCTIONS ============
+    function openDeleteAccountModal() {
+        document.getElementById('deleteAccountModal').style.display = 'flex';
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('confirmDeleteBtn').disabled = true;
+        
+        // Monitor the input field
+        document.getElementById('deleteConfirmInput').addEventListener('input', function() {
+            document.getElementById('confirmDeleteBtn').disabled = this.value !== 'DELETE';
+        });
+    }
+
+    function closeDeleteAccountModal() {
+        document.getElementById('deleteAccountModal').style.display = 'none';
+    }
+
+    async function confirmDeleteAccount() {
+        const confirmText = document.getElementById('deleteConfirmInput').value;
+        if (confirmText !== 'DELETE') {
+            alert('Please type DELETE to confirm');
+            return;
+        }
+
+        // Final warning
+        if (!confirm('FINAL WARNING: This will permanently delete your account.\n\n• All data will be lost\n• Wallet balance ($' + (walletBalance || 0).toFixed(2) + ') will NOT be refunded\n• This cannot be undone\n\nAre you absolutely sure?')) {
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        try {
+            const result = await Backend.deleteAccount(currentUser.id);
+            if (result.success) {
+                alert('Your account has been deleted. You will now be logged out.');
+                await Backend.logout();
+                window.location.href = 'login.html';
+            } else {
+                alert(result.message || 'Failed to delete account. Please try again.');
+            }
+        } catch(e) {
+            alert('Error deleting account: ' + (e.message || 'Unknown error'));
+        }
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
     
+    // ============ MAP FUNCTIONS ============
     function initMap() {
         const container = document.getElementById('mapContainer');
-        container.innerHTML = '<div id="leafletMap" style="height: 100%; width: 100%;"></div>';
+        container.innerHTML = '<div id="leafletMap" style="height:100%;width:100%;"></div>';
         map = L.map('leafletMap').setView([1.3521, 103.8198], 12);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19
+            attribution: '&copy; OSM &copy; CartoDB',
+            subdomains: 'abcd', maxZoom: 19
         }).addTo(map);
         loadAllStoresOnMap();
     }
@@ -1043,10 +933,7 @@
         try {
             const allBusinesses = await getAllBusinesses();
             const storeListDiv = document.getElementById('storeList');
-            if (allBusinesses.length === 0) {
-                storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores found</div>';
-                return;
-            }
+            if (allBusinesses.length === 0) { storeListDiv.innerHTML = '<div class="empty-state">🏪 No stores found</div>'; return; }
             storeMarkers.forEach(marker => map.removeLayer(marker));
             storeMarkers = [];
             let listHtml = '';
@@ -1056,22 +943,15 @@
                     const marker = L.marker([store.lat, store.lng]).addTo(map);
                     marker.bindPopup(popupContent, { maxWidth: 250, className: 'custom-popup' });
                     storeMarkers.push(marker);
-                    listHtml += `<div class="store-item" data-store-id="${store.id}" onclick="flyToStore(${store.lat}, ${store.lng}, '${store.name.replace(/'/g, "\\'")}')">
-                        <div class="store-name">🏪 ${escapeHtml(store.name)}</div>
-                        <div class="store-address">📍 ${escapeHtml(store.address || 'Address not specified')}</div>
-                    </div>`;
+                    listHtml += `<div class="store-item" onclick="flyToStore(${store.lat},${store.lng})"><div class="store-name">🏪 ${escapeHtml(store.name)}</div><div class="store-address">📍 ${escapeHtml(store.address||'Address not specified')}</div></div>`;
                 }
             }
             storeListDiv.innerHTML = listHtml;
-            if (allBusinesses.length > 0) {
-                const validStores = allBusinesses.filter(s => s.lat && s.lng && s.lat !== 0 && s.lng !== 0);
-                if (validStores.length > 0) {
-                    map.fitBounds(L.latLngBounds(validStores.map(s => [s.lat, s.lng])));
-                }
+            if (allBusinesses.some(s => s.lat && s.lng)) {
+                const valid = allBusinesses.filter(s => s.lat && s.lng && s.lat !== 0 && s.lng !== 0);
+                if (valid.length > 0) map.fitBounds(L.latLngBounds(valid.map(s => [s.lat, s.lng])));
             }
-        } catch(e) {
-            document.getElementById('storeList').innerHTML = '<div class="empty-state">⚠️ Error loading stores</div>';
-        }
+        } catch(e) { document.getElementById('storeList').innerHTML = '<div class="empty-state">⚠️ Error loading stores</div>'; }
     }
     
     async function getAllBusinesses() {
@@ -1080,8 +960,7 @@
             query.equalTo("role", "advertiser");
             const businesses = await query.find();
             return businesses.map(biz => ({
-                id: biz.id,
-                name: biz.get("businessName") || biz.get("username"),
+                id: biz.id, name: biz.get("businessName") || biz.get("username"),
                 address: biz.get("businessAddress") || 'Address not specified',
                 lat: biz.get("businessLat") ? parseFloat(biz.get("businessLat")) : 0,
                 lng: biz.get("businessLng") ? parseFloat(biz.get("businessLng")) : 0
@@ -1090,20 +969,13 @@
     }
     
     async function createStorePopupContent(store) {
-        let adsHtml = '<div class="popup-ads-title">📢 Active Deals:</div>';
-        let hasAds = false;
+        let adsHtml = '<div class="popup-ads-title">📢 Active Deals:</div>'; let hasAds = false;
         try {
             const ads = await Backend.getActiveAds({ businessId: store.id, limit: 10 });
-            if (ads && ads.length > 0) {
-                hasAds = true;
-                for (const ad of ads) {
-                    const daysLeft = Math.ceil((new Date(ad.offerEnds) - new Date()) / (1000 * 60 * 60 * 24));
-                    adsHtml += `<div class="popup-ad-item"><span class="popup-ad-name">${escapeHtml(ad.foodName)}</span><span class="popup-ad-discount"> -${ad.discount}%</span><div style="font-size:10px;color:#999;">${daysLeft} days left • ${ad.quantityLeft||0} left</div></div>`;
-                }
-            }
+            if (ads && ads.length > 0) { hasAds = true; for (const ad of ads) { const daysLeft = Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24)); adsHtml += `<div class="popup-ad-item"><span class="popup-ad-name">${escapeHtml(ad.foodName)}</span><span class="popup-ad-discount"> -${ad.discount}%</span><div style="font-size:10px;color:#999;">${daysLeft} days left • ${ad.quantityLeft||0} left</div></div>`; } }
         } catch(e) {}
         if (!hasAds) adsHtml = '<div class="popup-ads-title">📢 No active deals at the moment</div>';
-        return `<div class="custom-popup"><div class="popup-store-name">🏪 ${escapeHtml(store.name)}</div><div class="popup-store-address">📍 ${escapeHtml(store.address)}</div>${adsHtml}<div style="margin-top:8px;text-align:center;"><a href="find-stores.html?store=${encodeURIComponent(store.id)}" style="font-size:11px;color:#007aff;text-decoration:none;">View all deals →</a></div></div>`;
+        return `<div class="custom-popup"><div class="popup-store-name">🏪 ${escapeHtml(store.name)}</div><div class="popup-store-address">📍 ${escapeHtml(store.address)}</div>${adsHtml}</div>`;
     }
     
     function getUserLocation() {
@@ -1112,37 +984,18 @@
             (position) => {
                 const lat = position.coords.latitude, lng = position.coords.longitude;
                 if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
-                map.setView([lat, lng], 14);
-            },
-            () => { alert('Unable to get your location'); }
+                userMarker = L.marker([lat,lng]).addTo(map).bindPopup('You are here').openPopup();
+                map.setView([lat,lng], 14);
+            }, () => { alert('Unable to get your location'); }
         );
     }
     
-    function flyToStore(lat, lng) {
-        map.flyTo([lat, lng], 16);
-        const marker = storeMarkers.find(m => { const pos = m.getLatLng(); return pos.lat === lat && pos.lng === lng; });
-        if (marker) marker.openPopup();
-    }
+    function flyToStore(lat, lng) { map.flyTo([lat,lng], 16); const marker = storeMarkers.find(m => { const pos=m.getLatLng(); return pos.lat===lat&&pos.lng===lng; }); if(marker) marker.openPopup(); }
     
-    function refreshAll() {
-        loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
-        if (map) loadAllStoresOnMap();
-    }
+    function refreshAll() { loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData(); if(map) loadAllStoresOnMap(); }
     
     async function loadWalletBalance() { try { walletBalance = await Backend.getWalletBalance(currentUser.id); document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; } catch(e) {} }
-    
-    async function loadProfile() { 
-        try { 
-            const profile = await Backend.getConsumerProfile(currentUser.id); 
-            if(profile){ 
-                document.getElementById('profileName').textContent = profile.fullName || profile.username || currentUser.get('username'); 
-                document.getElementById('profileEmail').textContent = profile.email || currentUser.get('email') || 'Not set'; 
-                document.getElementById('profilePhone').textContent = profile.phone || 'Not set'; 
-                document.getElementById('memberSince').textContent = new Date(profile.createdAt).toLocaleDateString(); 
-            } 
-        } catch(e) {} 
-    }
+    async function loadProfile() { try { const profile = await Backend.getConsumerProfile(currentUser.id); if(profile){ document.getElementById('profileName').textContent = profile.fullName||profile.username||currentUser.get('username'); document.getElementById('profileEmail').textContent = profile.email||currentUser.get('email')||'Not set'; document.getElementById('profilePhone').textContent = profile.phone||'Not set'; document.getElementById('memberSince').textContent = new Date(profile.createdAt).toLocaleDateString(); } } catch(e) {} }
     
     async function loadOrders() {
         const container = document.getElementById('ordersList');
@@ -1152,13 +1005,13 @@
             container.innerHTML = orders.map((order, i) => {
                 let statusClass = '', statusText = '', actions = '';
                 switch(order.status) {
-                    case 'pending': statusClass = 'status-pending'; statusText = 'pending confirmation'; actions = `<div style="font-size:11px;color:#999;margin-top:8px;">⏳ Waiting for business to confirm...</div>`; break;
-                    case 'confirmed_by_business': statusClass = 'status-ready'; statusText = 'ready for pickup'; actions = `<button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
-                    case 'collected_by_customer': statusClass = 'status-completed'; statusText = 'completed'; actions = `<div style="font-size:11px;color:#34c759;margin-top:8px;">✅ Order completed!</div>`; break;
-                    default: statusClass = 'status-pending'; statusText = order.status;
+                    case 'pending': statusClass='status-pending'; statusText='pending confirmation'; actions='<div style="font-size:11px;color:#999;margin-top:8px;">⏳ Waiting for business...</div>'; break;
+                    case 'confirmed_by_business': statusClass='status-ready'; statusText='ready for pickup'; actions=`<button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
+                    case 'collected_by_customer': statusClass='status-completed'; statusText='completed'; actions='<div style="font-size:11px;color:#34c759;margin-top:8px;">✅ Order completed!</div>'; break;
+                    default: statusClass='status-pending'; statusText=order.status;
                 }
-                let itemClass = order.status === 'pending' ? 'pending' : (order.status === 'confirmed_by_business' ? 'ready' : '');
-                return `<div class="order-item ${itemClass}" style="animation-delay: ${i * 0.08}s;"><div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${statusClass}">${statusText}</span></div><div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div><div class="order-total">$${(order.totalAmount || 0).toFixed(2)}</div><div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>${actions}</div>`;
+                let itemClass = order.status==='pending'?'pending':(order.status==='confirmed_by_business'?'ready':'');
+                return `<div class="order-item ${itemClass}" style="animation-delay:${i*0.08}s;"><div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${statusClass}">${statusText}</span></div><div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div><div class="order-total">$${(order.totalAmount||0).toFixed(2)}</div><div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>${actions}</div>`;
             }).join('');
         } catch(e) { container.innerHTML = '<div class="empty-state">Error loading orders</div>'; }
     }
@@ -1167,196 +1020,167 @@
         if (!orderId) { alert('Invalid order ID'); return; }
         if (!confirm('Confirm that you have picked up your order?')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
-        try {
-            const result = await Backend.confirmCollectedByCustomer(orderId);
-            if (result.success) { await loadOrders(); await loadWalletBalance(); }
-            else alert(result.message || 'Failed to confirm pickup');
-        } catch(e) { alert('Error confirming pickup'); }
+        try { const result = await Backend.confirmCollectedByCustomer(orderId); if(result.success){ await loadOrders(); await loadWalletBalance(); } else alert(result.message||'Failed'); } catch(e) { alert('Error'); }
         finally { document.getElementById('loadingOverlay').style.display = 'none'; }
     }
     
     function openTopUpModal() { document.getElementById('topUpModal').style.display = 'flex'; }
     function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; document.getElementById('topUpAmount').value = ''; }
-    
     async function processTopUp() {
         const amount = parseFloat(document.getElementById('topUpAmount').value);
-        if (isNaN(amount) || amount < 1) { alert('Please enter a valid amount (minimum $1)'); return; }
+        if (isNaN(amount)||amount<1) { alert('Please enter a valid amount (minimum $1)'); return; }
         closeTopUpModal(); document.getElementById('loadingOverlay').style.display = 'flex';
         await new Promise(r => setTimeout(r, 1500));
         const result = await Backend.addToWallet(currentUser.id, amount);
         if (result.success) { walletBalance = result.newBalance; document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; }
-        else alert(result.message || 'Failed to add funds');
+        else alert(result.message||'Failed to add funds');
         document.getElementById('loadingOverlay').style.display = 'none';
     }
     
-    function editProfileField(field) { 
-        editField = field; 
-        const titles = { name:'Edit Name', email:'Edit Email', phone:'Edit Phone' }; 
-        document.getElementById('modalTitle').textContent = titles[field]; 
-        document.getElementById('modalInput').value = ''; 
-        document.getElementById('editModal').style.display = 'flex'; 
-    }
-    
+    function editProfileField(field) { editField=field; const titles={name:'Edit Name',email:'Edit Email',phone:'Edit Phone'}; document.getElementById('modalTitle').textContent=titles[field]; document.getElementById('modalInput').value=''; document.getElementById('editModal').style.display='flex'; }
     async function saveProfileEdit() {
         const newValue = document.getElementById('modalInput').value.trim();
-        if (!newValue) { alert('Enter a value'); return; }
-        const updates = {}; 
-        if (editField === 'name') updates.fullName = newValue; 
-        if (editField === 'email') updates.email = newValue; 
-        if (editField === 'phone') updates.phone = newValue;
-        const result = await Backend.updateConsumerProfile(currentUser.id, updates);
-        if (result.success) { await loadProfile(); closeEditModal(); }
-        else alert('Update failed');
+        if(!newValue){alert('Enter a value');return;}
+        const updates={}; if(editField==='name')updates.fullName=newValue; if(editField==='email')updates.email=newValue; if(editField==='phone')updates.phone=newValue;
+        const result=await Backend.updateConsumerProfile(currentUser.id,updates);
+        if(result.success){await loadProfile();closeEditModal();} else alert('Update failed');
     }
-    
-    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    function closeEditModal() { document.getElementById('editModal').style.display='none'; }
     
     function switchConsumerTab(tab) {
-        document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const tabMap = { home:0, profile:1, map:2, orders:3 };
+        document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+        const tabMap={home:0,profile:1,map:2,orders:3};
         document.querySelectorAll('.tabs .tab')[tabMap[tab]].classList.add('active');
         document.getElementById(`${tab}Tab`).classList.add('active');
-        if (tab === 'orders') loadOrders();
-        if (tab === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
+        if(tab==='orders')loadOrders();
+        if(tab==='map'&&map)setTimeout(()=>map.invalidateSize(),100);
     }
     
-    function goToHome() { if (currentRole === 'consumer') switchConsumerTab('home'); }
-    function goToProfile() { if (currentRole === 'advertiser') window.location.href = 'business-profile.html?tab=profile'; else switchConsumerTab('profile'); }
-    function navigateToRolePage() { window.location.href = currentRole === 'consumer' ? 'shoplist.html' : 'advertise.html'; }
-    function updateNavigation() { 
-        const navIcon = document.getElementById('navIcon'), navLabel = document.getElementById('navLabel'); 
-        if (currentRole === 'consumer') { navIcon.textContent = '📝'; navLabel.textContent = 'lists'; } 
-        else { navIcon.textContent = '📢'; navLabel.textContent = 'post ad'; } 
-    }
+    function goToHome() { if(currentRole==='consumer')switchConsumerTab('home'); }
+    function navigateToRolePage() { window.location.href = currentRole==='consumer'?'shoplist.html':'advertise.html'; }
+    function updateNavigation() { const navIcon=document.getElementById('navIcon'),navLabel=document.getElementById('navLabel'); if(currentRole==='consumer'){navIcon.textContent='📝';navLabel.textContent='lists';} else {navIcon.textContent='📢';navLabel.textContent='post ad';} }
     
     async function loadFridgeData() {
         try {
             let items = await Backend.loadFridgeItems();
-            if (!items || items.length === 0) items = JSON.parse(localStorage.getItem('foodItems')) || [];
-            document.getElementById('fridgeCount').textContent = items.length + ' items';
-            const today = new Date(); today.setHours(0,0,0,0);
-            let good = 0, expiring = 0, expired = 0;
-            items.forEach(item => {
-                if (item.expiry) {
-                    const expiryDate = new Date(item.expiry); expiryDate.setHours(0,0,0,0);
-                    const diffDays = Math.round((expiryDate - today)/(1000*60*60*24));
-                    if (diffDays < 0) expired++; else if (diffDays <= 3) expiring++; else good++;
-                } else good++;
+            if(!items||items.length===0)items=JSON.parse(localStorage.getItem('foodItems'))||[];
+            document.getElementById('fridgeCount').textContent=items.length+' items';
+            const today=new Date(); today.setHours(0,0,0,0);
+            let good=0,expiring=0,expired=0;
+            items.forEach(item=>{
+                if(item.expiry){const d=new Date(item.expiry);d.setHours(0,0,0,0);const diff=Math.round((d-today)/(1000*60*60*24));if(diff<0)expired++;else if(diff<=3)expiring++;else good++;}
+                else good++;
             });
-            document.getElementById('goodCount').textContent = good;
-            document.getElementById('expiringCount').textContent = expiring;
-            document.getElementById('expiredCount').textContent = expired;
-            const footer = document.getElementById('fridgeFooter');
-            if (items.length === 0) footer.innerHTML = '<a href="fridge.html">add items to fridge →</a>';
-            else if (expired > 0) footer.innerHTML = `<a href="fridge.html" style="color:#ff9f9f;">⚠️ ${expired} item(s) expired - check fridge →</a>`;
-            else if (expiring > 0) footer.innerHTML = `<a href="fridge.html" style="color:#ffd700;">⏰ ${expiring} item(s) expiring soon →</a>`;
-            else footer.innerHTML = '';
+            document.getElementById('goodCount').textContent=good;
+            document.getElementById('expiringCount').textContent=expiring;
+            document.getElementById('expiredCount').textContent=expired;
+            const footer=document.getElementById('fridgeFooter');
+            if(items.length===0)footer.innerHTML='<a href="fridge.html">add items to fridge →</a>';
+            else if(expired>0)footer.innerHTML=`<a href="fridge.html" style="color:#ff9f9f;">⚠️ ${expired} item(s) expired</a>`;
+            else if(expiring>0)footer.innerHTML=`<a href="fridge.html" style="color:#ffd700;">⏰ ${expiring} item(s) expiring soon</a>`;
+            else footer.innerHTML='';
         } catch(e) {}
     }
     
-    function loadListCount() { 
-        const lists = JSON.parse(localStorage.getItem('shoplists')) || {}; 
-        let total = 0; 
-        for(let key in lists) if(lists[key].items) total += lists[key].items.length; 
-        document.getElementById('listCount').textContent = total + ' items'; 
-    }
+    function loadListCount() { const lists=JSON.parse(localStorage.getItem('shoplists'))||{}; let total=0; for(let key in lists)if(lists[key].items)total+=lists[key].items.length; document.getElementById('listCount').textContent=total+' items'; }
     
     async function loadDealsData() {
-        const container = document.getElementById('recentDeals');
+        const container=document.getElementById('recentDeals');
         try {
-            const ads = await Backend.getActiveAds({ limit:100 });
-            document.getElementById('dealsCount').textContent = ads.length + ' nearby';
-            if(ads.length === 0) { container.innerHTML = '<div class="empty-state">🔍 no deals nearby</div>'; return; }
-            const sortedAds = [...ads].sort((a,b)=> (b.discount||0)-(a.discount||0));
-            const topAds = sortedAds.slice(0,3);
-            let html = '';
-            topAds.forEach((ad, i) => {
-                const daysUntil = Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
-                html += `<div class="deal-item" onclick="window.location.href='find-stores.html'" style="animation-delay: ${i * 0.1}s;">${ad.productImage ? `<div class="deal-icon"><img src="${ad.productImage}" alt="${escapeHtml(ad.foodName)}"></div>` : `<div class="deal-icon">🏷️</div>`}<div class="deal-details"><div class="deal-name">${escapeHtml(ad.foodName)}</div><div class="deal-meta"><span class="deal-shop">${escapeHtml(ad.shopName)}</span><span>•</span><span>${daysUntil} days left</span></div></div><div class="deal-discount">-${ad.discount}%</div></div>`;
+            const ads=await Backend.getActiveAds({limit:100});
+            document.getElementById('dealsCount').textContent=ads.length+' nearby';
+            if(ads.length===0){container.innerHTML='<div class="empty-state">🔍 no deals nearby</div>';return;}
+            const sorted=[...ads].sort((a,b)=>(b.discount||0)-(a.discount||0));
+            let html='';
+            sorted.slice(0,3).forEach((ad,i)=>{
+                const daysUntil=Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
+                html+=`<div class="deal-item" onclick="window.location.href='find-stores.html'" style="animation-delay:${i*0.1}s;">${ad.productImage?`<div class="deal-icon"><img src="${ad.productImage}" alt=""></div>`:'<div class="deal-icon">🏷️</div>'}<div class="deal-details"><div class="deal-name">${escapeHtml(ad.foodName)}</div><div class="deal-meta"><span class="deal-shop">${escapeHtml(ad.shopName)}</span><span>•</span><span>${daysUntil} days left</span></div></div><div class="deal-discount">-${ad.discount}%</div></div>`;
             });
-            container.innerHTML = html;
-        } catch(e) { container.innerHTML = '<div class="empty-state">🔍 error loading deals</div>'; }
+            container.innerHTML=html;
+        } catch(e) { container.innerHTML='<div class="empty-state">🔍 error loading deals</div>'; }
     }
     
     function loadProfilePicture() {
-        const savedPic = localStorage.getItem('profilePicture');
-        const avatarDiv = document.getElementById('userAvatar');
-        const profileImg = document.getElementById('profilePictureImg'), profilePlaceholder = document.getElementById('profilePicturePlaceholder');
-        if (savedPic) { avatarDiv.innerHTML = `<img src="${savedPic}" alt="Profile">`; profileImg.src = savedPic; profileImg.style.display = 'block'; profilePlaceholder.style.display = 'none'; }
-        else { avatarDiv.innerHTML = '👤'; profileImg.style.display = 'none'; profilePlaceholder.style.display = 'flex'; }
+        const savedPic=localStorage.getItem('profilePicture');
+        const avatarDiv=document.getElementById('userAvatar');
+        const profileImg=document.getElementById('profilePictureImg'),profilePlaceholder=document.getElementById('profilePicturePlaceholder');
+        if(savedPic){avatarDiv.innerHTML=`<img src="${savedPic}" alt="Profile">`;profileImg.src=savedPic;profileImg.style.display='block';profilePlaceholder.style.display='none';}
+        else {avatarDiv.innerHTML='👤';profileImg.style.display='none';profilePlaceholder.style.display='flex';}
     }
     
-    function uploadProfilePicture() { document.getElementById('profilePictureInput').click(); }
-    
-    async function handleProfilePictureUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) { alert('Image too large. Max 2MB.'); return; }
-        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const result = await Backend.uploadProfilePicture(currentUser.id, e.target.result);
-            if (result.success) loadProfilePicture();
-            else alert('Failed to update profile picture');
-            document.getElementById('loadingOverlay').style.display = 'none';
-        };
+    function uploadProfilePicture(){document.getElementById('profilePictureInput').click();}
+    async function handleProfilePictureUpload(event){
+        const file=event.target.files[0];
+        if(!file)return;
+        if(file.size>2*1024*1024){alert('Image too large. Max 2MB.');return;}
+        if(!file.type.startsWith('image/')){alert('Please select an image file.');return;}
+        document.getElementById('loadingOverlay').style.display='flex';
+        const reader=new FileReader();
+        reader.onload=async function(e){const result=await Backend.uploadProfilePicture(currentUser.id,e.target.result);if(result.success)loadProfilePicture();else alert('Failed');document.getElementById('loadingOverlay').style.display='none';};
         reader.readAsDataURL(file);
     }
     
     function loadAdvertiserData() {
-        const businessName = localStorage.getItem('businessName') || 'your shop';
-        const businessDetails = JSON.parse(localStorage.getItem('businessDetails') || '{}');
-        document.getElementById('shopName').textContent = businessName;
-        document.getElementById('shopAddress').textContent = businessDetails.address || 'tap to edit';
-        document.getElementById('verificationStatus').textContent = isVerified ? '✅ verified' : '⏳ pending';
+        const businessName=localStorage.getItem('businessName')||'your shop';
+        const businessDetails=JSON.parse(localStorage.getItem('businessDetails')||'{}');
+        document.getElementById('shopName').textContent=businessName;
+        document.getElementById('shopAddress').textContent=businessDetails.address||'tap to edit';
+        document.getElementById('verificationStatus').textContent=isVerified?'✅ verified':'⏳ pending';
         loadShopAds();
     }
     
     async function loadShopAds() {
         try {
-            const shopAds = await Backend.getShopAds(currentUser.id);
-            document.getElementById('shopAdCount').textContent = shopAds.length;
-            let views = 0, claimed = 0;
-            shopAds.forEach(ad => { views += ad.views || 0; claimed += ad.claimed || 0; });
-            document.getElementById('shopViews').textContent = views;
-            document.getElementById('shopClaimed').textContent = claimed;
-            const container = document.getElementById('shopAds');
-            if(shopAds.length === 0) { container.innerHTML = `<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html?tab=manage" class="add-link">manage ads →</a></div>`; return; }
-            let html = '';
-            for(let i=0; i<Math.min(shopAds.length,5); i++) {
-                const ad = shopAds[i];
-                const daysUntil = Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
-                let adClass = '', statusText = '';
-                if (daysUntil < 0) { adClass = 'ended'; statusText = `ended ${Math.abs(daysUntil)} day${Math.abs(daysUntil)!==1?'s':''} ago`; }
-                else if (daysUntil <= 2) { adClass = 'expiring'; statusText = `expiring soon • ${daysUntil} day${daysUntil!==1?'s':''} left`; }
-                else { statusText = `${daysUntil} day${daysUntil!==1?'s':''} left`; }
-                const isLowStock = ad.quantityLeft && ad.quantityLeft <= 5;
-                html += `<div class="ad-item ${adClass}" style="animation: slideInLeft 0.4s ease ${i*0.08}s both;"><div class="ad-header"><span class="ad-food">${escapeHtml(ad.foodName)}</span><span class="ad-discount">${ad.discount}% off</span></div><div class="ad-meta"><span>${statusText}</span>${ad.batchNumber?`<span class="ad-batch">batch: ${escapeHtml(ad.batchNumber)}</span>`:''}<span class="ad-quantity ${isLowStock?'low':''}">📊 ${ad.quantityLeft||0} left</span></div></div>`;
+            const shopAds=await Backend.getShopAds(currentUser.id);
+            document.getElementById('shopAdCount').textContent=shopAds.length;
+            let views=0,claimed=0;
+            shopAds.forEach(ad=>{views+=ad.views||0;claimed+=ad.claimed||0;});
+            document.getElementById('shopViews').textContent=views;
+            document.getElementById('shopClaimed').textContent=claimed;
+            const container=document.getElementById('shopAds');
+            if(shopAds.length===0){container.innerHTML='<div class="empty-state"><div>📢 no active ads</div><a href="advertise.html?tab=manage" class="add-link">manage ads →</a></div>';return;}
+            let html='';
+            for(let i=0;i<Math.min(shopAds.length,5);i++){
+                const ad=shopAds[i];
+                const daysUntil=Math.ceil((new Date(ad.offerEnds)-new Date())/(1000*60*60*24));
+                let adClass='',statusText='';
+                if(daysUntil<0){adClass='ended';statusText=`ended ${Math.abs(daysUntil)}d ago`;}
+                else if(daysUntil<=2){adClass='expiring';statusText=`expiring soon • ${daysUntil}d left`;}
+                else {statusText=`${daysUntil}d left`;}
+                html+=`<div class="ad-item ${adClass}" style="animation:slideInLeft 0.4s ease ${i*0.08}s both;"><div class="ad-header"><span class="ad-food">${escapeHtml(ad.foodName)}</span><span class="ad-discount">${ad.discount}% off</span></div><div class="ad-meta"><span>${statusText}</span>${ad.batchNumber?`<span class="ad-batch">batch:${escapeHtml(ad.batchNumber)}</span>`:''}<span class="ad-quantity">📊 ${ad.quantityLeft||0} left</span></div></div>`;
             }
-            container.innerHTML = html;
-        } catch(e) { document.getElementById('shopAds').innerHTML = '<div class="empty-state">error loading ads</div>'; }
+            container.innerHTML=html;
+        } catch(e) { document.getElementById('shopAds').innerHTML='<div class="empty-state">error loading ads</div>'; }
     }
     
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function escapeHtml(str){if(!str)return'';return str.replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');}
     
-    async function logout() {
-        if (!confirm('Are you sure you want to logout?')) return;
-        try {
-            await Backend.logout();
-        } catch (e) {
-            console.error('Logout error:', e);
-        }
-        window.location.href = 'login.html';
-    }
-    
-    window.goToHome = goToHome; window.goToProfile = goToProfile; window.navigateToRolePage = navigateToRolePage; window.switchConsumerTab = switchConsumerTab;
-    window.openTopUpModal = openTopUpModal; window.closeTopUpModal = closeTopUpModal; window.processTopUp = processTopUp;
-    window.editProfileField = editProfileField; window.saveProfileEdit = saveProfileEdit; window.closeEditModal = closeEditModal;
-    window.confirmPickup = confirmPickup; window.refreshAll = refreshAll; window.loadDealsData = loadDealsData; window.loadFridgeData = loadFridgeData; window.loadOrders = loadOrders;
-    window.logout = logout; window.uploadProfilePicture = uploadProfilePicture; window.handleProfilePictureUpload = handleProfilePictureUpload;
-    window.getUserLocation = getUserLocation; window.flyToStore = flyToStore;
+    // Expose functions globally
+    window.handleLogout = handleLogout;
+    window.closeLogoutModal = closeLogoutModal;
+    window.confirmLogout = confirmLogout;
+    window.openDeleteAccountModal = openDeleteAccountModal;
+    window.closeDeleteAccountModal = closeDeleteAccountModal;
+    window.confirmDeleteAccount = confirmDeleteAccount;
+    window.goToHome = goToHome;
+    window.navigateToRolePage = navigateToRolePage;
+    window.switchConsumerTab = switchConsumerTab;
+    window.openTopUpModal = openTopUpModal;
+    window.closeTopUpModal = closeTopUpModal;
+    window.processTopUp = processTopUp;
+    window.editProfileField = editProfileField;
+    window.saveProfileEdit = saveProfileEdit;
+    window.closeEditModal = closeEditModal;
+    window.confirmPickup = confirmPickup;
+    window.refreshAll = refreshAll;
+    window.loadDealsData = loadDealsData;
+    window.loadFridgeData = loadFridgeData;
+    window.loadOrders = loadOrders;
+    window.uploadProfilePicture = uploadProfilePicture;
+    window.handleProfilePictureUpload = handleProfilePictureUpload;
+    window.getUserLocation = getUserLocation;
+    window.flyToStore = flyToStore;
 </script>
 </body>
 </html>
