@@ -1,0 +1,58 @@
+{
+    "name": "foodsavvi - Stop Food Waste",
+    "short_name": "foodsavvi",
+    "description": "Save food, save money, save the planet. Track fridge items, find discounted food deals, and share surplus food with your neighbours.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#34c759",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en-SG",
+    "categories": ["food", "lifestyle", "shopping", "social"],
+    "icons": [
+        {
+            "src": "assets/icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "assets/screenshot1.png",
+            "sizes": "1080x1920",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Home screen with food deals"
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "shortcuts": [
+        {
+            "name": "My Fridge",
+            "url": "/fridge.html",
+            "description": "Check your fridge items",
+            "icons": [{ "src": "assets/fridge.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Find Deals",
+            "url": "/find-stores.html",
+            "description": "Find discounted food nearby",
+            "icons": [{ "src": "assets/icon.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Community",
+            "url": "/community.html",
+            "description": "Share food with neighbours",
+            "icons": [{ "src": "assets/icon.png", "sizes": "96x96" }]
+        }
+    ]
+}
