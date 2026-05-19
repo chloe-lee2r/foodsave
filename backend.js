@@ -191,6 +191,81 @@ const Backend = {
         }
     },
 
+    // ========== DELETE ACCOUNT ==========
+    
+    async deleteAccount(userId) {
+        try {
+            const currentUser = Parse.User.current();
+            if (!currentUser) return { success: false, message: "Please login first" };
+            if (currentUser.id !== userId) return { success: false, message: "Unauthorized" };
+            
+            return await withMasterKey(async () => {
+                const user = await new Parse.Query(Parse.User).get(userId, { useMasterKey: true });
+                
+                // Delete all related data
+                try {
+                    // Delete orders
+                    const Order = Parse.Object.extend("Order");
+                    const orderQuery = new Parse.Query(Order);
+                    orderQuery.equalTo("consumerId", userId);
+                    const orders = await orderQuery.find({ useMasterKey: true });
+                    if (orders.length > 0) await Parse.Object.destroyAll(orders, { useMasterKey: true });
+                    
+                    // Delete fridge items
+                    const Fridge = Parse.Object.extend("Fridge");
+                    const fridgeQuery = new Parse.Query(Fridge);
+                    fridgeQuery.equalTo("userId", userId);
+                    const fridgeItems = await fridgeQuery.find({ useMasterKey: true });
+                    if (fridgeItems.length > 0) await Parse.Object.destroyAll(fridgeItems, { useMasterKey: true });
+                    
+                    // Delete shopping lists
+                    const ShoppingLists = Parse.Object.extend("ShoppingLists");
+                    const listQuery = new Parse.Query(ShoppingLists);
+                    listQuery.equalTo("userId", userId);
+                    const lists = await listQuery.find({ useMasterKey: true });
+                    if (lists.length > 0) await Parse.Object.destroyAll(lists, { useMasterKey: true });
+                    
+                    // Delete community shares
+                    const CommunitySharing = Parse.Object.extend("CommunitySharing");
+                    const shareQuery = new Parse.Query(CommunitySharing);
+                    shareQuery.equalTo("sharerId", userId);
+                    const shares = await shareQuery.find({ useMasterKey: true });
+                    if (shares.length > 0) await Parse.Object.destroyAll(shares, { useMasterKey: true });
+                    
+                    // Delete notifications
+                    const Notification = Parse.Object.extend("Notification");
+                    const notifQuery = new Parse.Query(Notification);
+                    notifQuery.equalTo("userId", userId);
+                    const notifications = await notifQuery.find({ useMasterKey: true });
+                    if (notifications.length > 0) await Parse.Object.destroyAll(notifications, { useMasterKey: true });
+                    
+                    const CommunityNotification = Parse.Object.extend("CommunityNotification");
+                    const commNotifQuery = new Parse.Query(CommunityNotification);
+                    commNotifQuery.equalTo("userId", userId);
+                    const commNotifications = await commNotifQuery.find({ useMasterKey: true });
+                    if (commNotifications.length > 0) await Parse.Object.destroyAll(commNotifications, { useMasterKey: true });
+                    
+                    const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
+                    const consNotifQuery = new Parse.Query(ConsumerNotification);
+                    consNotifQuery.equalTo("consumerId", userId);
+                    const consNotifications = await consNotifQuery.find({ useMasterKey: true });
+                    if (consNotifications.length > 0) await Parse.Object.destroyAll(consNotifications, { useMasterKey: true });
+                    
+                } catch (cleanupError) {
+                    console.error("Error cleaning up user data:", cleanupError);
+                }
+                
+                // Finally delete the user
+                await user.destroy({ useMasterKey: true });
+                
+                return { success: true, message: "Account deleted successfully" };
+            });
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            return { success: false, message: error.message || "Failed to delete account" };
+        }
+    },
+
     // ========== BUSINESS PROFILE ==========
     
     async getBusinessProfile() {
@@ -1203,9 +1278,7 @@ const Backend = {
         }
     },
 
-    // ==========================================
-    // COMMUNITY SHARING SYSTEM (with Master Key)
-    // ==========================================
+    // ========== COMMUNITY SHARING SYSTEM ==========
 
     async createCommunityShare(shareData) {
         try {
@@ -1216,7 +1289,6 @@ const Backend = {
                 const CommunitySharing = Parse.Object.extend("CommunitySharing");
                 const share = new CommunitySharing();
                 
-                // Store pointer to user
                 share.set("sharedBy", {
                     __type: "Pointer",
                     className: "_User",
@@ -1227,13 +1299,13 @@ const Backend = {
                 share.set("sharerId", currentUser.id);
                 share.set("foodItems", shareData.foodItems || []);
                 share.set("description", shareData.description || "");
-                share.set("reason", shareData.reason || "cooked too much");
+                share.set("reason", shareData.reason || "cooked_too_much");
                 share.set("shareType", shareData.shareType || "giveaway");
+                share.set("dietaryInfo", shareData.dietaryInfo || {});
                 share.set("category", "community");
                 share.set("active", true);
                 share.set("status", "available");
                 
-                // Location
                 if (shareData.location) {
                     share.set("location", new Parse.GeoPoint({
                         latitude: shareData.location.lat,
@@ -1251,14 +1323,13 @@ const Backend = {
                 share.set("claimedBy", []);
                 share.set("views", 0);
                 share.set("createdAt", new Date());
-                share.set("expiresAt", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)); // 7 days
+                share.set("expiresAt", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
                 
                 await share.save(null, { useMasterKey: true });
-                console.log("✅ Community share created:", share.id);
                 return { success: true, shareId: share.id, message: "Food shared with community!" };
             });
         } catch (error) {
-            console.error("❌ Error creating community share:", error);
+            console.error("Error creating community share:", error);
             return { success: false, message: error.message };
         }
     },
@@ -1269,7 +1340,6 @@ const Backend = {
                 const CommunitySharing = Parse.Object.extend("CommunitySharing");
                 const query = new Parse.Query(CommunitySharing);
                 
-                // Use master key for all queries
                 query.equalTo("active", true);
                 query.equalTo("status", "available");
                 query.greaterThan("expiresAt", new Date());
@@ -1280,9 +1350,7 @@ const Backend = {
                     query.equalTo("sharerId", options.userId);
                 }
                 
-                console.log("🔍 Querying community shares with master key...");
                 const shares = await query.find({ useMasterKey: true });
-                console.log(`✅ Found ${shares.length} community shares`);
                 
                 return shares.map(share => {
                     const location = share.get("location");
@@ -1300,8 +1368,9 @@ const Backend = {
                             address: share.get("locationAddress") || "Location not specified"
                         } : null,
                         description: share.get("description") || "",
-                        reason: share.get("reason") || "cooked too much",
+                        reason: share.get("reason") || "cooked_too_much",
                         shareType: share.get("shareType") || "giveaway",
+                        dietaryInfo: share.get("dietaryInfo") || {},
                         pickupInstructions: share.get("pickupInstructions") || "",
                         image: share.get("image") || null,
                         views: share.get("views") || 0,
@@ -1314,7 +1383,7 @@ const Backend = {
                 });
             });
         } catch (error) {
-            console.error("❌ Error getting community shares:", error);
+            console.error("Error getting community shares:", error);
             return [];
         }
     },
@@ -1347,6 +1416,7 @@ const Backend = {
                         description: share.get("description") || "",
                         reason: share.get("reason") || "",
                         shareType: share.get("shareType") || "giveaway",
+                        dietaryInfo: share.get("dietaryInfo") || {},
                         pickupInstructions: share.get("pickupInstructions") || "",
                         image: share.get("image") || null,
                         views: share.get("views") || 0,
@@ -1359,7 +1429,6 @@ const Backend = {
                 });
             });
         } catch (error) {
-            console.error("Error getting my shares:", error);
             return [];
         }
     },
@@ -1392,7 +1461,6 @@ const Backend = {
                 share.set("claimedAt", new Date());
                 await share.save(null, { useMasterKey: true });
                 
-                // Send notification to sharer
                 const sharerId = share.get("sharerId");
                 if (sharerId) {
                     const foodNames = (share.get("foodItems") || []).map(item => 
@@ -1412,11 +1480,9 @@ const Backend = {
                     await Backend.sendNotificationToConsumer(sharerId, message);
                 }
                 
-                console.log("✅ Food claimed successfully, notifications sent to sharer");
                 return { success: true, message: "Food claimed! Sharer notified." };
             });
         } catch (error) {
-            console.error("Error claiming share:", error);
             return { success: false, message: error.message };
         }
     },
@@ -1441,11 +1507,9 @@ const Backend = {
                 notification.set("createdAt", new Date());
                 
                 await notification.save(null, { useMasterKey: true });
-                console.log("✅ Community claim notification sent to:", sharerId);
                 return { success: true };
             });
         } catch (error) {
-            console.error("Error sending community notification:", error);
             return { success: false };
         }
     },
@@ -1580,37 +1644,28 @@ const Backend = {
                 }
                 if (!userId) return { success: false };
                 
-                // Mark general notifications
                 const Notification = Parse.Object.extend("Notification");
                 const query1 = new Parse.Query(Notification);
                 query1.equalTo("userId", userId);
                 query1.equalTo("read", false);
                 const generalNotifications = await query1.find({ useMasterKey: true });
-                for (const n of generalNotifications) {
-                    n.set("read", true);
-                }
+                for (const n of generalNotifications) n.set("read", true);
                 await Parse.Object.saveAll(generalNotifications, { useMasterKey: true });
                 
-                // Mark community notifications
                 const CommunityNotification = Parse.Object.extend("CommunityNotification");
                 const query2 = new Parse.Query(CommunityNotification);
                 query2.equalTo("userId", userId);
                 query2.equalTo("read", false);
                 const communityNotifications = await query2.find({ useMasterKey: true });
-                for (const n of communityNotifications) {
-                    n.set("read", true);
-                }
+                for (const n of communityNotifications) n.set("read", true);
                 await Parse.Object.saveAll(communityNotifications, { useMasterKey: true });
                 
-                // Mark consumer notifications
                 const ConsumerNotification = Parse.Object.extend("ConsumerNotification");
                 const query3 = new Parse.Query(ConsumerNotification);
                 query3.equalTo("consumerId", userId);
                 query3.equalTo("read", false);
                 const consumerNotifications = await query3.find({ useMasterKey: true });
-                for (const n of consumerNotifications) {
-                    n.set("read", true);
-                }
+                for (const n of consumerNotifications) n.set("read", true);
                 await Parse.Object.saveAll(consumerNotifications, { useMasterKey: true });
                 
                 return { success: true };
@@ -1631,10 +1686,7 @@ const Backend = {
             const communityCount = await Backend.getUnreadCommunityNotificationCount(userId);
             
             let consumerCount = 0;
-            try {
-                const consumerNotifications = await Backend.getConsumerNotifications(userId);
-                consumerCount = consumerNotifications.filter(n => !n.read).length;
-            } catch (e) {}
+            try { const cn = await Backend.getConsumerNotifications(userId); consumerCount = cn.filter(n => !n.read).length; } catch (e) {}
             
             let generalCount = 0;
             try {
