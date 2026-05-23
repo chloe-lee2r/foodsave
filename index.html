@@ -747,7 +747,6 @@
         </div>
         <div class="date" id="currentDate"></div>
         <button class="refresh-header" onclick="refreshAll()">↻</button>
-        <!-- Logout button now calls a simple working function -->
         <button class="logout-btn" onclick="simpleLogout()">logout</button>
     </div>
     <div class="content">
@@ -922,14 +921,31 @@
     function simpleLogout() {
         if (!confirm('Are you sure you want to logout?')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
-        // Try to logout from cloud, but always redirect
         try {
             Backend.logout().catch(() => {});
         } catch (e) {}
-        // Redirect after a short delay (just in case)
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 500);
+    }
+
+    // ===== REFRESH ALL – NOW WORKS FOR BOTH ROLES =====
+    async function refreshAll() {
+        // Show a spinning animation on the refresh button
+        const refreshBtn = document.querySelector('.refresh-header');
+        if (refreshBtn) {
+            refreshBtn.style.transform = 'rotate(360deg)';
+            setTimeout(() => { refreshBtn.style.transform = ''; }, 600);
+        }
+        
+        if (currentRole === 'consumer') {
+            // Consumer‑specific refreshes
+            loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
+            if (map) loadAllStoresOnMap();
+        } else if (currentRole === 'advertiser') {
+            // Business‑side refreshes
+            loadAdvertiserData();
+        }
     }
 
     // ===== DELETE ACCOUNT FUNCTIONS =====
@@ -1039,10 +1055,6 @@
         map.flyTo([lat,lng],16);
         const marker = storeMarkers.find(m => { const pos = m.getLatLng(); return pos.lat===lat && pos.lng===lng; });
         if (marker) marker.openPopup();
-    }
-    function refreshAll() {
-        loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
-        if (map) loadAllStoresOnMap();
     }
     async function loadWalletBalance() { try { walletBalance = await Backend.getWalletBalance(currentUser.id); document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`; } catch(e) {} }
     async function loadProfile() { try { const p = await Backend.getConsumerProfile(currentUser.id); if(p){ document.getElementById('profileName').textContent=p.fullName||p.username||currentUser.get('username'); document.getElementById('profileEmail').textContent=p.email||currentUser.get('email')||'Not set'; document.getElementById('profilePhone').textContent=p.phone||'Not set'; document.getElementById('memberSince').textContent=new Date(p.createdAt).toLocaleDateString(); } } catch(e) {} }
@@ -1237,7 +1249,8 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&' ? '&amp;' : m==='<' ? '&lt;' : '&gt;'); }
 
     // Expose all functions globally
-    window.simpleLogout = simpleLogout;          // <-- this is the only new global
+    window.simpleLogout = simpleLogout;
+    window.refreshAll = refreshAll;   // now works for both roles
     window.openDeleteAccountModal = openDeleteAccountModal;
     window.closeDeleteAccountModal = closeDeleteAccountModal;
     window.confirmDeleteAccount = confirmDeleteAccount;
@@ -1251,7 +1264,6 @@
     window.saveProfileEdit = saveProfileEdit;
     window.closeEditModal = closeEditModal;
     window.confirmPickup = confirmPickup;
-    window.refreshAll = refreshAll;
     window.loadDealsData = loadDealsData;
     window.loadFridgeData = loadFridgeData;
     window.loadOrders = loadOrders;
