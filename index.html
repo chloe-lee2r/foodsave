@@ -221,6 +221,7 @@
             color: white; padding: 8px 12px; border-radius: 20px;
             font-size: 14px; cursor: pointer;
             transition: transform 0.4s ease; font-family: inherit;
+            z-index: 2; /* ensure clickable above greeting */
         }
         .refresh-header:hover { background: rgba(255,255,255,0.3); }
         .refresh-header:active { transform: scale(0.95); }
@@ -320,12 +321,12 @@
         .card-title { font-weight: 600; margin-bottom: 4px; }
         .card-desc { font-size: 12px; color: #666; }
         
-        /* Community Sharing Card – extra bottom margin to avoid nav overlap */
+        /* Community Sharing Card – reduced whitespace below */
         .community-card {
             background: linear-gradient(135deg, #FF6B6B, #ee5a24);
             border-radius: 16px;
             padding: 0;
-            margin-bottom: 80px;
+            margin-bottom: 16px; /* was 80px, now tight */
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
@@ -646,7 +647,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Notification popup (copied from recipe page) */
+        /* Notification popup (same as recipe page) */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -809,7 +810,7 @@
                     <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
 
-                <!-- Community Sharing Card – with extra spacing -->
+                <!-- Community Sharing Card – no large white space -->
                 <div class="community-card" onclick="window.location.href='community.html'">
                     <div class="community-card-content">
                         <div class="community-card-left">
@@ -925,7 +926,7 @@
 </div>
 <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 
-<!-- Notification popup (fixed, same as recipe page) -->
+<!-- Notification popup -->
 <div class="notification" id="notification"></div>
 
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
@@ -953,7 +954,7 @@
         setTimeout(()=>{clearInterval(msgInterval);document.getElementById('splashMessage').textContent='ready! 🎉';setTimeout(()=>{document.getElementById('splashScreen').classList.add('hidden');},400);},1500);
     });
 
-    // ===== Notification helper (same as recipe page) =====
+    // ===== Notification helper =====
     function showNotification(msg, type) {
         const notif = document.getElementById('notification');
         if (notificationTimeout) clearTimeout(notificationTimeout);
@@ -965,7 +966,7 @@
         }, 2000);
     }
 
-    // ===== SIMPLE LOGOUT – no stuck hover =====
+    // ===== SIMPLE LOGOUT =====
     function simpleLogout() {
         if (!confirm('Are you sure you want to logout?')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -973,7 +974,7 @@
         setTimeout(() => { window.location.href = 'login.html'; }, 500);
     }
 
-    // ===== ROBUST REFRESH – works even if some calls fail (no notification) =====
+    // ===== ROBUST REFRESH =====
     async function refreshAll() {
         const refreshBtn = document.querySelector('.refresh-header');
         if (refreshBtn) {
@@ -1003,7 +1004,7 @@
         }
     }
 
-    // ===== REFRESH WITH NOTIFICATION (for button) =====
+    // ===== REFRESH WITH NOTIFICATION (for the header button) =====
     async function refreshAllWithNotification() {
         await refreshAll();
         showNotification('✅ Dashboard refreshed!', 'success');
