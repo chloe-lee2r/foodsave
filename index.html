@@ -220,19 +220,23 @@
             background: rgba(255,255,255,0.2); border: none;
             color: white; padding: 8px 12px; border-radius: 20px;
             font-size: 14px; cursor: pointer;
-            transition: all 0.3s ease; font-family: inherit;
+            transition: transform 0.4s ease; font-family: inherit;
         }
-        .refresh-header:hover { background: rgba(255,255,255,0.3); transform: rotate(180deg); }
-        .refresh-header:active { transform: rotate(360deg) scale(0.9); }
+        .refresh-header:hover { background: rgba(255,255,255,0.3); }
+        .refresh-header:active { transform: scale(0.95); }
         .logout-btn {
             position: absolute; top: 30px; right: 20px;
             background: rgba(255,255,255,0.2); border: none;
             color: white; padding: 8px 16px; border-radius: 20px;
             font-size: 14px; cursor: pointer;
-            transition: all 0.3s ease; font-family: inherit;
+            transition: background 0.2s ease; font-family: inherit;
             z-index: 2;
         }
-        .logout-btn:hover { background: rgba(255,59,48,0.4); }
+        /* only change logout background on desktop hover, not on touch */
+        @media (hover: hover) {
+            .logout-btn:hover { background: rgba(255,59,48,0.4); }
+        }
+        .logout-btn:active { background: rgba(255,59,48,0.6); }
         
         .content { padding: 20px; padding-bottom: 100px; }
         .section-title {
@@ -245,7 +249,7 @@
         .refresh-icon { 
             background: none; border: none; font-size: 16px; 
             cursor: pointer; padding: 4px 8px; border-radius: 20px;
-            transition: all 0.3s;
+            transition: transform 0.4s;
         }
         .refresh-icon:active { transform: rotate(180deg); }
         
@@ -567,11 +571,12 @@
             font-size: 20px; margin-bottom: 2px; display: block; 
             height: 24px; line-height: 24px; transition: transform 0.3s; 
         }
+        /* Fridge icon sizing match emoji */
         .nav-emoji img {
+            height: 20px;          /* exactly match emoji size */
             width: auto;
-            height: 100%;
-            max-height: 24px;
             vertical-align: middle;
+            display: inline-block;
         }
         .nav-item:hover .nav-emoji { transform: translateY(-3px); }
         .nav-item:active .nav-emoji { transform: scale(1.3); }
@@ -857,7 +862,7 @@
         <div class="nav-item active" onclick="goToHome()"><span class="nav-emoji">🏠</span><span>home</span></div>
         <div class="nav-item" onclick="window.location.href='find-stores.html'"><span class="nav-emoji">🔍</span><span>deals</span></div>
         <div class="nav-item" onclick="navigateToRolePage()"><span class="nav-emoji" id="navIcon">📝</span><span id="navLabel">lists</span></div>
-        <div class="nav-item" onclick="window.location.href='fridge.html'"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge" style="height:20px;vertical-align:middle;"></span><span>fridge</span></div>
+        <div class="nav-item" onclick="window.location.href='fridge.html'"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span><span>fridge</span></div>
     </div>
     
     <!-- Bottom Nav Business -->
@@ -916,7 +921,7 @@
         setTimeout(()=>{clearInterval(msgInterval);document.getElementById('splashMessage').textContent='ready! 🎉';setTimeout(()=>{document.getElementById('splashScreen').classList.add('hidden');},400);},1500);
     });
 
-    // ===== SIMPLE LOGOUT (works) =====
+    // ===== SIMPLE LOGOUT – no stuck hover =====
     function simpleLogout() {
         if (!confirm('Are you sure you want to logout?')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -924,31 +929,34 @@
         setTimeout(() => { window.location.href = 'login.html'; }, 500);
     }
 
-    // ===== FIXED REFRESH ALL – robust, with error handling =====
+    // ===== ROBUST REFRESH – works even if some calls fail =====
     async function refreshAll() {
         const refreshBtn = document.querySelector('.refresh-header');
         if (refreshBtn) {
+            refreshBtn.style.transition = 'transform 0.4s ease';
             refreshBtn.style.transform = 'rotate(360deg)';
             setTimeout(() => { refreshBtn.style.transform = ''; }, 600);
         }
 
         try {
             if (currentRole === 'consumer') {
-                await Promise.all([
+                // Load all essential data – any failure will be caught silently, UI remains usable
+                await Promise.allSettled([
                     loadWalletBalance(),
                     loadProfile(),
                     loadOrders(),
                     loadFridgeData(),
                     loadDealsData()
                 ]);
-                loadListCount(); // not async, but fine
-                if (map) await loadAllStoresOnMap();
+                loadListCount();
+                if (map) {
+                    await loadAllStoresOnMap().catch(() => {});
+                }
             } else if (currentRole === 'advertiser') {
                 loadAdvertiserData();
             }
         } catch (err) {
-            console.error('Refresh error:', err);
-            // Still functional, just fails silently
+            console.warn('Refresh hit a snag, but UI is alive:', err);
         }
     }
 
