@@ -221,7 +221,7 @@
             color: white; padding: 8px 12px; border-radius: 20px;
             font-size: 14px; cursor: pointer;
             transition: transform 0.4s ease; font-family: inherit;
-            z-index: 2; /* ensure clickable above greeting */
+            z-index: 2;
         }
         .refresh-header:hover { background: rgba(255,255,255,0.3); }
         .refresh-header:active { transform: scale(0.95); }
@@ -326,7 +326,7 @@
             background: linear-gradient(135deg, #FF6B6B, #ee5a24);
             border-radius: 16px;
             padding: 0;
-            margin-bottom: 16px; /* was 80px, now tight */
+            margin-bottom: 16px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
@@ -562,16 +562,12 @@
         }
         .nav-item:hover { color: #007aff; }
         .nav-item.active { color: #007aff; }
-        .nav-item.active::after {
-            content: ''; position: absolute; bottom: -8px;
-            left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; background: #007aff; border-radius: 50%;
-        }
+        /* Removed the blue dot below active nav item */
+        
         .nav-emoji { 
             font-size: 20px; margin-bottom: 2px; display: block; 
             height: 24px; line-height: 24px; transition: transform 0.3s; 
         }
-        /* Fridge icon sizing exactly like recipe page */
         .nav-emoji img {
             width: auto;
             height: 100%;
@@ -647,7 +643,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Notification popup (same as recipe page) */
+        /* Notification popup */
         .notification {
             position: fixed;
             bottom: 80px;
