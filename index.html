@@ -317,12 +317,12 @@
         .card-title { font-weight: 600; margin-bottom: 4px; }
         .card-desc { font-size: 12px; color: #666; }
         
-        /* Community Sharing Card */
+        /* Community Sharing Card – now with more bottom margin to avoid nav overlap */
         .community-card {
             background: linear-gradient(135deg, #FF6B6B, #ee5a24);
             border-radius: 16px;
             padding: 0;
-            margin-bottom: 24px;
+            margin-bottom: 36px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
@@ -704,7 +704,6 @@
         .add-link:hover { background: #0056cc; transform: translateY(-2px); }
     </style>
 </head>
-<!-- Service Worker Registration -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -769,7 +768,6 @@
             </div>
             
             <div class="tab-content active" id="homeTab">
-                <!-- Quick Actions -->
                 <div class="quick-actions">
                     <div class="action-card" onclick="window.location.href='shoplist.html'"><div class="card-emoji">📝</div><div class="card-title">my lists</div><div class="card-desc" id="listCount">0 items</div></div>
                     <div class="action-card" onclick="window.location.href='find-stores.html'"><div class="card-emoji">🔍</div><div class="card-title">find deals</div><div class="card-desc" id="dealsCount">0 nearby</div></div>
@@ -777,7 +775,7 @@
                     <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
 
-                <!-- Community Sharing Card -->
+                <!-- Community Sharing Card – with extra spacing -->
                 <div class="community-card" onclick="window.location.href='community.html'">
                     <div class="community-card-content">
                         <div class="community-card-left">
@@ -870,7 +868,7 @@
     </div>
 </div>
 
-<!-- Modals (top‑up, edit, delete account) -->
+<!-- Modals -->
 <div class="modal" id="topUpModal"><div class="modal-content"><div class="modal-title">💳 Add Funds</div><input type="number" class="modal-input" id="topUpAmount" placeholder="Enter amount ($)" min="1" step="1"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeTopUpModal()">Cancel</button><button class="modal-btn confirm" onclick="processTopUp()">Add Funds</button></div></div></div>
 <div class="modal" id="editModal"><div class="modal-content"><div class="modal-title" id="modalTitle">Edit</div><input type="text" class="modal-input" id="modalInput" placeholder="Enter value"><div class="modal-buttons"><button class="modal-btn cancel" onclick="closeEditModal()">Cancel</button><button class="modal-btn confirm" onclick="saveProfileEdit()">Save</button></div></div></div>
 <div class="modal" id="deleteAccountModal">
@@ -917,34 +915,39 @@
         setTimeout(()=>{clearInterval(msgInterval);document.getElementById('splashMessage').textContent='ready! 🎉';setTimeout(()=>{document.getElementById('splashScreen').classList.add('hidden');},400);},1500);
     });
 
-    // ===== SIMPLE LOGOUT (FOOLPROOF) =====
+    // ===== SIMPLE LOGOUT (works) =====
     function simpleLogout() {
         if (!confirm('Are you sure you want to logout?')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
-        try {
-            Backend.logout().catch(() => {});
-        } catch (e) {}
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 500);
+        try { Backend.logout().catch(() => {}); } catch (e) {}
+        setTimeout(() => { window.location.href = 'login.html'; }, 500);
     }
 
-    // ===== REFRESH ALL – NOW WORKS FOR BOTH ROLES =====
+    // ===== FIXED REFRESH ALL – robust, with error handling =====
     async function refreshAll() {
-        // Show a spinning animation on the refresh button
         const refreshBtn = document.querySelector('.refresh-header');
         if (refreshBtn) {
             refreshBtn.style.transform = 'rotate(360deg)';
             setTimeout(() => { refreshBtn.style.transform = ''; }, 600);
         }
-        
-        if (currentRole === 'consumer') {
-            // Consumer‑specific refreshes
-            loadWalletBalance(); loadProfile(); loadOrders(); loadFridgeData(); loadListCount(); loadDealsData();
-            if (map) loadAllStoresOnMap();
-        } else if (currentRole === 'advertiser') {
-            // Business‑side refreshes
-            loadAdvertiserData();
+
+        try {
+            if (currentRole === 'consumer') {
+                await Promise.all([
+                    loadWalletBalance(),
+                    loadProfile(),
+                    loadOrders(),
+                    loadFridgeData(),
+                    loadDealsData()
+                ]);
+                loadListCount(); // not async, but fine
+                if (map) await loadAllStoresOnMap();
+            } else if (currentRole === 'advertiser') {
+                loadAdvertiserData();
+            }
+        } catch (err) {
+            console.error('Refresh error:', err);
+            // Still functional, just fails silently
         }
     }
 
@@ -977,7 +980,7 @@
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 
-    // ===== REMAINING APP FUNCTIONS =====
+    // ===== REMAINING FUNCTIONS =====
     function initMap() {
         const c = document.getElementById('mapContainer');
         c.innerHTML = '<div id="leafletMap" style="height:100%;width:100%;"></div>';
@@ -1248,9 +1251,9 @@
     }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&' ? '&amp;' : m==='<' ? '&lt;' : '&gt;'); }
 
-    // Expose all functions globally
+    // Expose
     window.simpleLogout = simpleLogout;
-    window.refreshAll = refreshAll;   // now works for both roles
+    window.refreshAll = refreshAll;
     window.openDeleteAccountModal = openDeleteAccountModal;
     window.closeDeleteAccountModal = closeDeleteAccountModal;
     window.confirmDeleteAccount = confirmDeleteAccount;
