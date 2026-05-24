@@ -232,7 +232,6 @@
             transition: background 0.2s ease; font-family: inherit;
             z-index: 2;
         }
-        /* only change logout background on desktop hover, not on touch */
         @media (hover: hover) {
             .logout-btn:hover { background: rgba(255,59,48,0.4); }
         }
@@ -326,12 +325,12 @@
             background: linear-gradient(135deg, #FF6B6B, #ee5a24);
             border-radius: 16px;
             padding: 0;
-            margin-bottom: 80px; /* increased for clearance above fixed nav */
+            margin-bottom: 80px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             position: relative;
-            z-index: 0; /* ensure it's below the navigation bar */
+            z-index: 0;
         }
         .community-card::after {
             content: '';
@@ -571,12 +570,11 @@
             font-size: 20px; margin-bottom: 2px; display: block; 
             height: 24px; line-height: 24px; transition: transform 0.3s; 
         }
-        /* Fridge icon sizing match emoji */
+        /* Fridge icon sizing exactly like recipe page */
         .nav-emoji img {
-            height: 20px;          /* exactly match emoji size */
             width: auto;
+            height: 100%;
             vertical-align: middle;
-            display: inline-block;
         }
         .nav-item:hover .nav-emoji { transform: translateY(-3px); }
         .nav-item:active .nav-emoji { transform: scale(1.3); }
@@ -648,6 +646,36 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
+        /* Notification popup (copied from recipe page) */
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: 0.3s;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .notification.success {
+            background: #34c759;
+        }
+        .notification.error {
+            background: #ff3b30;
+        }
+
         /* Advertiser */
         .advertiser-only { display: none; }
         body.advertiser .advertiser-only { display: block; }
@@ -751,7 +779,7 @@
             </div>
         </div>
         <div class="date" id="currentDate"></div>
-        <button class="refresh-header" onclick="refreshAll()">↻</button>
+        <button class="refresh-header" onclick="refreshAllWithNotification()">↻</button>
         <button class="logout-btn" onclick="simpleLogout()">logout</button>
     </div>
     <div class="content">
@@ -897,11 +925,15 @@
 </div>
 <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
 
+<!-- Notification popup (fixed, same as recipe page) -->
+<div class="notification" id="notification"></div>
+
 <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <script src="backend.js"></script>
 <script>
     let currentRole = 'consumer', businessRole = 'staff', isVerified = false, currentUser = null, walletBalance = 0, editField = '';
     let map = null, userMarker = null, storeMarkers = [];
+    let notificationTimeout = null;
 
     const splashMessages = ['loading your dashboard...','checking fridge items...','finding nearby deals...','preparing your lists...','almost ready...'];
     
@@ -921,6 +953,18 @@
         setTimeout(()=>{clearInterval(msgInterval);document.getElementById('splashMessage').textContent='ready! 🎉';setTimeout(()=>{document.getElementById('splashScreen').classList.add('hidden');},400);},1500);
     });
 
+    // ===== Notification helper (same as recipe page) =====
+    function showNotification(msg, type) {
+        const notif = document.getElementById('notification');
+        if (notificationTimeout) clearTimeout(notificationTimeout);
+        notif.textContent = msg;
+        notif.className = `notification show ${type || 'success'}`;
+        notificationTimeout = setTimeout(() => {
+            notif.className = 'notification';
+            notificationTimeout = null;
+        }, 2000);
+    }
+
     // ===== SIMPLE LOGOUT – no stuck hover =====
     function simpleLogout() {
         if (!confirm('Are you sure you want to logout?')) return;
@@ -929,7 +973,7 @@
         setTimeout(() => { window.location.href = 'login.html'; }, 500);
     }
 
-    // ===== ROBUST REFRESH – works even if some calls fail =====
+    // ===== ROBUST REFRESH – works even if some calls fail (no notification) =====
     async function refreshAll() {
         const refreshBtn = document.querySelector('.refresh-header');
         if (refreshBtn) {
@@ -940,7 +984,6 @@
 
         try {
             if (currentRole === 'consumer') {
-                // Load all essential data – any failure will be caught silently, UI remains usable
                 await Promise.allSettled([
                     loadWalletBalance(),
                     loadProfile(),
@@ -958,6 +1001,12 @@
         } catch (err) {
             console.warn('Refresh hit a snag, but UI is alive:', err);
         }
+    }
+
+    // ===== REFRESH WITH NOTIFICATION (for button) =====
+    async function refreshAllWithNotification() {
+        await refreshAll();
+        showNotification('✅ Dashboard refreshed!', 'success');
     }
 
     // ===== DELETE ACCOUNT FUNCTIONS =====
@@ -1263,6 +1312,7 @@
     // Expose
     window.simpleLogout = simpleLogout;
     window.refreshAll = refreshAll;
+    window.refreshAllWithNotification = refreshAllWithNotification;
     window.openDeleteAccountModal = openDeleteAccountModal;
     window.closeDeleteAccountModal = closeDeleteAccountModal;
     window.confirmDeleteAccount = confirmDeleteAccount;
