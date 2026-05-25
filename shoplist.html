@@ -857,7 +857,7 @@
                             'default': {
                                 id: 'default',
                                 name: 'main',
-                                icon: '📝',   // changed to memo icon
+                                icon: '📝',
                                 items: []
                             }
                         };
@@ -912,7 +912,6 @@
         // DELETE LIST FUNCTION
         async function deleteList(listId) {
             if (!lists[listId]) return;
-            // Prevent deleting the only remaining list – create a fresh one instead
             const listCount = Object.keys(lists).length;
             if (listCount <= 1) {
                 showNotification('Cannot delete the last list', 'error');
@@ -921,14 +920,11 @@
             const listName = lists[listId].name;
             if (!confirm(`Delete list "${listName}" and all its items?`)) return;
             
-            // Remove the list
             delete lists[listId];
             
-            // If the deleted list was the current one, switch to the first remaining list
             if (currentListId === listId) {
                 const firstKey = Object.keys(lists)[0];
                 currentListId = firstKey || 'default';
-                // If no lists remain, create a default (shouldn't happen because we prevented above)
                 if (!lists[currentListId]) {
                     lists['default'] = {
                         id: 'default',
@@ -1099,7 +1095,7 @@
             lists[id] = {
                 id: id,
                 name: name,
-                icon: '📝',   // memo icon
+                icon: '📝',
                 items: []
             };
             
