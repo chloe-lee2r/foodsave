@@ -142,6 +142,13 @@
             transform: scale(0.95);
         }
         
+        .list-tab .list-actions {
+            display: flex;
+            gap: 4px;
+            margin-left: 2px;
+        }
+        
+        .list-tab .rename-btn,
         .list-tab .delete-list-btn {
             background: none;
             border: none;
@@ -151,10 +158,16 @@
             padding: 0 2px;
             line-height: 1;
             opacity: 0.6;
+            transition: 0.2s;
         }
         
+        .list-tab .rename-btn:hover,
         .list-tab .delete-list-btn:hover {
             opacity: 1;
+        }
+        
+        .list-tab .delete-list-btn {
+            color: #ff3b30;
         }
         
         /* Find Stores Button */
@@ -857,7 +870,7 @@
                             'default': {
                                 id: 'default',
                                 name: 'main',
-                                icon: '📝',   // memo icon
+                                icon: '📝',   // pencil and paper emoji
                                 items: []
                             }
                         };
@@ -903,10 +916,26 @@
                 <button class="list-tab ${list.id === currentListId ? 'active' : ''}" 
                         onclick="switchList('${list.id}')">
                     ${list.icon || '📝'} ${list.name}
-                    <span class="delete-list-btn" onclick="event.stopPropagation(); deleteList('${list.id}')">🗑️</span>
+                    <span class="list-actions" onclick="event.stopPropagation()">
+                        <span class="rename-btn" onclick="renameList('${list.id}')" title="Rename list">✏️</span>
+                        <span class="delete-list-btn" onclick="deleteList('${list.id}')" title="Delete list">✕</span>
+                    </span>
                 </button>
             `).join('');
             container.innerHTML += `<button class="list-tab" onclick="showNewListModal()">➕ new</button>`;
+        }
+        
+        // RENAME LIST FUNCTION
+        async function renameList(listId) {
+            if (!lists[listId]) return;
+            const oldName = lists[listId].name;
+            const newName = prompt(`Rename list "${oldName}" to:`, oldName);
+            if (newName && newName.trim() !== '' && newName.trim() !== oldName) {
+                lists[listId].name = newName.trim();
+                await saveListsToCloud();
+                render();
+                showNotification(`Renamed to "${newName.trim()}"`, 'success');
+            }
         }
         
         // DELETE LIST FUNCTION
@@ -1095,7 +1124,7 @@
             lists[id] = {
                 id: id,
                 name: name,
-                icon: '📝',   // memo icon
+                icon: '📝',   // pencil and paper emoji
                 items: []
             };
             
@@ -1350,6 +1379,7 @@
         window.filterByCategory = filterByCategory;
         window.syncWithCloud = syncWithCloud;
         window.deleteList = deleteList;
+        window.renameList = renameList;
     </script>
 </body>
 </html>
