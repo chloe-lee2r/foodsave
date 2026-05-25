@@ -452,6 +452,9 @@
             margin-bottom: 12px; border-left: 4px solid #34c759;
             animation: slideInLeft 0.4s ease;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .order-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .order-item.pending { border-left-color: #ff9500; }
@@ -473,6 +476,39 @@
         }
         .pickup-btn:hover { background: #2db14e; transform: translateY(-2px); }
         .pickup-btn:active { transform: scale(0.97); }
+        .order-checkbox { margin-right: 10px; width: 20px; height: 20px; cursor: pointer; }
+        .bulk-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 12px;
+        }
+        .select-all-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .bulk-confirm-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .bulk-confirm-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .selected-count { font-size: 12px; color: #667eea; font-weight: 600; }
         
         /* Deals */
         .deals-list { margin-bottom: 24px; }
@@ -562,8 +598,6 @@
         }
         .nav-item:hover { color: #007aff; }
         .nav-item.active { color: #007aff; }
-        /* Removed the blue dot below active nav item */
-        
         .nav-emoji { 
             font-size: 20px; margin-bottom: 2px; display: block; 
             height: 24px; line-height: 24px; transition: transform 0.3s; 
@@ -666,12 +700,8 @@
             opacity: 1;
             pointer-events: auto;
         }
-        .notification.success {
-            background: #34c759;
-        }
-        .notification.error {
-            background: #ff3b30;
-        }
+        .notification.success { background: #34c759; }
+        .notification.error { background: #ff3b30; }
 
         /* Advertiser */
         .advertiser-only { display: none; }
@@ -806,7 +836,6 @@
                     <div class="action-card" onclick="window.location.href='recipe.html'"><div class="card-emoji">🍽️</div><div class="card-title">recipes</div><div class="card-desc">view recipes</div></div>
                 </div>
 
-                <!-- Community Sharing Card – no large white space -->
                 <div class="community-card" onclick="window.location.href='community.html'">
                     <div class="community-card-content">
                         <div class="community-card-left">
@@ -861,6 +890,13 @@
             
             <div class="tab-content" id="ordersTab">
                 <div class="section-title">📦 my orders<button class="refresh-icon" onclick="loadOrders()">↻</button></div>
+                <div id="orderBulkActions" style="display: none;">
+                    <div class="bulk-actions">
+                        <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAllOrders()">☐ Select All</button>
+                        <span class="selected-count" id="selectedOrdersCount">0 selected</span>
+                        <button class="bulk-confirm-btn" id="bulkConfirmBtn" onclick="confirmSelectedPickups()" disabled>✓ Confirm Pickup</button>
+                    </div>
+                </div>
                 <div id="ordersList"><div class="empty-state">📦 loading orders...</div></div>
             </div>
         </div>
@@ -931,6 +967,7 @@
     let currentRole = 'consumer', businessRole = 'staff', isVerified = false, currentUser = null, walletBalance = 0, editField = '';
     let map = null, userMarker = null, storeMarkers = [];
     let notificationTimeout = null;
+    let selectedOrderIds = new Set();
 
     const splashMessages = ['loading your dashboard...','checking fridge items...','finding nearby deals...','preparing your lists...','almost ready...'];
     
@@ -1127,21 +1164,101 @@
     async function loadProfile() { try { const p = await Backend.getConsumerProfile(currentUser.id); if(p){ document.getElementById('profileName').textContent=p.fullName||p.username||currentUser.get('username'); document.getElementById('profileEmail').textContent=p.email||currentUser.get('email')||'Not set'; document.getElementById('profilePhone').textContent=p.phone||'Not set'; document.getElementById('memberSince').textContent=new Date(p.createdAt).toLocaleDateString(); } } catch(e) {} }
     async function loadOrders() {
         const c = document.getElementById('ordersList');
+        const bulkActionsDiv = document.getElementById('orderBulkActions');
         try {
             const orders = await Backend.getConsumerOrders(currentUser.id);
-            if (orders.length===0) { c.innerHTML='<div class="empty-state">📦 No orders yet</div>'; return; }
+            selectedOrderIds.clear();
+            if (orders.length===0) { c.innerHTML='<div class="empty-state">📦 No orders yet</div>'; bulkActionsDiv.style.display='none'; return; }
+            const readyOrders = orders.filter(o => o.status === 'confirmed_by_business');
+            if (readyOrders.length > 0) {
+                bulkActionsDiv.style.display = 'block';
+            } else {
+                bulkActionsDiv.style.display = 'none';
+            }
             c.innerHTML = orders.map((order,i) => {
-                let sc='', st='', a='';
+                let sc='', st='', a='', checkbox='';
                 switch(order.status) {
                     case 'pending': sc='status-pending'; st='pending confirmation'; a='<div style="font-size:11px;color:#999;margin-top:8px;">⏳ Waiting...</div>'; break;
-                    case 'confirmed_by_business': sc='status-ready'; st='ready for pickup'; a=`<button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
+                    case 'confirmed_by_business': 
+                        sc='status-ready'; st='ready for pickup'; 
+                        checkbox = `<input type="checkbox" class="order-checkbox" data-order-id="${order.id}" onchange="handleOrderCheckbox(this)" style="margin-right:10px;">`;
+                        a=`<button class="pickup-btn" onclick="event.stopPropagation(); confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
                     case 'collected_by_customer': sc='status-completed'; st='completed'; a='<div style="font-size:11px;color:#34c759;margin-top:8px;">✅ Completed!</div>'; break;
                     default: sc='status-pending'; st=order.status;
                 }
                 let ic = order.status==='pending'?'pending':(order.status==='confirmed_by_business'?'ready':'');
-                return `<div class="order-item ${ic}" style="animation-delay:${i*0.08}s;"><div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${sc}">${st}</span></div><div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div><div class="order-total">$${(order.totalAmount||0).toFixed(2)}</div><div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>${a}</div>`;
+                return `<div class="order-item ${ic}" style="animation-delay:${i*0.08}s;">
+                    ${checkbox}
+                    <div style="flex:1;">
+                        <div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${sc}">${st}</span></div>
+                        <div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div>
+                        <div class="order-total">$${(order.totalAmount||0).toFixed(2)}</div>
+                        <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
+                    </div>
+                    ${a}
+                </div>`;
             }).join('');
-        } catch(e) { c.innerHTML='<div class="empty-state">Error loading orders</div>'; }
+            updateOrderSelectionUI();
+        } catch(e) { c.innerHTML='<div class="empty-state">Error loading orders</div>'; bulkActionsDiv.style.display='none'; }
+    }
+    function handleOrderCheckbox(checkbox) {
+        const orderId = checkbox.getAttribute('data-order-id');
+        if (checkbox.checked) {
+            selectedOrderIds.add(orderId);
+        } else {
+            selectedOrderIds.delete(orderId);
+        }
+        updateOrderSelectionUI();
+    }
+    function updateOrderSelectionUI() {
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
+        const selectedCountEl = document.getElementById('selectedOrdersCount');
+        const count = selectedOrderIds.size;
+        selectedCountEl.textContent = `${count} selected`;
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const totalReady = checkboxes.length;
+        checkboxes.forEach(cb => {
+            const oid = cb.getAttribute('data-order-id');
+            cb.checked = selectedOrderIds.has(oid);
+        });
+        if (totalReady > 0 && count === totalReady) {
+            selectAllBtn.textContent = '☑ Deselect All';
+        } else {
+            selectAllBtn.textContent = '☐ Select All';
+        }
+        bulkConfirmBtn.disabled = (count === 0);
+    }
+    function toggleSelectAllOrders() {
+        const checkboxes = document.querySelectorAll('.order-checkbox');
+        const allSelected = selectedOrderIds.size === checkboxes.length;
+        if (allSelected) {
+            selectedOrderIds.clear();
+        } else {
+            checkboxes.forEach(cb => {
+                selectedOrderIds.add(cb.getAttribute('data-order-id'));
+            });
+        }
+        updateOrderSelectionUI();
+    }
+    async function confirmSelectedPickups() {
+        if (selectedOrderIds.size === 0) { showNotification('No orders selected', 'error'); return; }
+        if (!confirm(`Confirm pickup for ${selectedOrderIds.size} order(s)?`)) return;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        let success = 0, error = 0;
+        const ids = Array.from(selectedOrderIds);
+        for (const orderId of ids) {
+            try {
+                const result = await Backend.confirmCollectedByCustomer(orderId);
+                if (result.success) success++; else error++;
+            } catch (e) { error++; }
+        }
+        selectedOrderIds.clear();
+        await loadOrders();
+        await loadWalletBalance();
+        document.getElementById('loadingOverlay').style.display = 'none';
+        if (error === 0) showNotification(`✅ ${success} order(s) confirmed!`, 'success');
+        else showNotification(`⚠️ ${success} confirmed, ${error} failed.`, 'error');
     }
     async function confirmPickup(orderId) {
         if (!orderId) { alert('Invalid order ID'); return; }
@@ -1319,7 +1436,7 @@
     window.simpleLogout = simpleLogout;
     window.refreshAll = refreshAll;
     window.refreshAllWithNotification = refreshAllWithNotification;
-    window.goToProfile = goToProfile;  // make accessible
+    window.goToProfile = goToProfile;
     window.openDeleteAccountModal = openDeleteAccountModal;
     window.closeDeleteAccountModal = closeDeleteAccountModal;
     window.confirmDeleteAccount = confirmDeleteAccount;
@@ -1340,6 +1457,9 @@
     window.handleProfilePictureUpload = handleProfilePictureUpload;
     window.getUserLocation = getUserLocation;
     window.flyToStore = flyToStore;
+    window.toggleSelectAllOrders = toggleSelectAllOrders;
+    window.confirmSelectedPickups = confirmSelectedPickups;
+    window.handleOrderCheckbox = handleOrderCheckbox;
 </script>
 </body>
 </html>
