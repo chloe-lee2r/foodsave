@@ -768,7 +768,7 @@
 <div class="app">
     <div class="header">
         <div class="greeting">
-            <div class="user-avatar" id="userAvatar">👤</div>
+            <div class="user-avatar" id="userAvatar" onclick="goToProfile()">👤</div>
             <div class="user-info">
                 <div class="user-name" id="userName">loading...</div>
                 <div class="user-badge" id="userBadge">consumer</div>
@@ -949,6 +949,15 @@
         if(role==='consumer'){await refreshAll();initMap();} else loadAdvertiserData();
         setTimeout(()=>{clearInterval(msgInterval);document.getElementById('splashMessage').textContent='ready! 🎉';setTimeout(()=>{document.getElementById('splashScreen').classList.add('hidden');},400);},1500);
     });
+
+    // ===== Click avatar to profile =====
+    function goToProfile() {
+        if (currentRole === 'consumer') {
+            switchConsumerTab('profile');
+        } else if (currentRole === 'advertiser') {
+            window.location.href = 'business-profile.html?tab=profile';
+        }
+    }
 
     // ===== Notification helper =====
     function showNotification(msg, type) {
@@ -1310,6 +1319,7 @@
     window.simpleLogout = simpleLogout;
     window.refreshAll = refreshAll;
     window.refreshAllWithNotification = refreshAllWithNotification;
+    window.goToProfile = goToProfile;  // make accessible
     window.openDeleteAccountModal = openDeleteAccountModal;
     window.closeDeleteAccountModal = closeDeleteAccountModal;
     window.confirmDeleteAccount = confirmDeleteAccount;
