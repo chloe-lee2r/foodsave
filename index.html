@@ -450,13 +450,13 @@
         .order-item {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px 12px;
             margin-bottom: 12px;
             border-left: 4px solid #34c759;
             animation: slideInLeft 0.4s ease;
             transition: all 0.3s ease;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
         }
         .order-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -466,8 +466,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
+            margin-bottom: 6px;
+            flex-wrap: nowrap;
+            gap: 6px;
         }
         .order-id { font-weight: 600; font-size: 12px; color: #666; }
         .order-status {
@@ -480,18 +481,24 @@
         .status-pending { background: #fff3e0; color: #ff9500; }
         .status-ready { background: #e3f2fd; color: #007aff; animation: pulse 2s ease-in-out infinite; }
         .status-completed { background: #e8f5e8; color: #34c759; }
-        .order-details { font-size: 13px; color: #333; margin-bottom: 8px; }
+        .order-details { font-size: 13px; color: #333; margin-bottom: 4px; }
         .order-total { font-size: 14px; font-weight: 600; color: #34c759; }
         .order-date { font-size: 10px; color: #999; }
-        .pickup-btn {
-            background: #34c759; color: white; border: none;
-            padding: 8px 16px; border-radius: 20px; font-size: 12px;
-            cursor: pointer; margin-top: 8px; width: 100%;
-            transition: all 0.3s ease; font-family: inherit;
+        .pickup-btn-small {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.2s;
         }
-        .pickup-btn:hover { background: #2db14e; transform: translateY(-2px); }
-        .pickup-btn:active { transform: scale(0.97); }
-        .order-checkbox { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; }
+        .pickup-btn-small:hover { background: #2db14e; }
+        .order-checkbox { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; margin-top: 2px; }
         .order-content { flex: 1; }
         .bulk-actions {
             display: flex;
@@ -1198,7 +1205,8 @@
                     case 'confirmed_by_business': 
                         sc='status-ready'; st='ready for pickup'; 
                         checkbox = `<input type="checkbox" class="order-checkbox" data-order-id="${order.id}" onchange="handleOrderCheckbox(this)">`;
-                        a=`<button class="pickup-btn" onclick="event.stopPropagation(); confirmPickup('${order.id}')">📦 Confirm Pickup</button>`; break;
+                        a = `<div class="order-header" style="margin-top:4px;"><span class="order-status ${sc}">${st}</span><button class="pickup-btn-small" onclick="event.stopPropagation(); confirmPickup('${order.id}')">✓ Pickup</button></div>`;
+                        break;
                     case 'collected_by_customer': sc='status-completed'; st='completed'; a='<div style="font-size:11px;color:#34c759;margin-top:8px;">✅ Completed!</div>'; break;
                     default: sc='status-pending'; st=order.status;
                 }
@@ -1206,12 +1214,13 @@
                 return `<div class="order-item ${ic}" style="animation-delay:${i*0.08}s;">
                     ${checkbox}
                     <div class="order-content">
-                        <div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span><span class="order-status ${sc}">${st}</span></div>
+                        <div class="order-header"><span class="order-id">#${order.id.slice(-8)}</span>${order.status !== 'confirmed_by_business' ? `<span class="order-status ${sc}">${st}</span>` : ''}</div>
                         <div class="order-details">🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}</div>
                         <div class="order-total">$${(order.totalAmount||0).toFixed(2)}</div>
                         <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
+                        ${order.status === 'confirmed_by_business' ? a : ''}
                     </div>
-                    ${a}
+                    ${order.status !== 'confirmed_by_business' ? a : ''}
                 </div>`;
             }).join('');
             updateOrderSelectionUI();
