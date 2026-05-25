@@ -488,9 +488,9 @@
             background: #34c759;
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
             cursor: pointer;
             font-family: inherit;
             white-space: nowrap;
@@ -1207,14 +1207,12 @@
             c.innerHTML = orders.map((order,i) => {
                 let sc='', st='', a='', checkbox='';
                 switch(order.status) {
-                    case 'pending': sc='status-pending'; st='pending confirmation'; a='<div style="font-size:11px;color:#999;margin-top:8px;">⏳ Waiting...</div>'; break;
+                    case 'pending': sc='status-pending'; st='pending confirmation'; break;
                     case 'confirmed_by_business': 
                         sc='status-ready'; st='ready for pickup';
                         checkbox = `<input type="checkbox" class="order-checkbox" data-order-id="${order.id}" onchange="handleOrderCheckbox(this)">`;
-                        // The order header will contain the status, and the right side will have the button
-                        a = '';
                         break;
-                    case 'collected_by_customer': sc='status-completed'; st='completed'; a='<div style="font-size:11px;color:#34c759;margin-top:8px;">✅ Completed!</div>'; break;
+                    case 'collected_by_customer': sc='status-completed'; st='completed'; break;
                     default: sc='status-pending'; st=order.status;
                 }
                 let ic = order.status==='pending'?'pending':(order.status==='confirmed_by_business'?'ready':'');
@@ -1226,7 +1224,7 @@
                         <div class="order-total">$${(order.totalAmount||0).toFixed(2)}</div>
                         <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
                     </div>
-                    ${order.status === 'confirmed_by_business' ? `<div class="order-right"><button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button></div>` : a}
+                    ${order.status === 'confirmed_by_business' ? `<div class="order-right"><button class="pickup-btn" onclick="confirmPickup('${order.id}')">📦 Confirm Pickup</button></div>` : ''}
                 </div>`;
             }).join('');
             updateOrderSelectionUI();
