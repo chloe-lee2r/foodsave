@@ -41,7 +41,6 @@
             overflow-x: hidden;
         }
 
-        /* Floating background elements */
         body::before {
             content: '';
             position: fixed;
@@ -201,7 +200,6 @@
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
         }
 
-        /* Pulsing ring behind logo */
         .logo-ring {
             position: absolute;
             top: 50%; left: 50%;
@@ -274,7 +272,6 @@
             position: relative;
         }
 
-        /* Sliding indicator */
         .role-indicator {
             position: absolute;
             top: 6px;
@@ -411,7 +408,6 @@
             animation: shake 0.5s ease;
         }
 
-        /* Input icon */
         .input-icon {
             position: absolute;
             right: 14px;
@@ -426,7 +422,6 @@
             opacity: 0.6;
         }
 
-        /* Floating label effect */
         .input-field.floating {
             padding-top: 20px;
             padding-bottom: 10px;
@@ -729,7 +724,6 @@
         .strength-text.medium { color: var(--orange); }
         .strength-text.strong { color: var(--green); }
         
-        /* Quick login hint */
         .login-hint {
             background: #f0f7ff;
             border: 1px dashed #bbdefb;
@@ -1059,8 +1053,15 @@
                 const role = localStorage.getItem('userRole');
                 if (role) {
                     window.location.href = 'index.html';
+                    return;
                 }
             }
+            
+            // 🔥 NEW: Check URL hash and auto-switch to business tab
+            if (window.location.hash === '#business') {
+                setRole('advertiser');
+            }
+            
             // Show hint for consumer form
             document.getElementById('consumerLoginHint').classList.add('visible');
         });
