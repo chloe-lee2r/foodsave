@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>foodsavvi • shoplist</title>
+    <title>foodsavvi • lists</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
     <style>
@@ -110,6 +110,7 @@
             padding: 4px 0 12px;
             margin-bottom: 8px;
             scrollbar-width: none;
+            align-items: center;
         }
         
         .list-selector::-webkit-scrollbar {
@@ -117,7 +118,7 @@
         }
         
         .list-tab {
-            padding: 8px 16px;
+            padding: 8px 12px;
             background: #f5f7fa;
             border-radius: 20px;
             font-size: 14px;
@@ -127,6 +128,9 @@
             white-space: nowrap;
             cursor: pointer;
             transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .list-tab.active {
@@ -136,6 +140,21 @@
         
         .list-tab:active {
             transform: scale(0.95);
+        }
+        
+        .list-tab .delete-list-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+            opacity: 0.6;
+        }
+        
+        .list-tab .delete-list-btn:hover {
+            opacity: 1;
         }
         
         /* Find Stores Button */
@@ -554,13 +573,13 @@
             max-width: 320px;
         }
         
-        /* Notification */
+        /* Notification – changed base to green */
         .notification {
             position: fixed;
-            bottom: 80px; /* adjusted for bottom nav */
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #1a1a1a;
+            background: #34c759;
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
@@ -587,7 +606,7 @@
             background: #ff3b30;
         }
         
-        /* ---- Bottom Navigation (Added) ---- */
+        /* ---- Bottom Navigation ---- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -635,7 +654,7 @@
         <!-- Header -->
         <div class="header">
             <a href="index.html" class="home-link">←</a>
-            <h1>shoplist</h1>
+            <h1>lists</h1>
             <button class="sync-btn" onclick="syncWithCloud()">↻</button>
         </div>
         
@@ -701,7 +720,7 @@
             </div>
         </div>
         
-        <!-- Standard consumer bottom nav (Added) -->
+        <!-- Standard consumer bottom nav -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -838,7 +857,7 @@
                             'default': {
                                 id: 'default',
                                 name: 'main',
-                                icon: '📋',
+                                icon: '📝',   // changed to memo icon
                                 items: []
                             }
                         };
@@ -853,7 +872,7 @@
                         'default': {
                             id: 'default',
                             name: 'main',
-                            icon: '📋',
+                            icon: '📝',
                             items: []
                         }
                     };
@@ -883,10 +902,47 @@
             container.innerHTML = Object.values(lists).map(list => `
                 <button class="list-tab ${list.id === currentListId ? 'active' : ''}" 
                         onclick="switchList('${list.id}')">
-                    ${list.icon || '📋'} ${list.name}
+                    ${list.icon || '📝'} ${list.name}
+                    <span class="delete-list-btn" onclick="event.stopPropagation(); deleteList('${list.id}')">🗑️</span>
                 </button>
             `).join('');
             container.innerHTML += `<button class="list-tab" onclick="showNewListModal()">➕ new</button>`;
+        }
+        
+        // DELETE LIST FUNCTION
+        async function deleteList(listId) {
+            if (!lists[listId]) return;
+            // Prevent deleting the only remaining list – create a fresh one instead
+            const listCount = Object.keys(lists).length;
+            if (listCount <= 1) {
+                showNotification('Cannot delete the last list', 'error');
+                return;
+            }
+            const listName = lists[listId].name;
+            if (!confirm(`Delete list "${listName}" and all its items?`)) return;
+            
+            // Remove the list
+            delete lists[listId];
+            
+            // If the deleted list was the current one, switch to the first remaining list
+            if (currentListId === listId) {
+                const firstKey = Object.keys(lists)[0];
+                currentListId = firstKey || 'default';
+                // If no lists remain, create a default (shouldn't happen because we prevented above)
+                if (!lists[currentListId]) {
+                    lists['default'] = {
+                        id: 'default',
+                        name: 'main',
+                        icon: '📝',
+                        items: []
+                    };
+                    currentListId = 'default';
+                }
+            }
+            
+            await saveListsToCloud();
+            render();
+            showNotification(`Deleted "${listName}"`, 'success');
         }
         
         function renderCategories() {
@@ -1027,7 +1083,7 @@
             currentListId = listId;
             currentCategory = 'all';
             render();
-            showNotification(`switched to ${lists[listId].name}`);
+            showNotification(`switched to ${lists[listId].name}`, 'success');
         }
         
         function showNewListModal() {
@@ -1043,14 +1099,14 @@
             lists[id] = {
                 id: id,
                 name: name,
-                icon: '📋',
+                icon: '📝',   // memo icon
                 items: []
             };
             
             await saveListsToCloud();
             closeModal();
             switchList(id);
-            showNotification(`created "${name}"`);
+            showNotification(`created "${name}"`, 'success');
         }
         
         function closeModal() {
@@ -1239,7 +1295,7 @@
         
         // ==================== SYNC ====================
         async function syncWithCloud() {
-            showNotification('Syncing...', 'info');
+            showNotification('Syncing...', 'success');
             await saveListsToCloud();
             await loadListsFromCloud();
             render();
@@ -1269,7 +1325,7 @@
             });
         }
         
-        function showNotification(msg, type = 'info') {
+        function showNotification(msg, type = 'success') {
             const notif = document.getElementById('notification');
             if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
@@ -1297,6 +1353,7 @@
         window.clearCompleted = clearCompleted;
         window.filterByCategory = filterByCategory;
         window.syncWithCloud = syncWithCloud;
+        window.deleteList = deleteList;
     </script>
 </body>
 </html>
