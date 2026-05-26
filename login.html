@@ -6,6 +6,20 @@
     <title>foodsavvi • login</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('SW registration failed:', err);
+                    });
+            });
+        }
+    </script>
     <style>
         :root {
             --green: #34c759;
