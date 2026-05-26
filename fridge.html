@@ -95,7 +95,7 @@
             padding-bottom: 80px;
         }
         
-        /* ========== FRIDGE STATUS BOX – exact match to homepage (no footer) ========== */
+        /* ========== FRIDGE STATUS BOX – three coloured boxes inside ========== */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -127,31 +127,48 @@
             display: flex;
             justify-content: space-around;
             text-align: center;
+            gap: 12px;
             margin: 20px 0;
         }
+        /* Three coloured boxes – green, yellow/orange, red */
         .stat-box {
             flex: 1;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 16px;
-            padding: 12px 0;
+            padding: 12px 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+        }
+        .stat-box.good {
+            background: rgba(52, 199, 89, 0.2);
+            border: 1px solid rgba(52, 199, 89, 0.5);
+        }
+        .stat-box.expiring {
+            background: rgba(255, 149, 0, 0.2);
+            border: 1px solid rgba(255, 149, 0, 0.5);
+        }
+        .stat-box.expired {
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.5);
         }
         .stat-box:hover {
             transform: scale(1.05);
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.25);
         }
         .stat-box:active {
             transform: scale(0.95);
         }
         .stat-number {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: bold;
+            margin-bottom: 4px;
         }
         .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 12px;
+            opacity: 0.95;
         }
-        /* Coloured numbers exactly like homepage */
+        /* Number colours inside each coloured box */
         .stat-box.good .stat-number {
             color: #4cd964;
         }
@@ -160,11 +177,11 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
         .stat-box.expired .stat-number {
-            color: #ff6b6b;
+            color: #ff8888;
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+            50% { transform: scale(1.02); }
         }
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.8); }
@@ -500,7 +517,7 @@
         </div>
         
         <div class="content">
-            <!-- FRIDGE STATUS BOX – only coloured stat boxes, no footer text -->
+            <!-- FRIDGE STATUS BOX – three coloured boxes (green, yellow, red) inside -->
             <div class="fridge-summary">
                 <div class="fridge-header">
                     <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
@@ -519,7 +536,7 @@
                         <div class="stat-label">expired ❌</div>
                     </div>
                 </div>
-                <!-- Footer removed: no "X items expired" text -->
+                <!-- No footer text – only the three boxes -->
             </div>
             
             <div class="add-section">
@@ -807,8 +824,6 @@
             document.getElementById('totalItems').textContent = items.length;
             document.getElementById('expiringItems').textContent = expiring;
             document.getElementById('expiredItems').textContent = expired;
-            
-            // No footer updates – removed completely
         }
         
         function escapeHtml(str) {
