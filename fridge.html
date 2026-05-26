@@ -6,20 +6,6 @@
     <title>foodsavvi • fridge</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
-        <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered:', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('SW registration failed:', err);
-                    });
-            });
-        }
-    </script>
     <style>
         @font-face {
             font-family: 'RusticStory';
@@ -102,31 +88,81 @@
             padding-bottom: 80px;
         }
         
-        .stats-card {
+        /* ========== NEW FRIDGE STATUS BOX (homepage style) ========== */
+        .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px;
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            animation: fadeInScale 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .fridge-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        
-        .stat-item {
+        .fridge-header h3 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fridge-header h3 img {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
             text-align: center;
+            margin: 20px 0;
+        }
+        .stat-box {
             flex: 1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            padding: 12px 0;
         }
-        
-        .stat-value {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .stat-box:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
         }
-        
+        .stat-box:active {
+            transform: scale(0.95);
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+        }
         .stat-label {
-            font-size: 12px;
+            font-size: 14px;
             opacity: 0.9;
         }
+        .stat-box.good .stat-number {
+            color: #4cd964;
+        }
+        .stat-box.expiring .stat-number {
+            color: #ffcc00;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .stat-box.expired .stat-number {
+            color: #ff6b6b;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* ========== END NEW STATUS BOX ========== */
         
         .add-section {
             background: #f8f9fa;
@@ -421,7 +457,7 @@
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #34c759;   /* green for success/info */
+            background: #34c759;
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
@@ -441,11 +477,11 @@
         }
         
         .notification.success {
-            background: #34c759;   /* explicit green */
+            background: #34c759;
         }
         
         .notification.error {
-            background: #ff3b30;   /* red for errors */
+            background: #ff3b30;
         }
     </style>
 </head>
@@ -459,18 +495,24 @@
         </div>
         
         <div class="content">
-            <div class="stats-card">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalItems">0</div>
-                    <div class="stat-label">total</div>
+            <!-- NEW FRIDGE STATUS BOX (homepage style) -->
+            <div class="fridge-summary">
+                <div class="fridge-header">
+                    <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="expiringItems">0</div>
-                    <div class="stat-label">expiring</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="expiredItems">0</div>
-                    <div class="stat-label">expired</div>
+                <div class="stats-row">
+                    <div class="stat-box good">
+                        <div class="stat-number" id="totalItems">0</div>
+                        <div class="stat-label">total items</div>
+                    </div>
+                    <div class="stat-box expiring">
+                        <div class="stat-number" id="expiringItems">0</div>
+                        <div class="stat-label">expiring soon</div>
+                    </div>
+                    <div class="stat-box expired">
+                        <div class="stat-number" id="expiredItems">0</div>
+                        <div class="stat-label">expired</div>
+                    </div>
                 </div>
             </div>
             
