@@ -81,14 +81,12 @@
             transform: rotate(180deg);
         }
         
-        /* logout button removed */
-        
         .content {
             padding: 16px;
             padding-bottom: 80px;
         }
         
-        /* ========== NEW FRIDGE STATUS BOX (homepage style) ========== */
+        /* ========== FRIDGE STATUS BOX (exactly like homepage) ========== */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -154,6 +152,16 @@
         .stat-box.expired .stat-number {
             color: #ff6b6b;
         }
+        .fridge-footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .fridge-footer a {
+            color: white;
+            text-decoration: underline;
+        }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.03); }
@@ -162,7 +170,7 @@
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
-        /* ========== END NEW STATUS BOX ========== */
+        /* ========== END FRIDGE STATUS BOX ========== */
         
         .add-section {
             background: #f8f9fa;
@@ -444,14 +452,12 @@
             line-height: 24px;
         }
         
-        /* Style for image icons in the nav */
         .nav-emoji img {
             width: auto;
             height: 100%;
             vertical-align: middle;
         }
         
-        /* Fixed notification: default green, error red */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -491,11 +497,10 @@
             <a href="index.html" class="back-link">←</a>
             <h1>my fridge</h1>
             <button class="sync-btn" onclick="syncWithCloud()">↻</button>
-            <!-- logout button removed -->
         </div>
         
         <div class="content">
-            <!-- NEW FRIDGE STATUS BOX (homepage style) -->
+            <!-- FRIDGE STATUS BOX – exactly like homepage -->
             <div class="fridge-summary">
                 <div class="fridge-header">
                     <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
@@ -514,6 +519,7 @@
                         <div class="stat-label">expired</div>
                     </div>
                 </div>
+                <div class="fridge-footer" id="fridgeFooter"></div>
             </div>
             
             <div class="add-section">
@@ -536,7 +542,7 @@
             </div>
         </div>
         
-        <!-- Standard consumer bottom nav: home, deals, lists, fridge -->
+        <!-- Bottom navigation -->
         <div class="bottom-nav">
             <a href="index.html" class="nav-item">
                 <span class="nav-emoji">🏠</span>
@@ -801,6 +807,18 @@
             document.getElementById('totalItems').textContent = items.length;
             document.getElementById('expiringItems').textContent = expiring;
             document.getElementById('expiredItems').textContent = expired;
+            
+            // Update footer message (exactly like homepage)
+            const footer = document.getElementById('fridgeFooter');
+            if (items.length === 0) {
+                footer.innerHTML = '<a href="#" onclick="document.getElementById(\'foodName\').focus()">➕ add items to fridge</a>';
+            } else if (expired > 0) {
+                footer.innerHTML = `<span style="color:#ff9f9f;">⚠️ ${expired} item(s) expired</span>`;
+            } else if (expiring > 0) {
+                footer.innerHTML = `<span style="color:#ffd700;">⏰ ${expiring} item(s) expiring soon</span>`;
+            } else {
+                footer.innerHTML = '<span style="color:#c8e6c9;">✅ all good! nothing expiring soon</span>';
+            }
         }
         
         function escapeHtml(str) {
@@ -832,12 +850,7 @@
             }, 2000);
         }
         
-        // logout function kept but no button triggers it
-        function logout() {
-            window.location.href = "index.html";
-        }
-        
-        // Make functions global
+        // Expose global functions
         window.addItem = addItem;
         window.deleteItem = deleteItem;
         window.editItem = editItem;
@@ -845,7 +858,6 @@
         window.closeEditModal = closeEditModal;
         window.toggleSort = toggleSort;
         window.syncWithCloud = syncWithCloud;
-        window.logout = logout;
     </script>
 </body>
 </html>
