@@ -21,12 +21,17 @@
     <meta name="theme-color" content="#34c759">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => console.log('SW registered:', registration.scope))
-                    .catch(err => console.log('SW registration failed:', err));
+                    .then(registration => {
+                        console.log('SW registered:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('SW registration failed:', err);
+                    });
             });
         }
     </script>        
@@ -571,7 +576,7 @@
         .deal-shop { color: #007aff; }
         .deal-discount { color: #34c759; font-weight: 600; font-size: 16px; }
         
-        /* Fridge Summary – updated with gaps and box styles */
+        /* Fridge Summary */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white; padding: 20px; border-radius: 16px;
@@ -580,47 +585,24 @@
         }
         .fridge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .fridge-header h3 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
-        .fridge-header h3 img { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }
+        .fridge-header h3 img { width: 24px; height: 24px; max-width: 24px; max-height: 24px; object-fit: contain; vertical-align: middle; }
         .fridge-link { color: white; text-decoration: none; opacity: 0.9; }
         .fridge-link:hover { opacity: 1; }
-        
-        /* Updated stats row with gap and coloured box backgrounds */
-        .stats-row { 
-            display: flex; 
-            justify-content: space-between; 
-            text-align: center; 
-            gap: 12px;          /* explicit gap between boxes */
-            margin: 20px 0; 
-        }
+        .stats-row { display: flex; justify-content: space-around; text-align: center; margin: 20px 0; }
         .stat-box {
-            flex: 1; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            border-radius: 16px; 
-            padding: 12px 0;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(4px);
+            flex: 1; cursor: pointer; transition: all 0.3s ease;
+            border-radius: 16px; padding: 12px 0;
         }
-        .stat-box.good {
-            background: rgba(52, 199, 89, 0.2);
-            border: 1px solid rgba(52, 199, 89, 0.5);
-        }
-        .stat-box.expiring {
-            background: rgba(255, 149, 0, 0.2);
-            border: 1px solid rgba(255, 149, 0, 0.5);
-        }
-        .stat-box.expired {
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid rgba(255, 59, 48, 0.5);
-        }
-        .stat-box:hover { transform: scale(1.05); background: rgba(255,255,255,0.25); }
+        .stat-box:hover { transform: scale(1.05); }
         .stat-box:active { transform: scale(0.95); }
         .stat-number { font-size: 36px; font-weight: bold; }
         .stat-label { font-size: 14px; opacity: 0.9; }
+        .stat-box.good { background: rgba(52, 199, 89, 0.2); }
         .stat-box.good .stat-number { color: #4cd964; }
+        .stat-box.expiring { background: rgba(255, 149, 0, 0.2); }
         .stat-box.expiring .stat-number { color: #ffcc00; animation: pulse 1.5s ease-in-out infinite; }
+        .stat-box.expired { background: rgba(255, 59, 48, 0.2); }
         .stat-box.expired .stat-number { color: #ff6b6b; }
-        
         .fridge-footer { text-align: center; margin-top: 10px; }
         .fridge-footer a { color: white; text-decoration: underline; }
         
@@ -826,6 +808,15 @@
         .add-link:hover { background: #0056cc; transform: translateY(-2px); }
     </style>
 </head>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered:', registration.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        });
+    }
+</script>
 <body>
 
 <!-- SPLASH LOADING SCREEN -->
