@@ -95,12 +95,12 @@
             padding-bottom: 80px;
         }
         
-        /* ========== FRIDGE STATUS BOX – three coloured boxes inside ========== */
+        /* ========== FRIDGE STATUS BOX – larger, spaced coloured boxes ========== */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px;
-            border-radius: 16px;
+            border-radius: 20px;
             margin-bottom: 24px;
             animation: fadeInScale 0.5s ease;
             position: relative;
@@ -125,59 +125,69 @@
         }
         .stats-row {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             text-align: center;
-            gap: 12px;
-            margin: 20px 0;
+            gap: 16px;
+            margin: 20px 0 8px;
         }
-        /* Three coloured boxes – green, yellow/orange, red */
+        /* Large coloured boxes with outline/border */
         .stat-box {
             flex: 1;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 16px;
-            padding: 12px 8px;
-            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 18px 8px;
             backdrop-filter: blur(4px);
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         .stat-box.good {
-            background: rgba(52, 199, 89, 0.2);
-            border: 1px solid rgba(52, 199, 89, 0.5);
+            background: rgba(52, 199, 89, 0.25);
+            border: 1px solid rgba(52, 199, 89, 0.6);
         }
         .stat-box.expiring {
-            background: rgba(255, 149, 0, 0.2);
-            border: 1px solid rgba(255, 149, 0, 0.5);
+            background: rgba(255, 149, 0, 0.25);
+            border: 1px solid rgba(255, 149, 0, 0.6);
         }
         .stat-box.expired {
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid rgba(255, 59, 48, 0.5);
+            background: rgba(255, 59, 48, 0.25);
+            border: 1px solid rgba(255, 59, 48, 0.6);
         }
         .stat-box:hover {
-            transform: scale(1.05);
-            background: rgba(255,255,255,0.25);
+            transform: scale(1.02);
+            background: rgba(255,255,255,0.2);
         }
         .stat-box:active {
-            transform: scale(0.95);
+            transform: scale(0.98);
         }
         .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 4px;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            line-height: 1;
         }
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
             opacity: 0.95;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
-        /* Number colours inside each coloured box */
+        /* Number colours */
         .stat-box.good .stat-number {
             color: #4cd964;
+            text-shadow: 0 0 2px rgba(0,0,0,0.1);
         }
         .stat-box.expiring .stat-number {
             color: #ffcc00;
             animation: pulse 1.5s ease-in-out infinite;
+            text-shadow: 0 0 2px rgba(0,0,0,0.1);
         }
         .stat-box.expired .stat-number {
-            color: #ff8888;
+            color: #ff9f9f;
+            text-shadow: 0 0 2px rgba(0,0,0,0.1);
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -517,7 +527,7 @@
         </div>
         
         <div class="content">
-            <!-- FRIDGE STATUS BOX – three coloured boxes (green, yellow, red) inside -->
+            <!-- FRIDGE STATUS BOX – larger, spaced coloured boxes with outline -->
             <div class="fridge-summary">
                 <div class="fridge-header">
                     <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
