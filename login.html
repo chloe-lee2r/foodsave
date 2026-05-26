@@ -557,7 +557,7 @@
         }
         
         .terms-content.open {
-            max-height: 250px;
+            max-height: 280px;
         }
 
         .terms-content::-webkit-scrollbar {
@@ -812,7 +812,7 @@
                 </button>
             </div>
             
-            <!-- CONSUMER FORM -->
+            <!-- CONSUMER FORM (only username + password) -->
             <div id="consumerForm" class="form-section">
                 <div class="login-hint" id="consumerLoginHint">
                     💡 already have an account? just enter your details and click "log in"
@@ -878,7 +878,10 @@
                         <h5>10. Governing Law</h5>
                         <p>These Terms are governed by the laws of Singapore.</p>
                         
-                        <h5>11. Contact</h5>
+                        <h5>11. Demo Disclaimer</h5>
+                        <p><strong>This is a demonstration application only.</strong> No real money, real food items, or real transactions are processed. All listings, purchases, and savings are simulated for educational and showcase purposes. Foodsavvi does not handle actual payments or inventory. You agree that you will not attempt to use this platform for real commercial activities.</p>
+                        
+                        <h5>12. Contact</h5>
                         <p>If you have any questions, contact: reubenyee2012@gmail.com</p>
                     </div>
                     <div class="checkbox-group">
@@ -896,7 +899,7 @@
                 </button>
             </div>
             
-            <!-- BUSINESS FORM -->
+            <!-- BUSINESS FORM (unchanged, full registration) -->
             <div id="shopForm" class="form-section hidden">
                 <div class="section-title">
                     <span class="icon-circle blue">🔐</span> login to your business
@@ -1029,7 +1032,10 @@
                         <h5>10. Governing Law</h5>
                         <p>These Terms are governed by the laws of Singapore.</p>
                         
-                        <h5>11. Contact</h5>
+                        <h5>11. Demo Disclaimer</h5>
+                        <p><strong>This is a demonstration application only.</strong> No real money, real food items, or real transactions are processed. All listings, purchases, and savings are simulated for educational and showcase purposes. Foodsavvi does not handle actual payments or inventory. You agree that you will not attempt to use this platform for real commercial activities.</p>
+                        
+                        <h5>12. Contact</h5>
                         <p>If you have any questions, contact: reubenyee2012@gmail.com</p>
                     </div>
                     <div class="checkbox-group">
@@ -1071,24 +1077,19 @@
                 }
             }
             
-            // 🔥 NEW: Check URL hash and auto-switch to business tab
             if (window.location.hash === '#business') {
                 setRole('advertiser');
             }
             
-            // Show hint for consumer form
             document.getElementById('consumerLoginHint').classList.add('visible');
         });
         
         function setRole(role) {
             currentRole = role;
-            
             const indicator = document.getElementById('roleIndicator');
             const consumerForm = document.getElementById('consumerForm');
             const shopForm = document.getElementById('shopForm');
-            
             document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            
             if (role === 'consumer') {
                 document.querySelector('.role-btn.consumer').classList.add('active');
                 indicator.classList.remove('right');
@@ -1104,25 +1105,22 @@
                 consumerForm.classList.add('hidden');
                 document.getElementById('consumerLoginHint').classList.remove('visible');
             }
-            
             hideStatus();
         }
         
         function checkPasswordStrength(password, type) {
             const strengthBar = document.querySelector(`#${type}Strength .strength-bar`);
             const strengthText = document.getElementById(`${type}StrengthText`);
+            if (!strengthBar) return;
             let strength = 0;
-            
             if (password.length >= 6) strength += 1;
             if (password.length >= 8) strength += 1;
             if (/[A-Z]/.test(password)) strength += 1;
             if (/[0-9]/.test(password)) strength += 1;
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-            
             strengthBar.className = 'strength-bar';
             strengthText.style.display = 'block';
             strengthText.className = 'strength-text';
-            
             if (password.length === 0) {
                 strengthBar.style.width = '0';
                 strengthText.style.display = 'none';
@@ -1163,7 +1161,6 @@
             statusEl.innerHTML = `<span class="status-icon">${icons[type] || 'ℹ️'}</span> ${message}`;
             statusEl.className = `status-message ${type}`;
             statusEl.style.display = 'flex';
-            
             if (type !== 'info') {
                 setTimeout(() => {
                     if (statusEl.style.display !== 'none') {
@@ -1205,23 +1202,17 @@
         async function handleConsumerLogin() {
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
-            
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 shakeElement(document.getElementById(!username ? 'consumerUsername' : 'consumerPassword'));
                 return;
             }
-            
             showLoading('consumerLoginBtn');
             showStatus('logging in...', 'info');
-            
             const result = await Backend.login(username, password, 'consumer');
-            
             if (result.success) {
                 showStatus('login successful! redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 800);
+                setTimeout(() => window.location.href = 'index.html', 800);
             } else {
                 showStatus(result.message || 'login failed — check your credentials', 'error');
                 hideLoading('consumerLoginBtn');
@@ -1232,33 +1223,27 @@
             const username = document.getElementById('consumerUsername').value.trim();
             const password = document.getElementById('consumerPassword').value;
             const termsChecked = document.getElementById('consumerTermsCheckbox').checked;
-            
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 shakeElement(document.getElementById(!username ? 'consumerUsername' : 'consumerPassword'));
                 return;
             }
-            
             if (username.length < 3) {
                 showStatus('username must be at least 3 characters', 'error');
                 shakeElement(document.getElementById('consumerUsername'));
                 return;
             }
-            
             if (password.length < 6) {
                 showStatus('password must be at least 6 characters', 'error');
                 shakeElement(document.getElementById('consumerPassword'));
                 return;
             }
-            
             if (!termsChecked) {
                 showStatus('please agree to the terms and conditions', 'error');
                 return;
             }
-            
             showLoading('consumerRegisterBtn');
             showStatus('checking username availability...', 'info');
-            
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
                 showStatus(`"${username}" is already taken — try another`, 'error');
@@ -1266,11 +1251,8 @@
                 hideLoading('consumerRegisterBtn');
                 return;
             }
-            
             showStatus('creating your account...', 'info');
-            
             const result = await Backend.register(username, password, 'consumer');
-            
             if (result.success) {
                 showStatus('account created! logging you in...', 'success');
                 setTimeout(async () => {
@@ -1291,29 +1273,22 @@
         async function handleShopLogin() {
             const username = document.getElementById('shopLoginUsername').value.trim();
             const password = document.getElementById('shopLoginPassword').value;
-            
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 shakeElement(document.getElementById(!username ? 'shopLoginUsername' : 'shopLoginPassword'));
                 return;
             }
-            
             showLoading('shopLoginBtn');
             showStatus('logging in...', 'info');
-            
             const result = await Backend.login(username, password, 'advertiser');
-            
             if (result.success) {
                 const businessRole = localStorage.getItem('businessRole');
                 let roleMessage = '';
                 if (businessRole === 'owner') roleMessage = ' (owner)';
                 else if (businessRole === 'manager') roleMessage = ' (manager)';
                 else if (businessRole === 'staff') roleMessage = ' (staff)';
-                
                 showStatus(`welcome back${roleMessage}! redirecting...`, 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 800);
+                setTimeout(() => window.location.href = 'index.html', 800);
             } else {
                 showStatus(result.message || 'login failed — check your credentials', 'error');
                 hideLoading('shopLoginBtn');
@@ -1325,50 +1300,41 @@
             const password = document.getElementById('shopPassword').value;
             const businessName = document.getElementById('shopName').value.trim();
             const termsChecked = document.getElementById('businessTermsCheckbox').checked;
-            
             if (!username || !password) {
                 showStatus('please enter username and password', 'error');
                 return;
             }
-            
             if (!businessName) {
                 showStatus('please enter your business name', 'error');
                 shakeElement(document.getElementById('shopName'));
                 return;
             }
-            
             if (username.length < 3) {
                 showStatus('username must be at least 3 characters', 'error');
                 return;
             }
-            
             if (password.length < 6) {
                 showStatus('password must be at least 6 characters', 'error');
                 return;
             }
-            
             if (!termsChecked) {
                 showStatus('please agree to the terms and conditions', 'error');
                 return;
             }
-            
             showLoading('shopRegisterBtn');
             showStatus('checking availability...', 'info');
-            
             const usernameCheck = await Backend.checkUsernameExists(username);
             if (usernameCheck.exists) {
                 showStatus(`"${username}" is already taken — try another`, 'error');
                 hideLoading('shopRegisterBtn');
                 return;
             }
-            
             const businessNameCheck = await Backend.checkBusinessNameExists(businessName);
             if (businessNameCheck.exists) {
                 showStatus(`"${businessName}" is already registered`, 'error');
                 hideLoading('shopRegisterBtn');
                 return;
             }
-            
             const businessDetails = {
                 name: businessName,
                 phone: document.getElementById('shopPhone').value.trim(),
@@ -1380,11 +1346,8 @@
                 closeTime: document.getElementById('shopClose').value,
                 type: 'grocery'
             };
-            
             showStatus('creating your business account...', 'info');
-            
             const result = await Backend.register(username, password, 'advertiser', businessDetails);
-            
             if (result.success) {
                 showStatus('business registered! logging you in...', 'success');
                 setTimeout(async () => {
@@ -1409,15 +1372,12 @@
             setTimeout(() => element.classList.remove('error'), 600);
         }
         
-        // Enter key handlers
         document.getElementById('consumerPassword').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleConsumerLogin();
         });
-        
         document.getElementById('shopLoginPassword').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleShopLogin();
         });
-        
         document.getElementById('shopPassword').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleShopRegister();
         });
