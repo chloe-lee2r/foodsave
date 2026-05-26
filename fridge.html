@@ -401,13 +401,13 @@
             vertical-align: middle;
         }
         
-        /* Fixed notification: hidden until shown */
+        /* Fixed notification: default green, error red */
         .notification {
             position: fixed;
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #1a1a1a;
+            background: #34c759;   /* green for success/info */
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
@@ -427,11 +427,11 @@
         }
         
         .notification.success {
-            background: #34c759;
+            background: #34c759;   /* explicit green */
         }
         
         .notification.error {
-            background: #ff3b30;
+            background: #ff3b30;   /* red for errors */
         }
     </style>
 </head>
