@@ -10,12 +10,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered:', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('SW registration failed:', err);
-                    });
+                    .then(registration => console.log('SW registered:', registration.scope))
+                    .catch(err => console.log('SW registration failed:', err));
             });
         }
     </script>
@@ -99,7 +95,7 @@
             padding-bottom: 80px;
         }
         
-        /* ========== FRIDGE STATUS BOX (exactly like homepage) ========== */
+        /* ========== FRIDGE STATUS BOX – exact copy from homepage ========== */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -155,6 +151,7 @@
             font-size: 14px;
             opacity: 0.9;
         }
+        /* Coloured numbers exactly like homepage */
         .stat-box.good .stat-number {
             color: #4cd964;
         }
@@ -513,23 +510,24 @@
         </div>
         
         <div class="content">
-            <!-- FRIDGE STATUS BOX – exactly like homepage -->
+            <!-- FRIDGE STATUS BOX – now 100% identical to homepage (including emoji labels) -->
             <div class="fridge-summary">
                 <div class="fridge-header">
                     <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
+                    <!-- no "view all" link because we are already on the fridge page -->
                 </div>
                 <div class="stats-row">
                     <div class="stat-box good">
                         <div class="stat-number" id="totalItems">0</div>
-                        <div class="stat-label">total items</div>
+                        <div class="stat-label">good ✅</div>
                     </div>
                     <div class="stat-box expiring">
                         <div class="stat-number" id="expiringItems">0</div>
-                        <div class="stat-label">expiring soon</div>
+                        <div class="stat-label">expiring soon ⚠️</div>
                     </div>
                     <div class="stat-box expired">
                         <div class="stat-number" id="expiredItems">0</div>
-                        <div class="stat-label">expired</div>
+                        <div class="stat-label">expired ❌</div>
                     </div>
                 </div>
                 <div class="fridge-footer" id="fridgeFooter"></div>
@@ -821,7 +819,7 @@
             document.getElementById('expiringItems').textContent = expiring;
             document.getElementById('expiredItems').textContent = expired;
             
-            // Update footer message (exactly like homepage)
+            // Footer message – exactly like homepage
             const footer = document.getElementById('fridgeFooter');
             if (items.length === 0) {
                 footer.innerHTML = '<a href="#" onclick="document.getElementById(\'foodName\').focus()">➕ add items to fridge</a>';
