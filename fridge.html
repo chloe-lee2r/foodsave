@@ -95,7 +95,7 @@
             padding-bottom: 80px;
         }
         
-        /* ========== FRIDGE STATUS BOX – exact copy from homepage ========== */
+        /* ========== FRIDGE STATUS BOX – exact match to homepage (no footer) ========== */
         .fridge-summary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -161,16 +161,6 @@
         }
         .stat-box.expired .stat-number {
             color: #ff6b6b;
-        }
-        .fridge-footer {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 13px;
-            opacity: 0.9;
-        }
-        .fridge-footer a {
-            color: white;
-            text-decoration: underline;
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -510,11 +500,10 @@
         </div>
         
         <div class="content">
-            <!-- FRIDGE STATUS BOX – now 100% identical to homepage (including emoji labels) -->
+            <!-- FRIDGE STATUS BOX – only coloured stat boxes, no footer text -->
             <div class="fridge-summary">
                 <div class="fridge-header">
                     <h3><img src="assets/fridge.png" alt="fridge"> fridge status</h3>
-                    <!-- no "view all" link because we are already on the fridge page -->
                 </div>
                 <div class="stats-row">
                     <div class="stat-box good">
@@ -530,7 +519,7 @@
                         <div class="stat-label">expired ❌</div>
                     </div>
                 </div>
-                <div class="fridge-footer" id="fridgeFooter"></div>
+                <!-- Footer removed: no "X items expired" text -->
             </div>
             
             <div class="add-section">
@@ -819,17 +808,7 @@
             document.getElementById('expiringItems').textContent = expiring;
             document.getElementById('expiredItems').textContent = expired;
             
-            // Footer message – exactly like homepage
-            const footer = document.getElementById('fridgeFooter');
-            if (items.length === 0) {
-                footer.innerHTML = '<a href="#" onclick="document.getElementById(\'foodName\').focus()">➕ add items to fridge</a>';
-            } else if (expired > 0) {
-                footer.innerHTML = `<span style="color:#ff9f9f;">⚠️ ${expired} item(s) expired</span>`;
-            } else if (expiring > 0) {
-                footer.innerHTML = `<span style="color:#ffd700;">⏰ ${expiring} item(s) expiring soon</span>`;
-            } else {
-                footer.innerHTML = '<span style="color:#c8e6c9;">✅ all good! nothing expiring soon</span>';
-            }
+            // No footer updates – removed completely
         }
         
         function escapeHtml(str) {
