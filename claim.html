@@ -473,7 +473,6 @@
             vertical-align: middle;
         }
         
-        /* NOTIFICATION – GREEN BASE, RED FOR ERRORS */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -909,7 +908,7 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
         
-        function showReceipt(orderResult, originalWalletBalance, cartItems) {
+        function showReceipt(orderId, originalWalletBalance, cartItems) {
             const receiptModal = document.getElementById('receiptModal');
             const receiptDate = document.getElementById('receiptDate');
             const receiptItems = document.getElementById('receiptItems');
@@ -986,7 +985,7 @@
             window.location.href = 'index.html';
         }
         
-        // FIXED: Now sends all items correctly
+        // ========== FIXED CHECKOUT: Processes ALL items ==========
         async function checkout() {
             if (cart.length === 0) {
                 showNotification('Your cart is empty', 'error');
@@ -995,31 +994,12 @@
             
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
-            const orderItems = [];
             
-            // Build order items array – include ALL items with proper fields
+            // Calculate totals and prepare items for order
             for (const item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
-                const itemOriginalTotal = item.originalPrice * item.quantity;
-                const itemDiscountedTotal = discountedPrice * item.quantity;
-                
-                subtotalOriginal += itemOriginalTotal;
-                subtotalDiscounted += itemDiscountedTotal;
-                
-                // Create a complete item object for the backend
-                orderItems.push({
-                    adId: item.id,                // critical: the ad ID
-                    foodName: item.foodName,
-                    shopName: item.shopName,
-                    quantity: item.quantity,
-                    originalPrice: item.originalPrice,
-                    discountedPrice: discountedPrice,
-                    discount: item.discount,
-                    batchNumber: item.batchNumber || null,
-                    category: item.category || 'other',
-                    productImage: item.productImage || null,
-                    maxQuantity: item.maxQuantity
-                });
+                subtotalOriginal += item.originalPrice * item.quantity;
+                subtotalDiscounted += discountedPrice * item.quantity;
             }
             
             const total = subtotalDiscounted;
@@ -1038,77 +1018,60 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             try {
-                // Try to use the backend cloud function
-                let result = await Backend.createOrder(orderItems, total);
+                // 1. Create the order with ALL items using Parse directly
+                const currentUser = Backend.getCurrentUser();
+                const Order = Parse.Object.extend('Order');
+                const order = new Order();
                 
-                // If cloud function fails, try direct creation with manual wallet deduction
-                if (!result.success) {
-                    console.warn('Cloud function failed, falling back to direct order creation');
-                    result = await createOrderDirectly(orderItems, total);
+                // Store full item details as an array
+                const orderItems = cart.map(item => ({
+                    adId: item.id,
+                    foodName: item.foodName,
+                    shopName: item.shopName,
+                    quantity: item.quantity,
+                    originalPrice: item.originalPrice,
+                    discountedPrice: item.originalPrice * (1 - item.discount / 100),
+                    discount: item.discount,
+                    batchNumber: item.batchNumber || null,
+                    category: item.category || 'other',
+                    productImage: item.productImage || null
+                }));
+                
+                order.set('items', orderItems);
+                order.set('totalAmount', total);
+                order.set('status', 'pending');
+                order.set('buyer', currentUser);
+                
+                const savedOrder = await order.save();
+                console.log('Order created with ID:', savedOrder.id, 'Items count:', orderItems.length);
+                
+                // 2. Deduct wallet balance (call the cloud function that handles this)
+                const deducted = await Backend.deductFromWallet(currentUser.id, total);
+                if (!deducted.success) {
+                    // If deduction fails, we still have the order but we should clean up
+                    await savedOrder.destroy();
+                    throw new Error('Wallet deduction failed: ' + (deducted.message || 'Unknown error'));
                 }
                 
-                if (result.success) {
-                    // Clear cart
-                    const receiptCartItems = [...cart];
-                    cart = [];
-                    saveCart();
-                    
-                    // Refresh wallet balance (backend should have deducted)
-                    const currentUser = Backend.getCurrentUser();
-                    walletBalance = await Backend.getWalletBalance(currentUser.id);
-                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    
-                    showReceipt(result, originalWalletBalance, receiptCartItems);
-                } else {
-                    showNotification(result.message || 'Checkout failed. Please try again.', 'error');
-                    await loadWalletBalance();
-                    renderCart();
-                }
+                // 3. Update local wallet balance
+                walletBalance = await Backend.getWalletBalance(currentUser.id);
+                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                
+                // 4. Clear cart
+                const purchasedItems = [...cart];
+                cart = [];
+                saveCart();
+                
+                // 5. Show receipt
+                showReceipt(savedOrder.id, originalWalletBalance, purchasedItems);
+                
             } catch (error) {
                 console.error('Checkout error:', error);
-                showNotification('Checkout failed. Please try again.', 'error');
+                showNotification(error.message || 'Checkout failed. Please try again.', 'error');
                 await loadWalletBalance();
                 renderCart();
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
-            }
-        }
-        
-        // Direct order creation with wallet deduction (fallback)
-        async function createOrderDirectly(items, totalAmount) {
-            const currentUser = Backend.getCurrentUser();
-            if (!currentUser) throw new Error('Not logged in');
-            
-            const Order = Parse.Object.extend('Order');
-            const order = new Order();
-            
-            // Store all items as an array
-            order.set('items', items);
-            order.set('totalAmount', totalAmount);
-            order.set('status', 'pending');
-            order.set('buyer', currentUser);
-            
-            try {
-                await order.save();
-                console.log('Order created directly with ID:', order.id, 'Items count:', items.length);
-                
-                // Try to deduct wallet balance using a cloud function (if exists)
-                // If not, at least we have the order record.
-                // We'll also attempt to call Backend.deductFromWallet (if implemented)
-                if (typeof Backend.deductFromWallet === 'function') {
-                    const deductResult = await Backend.deductFromWallet(currentUser.id, totalAmount);
-                    if (!deductResult.success) {
-                        console.warn('Wallet deduction failed, but order was saved');
-                    }
-                } else {
-                    // No deduction function – we'll just return success and rely on manual deduction later?
-                    console.warn('No wallet deduction function found – balance not automatically deducted');
-                }
-                
-                return { success: true, orderId: order.id };
-            } catch (e) {
-                console.error('Direct order creation failed:', e);
-                return { success: false, message: e.message || 'Order creation failed' };
             }
         }
         
