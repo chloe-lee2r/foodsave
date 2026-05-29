@@ -19,7 +19,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             font-family: 'RusticStory', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
@@ -28,14 +27,12 @@
             align-items: center;
             justify-content: center;
         }
-        
         .app {
             width: 100%;
             max-width: 400px;
             background: white;
             min-height: 100vh;
         }
-        
         .header {
             padding: 20px 16px;
             background: white;
@@ -44,7 +41,6 @@
             align-items: center;
             gap: 12px;
         }
-        
         .back-link {
             width: 40px;
             height: 40px;
@@ -57,20 +53,17 @@
             color: #007aff;
             font-size: 20px;
         }
-        
         .header h1 {
             flex: 1;
             font-size: 20px;
             font-weight: 600;
         }
-        
         .cart-icon {
             position: relative;
             cursor: pointer;
             font-size: 24px;
             text-decoration: none;
         }
-        
         .cart-count {
             position: absolute;
             top: -8px;
@@ -83,7 +76,6 @@
             min-width: 18px;
             text-align: center;
         }
-        
         .refresh-btn {
             background: none;
             border: none;
@@ -92,12 +84,10 @@
             padding: 4px 8px;
             border-radius: 20px;
         }
-        
         .content {
             padding: 16px;
             padding-bottom: 80px;
         }
-        
         .wallet-card {
             background: linear-gradient(135deg, #f5b042, #ff9500);
             color: white;
@@ -105,18 +95,15 @@
             border-radius: 16px;
             margin-bottom: 20px;
         }
-        
         .wallet-label {
             font-size: 12px;
             opacity: 0.9;
             margin-bottom: 4px;
         }
-        
         .wallet-amount {
             font-size: 28px;
             font-weight: 600;
         }
-        
         .cart-item {
             background: #f8f9fa;
             border-radius: 12px;
@@ -126,7 +113,6 @@
             gap: 12px;
             position: relative;
         }
-        
         .item-image {
             width: 70px;
             height: 70px;
@@ -138,49 +124,41 @@
             overflow: hidden;
             flex-shrink: 0;
         }
-        
         .item-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 12px;
         }
-        
         .item-details {
             flex: 1;
         }
-        
         .item-name {
             font-weight: 600;
             font-size: 16px;
             margin-bottom: 4px;
         }
-        
         .item-shop {
             font-size: 12px;
             color: #007aff;
             margin-bottom: 4px;
         }
-        
         .item-price {
             font-size: 14px;
             color: #34c759;
             font-weight: 600;
         }
-        
         .item-original {
             font-size: 12px;
             color: #999;
             text-decoration: line-through;
             margin-left: 8px;
         }
-        
         .item-saved {
             font-size: 11px;
             color: #ff9500;
             margin-left: 8px;
         }
-        
         .item-batch {
             font-size: 10px;
             font-family: monospace;
@@ -190,14 +168,12 @@
             display: inline-block;
             margin-top: 4px;
         }
-        
         .item-quantity {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-top: 8px;
         }
-        
         .qty-btn {
             width: 28px;
             height: 28px;
@@ -208,13 +184,11 @@
             cursor: pointer;
             color: #007aff;
         }
-        
         .qty-value {
             font-weight: 600;
             min-width: 30px;
             text-align: center;
         }
-        
         .remove-btn {
             position: absolute;
             top: 12px;
@@ -225,7 +199,6 @@
             cursor: pointer;
             color: #ff3b30;
         }
-        
         .summary-card {
             background: white;
             border-radius: 16px;
@@ -233,14 +206,12 @@
             margin-bottom: 20px;
             border: 1px solid #f0f0f0;
         }
-        
         .summary-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 12px;
             font-size: 14px;
         }
-        
         .summary-row.total {
             font-size: 18px;
             font-weight: 600;
@@ -248,11 +219,9 @@
             padding-top: 12px;
             border-top: 1px solid #f0f0f0;
         }
-        
         .summary-row.saved {
             color: #34c759;
         }
-        
         .checkout-btn {
             width: 100%;
             padding: 16px;
@@ -264,24 +233,20 @@
             font-weight: 600;
             cursor: pointer;
         }
-        
         .checkout-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        
         .empty-cart {
             text-align: center;
             padding: 60px 20px;
             color: #999;
         }
-        
         .empty-emoji {
             font-size: 64px;
             margin-bottom: 16px;
             opacity: 0.5;
         }
-        
         .shop-btn {
             display: inline-block;
             margin-top: 16px;
@@ -291,7 +256,6 @@
             text-decoration: none;
             border-radius: 25px;
         }
-        
         .insufficient-warning {
             background: #ffebee;
             color: #ff3b30;
@@ -300,7 +264,6 @@
             margin-bottom: 16px;
             text-align: center;
         }
-        
         .topup-btn {
             background: #007aff;
             color: white;
@@ -311,8 +274,6 @@
             cursor: pointer;
             margin-left: 12px;
         }
-        
-        /* Receipt Modal */
         .receipt-modal {
             position: fixed;
             top: 0;
@@ -327,7 +288,6 @@
             display: none;
             padding: 20px;
         }
-        
         .receipt-content {
             background: white;
             border-radius: 20px;
@@ -337,29 +297,24 @@
             overflow-y: auto;
             padding: 24px;
         }
-        
         .receipt-header {
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 2px dashed #e0e0e0;
         }
-        
         .receipt-header h2 {
             font-size: 20px;
             color: #34c759;
             margin-bottom: 4px;
         }
-        
         .receipt-date {
             font-size: 11px;
             color: #999;
         }
-        
         .receipt-items {
             margin-bottom: 20px;
         }
-        
         .receipt-item {
             display: flex;
             justify-content: space-between;
@@ -368,37 +323,30 @@
             padding-bottom: 8px;
             border-bottom: 1px solid #f0f0f0;
         }
-        
         .receipt-item-details {
             flex: 1;
         }
-        
         .receipt-item-name {
             font-weight: 500;
         }
-        
         .receipt-item-meta {
             font-size: 10px;
             color: #999;
         }
-        
         .receipt-item-price {
             text-align: right;
         }
-        
         .receipt-divider {
             height: 1px;
             background: #e0e0e0;
             margin: 12px 0;
         }
-        
         .receipt-total-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 14px;
         }
-        
         .receipt-total-row.bold {
             font-weight: 600;
             font-size: 16px;
@@ -406,11 +354,9 @@
             padding-top: 8px;
             border-top: 1px solid #e0e0e0;
         }
-        
         .receipt-total-row.saved {
             color: #34c759;
         }
-        
         .receipt-footer {
             text-align: center;
             margin-top: 20px;
@@ -419,7 +365,6 @@
             font-size: 11px;
             color: #999;
         }
-        
         .close-receipt-btn {
             width: 100%;
             padding: 14px;
@@ -432,7 +377,6 @@
             cursor: pointer;
             margin-top: 16px;
         }
-        
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -446,7 +390,6 @@
             display: flex;
             justify-content: space-around;
         }
-        
         .nav-item {
             text-decoration: none;
             color: #999;
@@ -454,11 +397,9 @@
             text-align: center;
             flex: 1;
         }
-        
         .nav-item.active {
             color: #007aff;
         }
-        
         .nav-emoji {
             font-size: 20px;
             margin-bottom: 2px;
@@ -466,13 +407,11 @@
             height: 24px;
             line-height: 24px;
         }
-        
         .nav-emoji img {
             width: auto;
             height: 100%;
             vertical-align: middle;
         }
-        
         .notification {
             position: fixed;
             bottom: 80px;
@@ -490,21 +429,13 @@
             opacity: 0;
             pointer-events: none;
         }
-        
         .notification.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
             pointer-events: auto;
         }
-        
-        .notification.success {
-            background: #34c759;
-        }
-        
-        .notification.error {
-            background: #ff3b30;
-        }
-        
+        .notification.success { background: #34c759; }
+        .notification.error { background: #ff3b30; }
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -518,7 +449,6 @@
             z-index: 2000;
             display: none;
         }
-        
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -527,11 +457,9 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
         .modal {
             position: fixed;
             top: 0;
@@ -545,7 +473,6 @@
             z-index: 3000;
             display: none;
         }
-        
         .modal-content {
             background: white;
             border-radius: 20px;
@@ -553,14 +480,12 @@
             max-width: 340px;
             padding: 24px;
         }
-        
         .modal-title {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 16px;
             text-align: center;
         }
-        
         .modal-input {
             width: 100%;
             padding: 14px;
@@ -570,12 +495,10 @@
             margin-bottom: 16px;
             font-family: inherit;
         }
-        
         .modal-buttons {
             display: flex;
             gap: 12px;
         }
-        
         .modal-btn {
             flex: 1;
             padding: 12px;
@@ -585,12 +508,10 @@
             font-family: inherit;
             font-weight: 500;
         }
-        
         .modal-btn.confirm {
             background: #34c759;
             color: white;
         }
-        
         .modal-btn.cancel {
             background: #999;
             color: white;
@@ -649,22 +570,10 @@
         </div>
         
         <div class="bottom-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-emoji">🏠</span>
-                <span>home</span>
-            </a>
-            <a href="find-stores.html" class="nav-item">
-                <span class="nav-emoji">🔍</span>
-                <span>deals</span>
-            </a>
-            <a href="shoplist.html" class="nav-item">
-                <span class="nav-emoji">📝</span>
-                <span>lists</span>
-            </a>
-            <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
-                <span>fridge</span>
-            </a>
+            <a href="index.html" class="nav-item"><span class="nav-emoji">🏠</span><span>home</span></a>
+            <a href="find-stores.html" class="nav-item"><span class="nav-emoji">🔍</span><span>deals</span></a>
+            <a href="shoplist.html" class="nav-item"><span class="nav-emoji">📝</span><span>lists</span></a>
+            <a href="fridge.html" class="nav-item"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span><span>fridge</span></a>
         </div>
     </div>
     
@@ -707,31 +616,19 @@
     <script>
         let cart = [];
         let walletBalance = 0;
-        let lastReceiptData = null;
         let notificationTimeout = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
-            
             if (!user || role !== 'consumer') {
                 showNotification('Please login as consumer', 'error');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
+                setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
-            
             await loadWalletBalance();
             loadCart();
-            updateCartCount();
         });
-        
-        async function refreshCart() {
-            await loadWalletBalance();
-            loadCart();
-            showNotification('Cart refreshed');
-        }
         
         async function loadWalletBalance() {
             try {
@@ -741,7 +638,7 @@
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                 }
             } catch (error) {
-                console.error('Error loading wallet:', error);
+                console.error(error);
                 walletBalance = 0;
             }
         }
@@ -750,6 +647,7 @@
             const savedCart = localStorage.getItem('claimCart');
             cart = savedCart ? JSON.parse(savedCart) : [];
             renderCart();
+            updateCartCount();
         }
         
         function saveCart() {
@@ -786,20 +684,14 @@
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
             
-            for (let i = 0; i < cart.length; i++) {
-                const item = cart[i];
+            for (let item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const itemOriginalTotal = item.originalPrice * item.quantity;
                 const itemDiscountedTotal = discountedPrice * item.quantity;
-                const itemSaved = itemOriginalTotal - itemDiscountedTotal;
-                
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
                 
-                const imageHtml = item.productImage ? 
-                    `<div class="item-image"><img src="${item.productImage}" alt="${escapeHtml(item.foodName)}"></div>` : 
-                    `<div class="item-image"></div>`;
-                
+                const imageHtml = item.productImage ? `<div class="item-image"><img src="${item.productImage}" alt="${escapeHtml(item.foodName)}"></div>` : `<div class="item-image"></div>`;
                 html += `
                     <div class="cart-item">
                         ${imageHtml}
@@ -822,20 +714,15 @@
                     </div>
                 `;
             }
-            
             container.innerHTML = html;
             summaryCard.style.display = 'block';
-            
-            const totalSaved = subtotalOriginal - subtotalDiscounted;
-            
             document.getElementById('subtotalOriginal').textContent = `$${subtotalOriginal.toFixed(2)}`;
-            document.getElementById('totalSaved').textContent = `$${totalSaved.toFixed(2)}`;
+            document.getElementById('totalSaved').textContent = `$${(subtotalOriginal - subtotalDiscounted).toFixed(2)}`;
             document.getElementById('total').textContent = `$${subtotalDiscounted.toFixed(2)}`;
             
             if (walletBalance >= subtotalDiscounted) {
                 checkoutBtn.style.display = 'block';
                 insufficientWarning.style.display = 'none';
-                checkoutBtn.disabled = false;
             } else {
                 checkoutBtn.style.display = 'none';
                 insufficientWarning.style.display = 'block';
@@ -845,9 +732,7 @@
         function updateQuantity(adId, change) {
             const index = cart.findIndex(item => item.id === adId);
             if (index === -1) return;
-            
             const newQuantity = cart[index].quantity + change;
-            
             if (newQuantity <= 0) {
                 removeFromCart(adId);
             } else if (newQuantity <= cart[index].maxQuantity) {
@@ -877,19 +762,14 @@
         
         async function processTopUp() {
             const amount = parseFloat(document.getElementById('topUpAmount').value);
-            
             if (isNaN(amount) || amount < 1) {
                 showNotification('Please enter a valid amount (minimum $1)', 'error');
                 return;
             }
-            
             closeTopUpModal();
             document.getElementById('loadingOverlay').style.display = 'flex';
-            
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
             const cardConfirmed = confirm(`💳 Payment Simulation\n\nAmount: $${amount.toFixed(2)}\nCard: **** **** **** 4242\n\nClick OK to complete the transaction`);
-            
             if (cardConfirmed) {
                 const currentUser = Backend.getCurrentUser();
                 const result = await Backend.addToWallet(currentUser.id, amount);
@@ -904,11 +784,89 @@
             } else {
                 showNotification('Transaction cancelled');
             }
-            
             document.getElementById('loadingOverlay').style.display = 'none';
         }
         
-        function showReceipt(orderId, originalWalletBalance, cartItems) {
+        // ========== FIXED CHECKOUT – SENDS ALL ITEMS ==========
+        async function checkout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            // Calculate totals
+            let subtotalOriginal = 0;
+            let subtotalDiscounted = 0;
+            for (let item of cart) {
+                const discountedPrice = item.originalPrice * (1 - item.discount / 100);
+                subtotalOriginal += item.originalPrice * item.quantity;
+                subtotalDiscounted += discountedPrice * item.quantity;
+            }
+            
+            const total = subtotalDiscounted;
+            const totalSaved = subtotalOriginal - subtotalDiscounted;
+            
+            if (walletBalance < total) {
+                showNotification(`Insufficient balance! Need $${total.toFixed(2)}`, 'error');
+                return;
+            }
+            
+            const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${totalSaved.toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
+            if (!confirm(confirmMsg)) return;
+            
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                // Prepare items array exactly as backend expects
+                // Each item must have: id (adId), foodName, shopName, quantity, originalPrice, discount
+                const orderItems = cart.map(item => ({
+                    id: item.id,                 // critical: the ad ID
+                    foodName: item.foodName,
+                    shopName: item.shopName,
+                    quantity: item.quantity,
+                    originalPrice: item.originalPrice,
+                    discount: item.discount,
+                    batchNumber: item.batchNumber || null,
+                    category: item.category || 'other',
+                    productImage: item.productImage || null
+                }));
+                
+                // Call the backend's createOrder function
+                const result = await Backend.createOrder(orderItems, total);
+                
+                if (result.success) {
+                    // Save receipt items before clearing cart
+                    const purchasedItems = [...cart];
+                    
+                    // Clear cart
+                    cart = [];
+                    saveCart();
+                    
+                    // Refresh wallet balance
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    
+                    // Show receipt
+                    showReceipt(purchasedItems, subtotalOriginal, subtotalDiscounted, totalSaved);
+                    
+                    showNotification('Order placed successfully!', 'success');
+                } else {
+                    showNotification(result.message || 'Checkout failed', 'error');
+                    await loadWalletBalance();
+                    renderCart();
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showNotification('Checkout failed: ' + (error.message || 'Unknown error'), 'error');
+                await loadWalletBalance();
+                renderCart();
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        function showReceipt(items, subtotalOriginal, subtotalPaid, totalSaved) {
             const receiptModal = document.getElementById('receiptModal');
             const receiptDate = document.getElementById('receiptDate');
             const receiptItems = document.getElementById('receiptItems');
@@ -917,17 +875,11 @@
             const now = new Date();
             receiptDate.textContent = now.toLocaleString();
             
-            let subtotalOriginal = 0;
-            let subtotalPaid = 0;
             let itemsHtml = '';
-            
-            for (const item of cartItems) {
+            for (const item of items) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const originalTotal = item.originalPrice * item.quantity;
                 const paidTotal = discountedPrice * item.quantity;
-                
-                subtotalOriginal += originalTotal;
-                subtotalPaid += paidTotal;
                 
                 itemsHtml += `
                     <div class="receipt-item">
@@ -943,11 +895,10 @@
                     </div>
                 `;
             }
-            
             receiptItems.innerHTML = itemsHtml;
             
-            const totalSaved = subtotalOriginal - subtotalPaid;
-            const newBalance = originalWalletBalance - subtotalPaid;
+            const newBalance = walletBalance;
+            const originalBalance = walletBalance + totalPaid;
             
             receiptSummary.innerHTML = `
                 <div class="receipt-total-row">
@@ -965,7 +916,7 @@
                 <div class="receipt-divider"></div>
                 <div class="receipt-total-row">
                     <span>Previous wallet balance</span>
-                    <span>$${originalWalletBalance.toFixed(2)}</span>
+                    <span>$${originalBalance.toFixed(2)}</span>
                 </div>
                 <div class="receipt-total-row">
                     <span>Amount deducted</span>
@@ -982,97 +933,12 @@
         
         function closeReceipt() {
             document.getElementById('receiptModal').style.display = 'none';
-            window.location.href = 'index.html';
+            window.location.href = 'find-stores.html';
         }
         
-        // ========== FIXED CHECKOUT: Processes ALL items ==========
-        async function checkout() {
-            if (cart.length === 0) {
-                showNotification('Your cart is empty', 'error');
-                return;
-            }
-            
-            let subtotalOriginal = 0;
-            let subtotalDiscounted = 0;
-            
-            // Calculate totals and prepare items for order
-            for (const item of cart) {
-                const discountedPrice = item.originalPrice * (1 - item.discount / 100);
-                subtotalOriginal += item.originalPrice * item.quantity;
-                subtotalDiscounted += discountedPrice * item.quantity;
-            }
-            
-            const total = subtotalDiscounted;
-            const totalSaved = subtotalOriginal - subtotalDiscounted;
-            const originalWalletBalance = walletBalance;
-            
-            if (walletBalance < total) {
-                showNotification(`Insufficient balance! Need $${total.toFixed(2)}`, 'error');
-                return;
-            }
-            
-            const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${totalSaved.toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
-            
-            if (!confirm(confirmMsg)) return;
-            
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            
-            try {
-                // 1. Create the order with ALL items using Parse directly
-                const currentUser = Backend.getCurrentUser();
-                const Order = Parse.Object.extend('Order');
-                const order = new Order();
-                
-                // Store full item details as an array
-                const orderItems = cart.map(item => ({
-                    adId: item.id,
-                    foodName: item.foodName,
-                    shopName: item.shopName,
-                    quantity: item.quantity,
-                    originalPrice: item.originalPrice,
-                    discountedPrice: item.originalPrice * (1 - item.discount / 100),
-                    discount: item.discount,
-                    batchNumber: item.batchNumber || null,
-                    category: item.category || 'other',
-                    productImage: item.productImage || null
-                }));
-                
-                order.set('items', orderItems);
-                order.set('totalAmount', total);
-                order.set('status', 'pending');
-                order.set('buyer', currentUser);
-                
-                const savedOrder = await order.save();
-                console.log('Order created with ID:', savedOrder.id, 'Items count:', orderItems.length);
-                
-                // 2. Deduct wallet balance (call the cloud function that handles this)
-                const deducted = await Backend.deductFromWallet(currentUser.id, total);
-                if (!deducted.success) {
-                    // If deduction fails, we still have the order but we should clean up
-                    await savedOrder.destroy();
-                    throw new Error('Wallet deduction failed: ' + (deducted.message || 'Unknown error'));
-                }
-                
-                // 3. Update local wallet balance
-                walletBalance = await Backend.getWalletBalance(currentUser.id);
-                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                
-                // 4. Clear cart
-                const purchasedItems = [...cart];
-                cart = [];
-                saveCart();
-                
-                // 5. Show receipt
-                showReceipt(savedOrder.id, originalWalletBalance, purchasedItems);
-                
-            } catch (error) {
-                console.error('Checkout error:', error);
-                showNotification(error.message || 'Checkout failed. Please try again.', 'error');
-                await loadWalletBalance();
-                renderCart();
-            } finally {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
+        function refreshCart() {
+            loadCart();
+            showNotification('Cart refreshed');
         }
         
         function escapeHtml(str) {
@@ -1085,11 +951,11 @@
             });
         }
         
-        function showNotification(msg, type) {
+        function showNotification(msg, type = 'success') {
             const notif = document.getElementById('notification');
             if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
-            notif.className = `notification show ${type || ''}`;
+            notif.className = `notification show ${type}`;
             notificationTimeout = setTimeout(() => {
                 notif.className = 'notification';
                 notificationTimeout = null;
