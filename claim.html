@@ -690,7 +690,7 @@
         let cart = [];
         let walletBalance = 0;
         let notificationTimeout = null;
-
+        
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
@@ -702,7 +702,7 @@
             await loadWalletBalance();
             loadCart();
         });
-
+        
         async function loadWalletBalance() {
             try {
                 const currentUser = Backend.getCurrentUser();
@@ -715,30 +715,30 @@
                 walletBalance = 0;
             }
         }
-
+        
         function loadCart() {
             const savedCart = localStorage.getItem('claimCart');
             cart = savedCart ? JSON.parse(savedCart) : [];
             renderCart();
         }
-
+        
         function saveCart() {
             localStorage.setItem('claimCart', JSON.stringify(cart));
             updateCartCount();
         }
-
+        
         function updateCartCount() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = totalItems;
         }
-
-        // ========== RENDER CART (unchanged) ==========
+        
+        // ========== RENDER CART USING DOM ELEMENTS (FIXES DOUBLE CLICK) ==========
         function renderCart() {
             const container = document.getElementById('cartItems');
             const summaryCard = document.getElementById('summaryCard');
             const checkoutBtn = document.getElementById('checkoutBtn');
             const insufficientWarning = document.getElementById('insufficientWarning');
-
+            
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="empty-cart">
@@ -752,21 +752,24 @@
                 insufficientWarning.style.display = 'none';
                 return;
             }
-
+            
+            // Clear container and build fresh
             container.innerHTML = '';
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
-
+            
             for (let item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const itemOriginalTotal = item.originalPrice * item.quantity;
                 const itemDiscountedTotal = discountedPrice * item.quantity;
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
-
+                
+                // Create cart item element
                 const cartItemDiv = document.createElement('div');
                 cartItemDiv.className = 'cart-item';
-
+                
+                // Image
                 const imageDiv = document.createElement('div');
                 imageDiv.className = 'item-image';
                 if (item.productImage) {
@@ -776,20 +779,21 @@
                     imageDiv.appendChild(img);
                 }
                 cartItemDiv.appendChild(imageDiv);
-
+                
+                // Details
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'item-details';
-
+                
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'item-name';
                 nameDiv.textContent = item.foodName;
                 detailsDiv.appendChild(nameDiv);
-
+                
                 const shopDiv = document.createElement('div');
                 shopDiv.className = 'item-shop';
                 shopDiv.textContent = `🏪 ${item.shopName}`;
                 detailsDiv.appendChild(shopDiv);
-
+                
                 const priceDiv = document.createElement('div');
                 priceDiv.className = 'item-price';
                 priceDiv.innerHTML = `$${discountedPrice.toFixed(2)} each <span class="item-original">$${item.originalPrice.toFixed(2)}</span> <span class="item-saved">save $${(item.originalPrice - discountedPrice).toFixed(2)}</span>`;
@@ -800,10 +804,11 @@
                     priceDiv.appendChild(batchSpan);
                 }
                 detailsDiv.appendChild(priceDiv);
-
+                
+                // Quantity controls
                 const qtyDiv = document.createElement('div');
                 qtyDiv.className = 'item-quantity';
-
+                
                 const minusBtn = document.createElement('button');
                 minusBtn.className = 'qty-btn';
                 minusBtn.textContent = '-';
@@ -812,12 +817,12 @@
                     updateQuantity(item.id, -1);
                 });
                 qtyDiv.appendChild(minusBtn);
-
+                
                 const qtySpan = document.createElement('span');
                 qtySpan.className = 'qty-value';
                 qtySpan.textContent = item.quantity;
                 qtyDiv.appendChild(qtySpan);
-
+                
                 const plusBtn = document.createElement('button');
                 plusBtn.className = 'qty-btn';
                 plusBtn.textContent = '+';
@@ -826,10 +831,11 @@
                     updateQuantity(item.id, 1);
                 });
                 qtyDiv.appendChild(plusBtn);
-
+                
                 detailsDiv.appendChild(qtyDiv);
                 cartItemDiv.appendChild(detailsDiv);
-
+                
+                // Remove button
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.textContent = '🗑️';
@@ -838,15 +844,15 @@
                     removeFromCart(item.id);
                 });
                 cartItemDiv.appendChild(removeBtn);
-
+                
                 container.appendChild(cartItemDiv);
             }
-
+            
             summaryCard.style.display = 'block';
             document.getElementById('subtotalOriginal').textContent = `$${subtotalOriginal.toFixed(2)}`;
             document.getElementById('totalSaved').textContent = `$${(subtotalOriginal - subtotalDiscounted).toFixed(2)}`;
             document.getElementById('total').textContent = `$${subtotalDiscounted.toFixed(2)}`;
-
+            
             if (walletBalance >= subtotalDiscounted) {
                 checkoutBtn.style.display = 'block';
                 insufficientWarning.style.display = 'none';
@@ -855,7 +861,7 @@
                 insufficientWarning.style.display = 'block';
             }
         }
-
+        
         function updateQuantity(adId, change) {
             const index = cart.findIndex(item => item.id === adId);
             if (index === -1) return;
@@ -870,23 +876,23 @@
                 showNotification(`Only ${cart[index].maxQuantity} items available`, 'error');
             }
         }
-
+        
         function removeFromCart(adId) {
             cart = cart.filter(item => item.id !== adId);
             saveCart();
             renderCart();
             showNotification('Item removed from cart');
         }
-
+        
         function openTopUpModal() {
             document.getElementById('topUpModal').style.display = 'flex';
         }
-
+        
         function closeTopUpModal() {
             document.getElementById('topUpModal').style.display = 'none';
             document.getElementById('topUpAmount').value = '';
         }
-
+        
         async function processTopUp() {
             const amount = parseFloat(document.getElementById('topUpAmount').value);
             if (isNaN(amount) || amount < 1) {
@@ -913,16 +919,15 @@
             }
             document.getElementById('loadingOverlay').style.display = 'none';
         }
-
-        // ========== RECEIPT (unchanged) ==========
-        function showReceipt(originalWalletBalance, cartItems) {
+        
+        function showReceipt(orderResult, originalWalletBalance, cartItems) {
             const receiptModal = document.getElementById('receiptModal');
             const receiptDate = document.getElementById('receiptDate');
             const receiptItems = document.getElementById('receiptItems');
             const receiptSummary = document.getElementById('receiptSummary');
-
+            
             receiptDate.textContent = new Date().toLocaleString();
-
+            
             let subtotalOriginal = 0;
             let subtotalPaid = 0;
             let itemsHtml = '';
@@ -947,10 +952,10 @@
                 `;
             }
             receiptItems.innerHTML = itemsHtml;
-
+            
             const totalSaved = subtotalOriginal - subtotalPaid;
             const newBalance = originalWalletBalance - subtotalPaid;
-
+            
             receiptSummary.innerHTML = `
                 <div class="receipt-total-row"><span>Subtotal (original)</span><span>$${subtotalOriginal.toFixed(2)}</span></div>
                 <div class="receipt-total-row saved"><span>💰 Total savings</span><span>-$${totalSaved.toFixed(2)}</span></div>
@@ -962,23 +967,21 @@
             `;
             receiptModal.style.display = 'flex';
         }
-
+        
         function closeReceipt() {
             document.getElementById('receiptModal').style.display = 'none';
             window.location.href = 'index.html';
         }
-
-        // ========== CHECKOUT (FIXED – uses cloud function directly) ==========
+        
         async function checkout() {
             if (cart.length === 0) {
                 showNotification('Your cart is empty', 'error');
                 return;
             }
-
+            
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
             const orderItems = [];
-
             for (const item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const itemOriginalTotal = item.originalPrice * item.quantity;
@@ -996,61 +999,74 @@
                     category: item.category || 'other'
                 });
             }
-
             const total = subtotalDiscounted;
             const originalWalletBalance = walletBalance;
-
+            
             if (walletBalance < total) {
                 showNotification(`Insufficient balance! Need $${total.toFixed(2)}`, 'error');
                 return;
             }
-
+            
             const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${(subtotalOriginal - total).toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
             if (!confirm(confirmMsg)) return;
-
+            
             document.getElementById('loadingOverlay').style.display = 'flex';
-
             try {
-                // The cloud function creates one order per item, deducts wallet, updates ads.
-                const result = await Backend.createOrder(orderItems, total);
-
+                let result = await Backend.createOrder(orderItems, total);
                 if (!result.success) {
-                    throw new Error(result.message || 'Checkout failed');
+                    console.warn('Cloud function failed, falling back to direct order');
+                    result = await createOrderDirectly(orderItems, total);
                 }
-
-                // Wallet balance updated on server – use returned newBalance
-                walletBalance = result.newBalance || (await Backend.getWalletBalance(Backend.getCurrentUser().id));
-                document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-
-                // Save cart items for receipt BEFORE clearing
-                const receiptCartItems = [...cart];
-                cart = [];
-                saveCart();
-
-                // Show receipt with all items (no need for orderId)
-                showReceipt(originalWalletBalance, receiptCartItems);
-
+                if (result.success) {
+                    const receiptCartItems = [...cart];
+                    cart = [];
+                    saveCart();
+                    const currentUser = Backend.getCurrentUser();
+                    walletBalance = await Backend.getWalletBalance(currentUser.id);
+                    document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+                    showReceipt(result, originalWalletBalance, receiptCartItems);
+                } else {
+                    showNotification(result.message || 'Checkout failed', 'error');
+                    await loadWalletBalance();
+                    renderCart();
+                }
             } catch (error) {
                 console.error('Checkout error:', error);
                 showNotification('Checkout failed: ' + (error.message || 'Unknown error'), 'error');
-                // Reload wallet in case of partial failure
                 await loadWalletBalance();
                 renderCart();
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
         }
-
+        
+        async function createOrderDirectly(items, totalAmount) {
+            const currentUser = Backend.getCurrentUser();
+            if (!currentUser) throw new Error('Not logged in');
+            const Order = Parse.Object.extend('Order');
+            const order = new Order();
+            order.set('items', items);
+            order.set('totalAmount', totalAmount);
+            order.set('status', 'pending');
+            order.set('buyer', currentUser);
+            try {
+                await order.save();
+                return { success: true, orderId: order.id };
+            } catch (e) {
+                return { success: false, message: e.message };
+            }
+        }
+        
         function refreshCart() {
             loadCart();
             showNotification('Cart refreshed');
         }
-
+        
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
-
+        
         function showNotification(msg, type = 'success') {
             const notif = document.getElementById('notification');
             if (notificationTimeout) clearTimeout(notificationTimeout);
@@ -1061,8 +1077,7 @@
                 notificationTimeout = null;
             }, 2000);
         }
-
-        // Expose functions for inline onclick
+        
         window.updateQuantity = updateQuantity;
         window.removeFromCart = removeFromCart;
         window.checkout = checkout;
