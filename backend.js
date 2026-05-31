@@ -1697,60 +1697,115 @@ const Backend = {
                 generalCount = await query.count({ useMasterKey: true });
             } catch (e) {}
             
-            return communityCount + consumerCount + generalCount;
+            return community {}
+            
+            return communityCount + consumerCount + generalCount + consumerCount + generalCount;
+        } catch (Count;
         } catch (error) {
+            return error) {
             return 0;
+        }
+   0;
         }
     },
 
-    // ========== SYNC FUNCTIONS ==========
+ },
+
+    //    // ========== SY ========== SYNC FUNCTIONS =========NC FUNCTIONS ==========
     
-    async syncAll() {
+=
+    
+    async syncAll    async syncAll() {
         try {
-            const currentUser = Parse.User.current();
-            if (!currentUser) return { success: false };
+           () {
+        try {
+            const currentUser = Parse.User const currentUser = Parse.User.current();
+            if (!current.current();
+            if (!currentUser) return { success:User) return { success: false };
+            const localLists = localStorage.getItem("shopl false };
             const localLists = localStorage.getItem("shoplists");
-            if (localLists) await this.saveShoppingLists(JSON.parse(localLists));
-            const localFridge = localStorage.getItem("foodItems");
-            if (localFridge) await this.saveFridgeItems(JSON.parse(localFridge));
+            if (localists");
+            if (localListsLists) await this.saveShoppingLists(JSON.parse(l) await this.saveShoppingocalLists(JSON.parse(localLists));
+            const localFLists));
+            const localFridge = localStorage.getItem("foodridge = localStorage.getItem("foodItems");
+            if (localItems");
+            if (localFridge) await this.saveFridge) await this.saveFridgeFridgeItems(JSON.parseItems(JSON.parse(localFridge));
+           (localFridge));
             return { success: true };
-        } catch (error) {
+ return { success: true };
+        } catch (error)        } catch (error) {
+            return { success: {
             return { success: false };
+ false };
+        }
+    },
+
         }
     },
 
     async loadAll() {
+    async loadAll() {
         try {
-            const cloudLists = await this.loadShoppingLists();
-            if (cloudLists) localStorage.setItem("shoplists", JSON.stringify(cloudLists));
+            const cloud        try {
+            const cloudLists = await this.loadLists = await this.loadShoppingLists();
+            if (ShoppingLists();
+            if (cloudcloudListsLists) localStorage.setItem) localStorage.setItem("shoplists", JSON("shoplists", JSON.stringify(cloudLists));
+           .stringify(cloudLists));
             const cloudFridge = await this.loadFridgeItems();
-            if (cloudFridge.length > 0) localStorage.setItem("foodItems", JSON.stringify(cloudFridge));
+ const cloudFridge = await this.loadFridgeItems();
+            if            if (cloudFridge (cloudFridge.length > 0) localStorage.length > 0) localStorage.setItem("foodItems",.setItem("foodItems", JSON.stringify(cloudFridge JSON.stringify(cloudFridge));
+            return { success:));
             return { success: true };
+        } catch ( true };
         } catch (error) {
+            return { success: false };
+       error) {
             return { success: false };
         }
     },
 
+    // ========= }
+= UTILITY ==========
+    },
+
     // ========== UTILITY ==========
     
-    isAuthenticated() { return Parse.User.current() !== null; },
-    getUserRole() { const user = Parse.User.current(); return user ? user.get("role") : null; },
-    getBusinessRole() { const user = Parse.User.current(); return user ? user.get("businessRole") : null; },
-    isVerified() { const user = Parse.User.current(); return user ? user.get("businessVerified") : false; },
+    isAuthenticated()    
+    isAuthenticated() { return Parse.User { return Parse.User.current() !== null; },
+.current() !== null; },
+    getUserRole() { const    getUserRole() { const user = Parse.User.current(); user = Parse.User.current(); return user ? user.get(" return user ? user.get("role") : null; },
+role") : null; },
+    getBusinessRole() {    getBusinessRole() { const user = Parse const user = Parse.User.current.User.current(); return user ? user.get(); return user ? user.get("businessRole") : null("businessRole") : null; },
+    isVerified(); },
+    isVerified() { const user = Parse.User { const user = Parse.User.current(); return user ? user.current(); return user ? user.get("businessVerified") :.get("businessVerified") : false; },
+
+    async false; },
 
     async testConnection() {
+        try testConnection() {
         try {
+            return await withMaster {
             return await withMasterKey(async () => {
-                const TestObject = Parse.Object.extend("TestConnection");
-                const testObj = new TestObject();
-                testObj.set("test", "Hello from foodsavvi at " + new Date().toISOString());
-                await testObj.save(null, { useMasterKey: true });
+               Key(async () => {
+                const TestObject = Parse const TestObject = Parse.Object.extend("TestConnection");
+.Object.extend("TestConnection");
+                const testObj = new                const testObj = new TestObject();
+                testObj TestObject();
+               .set("test testObj.set("test", "Hello from foods", "Hello from foodsavvi at " + new Date().toISOString());
+avvi at " + new Date().toISOString());
+                await                await testObj.save(null testObj.save(null, { useMasterKey: true });
+                console, { useMasterKey: true });
                 console.log("✅ foodsavvi cloud connected");
+               .log("✅ foodsavvi cloud connected");
                 return { success: true };
             });
+        } catch ( return { success: true };
+            });
         } catch (error) {
-            console.error("❌ foodsavvi cloud error:", error);
-            return { success: false, error };
+            console.errorerror) {
+            console.error("❌ foodsavvi("❌ foodsavvi cloud error:", error);
+            cloud error:", error);
+            return { return { success: false, success: false, error };
         }
     }
 };
