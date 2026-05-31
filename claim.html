@@ -312,7 +312,6 @@
             margin-left: 12px;
         }
         
-        /* Receipt Modal */
         .receipt-modal {
             position: fixed;
             top: 0;
@@ -473,7 +472,6 @@
             vertical-align: middle;
         }
         
-        /* NOTIFICATION – GREEN BASE, RED FOR ERRORS */
         .notification {
             position: fixed;
             bottom: 80px;
@@ -498,13 +496,8 @@
             pointer-events: auto;
         }
         
-        .notification.success {
-            background: #34c759;
-        }
-        
-        .notification.error {
-            background: #ff3b30;
-        }
+        .notification.success { background: #34c759; }
+        .notification.error { background: #ff3b30; }
         
         .loading-overlay {
             position: fixed;
@@ -650,22 +643,10 @@
         </div>
         
         <div class="bottom-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-emoji">🏠</span>
-                <span>home</span>
-            </a>
-            <a href="find-stores.html" class="nav-item">
-                <span class="nav-emoji">🔍</span>
-                <span>deals</span>
-            </a>
-            <a href="shoplist.html" class="nav-item">
-                <span class="nav-emoji">📝</span>
-                <span>lists</span>
-            </a>
-            <a href="fridge.html" class="nav-item">
-                <span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span>
-                <span>fridge</span>
-            </a>
+            <a href="index.html" class="nav-item"><span class="nav-emoji">🏠</span><span>home</span></a>
+            <a href="find-stores.html" class="nav-item"><span class="nav-emoji">🔍</span><span>deals</span></a>
+            <a href="shoplist.html" class="nav-item"><span class="nav-emoji">📝</span><span>lists</span></a>
+            <a href="fridge.html" class="nav-item"><span class="nav-emoji"><img src="assets/fridge.png" alt="fridge"></span><span>fridge</span></a>
         </div>
     </div>
     
@@ -708,31 +689,19 @@
     <script>
         let cart = [];
         let walletBalance = 0;
-        let lastReceiptData = null;
         let notificationTimeout = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
-            
             if (!user || role !== 'consumer') {
                 showNotification('Please login as consumer', 'error');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
+                setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
-            
             await loadWalletBalance();
             loadCart();
-            updateCartCount();
         });
-        
-        async function refreshCart() {
-            await loadWalletBalance();
-            loadCart();
-            showNotification('Cart refreshed');
-        }
         
         async function loadWalletBalance() {
             try {
@@ -742,7 +711,7 @@
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
                 }
             } catch (error) {
-                console.error('Error loading wallet:', error);
+                console.error(error);
                 walletBalance = 0;
             }
         }
@@ -763,6 +732,7 @@
             document.getElementById('cartCount').textContent = totalItems;
         }
         
+        // ========== RENDER CART USING DOM ELEMENTS (FIXES DOUBLE CLICK) ==========
         function renderCart() {
             const container = document.getElementById('cartItems');
             const summaryCard = document.getElementById('summaryCard');
@@ -783,60 +753,109 @@
                 return;
             }
             
-            let html = '';
+            // Clear container and build fresh
+            container.innerHTML = '';
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
             
-            for (let i = 0; i < cart.length; i++) {
-                const item = cart[i];
+            for (let item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const itemOriginalTotal = item.originalPrice * item.quantity;
                 const itemDiscountedTotal = discountedPrice * item.quantity;
-                const itemSaved = itemOriginalTotal - itemDiscountedTotal;
-                
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
                 
-                const imageHtml = item.productImage ? 
-                    `<div class="item-image"><img src="${item.productImage}" alt="${escapeHtml(item.foodName)}"></div>` : 
-                    `<div class="item-image"></div>`;
+                // Create cart item element
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.className = 'cart-item';
                 
-                html += `
-                    <div class="cart-item">
-                        ${imageHtml}
-                        <div class="item-details">
-                            <div class="item-name">${escapeHtml(item.foodName)}</div>
-                            <div class="item-shop">🏪 ${escapeHtml(item.shopName)}</div>
-                            <div class="item-price">
-                                $${discountedPrice.toFixed(2)} each
-                                <span class="item-original">$${item.originalPrice.toFixed(2)}</span>
-                                <span class="item-saved">save $${(item.originalPrice - discountedPrice).toFixed(2)}</span>
-                                ${item.batchNumber ? `<span class="item-batch">batch: ${escapeHtml(item.batchNumber)}</span>` : ''}
-                            </div>
-                            <div class="item-quantity">
-                                <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-                                <span class="qty-value">${item.quantity}</span>
-                                <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                            </div>
-                        </div>
-                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
-                    </div>
-                `;
+                // Image
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'item-image';
+                if (item.productImage) {
+                    const img = document.createElement('img');
+                    img.src = item.productImage;
+                    img.alt = escapeHtml(item.foodName);
+                    imageDiv.appendChild(img);
+                }
+                cartItemDiv.appendChild(imageDiv);
+                
+                // Details
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'item-details';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'item-name';
+                nameDiv.textContent = item.foodName;
+                detailsDiv.appendChild(nameDiv);
+                
+                const shopDiv = document.createElement('div');
+                shopDiv.className = 'item-shop';
+                shopDiv.textContent = `🏪 ${item.shopName}`;
+                detailsDiv.appendChild(shopDiv);
+                
+                const priceDiv = document.createElement('div');
+                priceDiv.className = 'item-price';
+                priceDiv.innerHTML = `$${discountedPrice.toFixed(2)} each <span class="item-original">$${item.originalPrice.toFixed(2)}</span> <span class="item-saved">save $${(item.originalPrice - discountedPrice).toFixed(2)}</span>`;
+                if (item.batchNumber) {
+                    const batchSpan = document.createElement('span');
+                    batchSpan.className = 'item-batch';
+                    batchSpan.textContent = `batch: ${escapeHtml(item.batchNumber)}`;
+                    priceDiv.appendChild(batchSpan);
+                }
+                detailsDiv.appendChild(priceDiv);
+                
+                // Quantity controls
+                const qtyDiv = document.createElement('div');
+                qtyDiv.className = 'item-quantity';
+                
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'qty-btn';
+                minusBtn.textContent = '-';
+                minusBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    updateQuantity(item.id, -1);
+                });
+                qtyDiv.appendChild(minusBtn);
+                
+                const qtySpan = document.createElement('span');
+                qtySpan.className = 'qty-value';
+                qtySpan.textContent = item.quantity;
+                qtyDiv.appendChild(qtySpan);
+                
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'qty-btn';
+                plusBtn.textContent = '+';
+                plusBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    updateQuantity(item.id, 1);
+                });
+                qtyDiv.appendChild(plusBtn);
+                
+                detailsDiv.appendChild(qtyDiv);
+                cartItemDiv.appendChild(detailsDiv);
+                
+                // Remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '🗑️';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFromCart(item.id);
+                });
+                cartItemDiv.appendChild(removeBtn);
+                
+                container.appendChild(cartItemDiv);
             }
             
-            container.innerHTML = html;
             summaryCard.style.display = 'block';
-            
-            const totalSaved = subtotalOriginal - subtotalDiscounted;
-            
             document.getElementById('subtotalOriginal').textContent = `$${subtotalOriginal.toFixed(2)}`;
-            document.getElementById('totalSaved').textContent = `$${totalSaved.toFixed(2)}`;
+            document.getElementById('totalSaved').textContent = `$${(subtotalOriginal - subtotalDiscounted).toFixed(2)}`;
             document.getElementById('total').textContent = `$${subtotalDiscounted.toFixed(2)}`;
             
             if (walletBalance >= subtotalDiscounted) {
                 checkoutBtn.style.display = 'block';
                 insufficientWarning.style.display = 'none';
-                checkoutBtn.disabled = false;
             } else {
                 checkoutBtn.style.display = 'none';
                 insufficientWarning.style.display = 'block';
@@ -846,9 +865,7 @@
         function updateQuantity(adId, change) {
             const index = cart.findIndex(item => item.id === adId);
             if (index === -1) return;
-            
             const newQuantity = cart[index].quantity + change;
-            
             if (newQuantity <= 0) {
                 removeFromCart(adId);
             } else if (newQuantity <= cart[index].maxQuantity) {
@@ -878,19 +895,14 @@
         
         async function processTopUp() {
             const amount = parseFloat(document.getElementById('topUpAmount').value);
-            
             if (isNaN(amount) || amount < 1) {
                 showNotification('Please enter a valid amount (minimum $1)', 'error');
                 return;
             }
-            
             closeTopUpModal();
             document.getElementById('loadingOverlay').style.display = 'flex';
-            
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
             const cardConfirmed = confirm(`💳 Payment Simulation\n\nAmount: $${amount.toFixed(2)}\nCard: **** **** **** 4242\n\nClick OK to complete the transaction`);
-            
             if (cardConfirmed) {
                 const currentUser = Backend.getCurrentUser();
                 const result = await Backend.addToWallet(currentUser.id, amount);
@@ -905,7 +917,6 @@
             } else {
                 showNotification('Transaction cancelled');
             }
-            
             document.getElementById('loadingOverlay').style.display = 'none';
         }
         
@@ -915,21 +926,17 @@
             const receiptItems = document.getElementById('receiptItems');
             const receiptSummary = document.getElementById('receiptSummary');
             
-            const now = new Date();
-            receiptDate.textContent = now.toLocaleString();
+            receiptDate.textContent = new Date().toLocaleString();
             
             let subtotalOriginal = 0;
             let subtotalPaid = 0;
             let itemsHtml = '';
-            
             for (const item of cartItems) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const originalTotal = item.originalPrice * item.quantity;
                 const paidTotal = discountedPrice * item.quantity;
-                
                 subtotalOriginal += originalTotal;
                 subtotalPaid += paidTotal;
-                
                 itemsHtml += `
                     <div class="receipt-item">
                         <div class="receipt-item-details">
@@ -944,40 +951,20 @@
                     </div>
                 `;
             }
-            
             receiptItems.innerHTML = itemsHtml;
             
             const totalSaved = subtotalOriginal - subtotalPaid;
             const newBalance = originalWalletBalance - subtotalPaid;
             
             receiptSummary.innerHTML = `
-                <div class="receipt-total-row">
-                    <span>Subtotal (original)</span>
-                    <span>$${subtotalOriginal.toFixed(2)}</span>
-                </div>
-                <div class="receipt-total-row saved">
-                    <span>💰 Total savings</span>
-                    <span>-$${totalSaved.toFixed(2)}</span>
-                </div>
-                <div class="receipt-total-row bold">
-                    <span>Total paid</span>
-                    <span>$${subtotalPaid.toFixed(2)}</span>
-                </div>
+                <div class="receipt-total-row"><span>Subtotal (original)</span><span>$${subtotalOriginal.toFixed(2)}</span></div>
+                <div class="receipt-total-row saved"><span>💰 Total savings</span><span>-$${totalSaved.toFixed(2)}</span></div>
+                <div class="receipt-total-row bold"><span>Total paid</span><span>$${subtotalPaid.toFixed(2)}</span></div>
                 <div class="receipt-divider"></div>
-                <div class="receipt-total-row">
-                    <span>Previous wallet balance</span>
-                    <span>$${originalWalletBalance.toFixed(2)}</span>
-                </div>
-                <div class="receipt-total-row">
-                    <span>Amount deducted</span>
-                    <span>-$${subtotalPaid.toFixed(2)}</span>
-                </div>
-                <div class="receipt-total-row bold">
-                    <span>New wallet balance</span>
-                    <span>$${newBalance.toFixed(2)}</span>
-                </div>
+                <div class="receipt-total-row"><span>Previous wallet balance</span><span>$${originalWalletBalance.toFixed(2)}</span></div>
+                <div class="receipt-total-row"><span>Amount deducted</span><span>-$${subtotalPaid.toFixed(2)}</span></div>
+                <div class="receipt-total-row bold"><span>New wallet balance</span><span>$${newBalance.toFixed(2)}</span></div>
             `;
-            
             receiptModal.style.display = 'flex';
         }
         
@@ -995,31 +982,24 @@
             let subtotalOriginal = 0;
             let subtotalDiscounted = 0;
             const orderItems = [];
-            
-            // Build order items array – make sure every cart item is included
             for (const item of cart) {
                 const discountedPrice = item.originalPrice * (1 - item.discount / 100);
                 const itemOriginalTotal = item.originalPrice * item.quantity;
                 const itemDiscountedTotal = discountedPrice * item.quantity;
-                
                 subtotalOriginal += itemOriginalTotal;
                 subtotalDiscounted += itemDiscountedTotal;
-                
                 orderItems.push({
                     id: item.id,
                     foodName: item.foodName,
                     shopName: item.shopName,
                     quantity: item.quantity,
                     originalPrice: item.originalPrice,
-                    discountedPrice: discountedPrice,
                     discount: item.discount,
                     batchNumber: item.batchNumber || null,
                     category: item.category || 'other'
                 });
             }
-            
             const total = subtotalDiscounted;
-            const totalSaved = subtotalOriginal - subtotalDiscounted;
             const originalWalletBalance = walletBalance;
             
             if (walletBalance < total) {
@@ -1027,40 +1007,32 @@
                 return;
             }
             
-            const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${totalSaved.toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
-            
+            const confirmMsg = `ORDER SUMMARY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📦 Items: ${cart.length}\n💰 Original price: $${subtotalOriginal.toFixed(2)}\n💸 You save: $${(subtotalOriginal - total).toFixed(2)}\n💳 Total to pay: $${total.toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n💵 Wallet balance: $${walletBalance.toFixed(2)}\n✅ Remaining after: $${(walletBalance - total).toFixed(2)}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConfirm purchase?`;
             if (!confirm(confirmMsg)) return;
             
             document.getElementById('loadingOverlay').style.display = 'flex';
-            
             try {
-                // Try using Backend.createOrder first
                 let result = await Backend.createOrder(orderItems, total);
-                
                 if (!result.success) {
-                    // Fallback: try creating the order directly if the Cloud Function fails (e.g., Master Key error)
-                    console.warn('Cloud Function failed, trying direct order creation…');
+                    console.warn('Cloud function failed, falling back to direct order');
                     result = await createOrderDirectly(orderItems, total);
                 }
-                
                 if (result.success) {
                     const receiptCartItems = [...cart];
                     cart = [];
                     saveCart();
-                    
                     const currentUser = Backend.getCurrentUser();
                     walletBalance = await Backend.getWalletBalance(currentUser.id);
                     document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
-                    
                     showReceipt(result, originalWalletBalance, receiptCartItems);
                 } else {
-                    showNotification(result.message || 'Checkout failed. Please try again.', 'error');
+                    showNotification(result.message || 'Checkout failed', 'error');
                     await loadWalletBalance();
                     renderCart();
                 }
             } catch (error) {
                 console.error('Checkout error:', error);
-                showNotification('Checkout failed. Please try again.', 'error');
+                showNotification('Checkout failed: ' + (error.message || 'Unknown error'), 'error');
                 await loadWalletBalance();
                 renderCart();
             } finally {
@@ -1068,46 +1040,38 @@
             }
         }
         
-        // Fallback: create order directly using Parse (without Master Key)
         async function createOrderDirectly(items, totalAmount) {
             const currentUser = Backend.getCurrentUser();
             if (!currentUser) throw new Error('Not logged in');
-            
             const Order = Parse.Object.extend('Order');
             const order = new Order();
-            
             order.set('items', items);
             order.set('totalAmount', totalAmount);
             order.set('status', 'pending');
             order.set('buyer', currentUser);
-            
             try {
                 await order.save();
-                // Also update wallet balance locally (server might need cloud code, but we'll trust client for now)
-                // You may need a Cloud Function to deduct wallet – this is a simplified version
-                console.log('Order created directly:', order.id);
                 return { success: true, orderId: order.id };
             } catch (e) {
-                console.error('Direct order creation failed:', e);
-                return { success: false, message: e.message || 'Order creation failed' };
+                return { success: false, message: e.message };
             }
+        }
+        
+        function refreshCart() {
+            loadCart();
+            showNotification('Cart refreshed');
         }
         
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
+            return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
         
-        function showNotification(msg, type) {
+        function showNotification(msg, type = 'success') {
             const notif = document.getElementById('notification');
             if (notificationTimeout) clearTimeout(notificationTimeout);
             notif.textContent = msg;
-            notif.className = `notification show ${type || ''}`;
+            notif.className = `notification show ${type}`;
             notificationTimeout = setTimeout(() => {
                 notif.className = 'notification';
                 notificationTimeout = null;
