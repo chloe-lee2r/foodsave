@@ -1754,5 +1754,3 @@ const Backend = {
         }
     }
 };
-
-backend.js file, now gimme full code for both
