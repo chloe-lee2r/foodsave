@@ -6,17 +6,12 @@
     <title>foodsavvi • business settings</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="shortcut icon" type="image/png" href="assets/icon.png">
-    <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered:', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('SW registration failed:', err);
-                    });
+                    .then(registration => console.log('SW registered:', registration.scope))
+                    .catch(err => console.log('SW registration failed:', err));
             });
         }
     </script>
@@ -88,8 +83,6 @@
             font-size: 18px;
             cursor: pointer;
         }
-        
-        /* logout button removed */
         
         .content {
             padding: 16px;
@@ -333,7 +326,7 @@
             margin-top: 16px;
         }
         
-        .employee-item, .claim-item, .notification-item {
+        .employee-item, .notification-item {
             background: #f8f9fa;
             padding: 16px;
             border-radius: 12px;
@@ -344,7 +337,7 @@
             border: 1px solid #f0f0f0;
         }
         
-        .employee-avatar, .claim-avatar {
+        .employee-avatar {
             width: 40px;
             height: 40px;
             background: #e8eaf6;
@@ -355,11 +348,11 @@
             font-size: 20px;
         }
         
-        .employee-details, .claim-details {
+        .employee-details {
             flex: 1;
         }
         
-        .employee-name, .claim-customer {
+        .employee-name {
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -374,46 +367,6 @@
         .employee-role.owner { background: #fff3e0; color: #e65100; }
         .employee-role.manager { background: #e3f2fd; color: #007aff; }
         .employee-role.staff { background: #e0e0e0; color: #666; }
-        
-        .claim-status {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-left: 8px;
-        }
-        
-        .claim-status.pending { background: #fff3e0; color: #ff9500; }
-        .claim-status.confirmed { background: #e3f2fd; color: #007aff; }
-        .claim-status.collected { background: #e8f5e8; color: #34c759; }
-        
-        .claim-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .claim-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 11px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        
-        .confirm-btn { background: #34c759; color: white; }
-        .cancel-btn { background: #ff3b30; color: white; }
-        
-        .add-employee {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-        
-        .add-employee h4 {
-            margin-bottom: 12px;
-        }
         
         .notification-item.unread {
             background: #e3f2fd;
@@ -552,7 +505,7 @@
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
-            white-space: nowrap;   /* Fix: keep button text on one line */
+            white-space: nowrap;
         }
         
         .bulk-confirm-btn {
@@ -566,7 +519,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            white-space: nowrap;   /* Fix: keep button text on one line */
+            white-space: nowrap;
         }
         
         .bulk-confirm-btn:disabled {
@@ -581,10 +534,10 @@
             white-space: nowrap;
         }
         
-        /* Order item – status badge aligned to top-right like consumer view */
-        .order-item-with-checkbox {
+        /* Order item – align confirm button to the right (like consumer orders) */
+        .order-item-row {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
             background: #f8f9fa;
             padding: 16px;
@@ -592,37 +545,42 @@
             margin-bottom: 12px;
             border: 1px solid #f0f0f0;
         }
-        .order-details-container {
+        
+        .order-item-content {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
+        
         .order-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
             flex-wrap: wrap;
             gap: 8px;
         }
+        
         .order-customer-name {
             font-weight: 600;
             font-size: 15px;
         }
+        
         .order-status-badge {
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 10px;
             white-space: nowrap;
-            background: #fff3e0;
-            color: #ff9500;
         }
         .order-status-badge.pending { background: #fff3e0; color: #ff9500; }
         .order-status-badge.confirmed { background: #e3f2fd; color: #007aff; }
         .order-status-badge.collected { background: #e8f5e8; color: #34c759; }
+        
         .order-food-detail {
             font-size: 13px;
-            margin-bottom: 4px;
             color: #333;
         }
+        
         .order-batch {
             font-family: monospace;
             font-size: 10px;
@@ -631,15 +589,24 @@
             border-radius: 4px;
             margin-left: 6px;
         }
+        
         .order-meta {
             font-size: 11px;
             color: #999;
-            margin-top: 4px;
         }
-        .order-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
+        
+        .order-action-btn {
+            flex-shrink: 0;
+        }
+        .order-action-btn .claim-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .order-waiting-text {
+            font-size: 11px;
+            white-space: nowrap;
+            color: #34c759;
         }
     </style>
 </head>
@@ -649,7 +616,6 @@
             <a href="index.html" class="back-link">←</a>
             <h1>business settings</h1>
             <button class="refresh-all-btn" onclick="refreshAll()">↻</button>
-            <!-- logout button removed -->
         </div>
         
         <div class="content">
@@ -770,7 +736,6 @@
                     <span>📦 incoming orders</span>
                     <button class="refresh-btn" onclick="loadOrders()">↻</button>
                 </div>
-                <!-- Order selection controls -->
                 <div class="order-actions-bar" id="orderActionsBar" style="display: none;">
                     <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAll()">☐ Select All</button>
                     <span class="selected-count" id="selectedCount">0 selected</span>
@@ -803,24 +768,12 @@
             </div>
         </div>
         
-        <!-- Bottom Nav: home, ads, orders, settings (settings now forces profile tab) -->
+        <!-- Bottom Nav -->
         <div class="bottom-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-emoji">🏠</span>
-                <span>home</span>
-            </a>
-            <a href="advertise.html" class="nav-item">
-                <span class="nav-emoji">📢</span>
-                <span>ads</span>
-            </a>
-            <a href="business-profile.html?tab=orders" class="nav-item">
-                <span class="nav-emoji">📦</span>
-                <span>orders</span>
-            </a>
-            <a href="business-profile.html?tab=profile" class="nav-item">
-                <span class="nav-emoji">⚙️</span>
-                <span>settings</span>
-            </a>
+            <a href="index.html" class="nav-item"><span class="nav-emoji">🏠</span><span>home</span></a>
+            <a href="advertise.html" class="nav-item"><span class="nav-emoji">📢</span><span>ads</span></a>
+            <a href="business-profile.html?tab=orders" class="nav-item"><span class="nav-emoji">📦</span><span>orders</span></a>
+            <a href="business-profile.html?tab=profile" class="nav-item"><span class="nav-emoji">⚙️</span><span>settings</span></a>
         </div>
     </div>
     
@@ -835,23 +788,19 @@
         let currentUser = null;
         let activeTab = 'profile';
         
-        // Bulk order selection state
         let selectedOrderIds = new Set();
         
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Backend.getCurrentUser();
             const role = localStorage.getItem('userRole');
-            
             if (!user || role !== 'advertiser') {
                 window.location.href = 'login.html';
                 return;
             }
-            
             currentUser = user;
             businessRole = localStorage.getItem('businessRole') || 'owner';
             isVerified = localStorage.getItem('businessVerified') === 'true';
             
-            // Check URL for tab parameter
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
             if (tabParam && ['profile', 'employees', 'orders', 'notifications', 'verification'].includes(tabParam)) {
@@ -866,8 +815,6 @@
             await loadNotifications();
             await loadStats();
             await refreshWallet();
-            
-            // Switch to the active tab
             switchTab(activeTab);
         });
         
@@ -895,7 +842,6 @@
         function updateRoleUI() {
             const addEmployeeSection = document.getElementById('addEmployeeSection');
             const saveProfileBtn = document.getElementById('saveProfileBtn');
-            
             if (businessRole === 'owner') {
                 document.getElementById('roleIcon').textContent = '👑';
                 document.getElementById('roleName').textContent = 'Business Owner';
@@ -954,7 +900,6 @@
                 showStatus('You don\'t have permission to edit', 'error');
                 return;
             }
-            
             const updates = {
                 businessName: document.getElementById('businessName').value,
                 businessPhone: document.getElementById('businessPhone').value,
@@ -963,7 +908,6 @@
                 businessOpen: document.getElementById('businessOpen').value,
                 businessClose: document.getElementById('businessClose').value
             };
-            
             const result = await Backend.updateBusinessProfile(updates);
             if (result.success) {
                 showStatus('Profile updated', 'success');
@@ -1021,75 +965,49 @@
             }
         }
         
-        // ========== ORDERS – FIXED LAYOUT (status badge top-right) ==========
+        // ----- ORDERS: confirm button on the right (aligned with index) -----
         async function loadOrders() {
             const container = document.getElementById('ordersList');
             const actionsBar = document.getElementById('orderActionsBar');
             try {
                 const orders = await Backend.getOrdersForBusiness(currentUser.id);
-                
                 if (orders.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
                     actionsBar.style.display = 'none';
                     return;
                 }
-                
-                // Reset selection when reloading
                 selectedOrderIds.clear();
-                
                 const pendingOrders = orders.filter(o => o.status === 'pending');
-                
-                // Show selection bar only if there are pending orders
-                if (pendingOrders.length > 0) {
-                    actionsBar.style.display = 'flex';
-                } else {
-                    actionsBar.style.display = 'none';
-                }
+                actionsBar.style.display = pendingOrders.length > 0 ? 'flex' : 'none';
                 
                 container.innerHTML = orders.map(order => {
-                    let statusText = '';
-                    let statusClass = '';
-                    let actionsHtml = '';
+                    let statusText = '', statusClass = '';
+                    let actionHtml = '';
+                    let checkboxHtml = '';
                     
                     if (order.status === 'pending') {
                         statusText = 'pending confirmation';
                         statusClass = 'pending';
-                        actionsHtml = `
-                            <div class="order-actions">
-                                <button class="claim-btn confirm-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>
-                            </div>
-                        `;
+                        actionHtml = `<button class="claim-btn confirm-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>`;
+                        checkboxHtml = `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`;
                     } else if (order.status === 'confirmed_by_business') {
                         statusText = 'ready for pickup';
                         statusClass = 'confirmed';
-                        actionsHtml = `
-                            <div class="order-actions">
-                                <span style="font-size:11px; color:#34c759;">⏳ Waiting for customer...</span>
-                            </div>
-                        `;
+                        actionHtml = `<span class="order-waiting-text">⏳ Waiting for customer...</span>`;
                     } else if (order.status === 'collected_by_customer') {
                         statusText = 'completed';
                         statusClass = 'collected';
-                        actionsHtml = `
-                            <div class="order-actions">
-                                <span style="font-size:11px; color:#007aff;">✅ Payment released</span>
-                            </div>
-                        `;
+                        actionHtml = `<span class="order-waiting-text" style="color:#007aff;">✅ Payment released</span>`;
                     } else {
                         statusText = order.status;
                         statusClass = 'pending';
                     }
                     
-                    // Only show checkbox for pending orders
-                    const checkboxHtml = (order.status === 'pending') 
-                        ? `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`
-                        : '';
-                    
                     return `
-                        <div class="order-item-with-checkbox">
+                        <div class="order-item-row">
                             ${checkboxHtml}
                             <div class="claim-avatar">👤</div>
-                            <div class="order-details-container">
+                            <div class="order-item-content">
                                 <div class="order-header-row">
                                     <span class="order-customer-name">${escapeHtml(order.consumerName)}</span>
                                     <span class="order-status-badge ${statusClass}">${statusText}</span>
@@ -1101,16 +1019,13 @@
                                 <div class="order-meta">
                                     💰 $${(order.totalAmount || 0).toFixed(2)} • 📅 ${new Date(order.createdAt).toLocaleString()}
                                 </div>
-                                ${actionsHtml}
                             </div>
+                            <div class="order-action-btn">${actionHtml}</div>
                         </div>
                     `;
                 }).join('');
-                
                 updateSelectionUI();
-                
             } catch (error) {
-                console.error('Error loading orders:', error);
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
                 actionsBar.style.display = 'none';
             }
@@ -1118,11 +1033,8 @@
         
         function handleCheckboxChange(checkbox) {
             const orderId = checkbox.getAttribute('data-order-id');
-            if (checkbox.checked) {
-                selectedOrderIds.add(orderId);
-            } else {
-                selectedOrderIds.delete(orderId);
-            }
+            if (checkbox.checked) selectedOrderIds.add(orderId);
+            else selectedOrderIds.delete(orderId);
             updateSelectionUI();
         }
         
@@ -1131,50 +1043,29 @@
             const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
             const selectedCountEl = document.getElementById('selectedCount');
             const checkboxes = document.querySelectorAll('.order-select-checkbox');
-            
             const count = selectedOrderIds.size;
             selectedCountEl.textContent = `${count} selected`;
-            
-            // Update checkboxes to reflect the set
             checkboxes.forEach(cb => {
-                const oid = cb.getAttribute('data-order-id');
-                cb.checked = selectedOrderIds.has(oid);
+                cb.checked = selectedOrderIds.has(cb.getAttribute('data-order-id'));
             });
-            
-            // Select All button state
             const totalPending = checkboxes.length;
-            if (totalPending > 0 && count === totalPending) {
-                selectAllBtn.textContent = '☑ Deselect All';
-            } else {
-                selectAllBtn.textContent = '☐ Select All';
-            }
-            
-            // Enable/disable bulk confirm button
+            if (totalPending > 0 && count === totalPending) selectAllBtn.textContent = '☑ Deselect All';
+            else selectAllBtn.textContent = '☐ Select All';
             bulkConfirmBtn.disabled = (count === 0);
         }
         
         function toggleSelectAll() {
             const allCheckboxes = document.querySelectorAll('.order-select-checkbox');
-            const totalPending = allCheckboxes.length;
-            
-            if (selectedOrderIds.size === totalPending) {
-                // Deselect all
-                selectedOrderIds.clear();
-            } else {
-                // Select all pending orders
-                allCheckboxes.forEach(cb => {
-                    selectedOrderIds.add(cb.getAttribute('data-order-id'));
-                });
-            }
+            if (selectedOrderIds.size === allCheckboxes.length) selectedOrderIds.clear();
+            else allCheckboxes.forEach(cb => selectedOrderIds.add(cb.getAttribute('data-order-id')));
             updateSelectionUI();
         }
         
         async function confirmSingleOrder(orderId) {
-            if (!confirm('Confirm this order? The customer will be notified that their order is ready for pickup.')) return;
-            
+            if (!confirm('Confirm this order? The customer will be notified.')) return;
             const result = await Backend.confirmOrderByBusiness(orderId);
             if (result.success) {
-                showStatus('Order confirmed! Customer notified.', 'success');
+                showStatus('Order confirmed!', 'success');
                 await loadOrders();
                 await loadStats();
                 await refreshWallet();
@@ -1184,51 +1075,23 @@
         }
         
         async function confirmSelectedOrders() {
-            if (selectedOrderIds.size === 0) {
-                showStatus('No orders selected', 'error');
-                return;
-            }
-            
-            if (!confirm(`Confirm ${selectedOrderIds.size} order(s)? All selected customers will be notified.`)) return;
-            
-            // Show loading state
+            if (selectedOrderIds.size === 0) { showStatus('No orders selected', 'error'); return; }
+            if (!confirm(`Confirm ${selectedOrderIds.size} order(s)?`)) return;
             const bulkBtn = document.getElementById('bulkConfirmBtn');
             bulkBtn.disabled = true;
             bulkBtn.textContent = '⏳ Confirming...';
-            
-            let successCount = 0;
-            let errorCount = 0;
-            const orderIds = Array.from(selectedOrderIds);
-            
-            for (const orderId of orderIds) {
-                try {
-                    const result = await Backend.confirmOrderByBusiness(orderId);
-                    if (result.success) {
-                        successCount++;
-                    } else {
-                        errorCount++;
-                        console.error(`Failed to confirm order ${orderId}:`, result.message);
-                    }
-                } catch (err) {
-                    errorCount++;
-                    console.error(`Error confirming order ${orderId}:`, err);
-                }
+            let success = 0, error = 0;
+            for (const orderId of Array.from(selectedOrderIds)) {
+                const result = await Backend.confirmOrderByBusiness(orderId);
+                if (result.success) success++;
+                else error++;
             }
-            
-            // Clear selection
             selectedOrderIds.clear();
-            
-            if (errorCount === 0) {
-                showStatus(`✅ ${successCount} order(s) confirmed!`, 'success');
-            } else {
-                showStatus(`⚠️ ${successCount} confirmed, ${errorCount} failed.`, 'error');
-            }
-            
-            // Refresh the list and stats
+            if (error === 0) showStatus(`✅ ${success} order(s) confirmed!`, 'success');
+            else showStatus(`⚠️ ${success} confirmed, ${error} failed.`, 'error');
             await loadOrders();
             await loadStats();
             await refreshWallet();
-            
             bulkBtn.textContent = '✓ Confirm Selected';
         }
         
@@ -1260,26 +1123,22 @@
             try {
                 const ads = await Backend.getShopAds(currentUser.id);
                 const orders = await Backend.getOrdersForBusiness(currentUser.id);
-                
                 const activeAds = ads.filter(a => a.active).length;
                 const pendingOrders = orders.filter(o => o.status === 'pending').length;
                 const uniqueCustomers = [...new Set(orders.map(o => o.consumerId))].length;
                 const completedOrders = orders.filter(o => o.status === 'collected_by_customer');
                 const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-                
                 document.getElementById('statAds').textContent = activeAds;
                 document.getElementById('statOrders').textContent = pendingOrders;
                 document.getElementById('statCustomers').textContent = uniqueCustomers;
                 document.getElementById('statRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
+            } catch (error) {}
         }
         
         async function requestWithdraw() {
             const balance = await Backend.getBusinessWalletBalance(currentUser.id);
             if (balance.available < 5) {
-                showStatus(`Minimum withdrawal is $5. Available: $${balance.available.toFixed(2)}`, 'error');
+                showStatus(`Minimum withdrawal $5. Available: $${balance.available.toFixed(2)}`, 'error');
                 return;
             }
             const amount = prompt(`Enter amount to withdraw (min $5, max $${balance.available.toFixed(2)})`, '5');
@@ -1324,7 +1183,6 @@
             activeTab = tabName;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
             const tabs = document.querySelectorAll('.tab');
             const tabMap = { profile: 0, employees: 1, orders: 2, notifications: 3, verification: 4 };
             if (tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
@@ -1335,9 +1193,7 @@
             const status = document.getElementById('statusMessage');
             status.textContent = message;
             status.className = `status-message show ${type}`;
-            setTimeout(() => {
-                status.classList.remove('show');
-            }, 3000);
+            setTimeout(() => status.classList.remove('show'), 3000);
         }
         
         function escapeHtml(str) {
@@ -1345,12 +1201,7 @@
             return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
         }
         
-        function logout() {
-            Backend.logout();
-            window.location.href = 'index.html';
-        }
-        
-        // Expose functions globally
+        // Expose globals
         window.switchTab = switchTab;
         window.saveProfile = saveProfile;
         window.inviteEmployee = inviteEmployee;
@@ -1363,7 +1214,6 @@
         window.loadNotifications = loadNotifications;
         window.refreshWallet = refreshWallet;
         window.refreshAll = refreshAll;
-        window.logout = logout;
         window.toggleSelectAll = toggleSelectAll;
         window.confirmSelectedOrders = confirmSelectedOrders;
         window.handleCheckboxChange = handleCheckboxChange;
