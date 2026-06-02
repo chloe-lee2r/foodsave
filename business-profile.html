@@ -477,21 +477,104 @@
             border-radius: 20px;
         }
         
-        /* Order selection styles */
-        .order-select-checkbox {
-            margin-right: 8px;
+        /* ========== ORDER STYLES (exactly like consumer orders in index.html) ========== */
+        .order-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 14px 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #34c759;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .order-item.pending { border-left-color: #ff9500; }
+        .order-item.ready { border-left-color: #007aff; }
+        .order-item.collected { border-left-color: #34c759; }
+        .order-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .order-checkbox {
             width: 20px;
             height: 20px;
             cursor: pointer;
             flex-shrink: 0;
         }
         
-        .order-actions-bar {
+        .order-content {
+            flex: 1;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: nowrap;
+            gap: 6px;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .order-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .status-pending { background: #fff3e0; color: #ff9500; }
+        .status-ready { background: #e3f2fd; color: #007aff; animation: pulse 2s ease-in-out infinite; }
+        .status-completed { background: #e8f5e8; color: #34c759; }
+        
+        .order-details {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .order-total {
+            font-size: 14px;
+            font-weight: 600;
+            color: #34c759;
+        }
+        
+        .order-date {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .action-btn {
+            background: #34c759;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background: #2db14e; }
+        
+        .waiting-text {
+            font-size: 11px;
+            white-space: nowrap;
+            color: #34c759;
+        }
+        
+        .bulk-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            gap: 10px;
             background: #f0f4ff;
             padding: 12px;
             border-radius: 12px;
@@ -534,79 +617,9 @@
             white-space: nowrap;
         }
         
-        /* Order item – align confirm button to the right (like consumer orders) */
-        .order-item-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #f0f0f0;
-        }
-        
-        .order-item-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .order-header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .order-customer-name {
-            font-weight: 600;
-            font-size: 15px;
-        }
-        
-        .order-status-badge {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            white-space: nowrap;
-        }
-        .order-status-badge.pending { background: #fff3e0; color: #ff9500; }
-        .order-status-badge.confirmed { background: #e3f2fd; color: #007aff; }
-        .order-status-badge.collected { background: #e8f5e8; color: #34c759; }
-        
-        .order-food-detail {
-            font-size: 13px;
-            color: #333;
-        }
-        
-        .order-batch {
-            font-family: monospace;
-            font-size: 10px;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-        }
-        
-        .order-meta {
-            font-size: 11px;
-            color: #999;
-        }
-        
-        .order-action-btn {
-            flex-shrink: 0;
-        }
-        .order-action-btn .claim-btn {
-            padding: 8px 16px;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        .order-waiting-text {
-            font-size: 11px;
-            white-space: nowrap;
-            color: #34c759;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
         }
     </style>
 </head>
@@ -730,20 +743,20 @@
                 </div>
             </div>
             
-            <!-- Orders Tab -->
+            <!-- Orders Tab (now using exact same layout as consumer orders) -->
             <div class="tab-content" id="ordersTab">
                 <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <span>📦 incoming orders</span>
                     <button class="refresh-btn" onclick="loadOrders()">↻</button>
                 </div>
-                <div class="order-actions-bar" id="orderActionsBar" style="display: none;">
-                    <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAll()">☐ Select All</button>
-                    <span class="selected-count" id="selectedCount">0 selected</span>
-                    <button class="bulk-confirm-btn" id="bulkConfirmBtn" onclick="confirmSelectedOrders()" disabled>✓ Confirm Selected</button>
+                <div id="orderBulkActions" style="display: none;">
+                    <div class="bulk-actions">
+                        <button class="select-all-btn" id="selectAllBtn" onclick="toggleSelectAllOrders()">☐ Select All</button>
+                        <span class="selected-count" id="selectedOrdersCount">0 selected</span>
+                        <button class="bulk-confirm-btn" id="bulkConfirmBtn" onclick="confirmSelectedOrders()" disabled>✓ Confirm Selected</button>
+                    </div>
                 </div>
-                <div class="claims-list" id="ordersList">
-                    <div class="loading"><div class="loading-spinner"></div>loading orders...</div>
-                </div>
+                <div id="ordersList"><div class="empty-state">📦 loading orders...</div></div>
             </div>
             
             <!-- Notifications Tab -->
@@ -788,6 +801,7 @@
         let currentUser = null;
         let activeTab = 'profile';
         
+        // Order selection (same as consumer)
         let selectedOrderIds = new Set();
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -965,100 +979,119 @@
             }
         }
         
-        // ----- ORDERS: confirm button on the right (aligned with index) -----
+        // ========== ORDERS – EXACT SAME LAYOUT AS CONSUMER ORDERS ==========
         async function loadOrders() {
             const container = document.getElementById('ordersList');
-            const actionsBar = document.getElementById('orderActionsBar');
+            const bulkActionsDiv = document.getElementById('orderBulkActions');
             try {
                 const orders = await Backend.getOrdersForBusiness(currentUser.id);
+                selectedOrderIds.clear();
                 if (orders.length === 0) {
                     container.innerHTML = '<div class="empty-state">📦 No orders yet</div>';
-                    actionsBar.style.display = 'none';
+                    bulkActionsDiv.style.display = 'none';
                     return;
                 }
-                selectedOrderIds.clear();
                 const pendingOrders = orders.filter(o => o.status === 'pending');
-                actionsBar.style.display = pendingOrders.length > 0 ? 'flex' : 'none';
-                
-                container.innerHTML = orders.map(order => {
-                    let statusText = '', statusClass = '';
+                if (pendingOrders.length > 0) {
+                    bulkActionsDiv.style.display = 'block';
+                } else {
+                    bulkActionsDiv.style.display = 'none';
+                }
+                container.innerHTML = orders.map((order, i) => {
+                    let statusClass = '', statusText = '';
                     let actionHtml = '';
+                    let orderItemClass = '';
                     let checkboxHtml = '';
                     
                     if (order.status === 'pending') {
+                        statusClass = 'status-pending';
                         statusText = 'pending confirmation';
-                        statusClass = 'pending';
-                        actionHtml = `<button class="claim-btn confirm-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>`;
-                        checkboxHtml = `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`;
+                        orderItemClass = 'pending';
+                        checkboxHtml = `<input type="checkbox" class="order-checkbox" data-order-id="${order.id}" onchange="handleOrderCheckbox(this)">`;
+                        actionHtml = `<button class="action-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>`;
                     } else if (order.status === 'confirmed_by_business') {
+                        statusClass = 'status-ready';
                         statusText = 'ready for pickup';
-                        statusClass = 'confirmed';
-                        actionHtml = `<span class="order-waiting-text">⏳ Waiting for customer...</span>`;
+                        orderItemClass = 'ready';
+                        actionHtml = `<span class="waiting-text">⏳ Waiting for customer...</span>`;
                     } else if (order.status === 'collected_by_customer') {
+                        statusClass = 'status-completed';
                         statusText = 'completed';
-                        statusClass = 'collected';
-                        actionHtml = `<span class="order-waiting-text" style="color:#007aff;">✅ Payment released</span>`;
+                        orderItemClass = 'collected';
+                        actionHtml = `<span class="waiting-text" style="color:#007aff;">✅ Payment released</span>`;
                     } else {
+                        statusClass = 'status-pending';
                         statusText = order.status;
-                        statusClass = 'pending';
                     }
                     
                     return `
-                        <div class="order-item-row">
+                        <div class="order-item ${orderItemClass}" style="animation-delay:${i*0.08}s;">
                             ${checkboxHtml}
-                            <div class="claim-avatar">👤</div>
-                            <div class="order-item-content">
-                                <div class="order-header-row">
-                                    <span class="order-customer-name">${escapeHtml(order.consumerName)}</span>
-                                    <span class="order-status-badge ${statusClass}">${statusText}</span>
+                            <div class="order-content">
+                                <div class="order-header">
+                                    <span class="order-id">${escapeHtml(order.consumerName)}</span>
+                                    <span class="order-status ${statusClass}">${statusText}</span>
                                 </div>
-                                <div class="order-food-detail">
+                                <div class="order-details">
                                     🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}
-                                    ${order.batchNumber ? `<span class="order-batch">📦 batch: ${escapeHtml(order.batchNumber)}</span>` : ''}
+                                    ${order.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(order.batchNumber)}</span>` : ''}
                                 </div>
-                                <div class="order-meta">
-                                    💰 $${(order.totalAmount || 0).toFixed(2)} • 📅 ${new Date(order.createdAt).toLocaleString()}
-                                </div>
+                                <div class="order-total">$${(order.totalAmount || 0).toFixed(2)}</div>
+                                <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
                             </div>
-                            <div class="order-action-btn">${actionHtml}</div>
+                            <div class="order-right">
+                                ${actionHtml}
+                            </div>
                         </div>
                     `;
                 }).join('');
-                updateSelectionUI();
-            } catch (error) {
+                updateOrderSelectionUI();
+            } catch (e) {
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
-                actionsBar.style.display = 'none';
+                bulkActionsDiv.style.display = 'none';
             }
         }
         
-        function handleCheckboxChange(checkbox) {
+        function handleOrderCheckbox(checkbox) {
             const orderId = checkbox.getAttribute('data-order-id');
-            if (checkbox.checked) selectedOrderIds.add(orderId);
-            else selectedOrderIds.delete(orderId);
-            updateSelectionUI();
+            if (checkbox.checked) {
+                selectedOrderIds.add(orderId);
+            } else {
+                selectedOrderIds.delete(orderId);
+            }
+            updateOrderSelectionUI();
         }
         
-        function updateSelectionUI() {
+        function updateOrderSelectionUI() {
             const selectAllBtn = document.getElementById('selectAllBtn');
             const bulkConfirmBtn = document.getElementById('bulkConfirmBtn');
-            const selectedCountEl = document.getElementById('selectedCount');
-            const checkboxes = document.querySelectorAll('.order-select-checkbox');
+            const selectedCountEl = document.getElementById('selectedOrdersCount');
             const count = selectedOrderIds.size;
             selectedCountEl.textContent = `${count} selected`;
-            checkboxes.forEach(cb => {
-                cb.checked = selectedOrderIds.has(cb.getAttribute('data-order-id'));
-            });
+            const checkboxes = document.querySelectorAll('.order-checkbox');
             const totalPending = checkboxes.length;
-            if (totalPending > 0 && count === totalPending) selectAllBtn.textContent = '☑ Deselect All';
-            else selectAllBtn.textContent = '☐ Select All';
+            checkboxes.forEach(cb => {
+                const oid = cb.getAttribute('data-order-id');
+                cb.checked = selectedOrderIds.has(oid);
+            });
+            if (totalPending > 0 && count === totalPending) {
+                selectAllBtn.textContent = '☑ Deselect All';
+            } else {
+                selectAllBtn.textContent = '☐ Select All';
+            }
             bulkConfirmBtn.disabled = (count === 0);
         }
         
-        function toggleSelectAll() {
-            const allCheckboxes = document.querySelectorAll('.order-select-checkbox');
-            if (selectedOrderIds.size === allCheckboxes.length) selectedOrderIds.clear();
-            else allCheckboxes.forEach(cb => selectedOrderIds.add(cb.getAttribute('data-order-id')));
-            updateSelectionUI();
+        function toggleSelectAllOrders() {
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            if (selectedOrderIds.size === checkboxes.length) {
+                selectedOrderIds.clear();
+            } else {
+                checkboxes.forEach(cb => {
+                    selectedOrderIds.add(cb.getAttribute('data-order-id'));
+                });
+            }
+            updateOrderSelectionUI();
         }
         
         async function confirmSingleOrder(orderId) {
@@ -1075,7 +1108,10 @@
         }
         
         async function confirmSelectedOrders() {
-            if (selectedOrderIds.size === 0) { showStatus('No orders selected', 'error'); return; }
+            if (selectedOrderIds.size === 0) {
+                showStatus('No orders selected', 'error');
+                return;
+            }
             if (!confirm(`Confirm ${selectedOrderIds.size} order(s)?`)) return;
             const bulkBtn = document.getElementById('bulkConfirmBtn');
             bulkBtn.disabled = true;
@@ -1214,9 +1250,9 @@
         window.loadNotifications = loadNotifications;
         window.refreshWallet = refreshWallet;
         window.refreshAll = refreshAll;
-        window.toggleSelectAll = toggleSelectAll;
+        window.toggleSelectAllOrders = toggleSelectAllOrders;
         window.confirmSelectedOrders = confirmSelectedOrders;
-        window.handleCheckboxChange = handleCheckboxChange;
+        window.handleOrderCheckbox = handleOrderCheckbox;
     </script>
 </body>
 </html>
