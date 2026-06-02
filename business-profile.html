@@ -483,7 +483,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Smooth status message popup */
         .status-message {
             position: fixed;
             bottom: 80px;
@@ -531,6 +530,7 @@
             width: 20px;
             height: 20px;
             cursor: pointer;
+            flex-shrink: 0;
         }
         
         .order-actions-bar {
@@ -552,6 +552,7 @@
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
+            white-space: nowrap;   /* Fix: keep button text on one line */
         }
         
         .bulk-confirm-btn {
@@ -565,6 +566,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;   /* Fix: keep button text on one line */
         }
         
         .bulk-confirm-btn:disabled {
@@ -576,6 +578,68 @@
             font-size: 12px;
             color: #667eea;
             font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* Order item – status badge aligned to top-right like consumer view */
+        .order-item-with-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #f0f0f0;
+        }
+        .order-details-container {
+            flex: 1;
+        }
+        .order-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .order-customer-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .order-status-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            background: #fff3e0;
+            color: #ff9500;
+        }
+        .order-status-badge.pending { background: #fff3e0; color: #ff9500; }
+        .order-status-badge.confirmed { background: #e3f2fd; color: #007aff; }
+        .order-status-badge.collected { background: #e8f5e8; color: #34c759; }
+        .order-food-detail {
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+        .order-batch {
+            font-family: monospace;
+            font-size: 10px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .order-meta {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -957,7 +1021,7 @@
             }
         }
         
-        // ---- ORDER LOADING WITH CHECKBOXES ----
+        // ========== ORDERS – FIXED LAYOUT (status badge top-right) ==========
         async function loadOrders() {
             const container = document.getElementById('ordersList');
             const actionsBar = document.getElementById('orderActionsBar');
@@ -986,15 +1050,12 @@
                     let statusText = '';
                     let statusClass = '';
                     let actionsHtml = '';
-                    let checkboxHtml = '';
                     
                     if (order.status === 'pending') {
                         statusText = 'pending confirmation';
                         statusClass = 'pending';
-                        // Add checkbox for pending orders
-                        checkboxHtml = `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`;
                         actionsHtml = `
-                            <div class="claim-actions">
+                            <div class="order-actions">
                                 <button class="claim-btn confirm-btn" onclick="event.stopPropagation(); confirmSingleOrder('${order.id}')">✓ Confirm</button>
                             </div>
                         `;
@@ -1002,7 +1063,7 @@
                         statusText = 'ready for pickup';
                         statusClass = 'confirmed';
                         actionsHtml = `
-                            <div class="claim-actions">
+                            <div class="order-actions">
                                 <span style="font-size:11px; color:#34c759;">⏳ Waiting for customer...</span>
                             </div>
                         `;
@@ -1010,7 +1071,7 @@
                         statusText = 'completed';
                         statusClass = 'collected';
                         actionsHtml = `
-                            <div class="claim-actions">
+                            <div class="order-actions">
                                 <span style="font-size:11px; color:#007aff;">✅ Payment released</span>
                             </div>
                         `;
@@ -1019,24 +1080,29 @@
                         statusClass = 'pending';
                     }
                     
+                    // Only show checkbox for pending orders
+                    const checkboxHtml = (order.status === 'pending') 
+                        ? `<input type="checkbox" class="order-select-checkbox" data-order-id="${order.id}" onchange="handleCheckboxChange(this)">`
+                        : '';
+                    
                     return `
-                        <div class="claim-item" style="cursor: ${order.status === 'pending' ? 'pointer' : 'default'};" onclick="${order.status === 'pending' ? `toggleOrderSelection('${order.id}')` : ''}">
+                        <div class="order-item-with-checkbox">
                             ${checkboxHtml}
                             <div class="claim-avatar">👤</div>
-                            <div class="claim-details">
-                                <div class="claim-customer">
-                                    ${escapeHtml(order.consumerName)}
-                                    <span class="claim-status ${statusClass}">${statusText}</span>
+                            <div class="order-details-container">
+                                <div class="order-header-row">
+                                    <span class="order-customer-name">${escapeHtml(order.consumerName)}</span>
+                                    <span class="order-status-badge ${statusClass}">${statusText}</span>
                                 </div>
-                                <div style="font-size:13px; margin-top:4px;">
+                                <div class="order-food-detail">
                                     🍽️ ${escapeHtml(order.foodName)} × ${order.quantity}
-                                    ${order.batchNumber ? `<span style="font-family:monospace; font-size:10px; background:#f0f0f0; padding:2px 6px; border-radius:4px; margin-left:6px;">📦 batch: ${escapeHtml(order.batchNumber)}</span>` : ''}
+                                    ${order.batchNumber ? `<span class="order-batch">📦 batch: ${escapeHtml(order.batchNumber)}</span>` : ''}
                                 </div>
-                                <div style="font-size:11px; color:#999; margin-top:4px;">
+                                <div class="order-meta">
                                     💰 $${(order.totalAmount || 0).toFixed(2)} • 📅 ${new Date(order.createdAt).toLocaleString()}
                                 </div>
+                                ${actionsHtml}
                             </div>
-                            ${actionsHtml}
                         </div>
                     `;
                 }).join('');
@@ -1048,16 +1114,6 @@
                 container.innerHTML = '<div class="empty-state">Error loading orders</div>';
                 actionsBar.style.display = 'none';
             }
-        }
-        
-        function toggleOrderSelection(orderId) {
-            // Only for pending orders
-            if (selectedOrderIds.has(orderId)) {
-                selectedOrderIds.delete(orderId);
-            } else {
-                selectedOrderIds.add(orderId);
-            }
-            updateSelectionUI();
         }
         
         function handleCheckboxChange(checkbox) {
@@ -1086,7 +1142,7 @@
             });
             
             // Select All button state
-            const totalPending = document.querySelectorAll('.order-select-checkbox').length;
+            const totalPending = checkboxes.length;
             if (totalPending > 0 && count === totalPending) {
                 selectAllBtn.textContent = '☑ Deselect All';
             } else {
@@ -1279,7 +1335,6 @@
             const status = document.getElementById('statusMessage');
             status.textContent = message;
             status.className = `status-message show ${type}`;
-            // Remove after 3 seconds to allow opacity transition
             setTimeout(() => {
                 status.classList.remove('show');
             }, 3000);
@@ -1291,7 +1346,6 @@
         }
         
         function logout() {
-            // This function is kept for potential future use, but the button is removed.
             Backend.logout();
             window.location.href = 'index.html';
         }
@@ -1312,7 +1366,6 @@
         window.logout = logout;
         window.toggleSelectAll = toggleSelectAll;
         window.confirmSelectedOrders = confirmSelectedOrders;
-        window.toggleOrderSelection = toggleOrderSelection;
         window.handleCheckboxChange = handleCheckboxChange;
     </script>
 </body>
